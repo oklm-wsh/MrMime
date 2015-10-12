@@ -1,0 +1,32 @@
+OASISFormat:            0.4
+Name:                   mrmime
+Version:                0.1
+Synopsis:               Multipurpose Internet Mail Extensions
+Description:            Multipurpose Internet Mail Extensions
+Authors:                Romain Calascibetta
+Maintainers:            Romain Calascibetta <romain.calascibetta@gmail.com>
+Homepage:               https://github.com/dinosaure/MrMime
+License:                MIT
+Plugins:                META (0.3), DevFiles (0.3)
+BuildTools:             ocamlbuild
+OCamlVersion:           >= 4.02
+AlphaFeatures:          ocamlbuild_more_args
+
+Library mrmime
+  Path:                 lib
+  Modules:              MrMime
+
+Document "MrMime"
+  Type:                 ocamlbuild (0.4)
+  BuildTools:           ocamldoc
+  Title:                "MrMime"
+  PostCommand:          cp Decompress.docdir/*.html doc/
+  XOCamlbuildPath:      lib
+  XOCamlbuildLibraries: mrmime
+  XOCamlbuildExtraArgs:
+    "-docflags '-colorize-code -keep-code -charset utf-8'"
+
+SourceRepository master
+  Type:                 git
+  Location:             https://github.com/oklm-wsh/MrMime.git
+  Browser:              https://github.com/oklm-wsh/MrMime
