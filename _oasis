@@ -17,12 +17,12 @@ Library mrmime
   Modules:              MrMime, Lexer, Parser, ContentType, Loc
   BuildDepends:         sedlex, menhirLib
 
-Document "MrMime"
+Document "mrmime"
   Type:                 ocamlbuild (0.4)
   BuildTools:           ocamldoc
   Title:                "MrMime"
-  PostCommand:          cp Decompress.docdir/*.html doc/
-  XOCamlbuildPath:      lib
+  PostCommand:          cp mrmime.docdir/*.html doc/
+  XOCamlbuildPath:      .
   XOCamlbuildLibraries: mrmime
   XOCamlbuildExtraArgs:
     "-docflags '-colorize-code -keep-code -charset utf-8'"
