@@ -1,0 +1,38 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Loc" rel="Chapter" href="Loc.html"><title>ContentType</title>
+</head>
+<body>
+<code class="code"><span class="keyword">type</span>&nbsp;t&nbsp;=<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;string;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;subty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;string;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parameters&nbsp;:&nbsp;(string&nbsp;*&nbsp;string)&nbsp;list;<br>
+&nbsp;&nbsp;}<br>
+<br>
+<span class="keyword">let</span>&nbsp;make&nbsp;?(parameters&nbsp;=&nbsp;[])&nbsp;ty&nbsp;subty&nbsp;=<br>
+&nbsp;&nbsp;{&nbsp;ty;&nbsp;subty;&nbsp;parameters;&nbsp;}<br>
+<br>
+<span class="keyword">let</span>&nbsp;pp&nbsp;fmt&nbsp;{&nbsp;ty;&nbsp;subty;&nbsp;parameters;&nbsp;}&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;fmt&nbsp;=&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(attribute,&nbsp;value)&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Format</span>.fprintf&nbsp;fmt&nbsp;<span class="string">";&nbsp;%s=%s"</span>&nbsp;attribute&nbsp;value;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;fmt&nbsp;r<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="constructor">Format</span>.fprintf&nbsp;fmt&nbsp;<span class="string">"%s/%s%a"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;ty&nbsp;subty&nbsp;aux&nbsp;parameters<br>
+<br>
+<span class="keyword">let</span>&nbsp;equal&nbsp;=&nbsp;(=)<br>
+</code></body></html>

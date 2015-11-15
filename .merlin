@@ -1,0 +1,7 @@
+S lib/
+
+B _build/lib/
+
+EXT menhir
+
+PKG sedlex alcotest menhirLib ppx_import ppx_deriving.std

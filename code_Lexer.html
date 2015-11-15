@@ -1,0 +1,540 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Loc" rel="Chapter" href="Loc.html"><title>Lexer</title>
+</head>
+<body>
+<code class="code"><span class="keyword">module</span>&nbsp;<span class="keyword">type</span>&nbsp;<span class="constructor">SEDLEXING</span>&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">sig</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;from_stream&nbsp;&nbsp;:&nbsp;char&nbsp;<span class="constructor">Stream</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sedlexing</span>.lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;from_channel&nbsp;:&nbsp;in_channel&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sedlexing</span>.lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;from_string&nbsp;&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Sedlexing</span>.lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;lexeme&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">Sedlexing</span>.lexbuf&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;sub_lexeme&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">Sedlexing</span>.lexbuf&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
+&nbsp;&nbsp;<span class="keyword">end</span><br>
+<br>
+<span class="keyword">module</span>&nbsp;<span class="constructor">Make</span>&nbsp;(<span class="constructor">S</span>&nbsp;:&nbsp;<span class="constructor">SEDLEXING</span>)&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">struct</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Lexical_error</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;from_string&nbsp;&nbsp;=&nbsp;<span class="constructor">S</span>.from_string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;from_stream&nbsp;&nbsp;=&nbsp;<span class="constructor">S</span>.from_stream<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;from_channel&nbsp;=&nbsp;<span class="constructor">S</span>.from_channel<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lexeme&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">S</span>.lexeme<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;sub_lexeme&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">S</span>.sub_lexeme<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pos_fname&nbsp;=&nbsp;ref&nbsp;<span class="string">"&lt;dummy&gt;"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pos_lnum&nbsp;&nbsp;=&nbsp;ref&nbsp;1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pos_bol&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;0<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pos&nbsp;pos_cnum&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Lexing</span>&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_fname&nbsp;=&nbsp;!pos_fname;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_lnum&nbsp;&nbsp;=&nbsp;!pos_lnum;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_bol&nbsp;&nbsp;&nbsp;=&nbsp;!pos_bol;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_cnum;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;init&nbsp;fname&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_fname&nbsp;:=&nbsp;fname;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_lnum&nbsp;&nbsp;:=&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_bol&nbsp;&nbsp;&nbsp;:=&nbsp;0<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;start_pos&nbsp;lexbuf&nbsp;=&nbsp;pos&nbsp;(<span class="constructor">Sedlexing</span>.lexeme_start&nbsp;lexbuf)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;end_pos&nbsp;&nbsp;&nbsp;lexbuf&nbsp;=&nbsp;pos&nbsp;(<span class="constructor">Sedlexing</span>.lexeme_end&nbsp;lexbuf)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;locate&nbsp;lexbuf&nbsp;token&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(token,&nbsp;start_pos&nbsp;lexbuf,&nbsp;end_pos&nbsp;lexbuf)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;break_line&nbsp;lexbuf&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_lnum&nbsp;:=&nbsp;!pos_lnum&nbsp;+&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos_bol&nbsp;&nbsp;:=&nbsp;<span class="constructor">Sedlexing</span>.lexeme_end&nbsp;lexbuf<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(**  *************************************************************)</span></td></tr></table><code class="code"><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 822 § 3.3:
+                                  ; (  Octal, Decimal. )
+        CTL = &lt;any ASCII control  ; (  0- 37,  0.- 31. )
+               character and DEL&gt; ; (    177,     127. )
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ctls&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;0&nbsp;..&nbsp;31&nbsp;<span class="keywordsign">|</span>&nbsp;127]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** RFC 822 § 3.3:
+                                                  ; (  Octal, Decimal. )
+        SPACE     =  &lt;ASCII SP, space&gt;            ; (     40,      32. )
+        HTAB      =  &lt;ASCII HT, horizontal-tab&gt;   ; (     11,       9. )
+<p>
+
+        LWSP-char =  SPACE / HTAB                 ; semantics = SPACE
+<p>
+
+        CR        =  &lt;ASCII CR, carriage return&gt;  ; (     15,      13. )
+        LF        =  &lt;ASCII LF, linefeed&gt;         ; (     12,      10. )
+        CRLF      =  CR LF
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;space&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;32]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;htab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;9]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lwsp_char&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;space&nbsp;<span class="keywordsign">|</span>&nbsp;htab]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;cr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;13]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;10]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;crlf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;cr,&nbsp;lf]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 822 § 3.3 (XXX: Obsolete version):
+<p>
+
+                                                   ; (  Octal, Decimal. )
+        BS          = &lt;ASCII BS, backslash&gt;        ; (    134,      92. )
+        linear-white-space = 1*(<code class="code"><span class="constructor">CRLF</span></code> LWSP-char)  ; semantics = SPACE
+                                                   ; CRLF =&gt; folding
+        quoted-pair =  BS CHAR                     ; may quote any char
+        ctext       =  &lt;any CHAR excluding "(",    ; =&gt; may be folded
+                        ")", BS &amp; CR, &amp; including
+                        linear-white-space&gt;
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quoted_pair&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="string">'\\'</span>,&nbsp;0&nbsp;..&nbsp;127&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;linear_white_space&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="constructor">Plus</span>&nbsp;(<span class="constructor">Opt</span>&nbsp;crlf,&nbsp;lwsp_char)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ctext&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;[^&nbsp;'('&nbsp;')'&nbsp;…]&nbsp;|&nbsp;linear_white_space<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or&nbsp;[^&nbsp;'('&nbsp;')'&nbsp;…&nbsp;linear_white_space]&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Compl</span>&nbsp;(<span class="string">'('</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">')'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\\'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;13)&nbsp;<span class="keywordsign">|</span>&nbsp;linear_white_space&nbsp;]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 822 § 3.3 (XXX: Used by RFC 2045)
+<p>
+
+        comment      =  "(" *(ctext / quoted-pair / comment) ")"
+<p>
+
+        See RFC 822 § 3.4.3:
+<p>
+
+        A comment is  a set of ASCII characters,  which  is enclosed in matching
+        parentheses  and  which  is  not  within  a  quoted-string  The  comment
+        construct permits message  originators to add text which  will be useful
+        for human readers,  but  which will be ignored by  the formal semantics.
+        Comments  should   be  retained   while  the   message  is   subject  to
+        interpretation according to this standard. However, comments must NOT be
+        included in  other cases,  such as  during protocol exchanges  with mail
+        servers.
+<p>
+
+        Comments  nest,  so that  if an  unquoted left  parenthesis occurs  in a
+        comment string, there must also be a matching right parenthesis.  When a
+        comment acts as the delimiter between a sequence of two lexical symbols,
+        such as two atoms,  it is lexically equivalent with a single SPACE,  for
+        the purposes  of regenerating  the sequence,  such  as when  passing the
+        sequence onto a mail protocol server. Comments are detected as such only
+        within field-bodies of structured fields.
+<p>
+
+        If a comment is to be "folded" onto multiple lines,  then the syntax for
+        folding must  be adhered  to.  (See the  "Lexical Analysis  of Messages"
+        section on "Folding Long Header Fields" above,  and the section on "Case
+        Independence" below.) Note that the  official semantics therefore do not
+        "see" any unquoted CRLFs that are in comments, although particular pars-
+        ing programs may  wish to note their  presence.  For these programs,  it
+        would be reasonable to interpret a "CRLF LWSP-char" as being a CRLF that
+        is part  of the comment;  i.e.,  the CRLF  is kept and  the LWSP-char is
+        discarded.  Quoted CRLFs (i.e., a backslash followed by a CR followed by
+        a LF) still must be followed by at least one LWSP-char.
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;comment&nbsp;?(level&nbsp;=&nbsp;0)&nbsp;lexbuf&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>%sedlex&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;comment&nbsp;~level:(level&nbsp;+&nbsp;1)&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">')'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;level&nbsp;&lt;=&nbsp;1&nbsp;<span class="keyword">then</span>&nbsp;(<span class="keyword">assert</span>&nbsp;(level&nbsp;=&nbsp;1);&nbsp;lexbuf)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;comment&nbsp;~level:(level&nbsp;-&nbsp;1)&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;quoted_pair&nbsp;<span class="keywordsign">|</span>&nbsp;ctext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;comment&nbsp;~level&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 822 § 3.4.5:
+<p>
+
+        Where permitted  (i.e.,  in words in structured  fields) quoted- strings
+        are treated as a single symbol.  That is, a quoted- string is equivalent
+        to an atom,  syntactically.  If  a quoted-string is to  be "folded" onto
+        multiple lines, then the syntax for folding must be adhered to. (See the
+        "Lexical Analysis of  Messages" section on "Folding  Long Header Fields"
+        above,  and the  section on "Case  Independence" below.) Therefore,  the
+        official  semantics   do  not   "see"  any  bare   CRLFs  that   are  in
+        quoted-strings; however particular parsing programs may wish to note their
+        presence. For such programs, it would be reasonable to interpret a "CRLF
+        LWSP-char" as being a CRLF which is part of the quoted-string; i.e., the
+        CRLF is kept and the LWSP-char is discarded. Quoted CRLFs (i.e., a backslash
+        followed by a CR followed by a LF) are also subject to rules of folding, but
+        the presence of the quoting character (backslash) explicitly indicates that
+        the CRLF is data to the quoted string. Stripping off the first following
+        LWSP-char is also appropriate when parsing quoted CRLFs.
+<p>
+
+        See RFC 822 § APPENDIX D
+<p>
+
+                                                      ; (  Octal, Decimal. )
+        DQUOTE        = &lt;ASCII '"', double-quote&gt;     ; (     42,      34. )
+        qtext         = &lt;any CHAR excepting &lt;DQUOTE&gt;, ; =&gt; may be folded
+                         BS &amp; CR, and including
+                         linear-white-space&gt;
+        quoted-pair   = BS CHAR                       ; may quote any char
+        quoted-string = &lt;"&gt; *(qtext/quoted-pair) &lt;"&gt;  ; Regular qtext or
+                                                      ;  quoted chars.
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;qtext&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;linear_white_space&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;..&nbsp;33&nbsp;<span class="keywordsign">|</span>&nbsp;35&nbsp;..&nbsp;91&nbsp;<span class="keywordsign">|</span>&nbsp;96&nbsp;..&nbsp;127&nbsp;]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: ignore or accept 0 .. 32 (controls characters) ? *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quoted_string&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="string">'"'</span>,&nbsp;(qtext&nbsp;<span class="keywordsign">|</span>&nbsp;quoted_pair),&nbsp;<span class="string">'"'</span>]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: quoted-string like string from ocaml with respect RFC 822 *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;quoted_string&nbsp;buffer&nbsp;lexbuf&nbsp;=&nbsp;<span class="keyword">match</span>%sedlex&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;qtext&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buffer&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quoted_string&nbsp;buffer&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;quoted_pair&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buffer&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quoted_string&nbsp;buffer&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'"'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.contents&nbsp;buffer<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(**  ************************************************************)</span></td></tr></table><code class="code"><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 5.1:
+<p>
+
+        tspecials :=  "(" / ")" / "&lt;" / "&gt;" / "@" /
+                      "," / ";" / ":" / "\" / &lt;"&gt;
+                      "/" / "<code class="code"><span class="string">" / "</span></code>" / "?" / "="
+                      ; Must be in quoted-string,
+                      ; to use within parameter values
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tspecials&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'('</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">')'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&lt;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&gt;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'@'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">|</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">':'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'"'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'/'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'['</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">']'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'?'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\\'</span>]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 5.1:
+<p>
+
+        token := 1* &lt;any (US-ASCII) CHAR excepts SPACE, CTLs or tspecials&gt;
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;token&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Plus</span>&nbsp;(<span class="constructor">Compl</span>&nbsp;(space&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="comment">(*&nbsp;RFC822.&nbsp;*)</span>ctls&nbsp;<span class="keywordsign">|</span>&nbsp;tspecials))&nbsp;]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2048 § 2.1.1:
+<p>
+
+        Media types in the IETF tree are  normally denoted by names that are not
+        explicitly  faceted,  i.e.,  do  not  contain  period  (".",  full stop)
+        characters.
+<p>
+
+        See RFC 2045 § 5.1:
+<p>
+
+        ietf-token := &lt;An extension token defined by a
+                       standards-track RFC and registered
+                       with IANA.&gt;
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;period&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="string">'.'</span>]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ietf_token&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Plus</span>&nbsp;(<span class="constructor">Compl</span>&nbsp;(space&nbsp;<span class="keywordsign">|</span>&nbsp;ctls&nbsp;<span class="keywordsign">|</span>&nbsp;tspecials&nbsp;<span class="keywordsign">|</span>&nbsp;period))&nbsp;]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 5.1:
+<p>
+
+        x-token := &lt;The two characters "X-" or "x-" followed, with
+                    no intervening white space, by any token&gt;
+<p>
+
+        extension-token := ietf-token / x-token
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;x_token&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;(<span class="string">"x-"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"X-"</span>),&nbsp;token]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;extension_token&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;x_token&nbsp;<span class="keywordsign">|</span>&nbsp;ietf_token&nbsp;]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 5.1:
+<p>
+
+        type := discrete-type / composite-type
+<p>
+
+        discrete-type := "text" / "image" / "audio" / "video" /
+                         "application" / extension-token
+<p>
+
+        composite-type := "message" / "multipart" /
+                          extension-token
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;discrete_ty&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"text"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"image"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"audio"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"video"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"application"</span>&nbsp;<span class="keywordsign">|</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;extension_token&nbsp;]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;composite_ty&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"message"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"multipart"</span>&nbsp;<span class="keywordsign">|</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;extension_token&nbsp;]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ty&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;discrete_ty&nbsp;<span class="keywordsign">|</span>&nbsp;composite_ty]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: must be registered with IANA, see RFC 2048:
+<p>
+
+        iana-token := &lt;A publicly-defined extension token. Tokens
+                       of this form must be registered with IANA
+                       as specified in RFC 2048.&gt;
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;iana_token&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;token]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 5.3.1:
+<p>
+
+        There are,  therefore,  two acceptable mechanisms for defining new media
+        subtypes:
+<p>
+
+         (1) Private values  (starting  with  "X-")  may  be defined bilaterally
+             between  two cooperating  agents  without  outside  registration or
+             standardization. Such values cannot be registered or standardized.
+<p>
+
+         (2) New standard values should be  registered with IANA as described in
+             RFC 2048.
+<p>
+
+        subtype := extension-token / iana-token
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;subty&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;extension_token&nbsp;<span class="keywordsign">|</span>&nbsp;iana_token]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 822 § 3.3 or RFC 2045 § 5.1:
+<p>
+
+        In addition,  comments are allowed in  accordance with RFC 822 rules for
+        structured header fields. Thus the following two forms
+<p>
+
+          Content-type: text/plain; charset=us-ascii (Plain text)
+<p>
+
+          Content-type: text/plain; charset="us-ascii"
+<p>
+
+        are completely equivalent.
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;comment&nbsp;=&nbsp;comment<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;attribute&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;token]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;value&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;token&nbsp;<span class="keywordsign">|</span>&nbsp;quoted_string]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: quoted_string is useless! *)</span></td></tr></table><code class="code"><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;content_type&nbsp;lexbuf&nbsp;=&nbsp;<span class="keyword">match</span>%sedlex&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'/'</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">SLASH</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;subty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">SEMICOLON</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;attribute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">EQUAL</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'"'</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">STRING</span>&nbsp;(quoted_string&nbsp;(<span class="constructor">Buffer</span>.create&nbsp;16)&nbsp;lexbuf))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: handle quoted-string. *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;linear_white_space&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content_type&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: See RFC 822 § 3.1.4:
+<p>
+
+          To aid  in the  creation and reading  of structured  fields,  the free
+          insertion of linear-white-space (which permits folding by inclusion of
+          CRLFs) is  allowed between lexical tokens.  Rather  than obscuring the
+          syntax specifications for these structured fields with explicit syntax
+          for  this linear-white-  space,  the  existence  of  another "lexical"
+          analyzer is  assumed.  This analyzer does  not apply  for unstructured
+          field bodies that are simply strings of text, as described above.  The
+          analyzer provides an interpretation of the unfolded text composing the
+          body of the field as a sequence of lexical sym- bols.
+      *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;content_type&nbsp;(comment&nbsp;~level:1&nbsp;lexbuf)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: handle comment. *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;eof&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">EOF</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(**  **************************************************)</span></td></tr></table><code class="code"><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 2.2.2:
+<p>
+
+        … the space (SP,  ASCII value 32) and horizontal tab (HTAB,  ASCII value
+        9) characters (together known as the white space characters, WSP) …
+<p>
+
+        XXX: Same as RFC 822 § 3.3.
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;space&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="comment">(*&nbsp;RFC822.&nbsp;*)</span>space]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;htab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="comment">(*&nbsp;RFC822.&nbsp;*)</span>htab]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** The previous name, in RFC 822, is LWSP_char *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;space&nbsp;<span class="keywordsign">|</span>&nbsp;htab]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 3.2.1 or RFC 822 § 3.3:
+<p>
+
+        specials = "(" / ")"  / ; Special characters used in
+                   "&lt;" / "&gt;"  / ; other parts of the syntax
+                   "<code class="code"><span class="string">" / "</span></code>"  /
+                   ":" / ";"  /
+                   "@" / %d92 /
+                   "," / "."  /
+                   DQUOTE
+<p>
+
+        XXX:  tspecials from RFC  2045 § 5.1 is not  equivalent with specials of
+        RFC 2822 § 3.2.1 (eg. specials has not "?", "=" or "/"). So,
+<p>
+
+          let specials = <code class="code">%sedlex.regexp? tspecials <span class="keywordsign">|</span> <span class="string">'.'</span></code>
+<p>
+
+        is wrong.
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tspecials&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">'('</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">')'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&lt;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&gt;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'@'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">|</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">':'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'"'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'['</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">']'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\\'</span>]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 2.1 or part of RFC 822 § 3.3 *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;cr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="comment">(*&nbsp;RFC822.&nbsp;*)</span>cr]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="comment">(*&nbsp;RFC822.&nbsp;*)</span>lf]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;crlf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="comment">(*&nbsp;RFC822.&nbsp;*)</span>crlf]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** Deliberately chose  to include  bare CR and  LF here,  although  the RFC
+        suggests  them to  be included  as  part  of  the  text characters.  The
+        rationale  being  that,  when parsing  e-mail  from  a  text,  they will
+        probably mean CRLF. The issue should not arise in conforming e-mails.
+<p>
+
+        XXX: should be just <code class="code">cr, lf</code> *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;crlf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;crlf&nbsp;<span class="keywordsign">|</span>&nbsp;lf]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 4.2:
+<p>
+
+        In  the obsolete  syntax,  any amount  of  folding  white  space  MAY be
+        inserted where the obs-FWS rule is allowed. This creates the possibility
+        of  having  two  consecutive  "folds"  in  a  line,  and  therefore  the
+        possibility that  a line which makes  up a folded header  field could be
+        composed entirely of white space.
+<p>
+
+        obs-FWS = 1*WSP *(CRLF 1*WSP)
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;obs_fws&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="constructor">Plus</span>&nbsp;wsp,&nbsp;<span class="constructor">Star</span>&nbsp;(crlf,&nbsp;<span class="constructor">Plus</span>&nbsp;wsp)]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 4.1:
+<p>
+
+        The obs-char and obs-qp elements each add ASCII value 0.
+<p>
+
+        obs-qp   = %d92 (%d0-127)
+        obs-char = %d0-9 / %d11 /  ; %d0-127 except CR and
+                   %d12 / %d14-127 ; LF
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;obs_qp&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="string">'\\'</span>,&nbsp;0&nbsp;..&nbsp;127]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;obs_char&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;0&nbsp;..&nbsp;9&nbsp;<span class="keywordsign">|</span>&nbsp;11&nbsp;<span class="keywordsign">|</span>&nbsp;12&nbsp;<span class="keywordsign">|</span>&nbsp;14&nbsp;..&nbsp;127]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 4.1:
+<p>
+
+        Bare CR and bare LF are added to obs-text and obs-utext.
+<p>
+
+        obs-text  = *LF *CR *(obs-char *LF *CR)
+        obs-utext = obs-text
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;obs_text&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Star</span>&nbsp;lf,&nbsp;<span class="constructor">Star</span>&nbsp;cr,&nbsp;(obs_char,&nbsp;<span class="constructor">Star</span>&nbsp;lf,&nbsp;<span class="constructor">Star</span>&nbsp;cr)]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;obs_utext&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;obs_text]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** Folding White Space, see RFC 2822 § 3.2.3
+<p>
+
+        FWS = (<code class="code">*<span class="constructor">WSP</span> <span class="constructor">CRLF</span></code> 1*WSP) /   ; Folding white space
+              obs-FWS
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;fws&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;(<span class="constructor">Opt</span>&nbsp;(<span class="constructor">Star</span>&nbsp;wsp,&nbsp;crlf),&nbsp;<span class="constructor">Plus</span>&nbsp;wsp)&nbsp;<span class="keywordsign">|</span>&nbsp;obs_fws]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 3.2.1:
+<p>
+
+        The  following  are  primitive  tokens  referred  to  elsewhere  in this
+        standard, but not otherwise defined in <code class="code"><span class="constructor">RFC2234</span></code>.  Some of them will not
+        appear anywhere else in the syntax,  but they are convenient to refer to
+        in other parts of this document.
+<p>
+
+        NO-WS-CTL = %d1-8 /         ; US-ASCII control characters
+                    %d11 /          ;  that do not include the
+                    %d12 /          ;  carriage return, line feed,
+                    %d14-31 /       ;  and white space characters
+                    %d127
+        text      = %d1-9 /         ; Characters excluding CR and LF
+                    %d11 /
+                    %d12 /
+                    %d14-127 /
+                    obs-text
+<p>
+
+        specials  = (see below)
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;no_ws_ctl&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;1&nbsp;..&nbsp;8&nbsp;<span class="keywordsign">|</span>&nbsp;11&nbsp;<span class="keywordsign">|</span>&nbsp;12&nbsp;<span class="keywordsign">|</span>&nbsp;14&nbsp;..&nbsp;31&nbsp;<span class="keywordsign">|</span>&nbsp;127]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;text&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;1&nbsp;..&nbsp;9&nbsp;<span class="keywordsign">|</span>&nbsp;11&nbsp;<span class="keywordsign">|</span>&nbsp;12&nbsp;<span class="keywordsign">|</span>&nbsp;14&nbsp;..&nbsp;127&nbsp;<span class="keywordsign">|</span>&nbsp;obs_text&nbsp;]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 3.2.2:
+<p>
+
+        Some  characters  are  reserved  for  special  interpretation,  such  as
+        delimiting  lexical  tokens.  To  permit  use  of  these  characters  as
+        uninterpreted data, a quoting mechanism is provided.
+<p>
+
+        quoted-pair = (%d92 text) / obs-qp
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quoted_pair&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;(<span class="string">'\\'</span>,&nbsp;text)&nbsp;<span class="keywordsign">|</span>&nbsp;obs_qp]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 3.2.3:
+<p>
+
+        ctext = NO-WS-CTL /     ; Non white space controls
+                %d33-39 /       ; The rest of the US-ASCII
+                %d42-91 /       ;  characters not including "(",
+                %d93-126        ;  ")", or "\""
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ctext&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;no_ws_ctl&nbsp;<span class="keywordsign">|</span>&nbsp;33&nbsp;..&nbsp;39&nbsp;<span class="keywordsign">|</span>&nbsp;42&nbsp;..&nbsp;91&nbsp;<span class="keywordsign">|</span>&nbsp;93&nbsp;..&nbsp;126]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 3.2.3:
+<p>
+
+        Strings of characters enclosed in parentheses are considered comments so
+        long  as they  do not  appear within  a "quoted-string",  as  defined in
+        section 3.2.5. Comments may nest.
+<p>
+
+        Comments can't be expressed with regular expressions, as they're nested:
+<p>
+
+        ccontent = ctext / quoted-pair / comment
+        comment  = "(" *(<code class="code"><span class="constructor">FWS</span></code> ccontent) <code class="code"><span class="constructor">FWS</span></code> ")"
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;comment&nbsp;?(level&nbsp;=&nbsp;0)&nbsp;lexbuf&nbsp;=&nbsp;<span class="keyword">match</span>%sedlex&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;comment&nbsp;~level:(level&nbsp;+&nbsp;1)&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;quoted_pair&nbsp;<span class="keywordsign">|</span>&nbsp;ctext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;comment&nbsp;~level&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">')'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;level&nbsp;&lt;=&nbsp;1&nbsp;<span class="keyword">then</span>&nbsp;(<span class="keyword">assert</span>&nbsp;(level&nbsp;=&nbsp;1);&nbsp;lexbuf)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;comment&nbsp;~level:(level&nbsp;-&nbsp;1)&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;comment&nbsp;~level&nbsp;lexbuf<br>
+&nbsp;&nbsp;<span class="keyword">end</span><br>
+</code></body></html>

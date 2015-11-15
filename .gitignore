@@ -1,0 +1,17 @@
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+_build/
+*.byte
+*.native
+setup.data
+setup.log
+doc/*.html
+*.tar.gz
+_tests/
