@@ -14,7 +14,8 @@ AlphaFeatures:          ocamlbuild_more_args
 
 Library mrmime
   Path:                 lib
-  Modules:              MrMime
+  Modules:              MrMime, Lexer, Parser, ContentType, Loc
+  BuildDepends:         sedlex, menhirLib
 
 Document "MrMime"
   Type:                 ocamlbuild (0.4)
@@ -30,3 +31,17 @@ SourceRepository master
   Type:                 git
   Location:             https://github.com/oklm-wsh/MrMime.git
   Browser:              https://github.com/oklm-wsh/MrMime
+
+Executable test_content_type
+  Path:                 lib_test
+  Build$:               flag(tests)
+  Install:              false
+  CompiledObject:       best
+  MainIs:               content_type.ml
+  BuildDepends:         mrmime, alcotest, ppx_import, ppx_deriving.std
+
+Test test_content_type
+  Run$:                 flag(tests)
+  TestTools:            test_content_type
+  Command:              $test_content_type
+  WorkingDirectory:     .

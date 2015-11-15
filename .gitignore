@@ -14,3 +14,4 @@ setup.data
 setup.log
 doc/*.html
 *.tar.gz
+_tests/
