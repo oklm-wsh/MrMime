@@ -22,7 +22,7 @@ build-test: [
 ]
 
 install: [make "install"]
-remove: ["ocamlfind" "remove" "decompress"]
+remove: ["ocamlfind" "remove" "mrmime"]
 
 depends: [
   "oasis" {build}
