@@ -1,0 +1,36 @@
+opam-version: "1.2"
+name:         "mrmime"
+version:      "dev"
+maintainer:   "Romain Calascibetta <romain.calascibetta@gmail.com>"
+authors:      "Romain Calascibetta <romain.calascibetta@gmail.com>"
+homepage:     "https://github.com/oklm-wsh/MrMime"
+bug-reports:  "https://github.com/oklm-wsh/MrMime/issues"
+dev-repo:     "https://github.com/oklm-wsh/MrMime.git"
+license:      "MIT"
+
+build: [
+  ["./configure"
+    "--prefix=%{prefix}%"]
+  [make]
+]
+
+build-test: [
+  ["./configure"
+    "--enable-tests"
+    "--prefix=%{prefix}%"]
+  [make "test"]
+]
+
+install: [make "install"]
+remove: ["ocamlfind" "remove" "decompress"]
+
+depends: [
+  "oasis" {build}
+  "alcotest" {test}
+  "ppx_deriving" {test}
+  "ppx_import" {test}
+  "menhir"
+  "sedlex"
+]
+
+available: [ocaml-version >= "4.02.0"]
