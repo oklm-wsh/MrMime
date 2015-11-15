@@ -21,7 +21,7 @@ Document "mrmime"
   Type:                 ocamlbuild (0.4)
   BuildTools:           ocamldoc
   Title:                "MrMime"
-  PostCommand:          cp mrmime.docdir/*.html doc/
+  PostCommand:          cp doc/* mrmime.docdir/
   XOCamlbuildPath:      .
   XOCamlbuildLibraries: mrmime
   XOCamlbuildExtraArgs:
