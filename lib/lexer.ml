@@ -230,8 +230,8 @@ module Make (S : SEDLEXING) =
 
         type := discrete-type / composite-type
 
-        discrete-type := "text" / "image" / "audio" / "video" /
-                         "application" / extension-token
+        discrete-type  := "text" / "image" / "audio" / "video" /
+                          "application" / extension-token
 
         composite-type := "message" / "multipart" /
                           extension-token
@@ -285,7 +285,8 @@ module Make (S : SEDLEXING) =
 
     let attribute = [%sedlex.regexp? token]
     let value = [%sedlex.regexp? token | quoted_string]
-    (** XXX: quoted_string is useless! *)
+    (** XXX: quoted_string is useless (it does not concern the lexing but
+     *       also parsing) ! It's handled below. *)
 
     let rec content_type lexbuf = match%sedlex lexbuf with
       | ty            -> locate lexbuf (Parser.ATOM (S.lexeme lexbuf))
@@ -296,7 +297,7 @@ module Make (S : SEDLEXING) =
       | '='           -> locate lexbuf (Parser.EQUAL)
       | '"'           ->
         locate lexbuf (Parser.STRING (quoted_string (Buffer.create 16) lexbuf))
-      (** XXX: handle quoted-string. *)
+      (** XXX: handle of quoted-string. *)
       | value         -> locate lexbuf (Parser.ATOM (S.lexeme lexbuf))
       | linear_white_space ->
         content_type lexbuf
@@ -313,7 +314,7 @@ module Make (S : SEDLEXING) =
           body of the field as a sequence of lexical sym- bols.
       *)
       | '('           -> content_type (comment ~level:1 lexbuf)
-      (** XXX: handle comment. *)
+      (** XXX: handle of comment (RFC 822). *)
       | eof           -> locate lexbuf (Parser.EOF)
       | _             -> raise Lexical_error
 
@@ -328,7 +329,7 @@ module Make (S : SEDLEXING) =
     *)
     let space     = [%sedlex.regexp? (* RFC822. *)space]
     let htab      = [%sedlex.regexp? (* RFC822. *)htab]
-    (** The previous name, in RFC 822, is LWSP_char *)
+    (** The previous name of wsp, in RFC 822, is LWSP_char *)
     let wsp       = [%sedlex.regexp? space | htab]
 
     (** See RFC 2822 § 3.2.1 or RFC 822 § 3.3:
