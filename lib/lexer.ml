@@ -318,6 +318,10 @@ module Make (S : SEDLEXING) =
       | eof           -> locate lexbuf (Parser.EOF)
       | _             -> raise Lexical_error
 
+    let mechanism = [%sedlex.regexp?
+      "7bit" | "8bit" | "binary" | "quoted-printable" | "base64"
+      | ietf_token | x_token ]
+
     (** {RFC 2822 & RFC 822} **************************************************)
 
     (** See RFC 2822 § 2.2.2:
