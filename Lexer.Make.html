@@ -255,7 +255,8 @@ See RFC 822 § 3.3 or RFC 2045 § 5.1:
         are completely equivalent.<br>
 </div>
 <br>
-XXX: quoted_string is useless!<br>
+XXX: quoted_string is useless (it does not concern the lexing but
+     *       also parsing) ! It's handled below.<br>
 
 <pre><span id="VALcontent_type"><span class="keyword">val</span> <a href="code_VALLexer.Make.content_type.html">content_type</a></span> : <code class="type">Sedlexing.lexbuf -> <a href="Parser.html#TYPEtoken">Parser.token</a> * Lexing.position * Lexing.position</code></pre><br>
 See RFC 2822 § 2.2.2:
@@ -267,7 +268,7 @@ See RFC 2822 § 2.2.2:
 
         XXX: Same as RFC 822 § 3.3.<br>
 <br>
-The previous name, in RFC 822, is LWSP_char<br>
+The previous name of wsp, in RFC 822, is LWSP_char<br>
 <br>
 See RFC 2822 § 3.2.1 or RFC 822 § 3.3:
 <p>

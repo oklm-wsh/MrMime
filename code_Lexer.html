@@ -331,7 +331,8 @@
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;attribute&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;token]<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;value&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;token&nbsp;<span class="keywordsign">|</span>&nbsp;quoted_string]<br>
-&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: quoted_string is useless! *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: quoted_string is useless (it does not concern the lexing but
+     *       also parsing) ! It's handled below. *)</span></td></tr></table><code class="code"><br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;content_type&nbsp;lexbuf&nbsp;=&nbsp;<span class="keyword">match</span>%sedlex&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf))<br>
@@ -342,7 +343,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">EQUAL</span>)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'"'</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">STRING</span>&nbsp;(quoted_string&nbsp;(<span class="constructor">Buffer</span>.create&nbsp;16)&nbsp;lexbuf))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: handle quoted-string. *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: handle of quoted-string. *)</span></td></tr></table><code class="code"><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;linear_white_space&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content_type&nbsp;lexbuf<br>
@@ -360,9 +361,13 @@
           body of the field as a sequence of lexical sym- bols.
       *)</span></td></tr></table><code class="code"><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;content_type&nbsp;(comment&nbsp;~level:1&nbsp;lexbuf)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: handle comment. *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** XXX: handle of comment (RFC 822). *)</span></td></tr></table><code class="code"><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;eof&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;locate&nbsp;lexbuf&nbsp;(<span class="constructor">Parser</span>.<span class="constructor">EOF</span>)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;mechanism&nbsp;=&nbsp;[%sedlex.regexp?<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"7bit"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"8bit"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"binary"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"quoted-printable"</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"base64"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;ietf_token&nbsp;<span class="keywordsign">|</span>&nbsp;x_token&nbsp;]<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(**  **************************************************)</span></td></tr></table><code class="code"><br>
 <br>
@@ -377,7 +382,7 @@
     *)</span></td></tr></table><code class="code"><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;space&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="comment">(*&nbsp;RFC822.&nbsp;*)</span>space]<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;htab&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="comment">(*&nbsp;RFC822.&nbsp;*)</span>htab]<br>
-&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** The previous name, in RFC 822, is LWSP_char *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** The previous name of wsp, in RFC 822, is LWSP_char *)</span></td></tr></table><code class="code"><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;space&nbsp;<span class="keywordsign">|</span>&nbsp;htab]<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2822 § 3.2.1 or RFC 822 § 3.3:

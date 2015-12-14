@@ -23,36 +23,17 @@
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
 &nbsp;<a class="post" href="Loc.html" title="Loc">Next</a>
 </div>
-<h1>Module <a href="type_ContentType.html">ContentType</a> (<a href="code_ContentType.html">.ml</a>)</h1>
+<h1>Module <a href="type_ContentType.html">ContentType</a></h1>
 
 <pre><span class="keyword">module</span> ContentType: <code class="code"><span class="keyword">sig</span></code> <a href="ContentType.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.ty">ty</span>&nbsp;: <code class="type">string</code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.subty">subty</span>&nbsp;: <code class="type">string</code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.parameters">parameters</span>&nbsp;: <code class="type">(string * string) list</code>;</code></td>
-
-</tr></table>
-}
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-
-<pre><span id="VALmake"><span class="keyword">val</span> <a href="code_VALContentType.make.html">make</a></span> : <code class="type">?parameters:(string * string) list -> string -> string -> <a href="ContentType.html#TYPEt">t</a></code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALContentType.pp.html">pp</a></span> : <code class="type">Format.formatter -> <a href="ContentType.html#TYPEt">t</a> -> unit</code></pre>
-<pre><span id="VALequal"><span class="keyword">val</span> <a href="code_VALContentType.equal.html">equal</a></span> : <code class="type">'a -> 'a -> bool</code></pre></body></html>
+<pre><span id="VALty"><span class="keyword">val</span> ty</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALsubty"><span class="keyword">val</span> subty</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALparameters"><span class="keyword">val</span> parameters</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> (string * string) list</code></pre>
+<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?parameters:(string * string) list -> string -> string -> <a href="ContentType.html#TYPEt">t</a></code></pre>
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a></code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="ContentType.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEt">t</a> -> bool</code></pre></body></html>
