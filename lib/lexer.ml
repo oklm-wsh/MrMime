@@ -322,6 +322,16 @@ module Make (S : SEDLEXING) =
       "7bit" | "8bit" | "binary" | "quoted-printable" | "base64"
       | x_token | ietf_token ]
 
+    let mechanism lexbuf = match%sedlex lexbuf with
+      | "7bit" -> `Bit7
+      | "8bit" -> `Bit8
+      | "binary" -> `Binary
+      | "quoted-primary" -> `Quoted_primary
+      | "base64" -> `Base64
+      | x_token -> `X_token (S.lexeme lexbuf)
+      | ietf_token -> `Ietf_token (S.lexeme lexbuf)
+      | _ -> raise (Invalid_argument "Lexer.mechanism")
+
     (** {RFC 2822 & RFC 822} **************************************************)
 
     (** See RFC 2822 § 2.2.2:
