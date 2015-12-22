@@ -1,0 +1,124 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoding" rel="Chapter" href="Encoding.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Loc" rel="Chapter" href="Loc.html"><title>QuotedPrintable</title>
+</head>
+<body>
+<code class="code"><span class="keyword">module</span>&nbsp;<span class="constructor">Make</span>&nbsp;(<span class="constructor">S</span>&nbsp;:&nbsp;<span class="constructor">Lexer</span>.<span class="constructor">SEDLEXING</span>)&nbsp;=<br>
+<span class="keyword">struct</span><br>
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">F</span>&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">struct</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hex&nbsp;a&nbsp;b&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;aux&nbsp;code&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;code&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'0'</span>..<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'0'</span>)&nbsp;+&nbsp;0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>..<span class="string">'F'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'A'</span>)&nbsp;+&nbsp;10<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>..<span class="string">'f'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'a'</span>)&nbsp;+&nbsp;10<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"QuotedPrintable.F.hex"</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Char</span>.chr&nbsp;(((aux&nbsp;a)&nbsp;*&nbsp;16)&nbsp;+&nbsp;(aux&nbsp;b))<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_char&nbsp;buf&nbsp;chr&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr<br>
+&nbsp;&nbsp;<span class="keyword">end</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hex&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>&nbsp;..&nbsp;<span class="string">'f'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>&nbsp;..&nbsp;<span class="string">'F'</span>]<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;strict_hex&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>&nbsp;..&nbsp;<span class="string">'F'</span>]<br>
+<br>
+&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
+<p>
+
+      safe-char := &lt;any octet with decimal value of 33 through
+                    60 inclusive, and 62 through 126&gt;
+                    ; Characters not listed as "mail-safe" in
+                    ; RFC 2049 are also not recommended.
+  *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;safe_char&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;33&nbsp;..&nbsp;60&nbsp;<span class="keywordsign">|</span>&nbsp;62&nbsp;..&nbsp;126]<br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;space&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;32]<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;htab&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;9]<br>
+&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;</td><td><span class="comment">(** The previous name of wsp, in RFC 822, is LWSP_char.
+      See RFC 2045 § 6.1:
+<p>
+
+      qp-section := <code class="code">*(ptext / <span class="constructor">SPACE</span> / <span class="constructor">TAB</span>) ptext</code>
+  *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;space&nbsp;<span class="keywordsign">|</span>&nbsp;htab]<br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;cr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;13]<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;10]<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;crlf&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;cr,&nbsp;lf&nbsp;<span class="keywordsign">|</span>&nbsp;lf]<br>
+&nbsp;&nbsp;<span class="comment">(*&nbsp;from&nbsp;CRLF&nbsp;of&nbsp;RFC&nbsp;822&nbsp;(see&nbsp;lexer.ml)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;support&nbsp;of&nbsp;non-conforming&nbsp;e-mails&nbsp;*)</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;=&nbsp;<span class="keyword">match</span>%sedlex&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
+<p>
+
+        qp-line := *(qp-segment transport-padding CRLF)
+                   qp-part transport-padding
+        transport-padding := *LWSP-char
+                             ; Composers MUST NOT generate
+                             ; non-zero length transport
+                             ; padding, but receivers MUST
+                             ; be able to handle padding
+                             ; added by message transports.
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Star</span>&nbsp;wsp,&nbsp;crlf&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">F</span>.add_newline&nbsp;buf;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
+<p>
+
+        qp-segment := qp-section *(SPACE / TAB) "="
+                      ; Maximum length of 76 characters
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>,&nbsp;crlf&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
+<p>
+
+        hex-octet := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
+                     ; Octet must be used for characters &gt; 127, =,
+                     ; SPACEs or TABs at the ends of lines, and is
+                     ; recommended for any character not listed in
+                     ; RFC 2049 as "mail-safe".
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>,&nbsp;hex,&nbsp;hex&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">F</span>.hex&nbsp;(<span class="constructor">S</span>.sub_lexeme&nbsp;lexbuf&nbsp;1&nbsp;1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="comment">(*&nbsp;assert&nbsp;(String.length&nbsp;s&nbsp;=&nbsp;1);&nbsp;*)</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">S</span>.sub_lexeme&nbsp;lexbuf&nbsp;2&nbsp;1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="comment">(*&nbsp;assert&nbsp;(String.length&nbsp;s&nbsp;=&nbsp;1);&nbsp;*)</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;0));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
+<p>
+
+        qp-section := <code class="code">*(ptext / <span class="constructor">SPACE</span> / <span class="constructor">TAB</span>) ptext</code>
+    *)</span></td></tr></table><code class="code"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;safe_char&nbsp;<span class="keywordsign">|</span>&nbsp;wsp&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="comment">(*&nbsp;assert&nbsp;(String.length&nbsp;s&nbsp;=&nbsp;1));&nbsp;*)</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;eof&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="comment">(*&nbsp;assert&nbsp;(String.length&nbsp;s&nbsp;=&nbsp;1));&nbsp;*)</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;0)<br>
+<span class="keyword">end</span><br>
+</code></body></html>

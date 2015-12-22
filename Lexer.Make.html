@@ -13,6 +13,9 @@
 <link title="MrMime" rel="Chapter" href="MrMime.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
 <link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoding" rel="Chapter" href="Encoding.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
 <link title="ContentType" rel="Chapter" href="ContentType.html">
 <link title="Loc" rel="Chapter" href="Loc.html"><title>Lexer.Make</title>
 </head>
@@ -256,9 +259,10 @@ See RFC 822 § 3.3 or RFC 2045 § 5.1:
 </div>
 <br>
 XXX: quoted_string is useless (it does not concern the lexing but
-     *       also parsing) ! It's handled below.<br>
+             also parsing) ! It's handled below.<br>
 
-<pre><span id="VALcontent_type"><span class="keyword">val</span> <a href="code_VALLexer.Make.content_type.html">content_type</a></span> : <code class="type">Sedlexing.lexbuf -> <a href="Parser.html#TYPEtoken">Parser.token</a> * Lexing.position * Lexing.position</code></pre><br>
+<pre><span id="VALcontent_type"><span class="keyword">val</span> <a href="code_VALLexer.Make.content_type.html">content_type</a></span> : <code class="type">Sedlexing.lexbuf -> <a href="Parser.html#TYPEtoken">Parser.token</a> * Lexing.position * Lexing.position</code></pre>
+<pre><span id="VALmechanism"><span class="keyword">val</span> <a href="code_VALLexer.Make.mechanism.html">mechanism</a></span> : <code class="type">Sedlexing.lexbuf -><br>       [> `Base64<br>        | `Binary<br>        | `Bit7<br>        | `Bit8<br>        | `Ietf_token of string<br>        | `Quoted_primary<br>        | `X_token of string ]</code></pre><br>
 See RFC 2822 § 2.2.2:
 <p>
 
