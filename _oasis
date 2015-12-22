@@ -37,7 +37,7 @@ Executable test_content_type
   Build$:               flag(tests)
   Install:              false
   CompiledObject:       best
-  MainIs:               content_type.ml
+  MainIs:               contentType_test.ml
   BuildDepends:         mrmime, alcotest, ppx_import, ppx_deriving.std
 
 Test test_content_type
