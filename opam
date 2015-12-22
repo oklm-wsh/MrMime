@@ -29,6 +29,7 @@ depends: [
   "alcotest" {test}
   "ppx_deriving" {test}
   "ppx_import" {test}
+  "base64" {test}
   "menhir"
   "sedlex"
 ]
