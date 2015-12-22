@@ -320,7 +320,7 @@ module Make (S : SEDLEXING) =
 
     let mechanism = [%sedlex.regexp?
       "7bit" | "8bit" | "binary" | "quoted-printable" | "base64"
-      | ietf_token | x_token ]
+      | x_token | ietf_token ]
 
     (** {RFC 2822 & RFC 822} **************************************************)
 
