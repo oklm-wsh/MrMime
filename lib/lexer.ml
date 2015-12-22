@@ -286,7 +286,7 @@ module Make (S : SEDLEXING) =
     let attribute = [%sedlex.regexp? token]
     let value = [%sedlex.regexp? token | quoted_string]
     (** XXX: quoted_string is useless (it does not concern the lexing but
-     *       also parsing) ! It's handled below. *)
+             also parsing) ! It's handled below. *)
 
     let rec content_type lexbuf = match%sedlex lexbuf with
       | ty            -> locate lexbuf (Parser.ATOM (S.lexeme lexbuf))
