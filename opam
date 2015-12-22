@@ -30,6 +30,7 @@ depends: [
   "ppx_deriving" {test}
   "ppx_import" {test}
   "base64" {test}
+  "benchmark" {test}
   "menhir"
   "sedlex"
 ]
