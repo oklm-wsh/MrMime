@@ -20,7 +20,7 @@ struct
   let hex        = [%sedlex.regexp? '0' .. '9' | 'a' .. 'f' | 'A' .. 'F']
   let strict_hex = [%sedlex.regexp? '0' .. '9' | 'A' .. 'F']
 
-  (** See RFC 2045 § 6.1:
+  (** See RFC 2045 § 6.7:
 
       safe-char := <any octet with decimal value of 33 through
                     60 inclusive, and 62 through 126>
@@ -32,7 +32,7 @@ struct
   let space   = [%sedlex.regexp? 32]
   let htab    = [%sedlex.regexp? 9]
   (** The previous name of wsp, in RFC 822, is LWSP_char.
-      See RFC 2045 § 6.1:
+      See RFC 2045 § 6.7:
 
       qp-section := [*(ptext / SPACE / TAB) ptext]
   *)
@@ -45,7 +45,7 @@ struct
      with support of non-conforming e-mails *)
 
   let rec decode buf lexbuf = match%sedlex lexbuf with
-    (** See RFC 2045 § 6.1:
+    (** See RFC 2045 § 6.7:
 
         qp-line := *(qp-segment transport-padding CRLF)
                    qp-part transport-padding
@@ -60,7 +60,7 @@ struct
       F.add_newline buf;
       decode buf lexbuf
 
-    (** See RFC 2045 § 6.1:
+    (** See RFC 2045 § 6.7:
 
         qp-segment := qp-section *(SPACE / TAB) "="
                       ; Maximum length of 76 characters
@@ -68,7 +68,7 @@ struct
     | '=', crlf ->
       decode buf lexbuf
 
-    (** See RFC 2045 § 6.1:
+    (** See RFC 2045 § 6.7:
 
         hex-octet := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
                      ; Octet must be used for characters > 127, =,
@@ -84,7 +84,7 @@ struct
                 |> fun s -> (* assert (String.length s = 1); *) String.get s 0));
       decode buf lexbuf
 
-    (** See RFC 2045 § 6.1:
+    (** See RFC 2045 § 6.7:
 
         qp-section := [*(ptext / SPACE / TAB) ptext]
     *)
