@@ -158,11 +158,15 @@ struct
     *)
     | safe_char | wsp ->
       F.add_char buf
-        (S.lexeme lexbuf |> fun s -> (* assert (String.length s = 1)); *) String.get s 0)
+        (S.lexeme lexbuf |> fun s -> (* assert (String.length s = 1)); *) String.get s 0);
+      decode buf lexbuf
     | eof -> ()
     | _ ->
+      (* XXX: should not appear in a quoted-printable body, but the most robus
+       * way to handle them is probably copying them verbatim. *)
       F.add_char buf
-        (S.lexeme lexbuf |> fun s -> (* assert (String.length s = 1)); *) String.get s 0)
+        (S.lexeme lexbuf |> fun s -> (* assert (String.length s = 1)); *) String.get s 0);
+      decode buf lexbuf
 
   let rec encode buf ?(acc = T.make ()) lexbuf = match%sedlex lexbuf with
     | Opt wsp, '\n' ->
