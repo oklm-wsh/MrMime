@@ -48,6 +48,14 @@ Executable test_base64
   MainIs:               base64_test.ml
   BuildDepends:         mrmime, alcotest
 
+Executable test_quoted_printable
+  Path:                 lib_test
+  Build$:               flag(tests)
+  Install:              false
+  CompiledObject:       best
+  MainIs:               quotedPrintable_test.ml
+  BuildDepends:         mrmime, alcotest, lwt, uri, cohttp.lwt
+
 Executable bench_base64
   Path:                 lib_test
   Build$:               flag(tests)
@@ -66,4 +74,10 @@ Test test_base64
   Run$:                 flag(tests)
   TestTools:            test_base64
   Command:              $test_base64
+  WorkingDirectory:     .
+
+Test test_quoted_printable
+  Run$:                 flag(tests)
+  TestTools:            test_quoted_printable
+  Command:              $test_quoted_printable
   WorkingDirectory:     .

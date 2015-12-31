@@ -4,4 +4,4 @@ B _build/lib/
 
 EXT menhir
 
-PKG sedlex alcotest menhirLib ppx_import ppx_deriving.std base64 benchmark
+PKG sedlex alcotest menhirLib ppx_import ppx_deriving.std base64 benchmark lwt cohttp uri
