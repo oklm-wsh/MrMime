@@ -1,5 +1,3 @@
-module Base64 = Base64.Make(Sedlexing.Utf8)
-
 let () = Random.self_init ()
 
 let print_ellipsis () str =
@@ -21,8 +19,8 @@ let make_identity_test length =
   `Slow,
   (fun () ->
     Alcotest.(check string) "identity"
-      (Base64.encode (Sedlexing.Utf8.from_string str)
-       |> fun s -> Base64.decode (Sedlexing.Utf8.from_string s))
+      (Base64.encode (Lexing.from_string str)
+       |> fun s -> Base64.decode (Lexing.from_string s))
       str)
 
 let identity_test size =

@@ -1,19 +1,6 @@
-module type S =
-sig
-  exception Unexpected_character of char
-  exception Wrong_padding
-
-  val encode : Sedlexing.lexbuf -> string
-  val encode_buffer : Buffer.t -> Sedlexing.lexbuf -> unit
-  val decode : Sedlexing.lexbuf -> string
-  val decode_buffer : Buffer.t -> Sedlexing.lexbuf -> unit
-end
-
 (* TODO: comments with RFC 2045 § 6.8 *)
 (* TODO: optimize *)
-
-module Make (S : Lexer.SEDLEXING) : S =
-struct
+{
   module T =
   struct
     let _to =
@@ -181,63 +168,56 @@ struct
   exception Unexpected_character of char
   exception Wrong_padding
 
-  let b64_chr = [%sedlex.regexp? 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '+' | '/']
-  let b64_pad = [%sedlex.regexp? '=']
-  let b64_wsp = [%sedlex.regexp? ' ' | '\t']
-  (* from LWSP_char of RFC 822 (see lexer.ml) *)
-  let cr      = [%sedlex.regexp? 13]
-  let lf      = [%sedlex.regexp? 10]
-  let crlf    = [%sedlex.regexp? cr, lf | lf]
-  (* from CRLF of RFC 822 (see lexer.ml)
-     with support of non-conforming e-mails *)
+  let explode str = Array.init (String.length str) (String.get str)
+}
 
-  let rec decode buf ?(acc = F.default) ?(padding = 0) lexbuf =
-    match%sedlex lexbuf with
-    | b64_chr ->
-      let chr = S.lexeme lexbuf
-                |> fun s -> assert (String.length s = 1); String.get s 0 in
-      if padding = 0
-      then decode buf ~acc:(F.add acc chr buf) ~padding lexbuf
-      else begin F.flush acc buf; raise (Unexpected_character chr) end
-    | b64_pad ->
-      decode buf ~acc ~padding:(padding + 1) lexbuf
-    | Star (crlf | b64_wsp) ->
-      decode buf ~acc ~padding lexbuf
-    | eof ->
-      F.flush acc buf;
+let b64_chr = ['A' - 'Z'] | ['a' - 'z'] | ['0' - '9'] | '+' | '/'
+let b64_pad = '='
+let b64_wsp = ' ' | '\t'
+(* from LWSP_char of RFC 822 (see lexer.ml) *)
+let cr      = '\013'
+let lf      = '\010'
+let crlf    = (cr lf) | lf
+(* from CRLF of RFC 822 (see lexer.ml)
+   with support of non-conforming e-mails *)
+
+rule decode buf acc padding = parse
+  | b64_chr as chr
+    { if padding = 0
+      then decode buf (F.add acc chr buf) padding lexbuf
+      else begin F.flush acc buf; raise (Unexpected_character chr) end }
+  | b64_pad
+    { decode buf acc (padding + 1) lexbuf }
+  | (crlf | b64_wsp) *
+    { decode buf acc padding lexbuf }
+  | eof
+    {  F.flush acc buf;
       if F.padding acc padding
       then ()
-      else raise Wrong_padding
-    (* XXX: should be ignored *)
-    | _ ->
-      let chr = S.lexeme lexbuf
-                |> fun s -> assert (String.length s >= 1); String.get s 0 in
-      raise (Unexpected_character chr)
+      else raise Wrong_padding }
+  (* XXX: should be ignored *)
+  | _ as chr
+    { raise (Unexpected_character chr) }
 
+and  encode buf acc = parse
+  | eof { T.flush acc buf }
+  | _ as chr
+    { encode buf (T.add acc chr buf) lexbuf }
+
+{
   let decode_buffer buf lexbuf =
-    decode buf lexbuf
+    decode buf F.default 0 lexbuf
 
   let decode lexbuf =
     let buffer = Buffer.create 64 in
-    decode buffer lexbuf;
+    decode buffer F.default 0 lexbuf;
     Buffer.contents buffer
 
-  let explode str = Array.init (String.length str) (String.get str)
-
-  let rec encode buf ?(acc = T.make ()) lexbuf =
-    match%sedlex lexbuf with
-    | eof -> T.flush acc buf
-    | any ->
-      let str = S.lexeme lexbuf in
-      let acc = Array.fold_left (fun acc x -> T.add acc x buf) acc (explode str) in
-      encode buf ~acc lexbuf
-    | _ -> assert false
-
   let encode_buffer buf lexbuf =
-    encode buf lexbuf
+    encode buf (T.make ()) lexbuf
 
   let encode lexbuf =
     let buffer = Buffer.create 64 in
-    encode buffer lexbuf;
+    encode buffer (T.make ()) lexbuf;
     Buffer.contents buffer
-end
+}

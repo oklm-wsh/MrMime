@@ -1,3 +1,5 @@
+let () = Printexc.record_backtrace true
+
 module ContentType =
   struct
     include ContentType
@@ -10,13 +12,8 @@ module ContentType =
     end
 
     let of_string str =
-      let module Lexer = Lexer.Make(Sedlexing.Utf8) in
-      let lexbuf = Lexer.from_string str in
-      let parser =
-        MenhirLib.Convert.Simplified.traditional2revised
-          Parser.content_type_with_eof
-      in
-      parser (fun () -> Lexer.content_type lexbuf)
+      let lexbuf = Lexing.from_string str in
+      Parser.content_type_with_eof Lexer.content_type lexbuf
   end
 
 let content_type =
