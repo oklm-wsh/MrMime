@@ -6,7 +6,6 @@
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="Index of module types" rel=Appendix href="index_module_types.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
 <link title="Parser" rel="Chapter" href="Parser.html">
@@ -17,8 +16,8 @@
 <link title="Loc" rel="Chapter" href="Loc.html"><title>QuotedPrintable</title>
 </head>
 <body>
-<code class="code"><span class="keyword">module</span>&nbsp;<span class="constructor">Make</span>&nbsp;(<span class="constructor">S</span>&nbsp;:&nbsp;<span class="constructor">Lexer</span>.<span class="constructor">SEDLEXING</span>)&nbsp;=<br>
-<span class="keyword">struct</span><br>
+<code class="code">#&nbsp;1&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;<br>
 &nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">F</span>&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">struct</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;=<br>
@@ -36,89 +35,226 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr<br>
 &nbsp;&nbsp;<span class="keyword">end</span><br>
 <br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hex&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>&nbsp;..&nbsp;<span class="string">'f'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>&nbsp;..&nbsp;<span class="string">'F'</span>]<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;strict_hex&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>&nbsp;..&nbsp;<span class="string">'F'</span>]<br>
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">T</span>&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">struct</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_to&nbsp;=&nbsp;<span class="string">"0123456789ABCDEF"</span><br>
 <br>
-&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
-<p>
-
-      safe-char := &lt;any octet with decimal value of 33 through
-                    60 inclusive, and 62 through 126&gt;
-                    ; Characters not listed as "mail-safe" in
-                    ; RFC 2049 are also not recommended.
-  *)</span></td></tr></table><code class="code"><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;safe_char&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;33&nbsp;..&nbsp;60&nbsp;<span class="keywordsign">|</span>&nbsp;62&nbsp;..&nbsp;126]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;word&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">Buffer</span>.t;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">mutable</span>&nbsp;position&nbsp;:&nbsp;int;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
 <br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;space&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;32]<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;htab&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;9]<br>
-&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;</td><td><span class="comment">(** The previous name of wsp, in RFC 822, is LWSP_char.
-      See RFC 2045 § 6.1:
-<p>
-
-      qp-section := <code class="code">*(ptext / <span class="constructor">SPACE</span> / <span class="constructor">TAB</span>) ptext</code>
-  *)</span></td></tr></table><code class="code"><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;space&nbsp;<span class="keywordsign">|</span>&nbsp;htab]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;make&nbsp;()&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;word&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;position&nbsp;=&nbsp;0&nbsp;}<br>
 <br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;cr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;13]<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;10]<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;crlf&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[%sedlex.regexp?&nbsp;cr,&nbsp;lf&nbsp;<span class="keywordsign">|</span>&nbsp;lf]<br>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;from&nbsp;CRLF&nbsp;of&nbsp;RFC&nbsp;822&nbsp;(see&nbsp;lexer.ml)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;support&nbsp;of&nbsp;non-conforming&nbsp;e-mails&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_break&nbsp;buf&nbsp;({&nbsp;position;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;position&nbsp;&gt;&nbsp;0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buf&nbsp;<span class="string">"=\n"</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;0;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span><br>
 <br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;=&nbsp;<span class="keyword">match</span>%sedlex&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
-<p>
-
-        qp-line := *(qp-segment transport-padding CRLF)
-                   qp-part transport-padding
-        transport-padding := *LWSP-char
-                             ; Composers MUST NOT generate
-                             ; non-zero length transport
-                             ; padding, but receivers MUST
-                             ; be able to handle padding
-                             ; added by message transports.
-    *)</span></td></tr></table><code class="code"><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Star</span>&nbsp;wsp,&nbsp;crlf&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">F</span>.add_newline&nbsp;buf;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;commit_word&nbsp;buf&nbsp;({&nbsp;position;&nbsp;word;&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
-<p>
-
-        qp-segment := qp-section *(SPACE / TAB) "="
-                      ; Maximum length of 76 characters
-    *)</span></td></tr></table><code class="code"><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>,&nbsp;crlf&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
-<p>
-
-        hex-octet := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
-                     ; Octet must be used for characters &gt; 127, =,
-                     ; SPACEs or TABs at the ends of lines, and is
-                     ; recommended for any character not listed in
-                     ; RFC 2049 as "mail-safe".
-    *)</span></td></tr></table><code class="code"><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>,&nbsp;hex,&nbsp;hex&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">F</span>.hex&nbsp;(<span class="constructor">S</span>.sub_lexeme&nbsp;lexbuf&nbsp;1&nbsp;1<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="comment">(*&nbsp;assert&nbsp;(String.length&nbsp;s&nbsp;=&nbsp;1);&nbsp;*)</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;0)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">S</span>.sub_lexeme&nbsp;lexbuf&nbsp;2&nbsp;1<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="comment">(*&nbsp;assert&nbsp;(String.length&nbsp;s&nbsp;=&nbsp;1);&nbsp;*)</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;0));<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;or&nbsp;TODO,&nbsp;does&nbsp;not&nbsp;handle&nbsp;a&nbsp;word&nbsp;with&nbsp;size&nbsp;&gt;&nbsp;76&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wrap_bigword&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;length&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;</code><table><tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><span class="comment">(** See RFC 2045 § 6.1:
-<p>
-
-        qp-section := <code class="code">*(ptext / <span class="constructor">SPACE</span> / <span class="constructor">TAB</span>) ptext</code>
-    *)</span></td></tr></table><code class="code"><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;safe_char&nbsp;<span class="keywordsign">|</span>&nbsp;wsp&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="comment">(*&nbsp;assert&nbsp;(String.length&nbsp;s&nbsp;=&nbsp;1));&nbsp;*)</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;0)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;eof&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">S</span>.lexeme&nbsp;lexbuf&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="comment">(*&nbsp;assert&nbsp;(String.length&nbsp;s&nbsp;=&nbsp;1));&nbsp;*)</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;0)<br>
-<span class="keyword">end</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_char&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;chr&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrap_bigword&nbsp;buf&nbsp;t&nbsp;1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;chr<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;chr&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrap_bigword&nbsp;buf&nbsp;t&nbsp;3;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;code&nbsp;=&nbsp;<span class="constructor">Char</span>.code&nbsp;chr&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;h&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(code&nbsp;<span class="keyword">lsr</span>&nbsp;4)&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;l&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;<span class="string">'='</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[h];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[l]<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_wsp&nbsp;buf&nbsp;t&nbsp;chr&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add_char&nbsp;buf&nbsp;t&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;t&nbsp;chr&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;chr&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;t&nbsp;chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;0<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;flush&nbsp;buf&nbsp;t&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t<br>
+&nbsp;&nbsp;<span class="keyword">end</span><br>
+<br>
+#&nbsp;89&nbsp;"lib/quotedPrintable.ml"<br>
+<span class="keyword">let</span>&nbsp;__ocaml_lex_tables&nbsp;=&nbsp;{<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_base&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\250\255\251\255\252\255\117\000\255\255\001\000\119\000\002\000\124\000\092\000\254\255\004\000\253\255\195\000\251\255\252\255\253\255\255\255\005\000\255\255"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_backtrk&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\255\255\255\255\255\255\255\255\005\000\255\255\005\000\003\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\001\000\255\255"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_default&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\001\000\000\000\000\000\000\000\255\255\000\000\255\255\255\255\255\255\255\255\255\255\000\000\255\255\000\000\015\000\000\000\000\000\000\000\000\000\255\255\000\000"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_trans&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\007\000\005\000\005\000\005\000\006\000\011\000\020\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\007\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\004\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\011\000\009\000\005\000\012\000\000\000\008\000\009\000\005\000\000\000\000\000\008\000\000\000\000\000\013\000\013\000\013\000\013\000\013\000\013\000\013\000\013\000\013\000\013\000\000\000\009\000\000\000\000\000\000\000\000\000\009\000\013\000\013\000\013\000\013\000\013\000\013\000\000\000\000\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\010\000\010\000\010\000\010\000\010\000\010\000\000\000\013\000\013\000\013\000\013\000\013\000\013\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\019\000\018\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\010\000\010\000\010\000\010\000\010\000\010\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\019\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\002\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\016\000"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_check&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\000\000\000\000\006\000\008\000\000\000\012\000\019\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\004\000\007\000\007\000\004\000\255\255\007\000\009\000\009\000\255\255\255\255\009\000\255\255\255\255\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\255\255\007\000\255\255\255\255\255\255\255\255\009\000\010\000\010\000\010\000\010\000\010\000\010\000\255\255\255\255\004\000\004\000\004\000\004\000\004\000\004\000\004\000\004\000\004\000\004\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\004\000\004\000\004\000\004\000\004\000\004\000\255\255\010\000\010\000\010\000\010\000\010\000\010\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\014\000\014\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\004\000\004\000\004\000\004\000\004\000\004\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\000\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\014\000"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_base_code&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\004\000"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_backtrk_code&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_default_code&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_trans_code&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_check_code&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255"</span>;<br>
+&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_code&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<span class="string">"\255\000\255\255\000\001\255"</span>;<br>
+}<br>
+<br>
+<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;0<br>
+<span class="keyword">and</span>&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;128&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_newline&nbsp;buf;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;311&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;137&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;316&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;147&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a<br>
+#&nbsp;322&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;1)<br>
+<span class="keyword">and</span><br>
+#&nbsp;147&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b<br>
+#&nbsp;327&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;2)&nbsp;<span class="keyword">in</span><br>
+#&nbsp;148&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">F</span>.hex&nbsp;a&nbsp;b);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;333&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;156&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;339&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;157&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;344&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;159&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;()&nbsp;)<br>
+#&nbsp;349&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;5&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;160&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;355&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;163&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;360&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
+<br>
+<span class="keyword">and</span>&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;=<br>
+&nbsp;&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem&nbsp;&lt;-&nbsp;<span class="constructor">Array</span>.make&nbsp;2&nbsp;(-1)&nbsp;;&nbsp;<span class="comment">(*&nbsp;L=1&nbsp;[1]&nbsp;&lt;-&nbsp;p&nbsp;;&nbsp;&nbsp;*)</span><br>
+&nbsp;&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem.(1)&nbsp;&lt;-&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;;<br>
+&nbsp;&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;14<br>
+<span class="keyword">and</span>&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.new_engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;167&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;375&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char_opt&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem.(0)&nbsp;<span class="keyword">in</span><br>
+#&nbsp;168&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_newline&nbsp;buf&nbsp;acc&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;380&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;171&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;386&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;172&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_wsp&nbsp;buf&nbsp;acc&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;391&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;175&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;397&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;176&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_char&nbsp;buf&nbsp;acc&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;402&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;179&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.flush&nbsp;buf&nbsp;acc&nbsp;)<br>
+#&nbsp;407&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;180&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;413&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;181&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_quoted_char&nbsp;buf&nbsp;acc&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;418&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
+<br>
+;;<br>
+<br>
+#&nbsp;184&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;encode&nbsp;buf&nbsp;lexbuf&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;(<span class="constructor">T</span>.make&nbsp;())&nbsp;lexbuf<br>
+<br>
+#&nbsp;430&nbsp;"lib/quotedPrintable.ml"<br>
 </code></body></html>

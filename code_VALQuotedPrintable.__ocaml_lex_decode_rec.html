@@ -1,0 +1,137 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoding" rel="Chapter" href="Encoding.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Loc" rel="Chapter" href="Loc.html"><title>QuotedPrintable.__ocaml_lex_decode_rec</title>
+</head>
+<body>
+<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;0<br>
+<span class="keyword">and</span>&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;128&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_newline&nbsp;buf;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;311&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;137&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;316&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;147&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a<br>
+#&nbsp;322&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;1)<br>
+<span class="keyword">and</span><br>
+#&nbsp;147&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b<br>
+#&nbsp;327&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;2)&nbsp;<span class="keyword">in</span><br>
+#&nbsp;148&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">F</span>.hex&nbsp;a&nbsp;b);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;333&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;156&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;339&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;157&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;344&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;159&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;()&nbsp;)<br>
+#&nbsp;349&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;5&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;160&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;355&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;163&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;360&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
+<br>
+<span class="keyword">and</span>&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;=<br>
+&nbsp;&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem&nbsp;&lt;-&nbsp;<span class="constructor">Array</span>.make&nbsp;2&nbsp;(-1)&nbsp;;&nbsp;<span class="comment">(*&nbsp;L=1&nbsp;[1]&nbsp;&lt;-&nbsp;p&nbsp;;&nbsp;&nbsp;*)</span><br>
+&nbsp;&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem.(1)&nbsp;&lt;-&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;;<br>
+&nbsp;&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;14<br>
+<span class="keyword">and</span>&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.new_engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;167&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;375&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char_opt&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem.(0)&nbsp;<span class="keyword">in</span><br>
+#&nbsp;168&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_newline&nbsp;buf&nbsp;acc&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;380&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;171&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;386&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;172&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_wsp&nbsp;buf&nbsp;acc&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;391&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;175&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;397&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;176&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_char&nbsp;buf&nbsp;acc&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;402&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;179&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.flush&nbsp;buf&nbsp;acc&nbsp;)<br>
+#&nbsp;407&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;180&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
+#&nbsp;413&nbsp;"lib/quotedPrintable.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;181&nbsp;"lib/quotedPrintable.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_quoted_char&nbsp;buf&nbsp;acc&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;418&nbsp;"lib/quotedPrintable.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;__ocaml_lex_state</code></body></html>
