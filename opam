@@ -31,6 +31,9 @@ depends: [
   "ppx_import" {test}
   "base64" {test}
   "benchmark" {test}
+  "lwt" {test}
+  "cohttp" {test}
+  "uri" {test}
   "menhir"
   "sedlex"
 ]
