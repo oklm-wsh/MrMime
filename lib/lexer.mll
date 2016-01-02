@@ -9,7 +9,7 @@
     CTL = <any ASCII control  ; (  0- 37,  0.- 31. )
            character and DEL> ; (    177,     127. )
 *)
-let ctls      = ['\000' - '\031'] | '\127'
+let rfc822_ctls      = ['\000' - '\031'] | '\127'
 
 (** RFC 822 § 3.3:
                                               ; (  Octal, Decimal. )
@@ -22,12 +22,12 @@ let ctls      = ['\000' - '\031'] | '\127'
     LF        =  <ASCII LF, linefeed>         ; (     12,      10. )
     CRLF      =  CR LF
 *)
-let space     = "\032"
-let htab      = "\009"
-let lwsp_char = space | htab
-let cr        = "\013"
-let lf        = "\010"
-let crlf      = cr lf
+let rfc822_space     = "\032"
+let rfc822_htab      = "\009"
+let rfc822_lwsp_char = rfc822_space | rfc822_htab
+let rfc822_cr        = "\013"
+let rfc822_lf        = "\010"
+let rfc822_crlf      = rfc822_cr rfc822_lf
 
 (** See RFC 822 § 3.3 (XXX: Obsolete version):
 
@@ -40,12 +40,12 @@ let crlf      = cr lf
                     ")", BS & CR, & including
                     linear-white-space>
 *)
-let quoted_pair_822 = '\\' ['\000' - '\127']
-let linear_white_space =  (crlf ? lwsp_char) +
-let ctext_822 =
+let rfc822_quoted_pair = '\\' ['\000' - '\127']
+let rfc822_linear_white_space =  (rfc822_crlf ? rfc822_lwsp_char) +
+let rfc822_ctext =
   (* XXX: [^ '(' ')' …] | linear_white_space
           or [^ '(' ')' … linear_white_space] *)
-  [^ '(' ')' '\\' '\013'] | linear_white_space
+  [^ '(' ')' '\\' '\013'] | rfc822_linear_white_space
 
 (** See RFC 822 § 3.4.5:
 
@@ -76,10 +76,10 @@ let ctext_822 =
     quoted-string = <"> *(qtext/quoted-pair) <">  ; Regular qtext or
                                                   ;  quoted chars.
 *)
-let qtext =
-  linear_white_space | ['\000' - '\033'] | ['\035' - '\091'] | ['\096' - '\127']
+let rfc822_qtext =
+  rfc822_linear_white_space | ['\000' - '\033'] | ['\035' - '\091'] | ['\096' - '\127']
 (** XXX: ignore or accept 0 .. 32 (controls characters) ? *)
-let quoted_string = '"' (qtext | quoted_pair_822) '"'
+let rfc822_quoted_string = '"' (rfc822_qtext | rfc822_quoted_pair) '"'
 
 (** {RFC 2045} ****************************************************************)
 
@@ -91,7 +91,7 @@ let quoted_string = '"' (qtext | quoted_pair_822) '"'
                   ; Must be in quoted-string,
                   ; to use within parameter values
 *)
-let tspecials =
+let rfc2045_tspecials =
   '(' | ')' | '<' | '>' | '@' | ',' | ';' |
   ':' | '=' | '"' | '/' | '[' | ']' | '?' | '\\'
 
@@ -101,9 +101,9 @@ let tspecials =
 
     XXX: [^ space ctls tspecials]
 *)
-let token = [^ ' ' '\000' - '\031' '\127'
-               '(' ')' '<' '>' '@' ',' ';'
-               ':' '=' '"' '/' '[' ']' '?' '\\'] +
+let rfc2045_token = [^ ' ' '\000' - '\031' '\127'
+                    '(' ')' '<' '>' '@' ',' ';'
+                    ':' '=' '"' '/' '[' ']' '?' '\\'] +
 
 (** See RFC 2048 § 2.1.1:
 
@@ -116,12 +116,12 @@ let token = [^ ' ' '\000' - '\031' '\127'
                    standards-track RFC and registered
                    with IANA.>
 *)
-let period = '.'
-(** XXX: [^ space ctls tspecials period] + *)
-let ietf_token = [^ ' ' '\000' - '\031' '\127'
-                    '(' ')' '<' '>' '@' ',' ';'
-                    ':' '=' '"' '/' '[' ']' '?' '\\'
-                    '.'] +
+let rfc2045_period = '.'
+(** XXX: [^ rfc822_space rfc822_ctls rfc2045_tspecials rfc2045_period] + *)
+let rfc2045_ietf_token = [^ ' ' '\000' - '\031' '\127'
+                         '(' ')' '<' '>' '@' ',' ';'
+                         ':' '=' '"' '/' '[' ']' '?' '\\'
+                         '.'] +
 
 (** See RFC 2045 § 5.1:
 
@@ -130,8 +130,8 @@ let ietf_token = [^ ' ' '\000' - '\031' '\127'
 
     extension-token := ietf-token / x-token
 *)
-let x_token = ("x-" | "X-") token
-let extension_token = x_token | ietf_token
+let rfc2045_x_token = ("x-" | "X-") rfc2045_token
+let rfc2045_extension_token = rfc2045_x_token | rfc2045_ietf_token
 
 (** See RFC 2045 § 5.1:
 
@@ -143,15 +143,15 @@ let extension_token = x_token | ietf_token
     composite-type := "message" / "multipart" /
                       extension-token
 *)
-let discrete_ty =
+let rfc2045_discrete_ty =
   "text" | "image" | "audio" | "video" | "application" |
-  extension_token
+  rfc2045_extension_token
 
-let composite_ty =
+let rfc2045_composite_ty =
   "message" | "multipart" |
-  extension_token
+  rfc2045_extension_token
 
-let ty = discrete_ty | composite_ty
+let rfc2045_ty = rfc2045_discrete_ty | rfc2045_composite_ty
 
 (** XXX: must be registered with IANA, see RFC 2048:
 
@@ -159,7 +159,7 @@ let ty = discrete_ty | composite_ty
                    of this form must be registered with IANA
                    as specified in RFC 2048.>
 *)
-let iana_token = token
+let rfc2045_iana_token = rfc2045_token
 
 (** See RFC 2045 § 5.3.1:
 
@@ -175,16 +175,16 @@ let iana_token = token
 
     subtype := extension-token / iana-token
 *)
-let subty = extension_token | iana_token
+let rfc2045_subty = rfc2045_extension_token | rfc2045_iana_token
 
-let attribute = token
-let value = token | quoted_string
+let rfc2045_attribute = rfc2045_token
+let rfc2045_value = rfc2045_token | rfc822_quoted_string
 (** XXX: quoted_string is useless (it does not concern the lexing but
          also parsing) ! It's handled below. *)
 
-let mechanism =
+let rfc2045_mechanism =
   "7bit" | "8bit" | "binary" | "quoted-printable" | "base64"
-  | x_token | ietf_token
+  | rfc2045_x_token | rfc2045_ietf_token
 
 (** {RFC 2822 & RFC 822} **************************************************)
 
@@ -195,10 +195,10 @@ let mechanism =
 
     XXX: Same as RFC 822 § 3.3.
 *)
-let space     = (* RFC822. *)space
-let htab      = (* RFC822. *)htab
+let rfc2822_space     = rfc822_space
+let rfc2822_htab      = rfc822_htab
 (** The previous name of wsp, in RFC 822, is LWSP_char *)
-let wsp       = space | htab
+let rfc2822_wsp       = rfc822_space | rfc822_htab
 
 (** See RFC 2822 § 3.2.1 or RFC 822 § 3.3:
 
@@ -217,14 +217,14 @@ let wsp       = space | htab
 
     is wrong.
 *)
-let tspecials =
+let rfc2822_tspecials =
   '(' | ')' | '<' | '>' | '@' | ',' | ';' |
   ':' | '"' | '.' | '[' | ']' | '\\'
 
 (** See RFC 2822 § 2.1 or part of RFC 822 § 3.3 *)
-let cr        = cr
-let lf        = lf
-let crlf      = crlf
+let rfc2822_cr        = rfc822_cr
+let rfc2822_lf        = rfc822_lf
+let rfc2822_crlf      = rfc822_crlf
 
 (** Deliberately chose to include bare CR and LF here, although the RFC suggests
     them to  be included as part  of the  text characters.  The  rationale being
@@ -232,7 +232,7 @@ let crlf      = crlf
     issue should not arise in conforming e-mails.
 
     XXX: should be just [cr lf] *)
-let crlf      = crlf | lf
+let rfc2822_crlf      = rfc2822_crlf | rfc2822_lf
 
 (** See RFC 2822 § 4.2:
 
@@ -244,7 +244,7 @@ let crlf      = crlf | lf
 
     obs-FWS = 1*WSP *(CRLF 1*WSP)
 *)
-let obs_fws   = wsp + (crlf wsp +) *
+let rfc2822_obs_fws   = rfc2822_wsp + (rfc2822_crlf rfc2822_wsp +) *
 
 (** See RFC 2822 § 4.1:
 
@@ -254,8 +254,8 @@ let obs_fws   = wsp + (crlf wsp +) *
     obs-char = %d0-9 / %d11 /  ; %d0-127 except CR and
                %d12 / %d14-127 ; LF
 *)
-let obs_qp    = '\\' ['\000' - '\127']
-let obs_char  = ['\000' - '\009'] | '\011' | '\012' | ['\014' - '\127']
+let rfc2822_obs_qp    = '\\' ['\000' - '\127']
+let rfc2822_obs_char  = ['\000' - '\009'] | '\011' | '\012' | ['\014' - '\127']
 
 (** See RFC 2822 § 4.1:
 
@@ -264,9 +264,9 @@ let obs_char  = ['\000' - '\009'] | '\011' | '\012' | ['\014' - '\127']
     obs-text  = *LF *CR *(obs-char *LF *CR)
     obs-utext = obs-text
 *)
-let obs_text  =
-  lf * cr * (obs_char lf * cr * ) *
-let obs_utext = obs_text
+let rfc2822_obs_text  =
+  rfc2822_lf * rfc2822_cr * (rfc2822_obs_char rfc2822_lf * rfc2822_cr * ) *
+let rfc2822_obs_utext = rfc2822_obs_text
 
 (** Folding White Space, see RFC 2822 § 3.2.3
 
@@ -275,7 +275,7 @@ let obs_utext = obs_text
 
     XXX: [ r ] in this regexp means an optional sequence (see RFC 2234 § 3.8)
 *)
-let fws       = ((wsp * crlf) ? wsp + ) | obs_fws
+let rfc2822_fws       = ((rfc2822_wsp * rfc2822_crlf) ? rfc2822_wsp + ) | rfc2822_obs_fws
 
 (** See RFC 2822 § 3.2.1:
 
@@ -297,8 +297,8 @@ let fws       = ((wsp * crlf) ? wsp + ) | obs_fws
 
     specials  = (see below)
 *)
-let no_ws_ctl = ['\001' - '\008'] | '\011' | '\012' | ['\014' - '\031'] | '\127'
-let text = ['\001' -'\009'] | '\011' | '\012' | ['\014' - '\127'] | obs_text
+let rfc2822_no_ws_ctl = ['\001' - '\008'] | '\011' | '\012' | ['\014' - '\031'] | '\127'
+let rfc2822_text = ['\001' -'\009'] | '\011' | '\012' | ['\014' - '\127'] | rfc2822_obs_text
 
 (** See RFC 2822 § 3.2.2:
 
@@ -308,7 +308,7 @@ let text = ['\001' -'\009'] | '\011' | '\012' | ['\014' - '\127'] | obs_text
 
     quoted-pair = (%d92 text) / obs-qp
 *)
-let quoted_pair = ('\\' text) | obs_qp
+let rfc2822_quoted_pair = ('\\' rfc2822_text) | rfc2822_obs_qp
 
 (** See RFC 2822 § 3.2.3:
 
@@ -317,7 +317,7 @@ let quoted_pair = ('\\' text) | obs_qp
             %d42-91 /       ;  characters not including "(",
             %d93-126        ;  ")", or "\""
 *)
-let ctext = no_ws_ctl | ['\033' - '\039'] | ['\042' - '\091'] | ['\093' - '\126']
+let rfc2822_ctext = rfc2822_no_ws_ctl | ['\033' - '\039'] | ['\042' - '\091'] | ['\093' - '\126']
 
 (** See RFC 822 § 3.3 (XXX: Used by RFC 2045)
 
@@ -352,22 +352,22 @@ let ctext = no_ws_ctl | ['\033' - '\039'] | ['\042' - '\091'] | ['\093' - '\126'
     CRLFs (i.e.,  a backslash followed  by a CR followed by a  LF) still must be
     followed by at least one LWSP-char.
 *)
-rule comment_822 level = parse
-  | '('                 { comment_822 (level + 1) lexbuf }
+rule rfc822_comment level = parse
+  | '('                 { rfc822_comment (level + 1) lexbuf }
   | ')'
     { if level <= 1 then (assert (level = 1); lexbuf)
-      else comment_822 (level - 1) lexbuf }
-  | ctext_822 | quoted_pair_822 { comment_822 level lexbuf }
+      else rfc822_comment (level - 1) lexbuf }
+  | rfc822_ctext | rfc822_quoted_pair { rfc822_comment level lexbuf }
   | _ as chr            { raise Lexical_error }
 
 (** XXX: quoted-string like string from ocaml with respect RFC 822 *)
-and  quoted_string buffer = parse
-  | qtext as t
+and  rfc822_quoted_string buffer = parse
+  | rfc822_qtext as t
     { Buffer.add_string buffer t;
-      quoted_string buffer lexbuf }
-  | quoted_pair as t
+      rfc822_quoted_string buffer lexbuf }
+  | rfc822_quoted_pair as t
     { Buffer.add_string buffer t;
-      quoted_string buffer lexbuf }
+      rfc822_quoted_string buffer lexbuf }
   | '"'
     {  Buffer.contents buffer }
   | _ { raise Lexical_error }
@@ -384,19 +384,19 @@ and  quoted_string buffer = parse
     are completely equivalent.
 *)
 
-and  content_type = parse
-  | ty as t        { Parser.ATOM t }
+and  rfc2045_content_type = parse
+  | rfc2045_ty as t        { Parser.ATOM t }
   | '/'            { Parser.SLASH }
-  | subty as t     { Parser.ATOM t }
+  | rfc2045_subty as t     { Parser.ATOM t }
   | ';'            { Parser.SEMICOLON }
-  | attribute as t { Parser.ATOM t }
+  | rfc2045_attribute as t { Parser.ATOM t }
   | '='            { Parser.EQUAL }
   | '"'
-    { Parser.STRING (quoted_string (Buffer.create 16) lexbuf) }
+    { Parser.STRING (rfc822_quoted_string (Buffer.create 16) lexbuf) }
   (** XXX: handle of quoted-string. *)
-  | value as v     { Parser.ATOM v }
-  | linear_white_space
-    { content_type lexbuf }
+  | rfc2045_value as v     { Parser.ATOM v }
+  | rfc822_linear_white_space
+    { rfc2045_content_type lexbuf }
   (** XXX: See RFC 822 § 3.1.4:
 
       To  aid  in  the creation  and  reading  of  structured  fields,  the free
@@ -409,19 +409,19 @@ and  content_type = parse
       interpretation of the  unfolded text composing the body of  the field as a
       sequence of lexical sym- bols.
   *)
-  | '('            { content_type (comment_822 1 lexbuf) }
+  | '('            { rfc2045_content_type (rfc822_comment 1 lexbuf) }
   (** XXX: handle of comment (RFC 822). *)
   | eof            { Parser.EOF }
   | _              { raise Lexical_error }
 
-and  mechanism = parse
+and  rfc2045_mechanism = parse
   | "7bit"           { `Bit7 }
   | "8bit"           { `Bit8 }
   | "binary"         { `Binary }
   | "quoted-primary" { `Quoted_primary }
   | "base64"         { `Base64 }
-  | x_token as t     { `X_token t }
-  | ietf_token as t  { `Ietf_token t }
+  | rfc2045_x_token as t     { `X_token t }
+  | rfc2045_ietf_token as t  { `Ietf_token t }
   | _                { raise (Invalid_argument "Lexer.mechanism") }
 
 (** See RFC 2822 § 3.2.3:
@@ -435,10 +435,10 @@ and  mechanism = parse
     ccontent = ctext / quoted-pair / comment
     comment  = "(" *([FWS] ccontent) [FWS] ")"
 *)
-and  comment_2822 level = parse
-  | '('                 { comment_2822 (level + 1) lexbuf }
-  | quoted_pair | ctext { comment_2822 level lexbuf }
+and  rfc2822_comment level = parse
+  | '('                 { rfc2822_comment (level + 1) lexbuf }
+  | rfc2822_quoted_pair | rfc2822_ctext { rfc2822_comment level lexbuf }
   | ')'
     { if level <= 1 then (assert (level = 1); lexbuf)
-      else comment_2822 (level - 1) lexbuf }
-  | _                   { comment_2822 level lexbuf }
+      else rfc2822_comment (level - 1) lexbuf }
+  | _                   { rfc2822_comment level lexbuf }

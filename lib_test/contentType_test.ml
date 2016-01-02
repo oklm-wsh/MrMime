@@ -13,7 +13,7 @@ module ContentType =
 
     let of_string str =
       let lexbuf = Lexing.from_string str in
-      Parser.content_type_with_eof Lexer.content_type lexbuf
+      Parser.content_type_with_eof Lexer.rfc2045_content_type lexbuf
   end
 
 let content_type =
