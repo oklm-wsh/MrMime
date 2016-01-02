@@ -9,7 +9,7 @@ let generate length =
 let make_encode_bench size =
   let source = generate size in
   [ "encode",
-    (fun s -> Base64.encode (Lexing.from_string s)),
+    Base64.Encode.string_of_string,
     source
   ; "encode",
     (fun s -> B64.encode s),
@@ -18,7 +18,7 @@ let make_encode_bench size =
 let make_decode_bench size =
   let result = B64.encode (generate size) in
   [ "decode",
-    (fun s -> Base64.decode (Lexing.from_string s)),
+    Base64.Decode.string_of_string,
     result
   ; "decode",
     (fun s -> B64.decode s),

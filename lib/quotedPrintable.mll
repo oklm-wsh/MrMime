@@ -184,4 +184,7 @@ and  encode buf acc = parse
 {
   let encode buf lexbuf =
     encode buf (T.make ()) lexbuf
+
+  module Encode = Flow.Make(struct let conv = encode end)
+  module Decode = Flow.Make(struct let conv = decode end)
 }

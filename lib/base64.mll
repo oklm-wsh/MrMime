@@ -205,19 +205,12 @@ and  encode buf acc = parse
     { encode buf (T.add acc chr buf) lexbuf }
 
 {
-  let decode_buffer buf lexbuf =
+  let decode buf lexbuf =
     decode buf F.default 0 lexbuf
 
-  let decode lexbuf =
-    let buffer = Buffer.create 64 in
-    decode buffer F.default 0 lexbuf;
-    Buffer.contents buffer
-
-  let encode_buffer buf lexbuf =
+  let encode buf lexbuf =
     encode buf (T.make ()) lexbuf
 
-  let encode lexbuf =
-    let buffer = Buffer.create 64 in
-    encode buffer (T.make ()) lexbuf;
-    Buffer.contents buffer
+  module Encode = Flow.Make(struct let conv = encode end)
+  module Decode = Flow.Make(struct let conv = decode end)
 }

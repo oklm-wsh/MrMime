@@ -19,8 +19,8 @@ let make_identity_test length =
   `Slow,
   (fun () ->
     Alcotest.(check string) "identity"
-      (Base64.encode (Lexing.from_string str)
-       |> fun s -> Base64.decode (Lexing.from_string s))
+      (Base64.Encode.string_of_string str
+       |> Base64.Decode.string_of_string)
       str)
 
 let identity_test size =

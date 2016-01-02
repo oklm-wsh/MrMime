@@ -62,10 +62,10 @@ let make_identity_test () =
      Printf.printf "begin of test\n%!";
      Printf.printf "str:\n%s%!\n" str;
 
-     QuotedPrintable.encode buf (Lexing.from_string str);
+     QuotedPrintable.Encode.buffer_of_string buf str;
      Printf.printf "buf:\n%s%!\n" (Buffer.contents buf);
 
-     QuotedPrintable.decode out (Lexing.from_string (Buffer.contents buf));
+     QuotedPrintable.Decode.buffer_of_string out (Buffer.contents buf);
      Printf.printf "out:\n%s%!\n" (Buffer.contents out);
 
      Alcotest.(check string) "identity" str (Buffer.contents out)))
