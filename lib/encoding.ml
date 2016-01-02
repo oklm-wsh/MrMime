@@ -28,7 +28,6 @@ let to_string = function
     equivalent.
 *)
 let of_string str =
-  (* XXX: Why Utf8 ? *)
   try  Lexer.rfc2045_mechanism (Lexing.from_string (String.lowercase str))
   with Invalid_argument "Lexer.mechanism" ->
          raise (Invalid_argument "Encoding.of_string")
