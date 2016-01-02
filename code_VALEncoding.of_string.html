@@ -17,7 +17,6 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;of_string&nbsp;str&nbsp;=<br>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;Why&nbsp;Utf8&nbsp;?&nbsp;*)</span><br>
 &nbsp;&nbsp;<span class="keyword">try</span>&nbsp;&nbsp;<span class="constructor">Lexer</span>.rfc2045_mechanism&nbsp;(<span class="constructor">Lexing</span>.from_string&nbsp;(<span class="constructor">String</span>.lowercase&nbsp;str))<br>
 &nbsp;&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"Lexer.mechanism"</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"Encoding.of_string"</span>)</code></body></html>
