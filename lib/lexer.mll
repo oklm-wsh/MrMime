@@ -11,6 +11,12 @@
 *)
 let rfc822_ctls      = ['\000' - '\031'] | '\127'
 
+(** See RFC 822 § APPENDIX D
+
+    DIGIT     =  <any ASCII decimal digit>    ; ( 60- 71, 48.- 57. )
+*)
+let rfc822_digit     = ['0' - '9']
+
 (** RFC 822 § 3.3:
                                               ; (  Octal, Decimal. )
     SPACE     =  <ASCII SP, space>            ; (     40,      32. )
