@@ -14,9 +14,10 @@
 <link title="MrMime" rel="Chapter" href="MrMime.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
 <link title="Parser" rel="Chapter" href="Parser.html">
-<link title="Encoding" rel="Chapter" href="Encoding.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Identity" rel="Chapter" href="Identity.html">
+<link title="Encoding" rel="Chapter" href="Encoding.html">
 <link title="ContentType" rel="Chapter" href="ContentType.html">
 <link title="Loc" rel="Chapter" href="Loc.html"><title>Lexer</title>
 </head>
@@ -40,5 +41,7 @@
 <pre><span id="VAL__ocaml_lex_rfc2045_content_type_rec"><span class="keyword">val</span> <a href="code_VALLexer.__ocaml_lex_rfc2045_content_type_rec.html">__ocaml_lex_rfc2045_content_type_rec</a></span> : <code class="type">Lexing.lexbuf -> int -> <a href="Parser.html#TYPEtoken">Parser.token</a></code></pre>
 <pre><span id="VALrfc2045_mechanism"><span class="keyword">val</span> <a href="code_VALLexer.rfc2045_mechanism.html">rfc2045_mechanism</a></span> : <code class="type">Lexing.lexbuf -><br>       [> `Base64<br>        | `Binary<br>        | `Bit7<br>        | `Bit8<br>        | `Ietf_token of string<br>        | `Quoted_primary<br>        | `X_token of string ]</code></pre>
 <pre><span id="VAL__ocaml_lex_rfc2045_mechanism_rec"><span class="keyword">val</span> <a href="code_VALLexer.__ocaml_lex_rfc2045_mechanism_rec.html">__ocaml_lex_rfc2045_mechanism_rec</a></span> : <code class="type">Lexing.lexbuf -><br>       int -><br>       [> `Base64<br>        | `Binary<br>        | `Bit7<br>        | `Bit8<br>        | `Ietf_token of string<br>        | `Quoted_primary<br>        | `X_token of string ]</code></pre>
+<pre><span id="VALrfc2045_version"><span class="keyword">val</span> <a href="code_VALLexer.rfc2045_version.html">rfc2045_version</a></span> : <code class="type">Lexing.lexbuf -> <a href="Parser.html#TYPEtoken">Parser.token</a></code></pre>
+<pre><span id="VAL__ocaml_lex_rfc2045_version_rec"><span class="keyword">val</span> <a href="code_VALLexer.__ocaml_lex_rfc2045_version_rec.html">__ocaml_lex_rfc2045_version_rec</a></span> : <code class="type">Lexing.lexbuf -> int -> <a href="Parser.html#TYPEtoken">Parser.token</a></code></pre>
 <pre><span id="VALrfc2822_comment"><span class="keyword">val</span> <a href="code_VALLexer.rfc2822_comment.html">rfc2822_comment</a></span> : <code class="type">int -> Lexing.lexbuf -> Lexing.lexbuf</code></pre>
 <pre><span id="VAL__ocaml_lex_rfc2822_comment_rec"><span class="keyword">val</span> <a href="code_VALLexer.__ocaml_lex_rfc2822_comment_rec.html">__ocaml_lex_rfc2822_comment_rec</a></span> : <code class="type">int -> Lexing.lexbuf -> int -> Lexing.lexbuf</code></pre></body></html>

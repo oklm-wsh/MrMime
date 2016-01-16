@@ -9,9 +9,10 @@
 <link title="MrMime" rel="Chapter" href="MrMime.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
 <link title="Parser" rel="Chapter" href="Parser.html">
-<link title="Encoding" rel="Chapter" href="Encoding.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Identity" rel="Chapter" href="Identity.html">
+<link title="Encoding" rel="Chapter" href="Encoding.html">
 <link title="ContentType" rel="Chapter" href="ContentType.html">
 <link title="Loc" rel="Chapter" href="Loc.html"><title>Lexer.rfc2045_content_type</title>
 </head>
@@ -21,30 +22,25 @@
 <span class="keyword">and</span>&nbsp;__ocaml_lex_rfc822_comment_rec&nbsp;level&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;356&nbsp;"lib/lexer.mll"<br>
+#&nbsp;362&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc822_comment&nbsp;(level&nbsp;+&nbsp;1)&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3193&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3196&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;358&nbsp;"lib/lexer.mll"<br>
+#&nbsp;364&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keyword">if</span>&nbsp;level&nbsp;&lt;=&nbsp;1&nbsp;<span class="keyword">then</span>&nbsp;(<span class="keyword">assert</span>&nbsp;(level&nbsp;=&nbsp;1);&nbsp;lexbuf)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;rfc822_comment&nbsp;(level&nbsp;-&nbsp;1)&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3199&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3202&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;360&nbsp;"lib/lexer.mll"<br>
+#&nbsp;366&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc822_comment&nbsp;level&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3204&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3207&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
-<span class="keyword">let</span><br>
-#&nbsp;361&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
-#&nbsp;3210&nbsp;"lib/lexer.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;361&nbsp;"lib/lexer.mll"<br>
+#&nbsp;367&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span>&nbsp;)<br>
-#&nbsp;3214&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3212&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc822_comment_rec&nbsp;level&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
@@ -55,35 +51,35 @@
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
-#&nbsp;365&nbsp;"lib/lexer.mll"<br>
+#&nbsp;371&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;3227&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3225&nbsp;"lib/lexer.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;366&nbsp;"lib/lexer.mll"<br>
+#&nbsp;372&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buffer&nbsp;t;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rfc822_quoted_string&nbsp;buffer&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3232&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3230&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
-#&nbsp;368&nbsp;"lib/lexer.mll"<br>
+#&nbsp;374&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;3238&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3236&nbsp;"lib/lexer.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;2)&nbsp;<span class="keyword">in</span><br>
-#&nbsp;369&nbsp;"lib/lexer.mll"<br>
+#&nbsp;375&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buffer&nbsp;t;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rfc822_quoted_string&nbsp;buffer&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3243&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3241&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;372&nbsp;"lib/lexer.mll"<br>
+#&nbsp;378&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;&nbsp;<span class="constructor">Buffer</span>.contents&nbsp;buffer&nbsp;)<br>
-#&nbsp;3248&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3246&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;373&nbsp;"lib/lexer.mll"<br>
+#&nbsp;379&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span>&nbsp;)<br>
-#&nbsp;3253&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3251&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc822_quoted_string_rec&nbsp;buffer&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
@@ -94,83 +90,83 @@
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
-#&nbsp;388&nbsp;"lib/lexer.mll"<br>
+#&nbsp;394&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;3266&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3264&nbsp;"lib/lexer.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;388&nbsp;"lib/lexer.mll"<br>
+#&nbsp;394&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;t&nbsp;)<br>
-#&nbsp;3270&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3268&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;389&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">SLASH</span>&nbsp;)<br>
-#&nbsp;3275&nbsp;"lib/lexer.ml"<br>
+#&nbsp;395&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">SLASH</span>&nbsp;)<br>
+#&nbsp;3273&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
-#&nbsp;390&nbsp;"lib/lexer.mll"<br>
+#&nbsp;396&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;3281&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3279&nbsp;"lib/lexer.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;390&nbsp;"lib/lexer.mll"<br>
+#&nbsp;396&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;t&nbsp;)<br>
-#&nbsp;3285&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3283&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;391&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">SEMICOLON</span>&nbsp;)<br>
-#&nbsp;3290&nbsp;"lib/lexer.ml"<br>
+#&nbsp;397&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">SEMICOLON</span>&nbsp;)<br>
+#&nbsp;3288&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
-#&nbsp;392&nbsp;"lib/lexer.mll"<br>
+#&nbsp;398&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;3296&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3294&nbsp;"lib/lexer.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;392&nbsp;"lib/lexer.mll"<br>
+#&nbsp;398&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;t&nbsp;)<br>
-#&nbsp;3300&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3298&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;5&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;393&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">EQUAL</span>&nbsp;)<br>
-#&nbsp;3305&nbsp;"lib/lexer.ml"<br>
+#&nbsp;399&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">EQUAL</span>&nbsp;)<br>
+#&nbsp;3303&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;6&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;395&nbsp;"lib/lexer.mll"<br>
+#&nbsp;401&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">STRING</span>&nbsp;(rfc822_quoted_string&nbsp;(<span class="constructor">Buffer</span>.create&nbsp;16)&nbsp;lexbuf)&nbsp;)<br>
-#&nbsp;3310&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3308&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;7&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
-#&nbsp;397&nbsp;"lib/lexer.mll"<br>
+#&nbsp;403&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v<br>
-#&nbsp;3316&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3314&nbsp;"lib/lexer.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;397&nbsp;"lib/lexer.mll"<br>
+#&nbsp;403&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">ATOM</span>&nbsp;v&nbsp;)<br>
-#&nbsp;3320&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3318&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;8&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;399&nbsp;"lib/lexer.mll"<br>
+#&nbsp;405&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc2045_content_type&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3325&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3323&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;9&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;412&nbsp;"lib/lexer.mll"<br>
+#&nbsp;418&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc2045_content_type&nbsp;(rfc822_comment&nbsp;1&nbsp;lexbuf)&nbsp;)<br>
-#&nbsp;3330&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3328&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;10&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;414&nbsp;"lib/lexer.mll"<br>
+#&nbsp;420&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">EOF</span>&nbsp;)<br>
-#&nbsp;3335&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3333&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;11&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;415&nbsp;"lib/lexer.mll"<br>
+#&nbsp;421&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span>&nbsp;)<br>
-#&nbsp;3340&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3338&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc2045_content_type_rec&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
@@ -180,82 +176,124 @@
 <span class="keyword">and</span>&nbsp;__ocaml_lex_rfc2045_mechanism_rec&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;418&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit7</span>&nbsp;)<br>
-#&nbsp;3352&nbsp;"lib/lexer.ml"<br>
+#&nbsp;424&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit7</span>&nbsp;)<br>
+#&nbsp;3350&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;419&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit8</span>&nbsp;)<br>
-#&nbsp;3357&nbsp;"lib/lexer.ml"<br>
+#&nbsp;425&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit8</span>&nbsp;)<br>
+#&nbsp;3355&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;420&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Binary</span>&nbsp;)<br>
-#&nbsp;3362&nbsp;"lib/lexer.ml"<br>
+#&nbsp;426&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Binary</span>&nbsp;)<br>
+#&nbsp;3360&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;421&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Quoted_primary</span>&nbsp;)<br>
-#&nbsp;3367&nbsp;"lib/lexer.ml"<br>
+#&nbsp;427&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Quoted_primary</span>&nbsp;)<br>
+#&nbsp;3365&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;422&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>&nbsp;)<br>
-#&nbsp;3372&nbsp;"lib/lexer.ml"<br>
+#&nbsp;428&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>&nbsp;)<br>
+#&nbsp;3370&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;5&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
-#&nbsp;423&nbsp;"lib/lexer.mll"<br>
+#&nbsp;429&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;3378&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3376&nbsp;"lib/lexer.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;423&nbsp;"lib/lexer.mll"<br>
+#&nbsp;429&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;t&nbsp;)<br>
-#&nbsp;3382&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3380&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;6&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
-#&nbsp;424&nbsp;"lib/lexer.mll"<br>
+#&nbsp;430&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;3388&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3386&nbsp;"lib/lexer.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;424&nbsp;"lib/lexer.mll"<br>
+#&nbsp;430&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;t&nbsp;)<br>
-#&nbsp;3392&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3390&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;7&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;425&nbsp;"lib/lexer.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"Lexer.mechanism"</span>)&nbsp;)<br>
-#&nbsp;3397&nbsp;"lib/lexer.ml"<br>
+#&nbsp;431&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"Lexer.mechanism"</span>)&nbsp;)<br>
+#&nbsp;3395&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc2045_mechanism_rec&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
 <br>
+<span class="keyword">and</span>&nbsp;rfc2045_version&nbsp;lexbuf&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc2045_version_rec&nbsp;lexbuf&nbsp;122<br>
+<span class="keyword">and</span>&nbsp;__ocaml_lex_rfc2045_version_rec&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
+<span class="keyword">let</span><br>
+#&nbsp;442&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;digit<br>
+#&nbsp;3408&nbsp;"lib/lexer.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
+#&nbsp;442&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">DIGIT</span>&nbsp;&nbsp;(int_of_string&nbsp;(<span class="constructor">String</span>.make&nbsp;1&nbsp;digit))&nbsp;)<br>
+#&nbsp;3412&nbsp;"lib/lexer.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;443&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc2045_version&nbsp;lexbuf&nbsp;)<br>
+#&nbsp;3417&nbsp;"lib/lexer.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;444&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">DOT</span>&nbsp;)<br>
+#&nbsp;3422&nbsp;"lib/lexer.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;451&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc2045_version&nbsp;(rfc822_comment&nbsp;1&nbsp;lexbuf)&nbsp;)<br>
+#&nbsp;3427&nbsp;"lib/lexer.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;452&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Parser</span>.<span class="constructor">EOF</span>&nbsp;)<br>
+#&nbsp;3432&nbsp;"lib/lexer.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;5&nbsp;<span class="keywordsign">-&gt;</span><br>
+#&nbsp;453&nbsp;"lib/lexer.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span>&nbsp;)<br>
+#&nbsp;3437&nbsp;"lib/lexer.ml"<br>
+<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc2045_version_rec&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
+<br>
 <span class="keyword">and</span>&nbsp;rfc2822_comment&nbsp;level&nbsp;lexbuf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc2822_comment_rec&nbsp;level&nbsp;lexbuf&nbsp;122<br>
+&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc2822_comment_rec&nbsp;level&nbsp;lexbuf&nbsp;132<br>
 <span class="keyword">and</span>&nbsp;__ocaml_lex_rfc2822_comment_rec&nbsp;level&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;439&nbsp;"lib/lexer.mll"<br>
+#&nbsp;467&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc2822_comment&nbsp;(level&nbsp;+&nbsp;1)&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3409&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3449&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;440&nbsp;"lib/lexer.mll"<br>
+#&nbsp;468&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc2822_comment&nbsp;level&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3414&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3454&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;442&nbsp;"lib/lexer.mll"<br>
+#&nbsp;470&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keyword">if</span>&nbsp;level&nbsp;&lt;=&nbsp;1&nbsp;<span class="keyword">then</span>&nbsp;(<span class="keyword">assert</span>&nbsp;(level&nbsp;=&nbsp;1);&nbsp;lexbuf)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;rfc2822_comment&nbsp;(level&nbsp;-&nbsp;1)&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3420&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3460&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;444&nbsp;"lib/lexer.mll"<br>
+#&nbsp;472&nbsp;"lib/lexer.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;rfc2822_comment&nbsp;level&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;3425&nbsp;"lib/lexer.ml"<br>
+#&nbsp;3465&nbsp;"lib/lexer.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_rfc2822_comment_rec&nbsp;level&nbsp;lexbuf&nbsp;__ocaml_lex_state</code></body></html>

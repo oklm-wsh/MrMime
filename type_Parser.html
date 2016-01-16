@@ -9,9 +9,10 @@
 <link title="MrMime" rel="Chapter" href="MrMime.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
 <link title="Parser" rel="Chapter" href="Parser.html">
-<link title="Encoding" rel="Chapter" href="Encoding.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Identity" rel="Chapter" href="Identity.html">
+<link title="Encoding" rel="Chapter" href="Encoding.html">
 <link title="ContentType" rel="Chapter" href="ContentType.html">
 <link title="Loc" rel="Chapter" href="Loc.html"><title>Parser</title>
 </head>
@@ -23,6 +24,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">SEMICOLON</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">EQUAL</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">EOF</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">DOT</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">DIGIT</span>&nbsp;<span class="keyword">of</span>&nbsp;int<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">ATOM</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
 &nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Error</span><br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;content_type_with_eof&nbsp;:<br>
