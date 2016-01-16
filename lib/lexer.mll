@@ -430,6 +430,28 @@ and  rfc2045_mechanism = parse
   | rfc2045_ietf_token as t  { `Ietf_token t }
   | _                        { raise (Invalid_argument "Lexer.mechanism") }
 
+(** See RFC 2045 § 4
+
+    Since it is possible that a  future document might extend the message format
+    standard again,  a formal  BNF is given for the  content of the MIME-Version
+    field:
+
+    version := "MIME-Version" ":" 1*DIGIT "." 1*DIGIT
+*)
+and  rfc2045_version = parse
+  | rfc822_digit as digit     { Parser.DIGIT  (int_of_string (String.make 1 digit)) }
+  | rfc822_linear_white_space { rfc2045_version lexbuf }
+  | '.'                       { Parser.DOT }
+
+  (** XXX: See RFC 2045 § 4:
+
+      When checking  MIME-Version values  any RFC 822  comment strings  that are
+      present must be ignored.
+  *)
+  | '('                       { rfc2045_version (rfc822_comment 1 lexbuf) }
+  | eof                       { Parser.EOF }
+  | _                         { raise Lexical_error }
+
 (** See RFC 2822 § 3.2.3:
 
     Strings of  characters enclosed  in parentheses  are considered  comments so
