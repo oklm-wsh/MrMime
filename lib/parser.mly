@@ -1,9 +1,11 @@
 %token <string> ATOM
 %token <string> STRING
-%token SLASH
-%token SEMICOLON
-%token EQUAL
-%token EOF
+%token <int>    DIGIT
+%token          SLASH
+%token          SEMICOLON
+%token          EQUAL
+%token          DOT
+%token          EOF
 
 %start content_type_with_eof
 %type <ContentType.t> content_type_with_eof

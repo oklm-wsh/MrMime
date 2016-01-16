@@ -386,11 +386,11 @@ and  rfc822_quoted_string buffer = parse
 
 and  rfc2045_content_type = parse
   | rfc2045_ty as t        { Parser.ATOM t }
-  | '/'            { Parser.SLASH }
+  | '/'                    { Parser.SLASH }
   | rfc2045_subty as t     { Parser.ATOM t }
-  | ';'            { Parser.SEMICOLON }
+  | ';'                    { Parser.SEMICOLON }
   | rfc2045_attribute as t { Parser.ATOM t }
-  | '='            { Parser.EQUAL }
+  | '='                    { Parser.EQUAL }
   | '"'
     { Parser.STRING (rfc822_quoted_string (Buffer.create 16) lexbuf) }
   (** XXX: handle of quoted-string. *)
@@ -415,14 +415,14 @@ and  rfc2045_content_type = parse
   | _              { raise Lexical_error }
 
 and  rfc2045_mechanism = parse
-  | "7bit"           { `Bit7 }
-  | "8bit"           { `Bit8 }
-  | "binary"         { `Binary }
-  | "quoted-primary" { `Quoted_primary }
-  | "base64"         { `Base64 }
+  | "7bit"                   { `Bit7 }
+  | "8bit"                   { `Bit8 }
+  | "binary"                 { `Binary }
+  | "quoted-primary"         { `Quoted_primary }
+  | "base64"                 { `Base64 }
   | rfc2045_x_token as t     { `X_token t }
   | rfc2045_ietf_token as t  { `Ietf_token t }
-  | _                { raise (Invalid_argument "Lexer.mechanism") }
+  | _                        { raise (Invalid_argument "Lexer.mechanism") }
 
 (** See RFC 2822 § 3.2.3:
 
