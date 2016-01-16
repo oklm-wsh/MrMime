@@ -15,12 +15,13 @@
 <link title="Encoding" rel="Chapter" href="Encoding.html">
 <link title="ContentType" rel="Chapter" href="ContentType.html">
 <link title="Version" rel="Chapter" href="Version.html">
-<link title="Loc" rel="Chapter" href="Loc.html"><title>Base64</title>
+<link title="Loc" rel="Chapter" href="Loc.html"><title>Version</title>
 </head>
 <body>
 <code class="code"><span class="keyword">sig</span><br>
-&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Unexpected_character</span>&nbsp;<span class="keyword">of</span>&nbsp;char<br>
-&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Wrong_padding</span><br>
-&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Encode</span>&nbsp;:&nbsp;<span class="constructor">Flow</span>.<span class="constructor">S</span><br>
-&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Decode</span>&nbsp;:&nbsp;<span class="constructor">Flow</span>.<span class="constructor">S</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;make&nbsp;:&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Version</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;default&nbsp;:&nbsp;<span class="constructor">Version</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Version</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:&nbsp;<span class="constructor">Version</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Version</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
 <span class="keyword">end</span></code></body></html>
