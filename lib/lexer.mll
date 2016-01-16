@@ -364,7 +364,7 @@ rule rfc822_comment level = parse
     { if level <= 1 then (assert (level = 1); lexbuf)
       else rfc822_comment (level - 1) lexbuf }
   | rfc822_ctext | rfc822_quoted_pair { rfc822_comment level lexbuf }
-  | _ as chr            { raise Lexical_error }
+  | _                   { raise Lexical_error }
 
 (** XXX: quoted-string like string from ocaml with respect RFC 822 *)
 and  rfc822_quoted_string buffer = parse
