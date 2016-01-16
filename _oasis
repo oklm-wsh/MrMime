@@ -14,7 +14,7 @@ AlphaFeatures:          ocamlbuild_more_args
 
 Library mrmime
   Path:                 lib
-  Modules:              MrMime, Lexer, Parser, Base64, QuotedPrintable, Identity, Encoding, ContentType, Loc
+  Modules:              MrMime, Lexer, Parser, Base64, QuotedPrintable, Identity, Encoding, ContentType, Version, Loc
   InternalModules:      Flow
   BuildDepends:         sedlex, menhirLib
 
@@ -65,6 +65,14 @@ Executable bench_base64
   MainIs:               base64_bench.ml
   BuildDepends:         mrmime, alcotest, base64, benchmark
 
+Executable test_version
+  Path:                 lib_test
+  Build$:               flag(tests)
+  Install:              false
+  CompiledObject:       best
+  MainIs:               version_test.ml
+  BuildDepends:         mrmime, alcotest, ppx_import, ppx_deriving.std
+
 Test test_content_type
   Run$:                 flag(tests)
   TestTools:            test_content_type
@@ -81,4 +89,10 @@ Test test_quoted_printable
   Run$:                 flag(tests)
   TestTools:            test_quoted_printable
   Command:              $test_quoted_printable
+  WorkingDirectory:     .
+
+Test test_version
+  Run$:                 flag(tests)
+  TestTools:            test_version
+  Command:              $test_version
   WorkingDirectory:     .

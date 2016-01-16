@@ -10,13 +10,16 @@
 %start content_type_with_eof
 %type <ContentType.t> content_type_with_eof
 
+%start version_with_eof
+%type <Version.t> version_with_eof
+
 %%
 
 content_type_with_eof:
   | x = content_type EOF
   { x }
 
-(** See RFC 2045 § 5.1 and Lexer.content_type
+(** See RFC 2045 § 5.1 and Lexer.rfc2045_content_type
 
     content   := "Content-Type" ":" type "/" subtype
                  *(";" parameter)
@@ -39,3 +42,20 @@ value:
     { atom }
   | string = STRING
     { string }
+
+version_with_eof:
+  | x = version EOF
+  { x }
+
+(** See RFC 2045 § 4 and Lexer.rfc2045_version:
+
+    Since it is possible that a  future document might extend the message format
+    standard again,  a formal  BNF is given for the  content of the MIME-Version
+    field:
+
+    version := "MIME-Version" ":" 1*DIGIT "." 1*DIGIT
+*)
+
+version:
+  | a = DIGIT DOT b = DIGIT
+  { Version.make a b }
