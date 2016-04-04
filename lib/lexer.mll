@@ -653,7 +653,7 @@ and  rfc2822_comment level = parse
       else rfc2822_comment (level - 1) lexbuf }
   | _                    { rfc2822_comment level lexbuf }
 
-rule rfc2822_msg_id acc = parse
+and  rfc2822_msg_id acc = parse
   | '('                      { rfc2822_msg_id acc (rfc2822_comment 1 lexbuf) }
   | rfc2822_fws              { rfc2822_msg_id acc lexbuf }
   (* XXX: See RFC 2822 § APPENDIX B:
