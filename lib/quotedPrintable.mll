@@ -158,10 +158,9 @@ rule decode buf = parse
       decode buf lexbuf }
   | eof { () }
   | _ as chr
-    (* XXX: should not appear in a quoted-printable body, but the most robus
-     * way to handle them is probably copying them verbatim. *)
-    { F.add_char buf chr;
-      decode buf lexbuf }
+    (* XXX: should not appear in a quoted-printable body, but the most robust
+       way to handle them is probably copying them verbatim. *)
+     { F.add_char buf chr; decode buf lexbuf }
 
 and  encode buf acc = parse
   | (wsp as chr) ? '\n'

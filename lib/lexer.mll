@@ -77,20 +77,20 @@ let rfc822_ctext =
 (** See RFC 822 § 3.4.5:
 
     Where permitted (i.e.,  in  words in structured fields)  quoted- strings are
-    treated as a single symbol.  That is,  a  quoted- string is equivalent to an
-    atom,  syntactically.  If a  quoted-string is to  be "folded"  onto multiple
-    lines,  then the syntax  for folding must be adhered  to.  (See the "Lexical
-    Analysis of Messages" section on "Folding Long Header Fields" above, and the
-    section on "Case Independence" below.) Therefore,  the official semantics do
-    not "see"  any bare  CRLFs that  are in  quoted-strings;  however particular
-    parsing programs  may wish to  note their presence.  For  such programs,  it
-    would be  reasonable to interpret a  "CRLF LWSP-char" as being  a CRLF which
-    is part of the quoted-string;  i.e.,  the CRLF  is kept and the LWSP-char is
-    discarded.  Quoted CRLFs (i.e.,  a backslash followed  by a CR followed by a
-    LF) are also  subject to rules of folding,  but the  presence of the quoting
-    character  (backslash) explicitly  indicates that  the CRLF  is data  to the
-    quoted  string.   Stripping  off  the  first  following  LWSP-char  is  also
-    appropriate when parsing quoted CRLFs.
+    treated as a  single symbol.  That is,  a quoted-string is  equivalent to an
+    atom,  syntactically.  If a  quoted-string is to  be 'folded'  onto multiple
+    lines,  then the syntax  for folding must be adhered  to.  (See the 'Lexical
+    Analysis of  Messages' section on  'Folding Long Header  Fields' above,  and
+    the  section  on  "Case   Independence"  below.)  Therefore,   the  official
+    semantics do not  "see" any bare CRLFs that  are in quoted-strings;  however
+    particular  parsing programs  may wish  to  note  their  presence.  For such
+    programs,  it would be reasonable to interpret a "CRLF LWSP-char" as being a
+    CRLF which  is part of the  quoted-string;  i.e.,  the CRLF is  kept and the
+    LWSP-char is discarded.  Quoted  CRLFs (i.e.,  a backslash followed  by a CR
+    followed by a LF) are also subject to rules of folding,  but the presence of
+    the quoting character  (backslash)  explicitly  indicates  that  the CRLF is
+    data to the  quoted string.  Stripping off the first  following LWSP-char is
+    also appropriate when parsing quoted CRLFs.
 
     See RFC 822 § APPENDIX D
 
@@ -516,11 +516,11 @@ let rfc2822_msg_id          = (* [CFWS] *) '<' rfc2822_id_left '@' rfc2822_id_ri
     protocol server.  Comments are detected as  such only within field-bodies of
     structured fields.
 
-    If a  comment is to  be "folded" onto  multiple lines,  then the  syntax for
-    folding must be adhered to.  (See the "Lexical Analysis of Messages" section
-    on  "Folding  Long   Header  Fields"  above,   and  the   section  on  "Case
-    Independence" below.) Note  that  the  official  semantics  therefore do not
-    "see" any unquoted CRLFs that are in comments, although particular pars- ing
+    If a  comment is to  be 'folded' onto  multiple lines,  then the  syntax for
+    folding must be adhered to.  (See the 'Lexical Analysis of Messages' section
+    on  'Folding  Long   Header  Fields'  above,   and  the   section  on  'Case
+    Independence' below.) Note  that  the  official  semantics  therefore do not
+    'see' any unquoted CRLFs that are in comments, although particular pars- ing
     programs may wish to note  their presence.  For these programs,  it would be
     reasonable to interpret a  "CRLF LWSP-char" as being a CRLF  that is part of
     the comment;  i.e., the CRLF is kept and the LWSP-char is discarded.  Quoted
@@ -532,7 +532,8 @@ rule rfc822_comment level = parse
   | ')'
     { if level <= 1 then (assert (level = 1); lexbuf)
       else rfc822_comment (level - 1) lexbuf }
-  | rfc822_ctext | rfc822_quoted_pair { rfc822_comment level lexbuf }
+  | rfc822_ctext
+  | rfc822_quoted_pair  { rfc822_comment level lexbuf }
   | _                   { raise Lexical_error }
 
 (** XXX: quoted-string like string from ocaml with respect RFC 822 *)
@@ -558,18 +559,17 @@ and  rfc822_quoted_string buffer = parse
 
     are completely equivalent.
 *)
-
 and  rfc2045_content_type = parse
-  | rfc2045_ty as t        { Parser.ATOM t }
-  | '/'                    { Parser.SLASH }
-  | rfc2045_subty as t     { Parser.ATOM t }
-  | ';'                    { Parser.SEMICOLON }
-  | rfc2045_attribute as t { Parser.ATOM t }
-  | '='                    { Parser.EQUAL }
+  | '('                    { rfc2045_content_type (rfc822_comment 1 lexbuf) }
+  (** XXX: handle of comment (RFC 822). *)
   | '"'
     { Parser.STRING (rfc822_quoted_string (Buffer.create 16) lexbuf) }
   (** XXX: handle of quoted-string. *)
-  | rfc2045_value as v     { Parser.ATOM v }
+  | '/'                    { Parser.SLASH }
+  | rfc2045_ty as t
+  | rfc2045_subty as t
+  | rfc2045_attribute as t
+  | rfc2045_value as t     { Parser.ATOM t }
   | rfc822_linear_white_space
     { rfc2045_content_type lexbuf }
   (** XXX: See RFC 822 § 3.1.4:
@@ -583,11 +583,14 @@ and  rfc2045_content_type = parse
       are simply strings of text,  as described above.  The analyzer provides an
       interpretation of the  unfolded text composing the body of  the field as a
       sequence of lexical sym- bols.
+
+      TODO:  we can replace  it by the rfc2822_fws but it  may be not compatible
+      with RFC 822 so, we will try this.
   *)
-  | '('            { rfc2045_content_type (rfc822_comment 1 lexbuf) }
-  (** XXX: handle of comment (RFC 822). *)
-  | eof            { Parser.EOF }
-  | _              { raise Lexical_error }
+  | ';'                    { Parser.SEMICOLON }
+  | '='                    { Parser.EQUAL }
+  | eof                    { Parser.EOF }
+  | _                      { raise Lexical_error }
 
 and  rfc2045_mechanism = parse
   | "7bit"                   { `Bit7 }
@@ -637,12 +640,18 @@ and  rfc2045_version = parse
     comment  = "(" *([FWS] ccontent) [FWS] ")"
 *)
 and  rfc2822_comment level = parse
-  | '('                 { rfc2822_comment (level + 1) lexbuf }
-  | rfc2822_quoted_pair | rfc2822_ctext { rfc2822_comment level lexbuf }
-  | ')'
+  |  '('                 { rfc2822_comment (level + 1) lexbuf }
+
+  (* XXX: no need to match quoted-pair or ctext because we match all content
+     with the default case of this rule.
+  |  rfc2822_quoted_pair
+  |  rfc2822_ctext       { rfc2822_comment level lexbuf }
+  *)
+
+  |  ')'
     { if level <= 1 then (assert (level = 1); lexbuf)
       else rfc2822_comment (level - 1) lexbuf }
-  | _                   { rfc2822_comment level lexbuf }
+  | _                    { rfc2822_comment level lexbuf }
 
 rule rfc2822_msg_id acc = parse
   | '('                      { rfc2822_msg_id acc (rfc2822_comment 1 lexbuf) }
