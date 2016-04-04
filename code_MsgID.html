@@ -1,0 +1,42 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Rfc2822" rel="Chapter" href="Rfc2822.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Identity" rel="Chapter" href="Identity.html">
+<link title="Encoding" rel="Chapter" href="Encoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Version" rel="Chapter" href="Version.html">
+<link title="Loc" rel="Chapter" href="Loc.html"><title>MsgID</title>
+</head>
+<body>
+<code class="code"><span class="keyword">type</span>&nbsp;t&nbsp;=&nbsp;string&nbsp;*&nbsp;string<br>
+<br>
+<span class="keyword">let</span>&nbsp;to_string&nbsp;(left,&nbsp;right)&nbsp;=<br>
+&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;it's&nbsp;compatible&nbsp;between&nbsp;RFC&nbsp;822&nbsp;and&nbsp;RFC&nbsp;2822:<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RFC&nbsp;822/addr-spec&nbsp;=&nbsp;local-part&nbsp;"@"&nbsp;domain<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RFC&nbsp;822/msg-id&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"&lt;"&nbsp;addr-spec&nbsp;"&gt;"<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RFC&nbsp;2822/msg-id&nbsp;&nbsp;&nbsp;=&nbsp;[CFWS]&nbsp;"&lt;"&nbsp;id-left&nbsp;"@"&nbsp;id-right&nbsp;"&gt;"&nbsp;[CFWS]<br>
+&nbsp;&nbsp;*)</span><br>
+&nbsp;&nbsp;<span class="string">"&lt;"</span>&nbsp;^&nbsp;left&nbsp;^&nbsp;<span class="string">"@"</span>&nbsp;^&nbsp;right&nbsp;^&nbsp;<span class="string">"&gt;"</span><br>
+<br>
+<span class="keyword">let</span>&nbsp;of_string&nbsp;str&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;<span class="constructor">Rfc822</span>.msg_id&nbsp;(<span class="constructor">Lexing</span>.from_string&nbsp;str)<br>
+&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;exn&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;<span class="constructor">Rfc2822</span>.msg_id&nbsp;<span class="constructor">None</span>&nbsp;(<span class="constructor">Lexing</span>.from_string&nbsp;str)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;exn&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"MsgID.of_string"</span>)<br>
+</code></body></html>

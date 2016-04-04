@@ -7,18 +7,21 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Rfc2822" rel="Chapter" href="Rfc2822.html">
 <link title="Parser" rel="Chapter" href="Parser.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
 <link title="Identity" rel="Chapter" href="Identity.html">
 <link title="Encoding" rel="Chapter" href="Encoding.html">
 <link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
 <link title="Version" rel="Chapter" href="Version.html">
 <link title="Loc" rel="Chapter" href="Loc.html"><title>Encoding.of_string</title>
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;of_string&nbsp;str&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;&nbsp;<span class="constructor">Lexer</span>.rfc2045_mechanism&nbsp;(<span class="constructor">Lexing</span>.from_string&nbsp;(<span class="constructor">String</span>.lowercase&nbsp;str))<br>
+&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;&nbsp;<span class="constructor">Rfc2045</span>.mechanism&nbsp;(<span class="constructor">Lexing</span>.from_string&nbsp;(<span class="constructor">String</span>.lowercase&nbsp;str))<br>
 &nbsp;&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"Lexer.mechanism"</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"Encoding.of_string"</span>)</code></body></html>
