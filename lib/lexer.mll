@@ -37,6 +37,27 @@ let rfc822_crlf      = rfc822_cr rfc822_lf
 
 (** See RFC 822 § 3.3 (XXX: Obsolete version):
 
+    specials = "(" / ")" / "<" / ">" / "@" ; Must be in quoted-
+             / "," / ";" / ":" / "\" / <"> ;  string, to use
+             / "." / "[" / "]"             ; within a word.
+*)
+let rfc822_specials =
+  '(' | ')' | '<' | '>' | '@' |
+  ',' | ';' | ':' | '\\' | '"' |
+  '.' | '[' | ']'
+
+(** See RFC 822 § APPENDIX D
+
+    atom = 1*<any CHAR except specials, SPACE and CTLs>
+*)
+let rfc822_atom = ([^ '\000' '\001' '\002' '\003' '\004' '\005' '\006' '\007' '\008' '\009'
+                      '\010' '\011' '\012' '\013' '\014' '\015' '\016' '\017' '\018' '\019'
+                      '\020' '\021' '\022' '\023' '\024' '\025' '\026' '\027' '\028' '\029'
+                      '\030' '\031'
+                      ' ' '(' ')' '<' '>' '@' ',' ';' ':' '\\' '"' '.' '[' ']' '\127' ]) +
+
+(** See RFC 822 § 3.3 (XXX: Obsolete version):
+
                                                ; (  Octal, Decimal. )
     BS          = <ASCII BS, backslash>        ; (    134,      92. )
     linear-white-space = 1*([CRLF] LWSP-char)  ; semantics = SPACE
@@ -86,6 +107,67 @@ let rfc822_qtext =
   rfc822_linear_white_space | ['\000' - '\033'] | ['\035' - '\091'] | ['\096' - '\127']
 (** XXX: ignore or accept 0 .. 32 (controls characters) ? *)
 let rfc822_quoted_string = '"' (rfc822_qtext | rfc822_quoted_pair) '"'
+
+(** See RFC 822 § APPENDIX D:
+
+    dtext = <any CHAR excluding "[",              ; => may be folded
+             "]", '\', & CR, & including
+             linear-white-space>
+*)
+let rfc822_dtext =
+  rfc822_linear_white_space | ['\000' - '\012'] | ['\014' - '\090'] | ['\094' - '\127']
+
+(** See RFC 822 § 3.3
+
+    word = atom / quoted-string
+*)
+let rfc822_word = rfc822_atom | rfc822_quoted_string
+
+(** See RFC 822 § 6.1:
+
+    addr-spec      =  local-part "@" domain        ; global address
+    local-part     =  word *("." word)             ; uninterpreted
+                                                   ; case-preserved
+    domain         =  sub-domain *("." sub-domain)
+    sub-domain     =  domain-ref / domain-literal
+    domain-ref     =  atom                         ; symbolic reference
+
+    See RFC 822 § 3.3 and 3.4.6 and 6.2.3:
+
+    Square  brackets ("["  and "]")  are used  to  indicate  the  presence  of a
+    domain-literal,  which  the  appropriate  name-domain  is  to  use directly,
+    bypasing normal name-resolution mechanisms.
+
+    Domain-literals which refer  to  domains  within  the  ARPA Internet specify
+    32-bit  Internet  addresses,  in four  8-bit  fields  noted  in decimal,  as
+    described in Request for Comments #820, "Assigned Numbers." For example:
+
+    [10.0.3.19]
+
+    Note:  THE USE OF DOMAIN-LITERALS  IS STRONGLY DISCOURAGED.  It is permitted
+           only as a  means of bypassing temporary  system limitations,  such as
+           name tables which are not complete.
+
+    The names  of "top-level" domains,  and the  names of  domains under  in the
+    ARPA Internet,  are  registered  with  the  Network Information Center,  SRI
+    International, Menlo Park, California.
+
+    domain-literal = "[" *(dtext / quoted-pair) "]"
+
+*)
+let rfc822_domain_ref     = rfc822_atom
+let rfc822_domain_literal = "[" (rfc822_dtext | rfc822_quoted_pair) * "]"
+let rfc822_sub_domain     = rfc822_domain_ref | rfc822_domain_literal
+let rfc822_domain         = rfc822_sub_domain ('.' rfc822_sub_domain) *
+
+let rfc822_local_part = rfc822_word ('.' rfc822_word) *
+let rfc822_addr_spec  = rfc822_local_part '@' rfc822_domain
+
+(** See RFC 822 § APPENDIX D
+
+    msg-id = "<" addr-spec ">" ; Unique message id
+*)
+let rfc822_msg_id = '<' rfc822_addr_spec '>'
 
 (** {RFC 2045} ****************************************************************)
 
@@ -191,6 +273,33 @@ let rfc2045_value = rfc2045_token | rfc822_quoted_string
 let rfc2045_mechanism =
   "7bit" | "8bit" | "binary" | "quoted-printable" | "base64"
   | rfc2045_x_token | rfc2045_ietf_token
+
+(** See RFC 2045 § 7:
+
+    In constructing a  high-level user agent,  it may be  desirable to allow one
+    body  to make  reference to  another.  Accordingly,  bodies may  be labelled
+    using the  "Content-ID" header field,  which  is syntactically  identical to
+    the "Message-ID" header field:
+
+    id := "Content-ID" ":" msg-id
+
+    Like  the Message-ID  values,  Content-ID values  must  be  generated  to be
+    world-unique.
+
+    The Content-ID value  may be used for uniquely  identifying MIME entities in
+    several  contexts,   particularly   for  caching  data   referenced  by  the
+    message/external-body  mechanism.   Although   the   Content-ID   header  is
+    generally optional,  its use is  MANDATORY in implementations which generate
+    data of the optional MIME media type "message/external-body".  That is, each
+    message/external-body entity must have a  Content-ID field to permit caching
+    of such data.
+
+    It is also  worth noting that the Content-ID value  has special semantics in
+    the case of the multipart/alternative  media type.  This is explained in the
+    section of RFC 2046 dealing with multipart/alternative.
+*)
+let rfc2045_id     = "Content-ID"
+let rfc2045_msg_id = rfc822_msg_id
 
 (** {RFC 2822 & RFC 822} **************************************************)
 
@@ -325,6 +434,66 @@ let rfc2822_quoted_pair = ('\\' rfc2822_text) | rfc2822_obs_qp
 *)
 let rfc2822_ctext = rfc2822_no_ws_ctl | ['\033' - '\039'] | ['\042' - '\091'] | ['\093' - '\126']
 
+let rfc2822_qtext = rfc2822_no_ws_ctl | '\033' | ['\035' - '\091'] | ['\093' - '\126']
+let rfc2822_dtext = rfc2822_no_ws_ctl | ['\033' - '\090'] | ['\094' - '\126']
+
+(** See RFC 2822 § 3.2.4
+
+    atext         = ALPHA / DIGIT / ; Any character except controls,
+                    "!" / "#" /     ;  SP, and specials.
+                    "$" / "%" /     ;  Used for atoms.
+                    "&" / "'" /
+                    "*" / "+" /
+                    "-" / "/" /
+                    "=" / "?" /
+                    "^" / "_" /
+                    "`" / "{" /
+                    "|" / "}" /
+                    "~"
+    atom          = [CFWS] atext+ [CFWS]
+    dot-atom      = [CFWS] dot-atom-text [CFWS]
+    dot-atom-text = 1*atext *("." 1*atext)
+*)
+let rfc2822_atext = ['a' - 'z' 'A' - 'Z' '0' - '9']
+  | '!' | '#' | '$' | '%' | '&' | '~' | '*' | '+'
+  | '-' | '/' | '=' | '?' | '^' | '_' | '`' | '{'
+  | "|" | '}' | '\''
+
+let rfc2822_atom          = (* [CFWS] *) rfc2822_atext + (* [CFWS] *)
+let rfc2822_dot_atom_text = rfc2822_atext+ ('.' rfc2822_atext+) *
+let rfc2822_dot_atom      = (* [CFWS] *) rfc2822_dot_atom_text (* [CFWS] *)
+
+(** See RFC 2822 § 3.6.4:
+
+    Though  optional,   every   message  SHOULD  have   a  "Message-ID:"  field.
+    Furthermore,  reply  messages SHOULD  have "In-Reply-To:"  and "References:"
+    fields as appropriate, as described below.
+
+    The "Message-ID:"  field contains a  single unique  message identifier.  The
+    "References:"  and "In-Reply-To:"  field each  contain  one  or  more unique
+    message identifiers, optionally separated by CFWS.
+
+    The  message identifier  (msg-id) is  similar  in  syntax  to  an angle-addr
+    construct without the internal CFWS.
+
+    message-id      =       "Message-ID:" msg-id CRLF
+    in-reply-to     =       "In-Reply-To:" 1*msg-id CRLF
+    references      =       "References:" 1*msg-id CRLF
+    msg-id          =       [CFWS] "<" id-left "@" id-right ">" [CFWS]
+    id-left         =       dot-atom-text / no-fold-quote / obs-id-left
+    id-right        =       dot-atom-text / no-fold-literal / obs-id-right
+    no-fold-quote   =       DQUOTE *(qtext / quoted-pair) DQUOTE
+    no-fold-literal =       "[" *(dtext / quoted-pair) "]"
+*)
+let rfc2822_obs_id_left     = rfc822_local_part
+let rfc2822_obs_id_right    = rfc822_domain
+
+let rfc2822_no_fold_quote   = '"' (rfc2822_qtext | rfc2822_quoted_pair) * '"'
+let rfc2822_no_fold_literal = '[' (rfc2822_dtext | rfc2822_quoted_pair) * ']'
+let rfc2822_id_left         = rfc2822_dot_atom_text | rfc2822_no_fold_quote | rfc2822_obs_id_left
+let rfc2822_id_right        = rfc2822_dot_atom_text | rfc2822_no_fold_literal | rfc2822_obs_id_right
+let rfc2822_msg_id          = (* [CFWS] *) '<' rfc2822_id_left '@' rfc2822_id_right '>' (* [CFWS] *)
+
 (** See RFC 822 § 3.3 (XXX: Used by RFC 2045)
 
     comment      =  "(" *(ctext / quoted-pair / comment) ")"
@@ -430,6 +599,10 @@ and  rfc2045_mechanism = parse
   | rfc2045_ietf_token as t  { `Ietf_token t }
   | _                        { raise (Invalid_argument "Lexer.mechanism") }
 
+and rfc2045_msg_id = parse
+  | rfc2045_msg_id as msg_id { msg_id }
+  | _                        { raise (Invalid_argument "Lexer.msg_id") }
+
 (** See RFC 2045 § 4
 
     Since it is possible that a  future document might extend the message format
@@ -470,3 +643,18 @@ and  rfc2822_comment level = parse
     { if level <= 1 then (assert (level = 1); lexbuf)
       else rfc2822_comment (level - 1) lexbuf }
   | _                   { rfc2822_comment level lexbuf }
+
+rule rfc2822_msg_id acc = parse
+  | '('                      { rfc2822_msg_id acc (rfc2822_comment 1 lexbuf) }
+  | rfc2822_fws              { rfc2822_msg_id acc lexbuf }
+  (* XXX: See RFC 2822 § APPENDIX B:
+     CFWS within msg-id is not allowed. *)
+  | rfc2822_msg_id as msg_id
+    { match acc with
+      | Some acc -> raise (Invalid_argument "Lexer.msg_id")
+      | None -> rfc2822_msg_id (Some msg_id) lexbuf }
+  | _
+  (* XXX: we lost a character! *)
+    { match acc with
+      | Some acc -> acc
+      | None -> raise (Invalid_argument "Lexer.msg_id") }

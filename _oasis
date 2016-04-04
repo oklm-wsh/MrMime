@@ -14,7 +14,7 @@ AlphaFeatures:          ocamlbuild_more_args
 
 Library mrmime
   Path:                 lib
-  Modules:              MrMime, Lexer, Parser, Base64, QuotedPrintable, Identity, Encoding, ContentType, Version, Loc
+  Modules:              MrMime, Lexer, Parser, Base64, QuotedPrintable, Identity, Encoding, ContentType, MsgID, Version, Loc
   InternalModules:      Flow
   BuildDepends:         sedlex, menhirLib
 
