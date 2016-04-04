@@ -11,7 +11,7 @@ module Version =
 
     let of_string str =
       let lexbuf = Lexing.from_string str in
-      Parser.version_with_eof Lexer.rfc2045_version lexbuf
+      Parser.version_with_eof Rfc2045.version lexbuf
   end
 
 let version =

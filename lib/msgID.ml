@@ -11,8 +11,8 @@ let to_string (left, right) =
   "<" ^ left ^ "@" ^ right ^ ">"
 
 let of_string str =
-  try Lexer.rfc2822_msg_id None (Lexing.from_string str)
-  with Invalid_argument "Lexer.msg_id" ->
-    try Lexer.rfc2045_msg_id (Lexing.from_string str)
-    with Invalid_argument "Lexer.msg_id" ->
+  try Rfc822.msg_id (Lexing.from_string str)
+  with exn ->
+    try Rfc2822.msg_id None (Lexing.from_string str)
+    with exn ->
       raise (Invalid_argument "MsgID.of_string")
