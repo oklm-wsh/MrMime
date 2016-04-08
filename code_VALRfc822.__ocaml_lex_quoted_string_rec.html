@@ -28,23 +28,23 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
 #&nbsp;207&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;comment&nbsp;(level&nbsp;+&nbsp;1)&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;721&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;873&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
 #&nbsp;209&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="keyword">if</span>&nbsp;level&nbsp;&lt;=&nbsp;1&nbsp;<span class="keyword">then</span>&nbsp;(<span class="keyword">assert</span>&nbsp;(level&nbsp;=&nbsp;1);&nbsp;lexbuf)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;comment&nbsp;(level&nbsp;-&nbsp;1)&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;727&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;879&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
 #&nbsp;212&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;comment&nbsp;level&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;732&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;884&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
 #&nbsp;213&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span>&nbsp;)<br>
-#&nbsp;737&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;889&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_comment_rec&nbsp;level&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
@@ -57,55 +57,60 @@
 <span class="keyword">let</span><br>
 #&nbsp;217&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;750&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;902&nbsp;"lib/rfc822.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
 #&nbsp;218&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buffer&nbsp;t;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quoted_string&nbsp;buffer&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;755&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;907&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
 #&nbsp;220&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-#&nbsp;761&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;913&nbsp;"lib/rfc822.ml"<br>
 =&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;2)&nbsp;<span class="keyword">in</span><br>
 #&nbsp;221&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buffer&nbsp;t;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quoted_string&nbsp;buffer&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;766&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;918&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
 #&nbsp;224&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;&nbsp;<span class="constructor">Buffer</span>.contents&nbsp;buffer&nbsp;)<br>
-#&nbsp;771&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;923&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
 #&nbsp;225&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span>&nbsp;)<br>
-#&nbsp;776&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;928&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_quoted_string_rec&nbsp;buffer&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
 <br>
 <span class="keyword">and</span>&nbsp;msg_id&nbsp;lexbuf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_msg_id_rec&nbsp;lexbuf&nbsp;19<br>
+&nbsp;&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem&nbsp;&lt;-&nbsp;<span class="constructor">Array</span>.make&nbsp;2&nbsp;(-1)&nbsp;;&nbsp;&nbsp;&nbsp;__ocaml_lex_msg_id_rec&nbsp;lexbuf&nbsp;19<br>
 <span class="keyword">and</span>&nbsp;__ocaml_lex_msg_id_rec&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.new_engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
 <span class="keyword">let</span><br>
 #&nbsp;228&nbsp;"lib/rfc822.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data<br>
-#&nbsp;789&nbsp;"lib/rfc822.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left<br>
+#&nbsp;941&nbsp;"lib/rfc822.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;1)&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem.(0)<br>
+<span class="keyword">and</span><br>
 #&nbsp;228&nbsp;"lib/rfc822.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;data&nbsp;)<br>
-#&nbsp;793&nbsp;"lib/rfc822.ml"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right<br>
+#&nbsp;946&nbsp;"lib/rfc822.ml"<br>
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_mem.(0)&nbsp;+&nbsp;1)&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;+&nbsp;-1)&nbsp;<span class="keyword">in</span><br>
+#&nbsp;228&nbsp;"lib/rfc822.mll"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;(left,&nbsp;right)&nbsp;)<br>
+#&nbsp;950&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
 #&nbsp;229&nbsp;"lib/rfc822.mll"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;raise&nbsp;<span class="constructor">Lexical_error</span>&nbsp;)<br>
-#&nbsp;798&nbsp;"lib/rfc822.ml"<br>
+#&nbsp;955&nbsp;"lib/rfc822.ml"<br>
 <br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_msg_id_rec&nbsp;lexbuf&nbsp;__ocaml_lex_state</code></body></html>
