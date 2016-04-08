@@ -27,13 +27,12 @@ let make_test str cty =
       (ContentType.of_string str) cty)
 
 let string_test =
-  [
-    make_test "text/plain; charset=us-ascii (Plain text)"
-      (ContentType.make "text" "plain" ~parameters:[("charset", "us-ascii")]);
-    make_test "text/plain; charset=\"us-ascii\""
-      (ContentType.make "text" "plain" ~parameters:[("charset", "us-ascii")]);
-    make_test "text/plain; charset=ISO-8859-1"
-      (ContentType.make "text" "plain" ~parameters:[("charset", "ISO-8859-1")]);
+  [ make_test "text/plain; charset=us-ascii (Plain text)"
+      (ContentType.make "text" "plain" ~parameters:[("charset", "us-ascii")])
+  ; make_test "text/plain; charset=\"us-ascii\""
+      (ContentType.make "text" "plain" ~parameters:[("charset", "us-ascii")])
+  ; make_test "text/plain; charset=ISO-8859-1"
+      (ContentType.make "text" "plain" ~parameters:[("charset", "ISO-8859-1")])
   ]
 
 let () =

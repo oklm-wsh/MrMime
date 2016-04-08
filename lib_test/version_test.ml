@@ -25,11 +25,10 @@ let make_test str vrs =
       (Version.of_string str) vrs)
 
 let string_test =
-  [
-    make_test "1.0" (Version.make 1 0);
-    make_test "1.0 (produced by MetaSend Vx.x)" (Version.make 1 0);
-    make_test "(produced by MetaSend Vx.x) 1.0" (Version.make 1 0);
-    make_test "1.(produced by MetaSend Vx.x)0" (Version.make 1 0);
+  [ make_test "1.0" (Version.make 1 0)
+  ; make_test "1.0 (produced by MetaSend Vx.x)" (Version.make 1 0)
+  ; make_test "(produced by MetaSend Vx.x) 1.0" (Version.make 1 0)
+  ; make_test "1.(produced by MetaSend Vx.x)0" (Version.make 1 0)
   ]
 
 let () =
