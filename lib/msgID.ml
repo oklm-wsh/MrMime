@@ -1,5 +1,7 @@
 type t = string * string
 
+let make a b = (a, b)
+
 let to_string (left, right) =
   (* XXX: it's compatible between RFC 822 and RFC 2822:
 
@@ -10,9 +12,13 @@ let to_string (left, right) =
   *)
   "<" ^ left ^ "@" ^ right ^ ">"
 
+let pp fmt i =
+  Format.fprintf fmt "%s" (to_string i)
+
+let equal (a, b) (x, y) =
+  (a = x) && (b = y)
+
 let of_string str =
   try Rfc822.msg_id (Lexing.from_string str)
   with exn ->
-    try Rfc2822.msg_id None (Lexing.from_string str)
-    with exn ->
-      raise (Invalid_argument "MsgID.of_string")
+    Rfc2822.msg_id (Lexing.from_string str)

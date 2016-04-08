@@ -225,5 +225,5 @@ and  quoted_string buffer = parse
   | _ { raise Lexical_error }
 
 and  msg_id = parse
-  | msg_id as data { data }
+  | '<' (local_part as left) '@' (domain as right) '>' { (left, right) }
   | _              { raise Lexical_error }

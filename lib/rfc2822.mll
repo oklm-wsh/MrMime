@@ -232,17 +232,54 @@ rule comment level = parse
       else comment (level - 1) lexbuf }
   | _                    { comment level lexbuf }
 
-and  msg_id acc = parse
-  | '('                      { msg_id acc (comment 1 lexbuf) }
-  | fws                      { msg_id acc lexbuf }
-  (* XXX: See RFC 2822 § APPENDIX B:
-     CFWS within msg-id is not allowed. *)
-  | msg_id as data
-    { match acc with
-      | Some acc -> raise (Invalid_argument "Lexer.msg_id")
-      | None -> msg_id (Some data) lexbuf }
-  | _
-  (* XXX: we lost a character! *)
-    { match acc with
-      | Some acc -> acc
-      | None -> raise (Invalid_argument "Lexer.msg_id") }
+and quoted_string buffer = parse
+  | qtext as t       { Buffer.add_char buffer t;
+                       quoted_string buffer lexbuf }
+  | quoted_pair as t { Buffer.add_string buffer t;
+                       quoted_string buffer lexbuf }
+  | '"'              { Buffer.contents buffer }
+  | _                { raise Lexical_error }
+
+and literal_string buffer = parse
+  | dtext as t       { Buffer.add_char buffer t;
+                       quoted_string buffer lexbuf }
+  | quoted_pair as t { Buffer.add_string buffer;
+                       quoted_string buffer lexbuf }
+  | ']'              { Buffer.contents buffer }
+  | _                { raise Lexical_error }
+
+and id_left buffer = parse
+  | '(' { id_left buffer (comment 1 lexbuf) }
+  | fws { id_left buffer lexbuf }
+  | '"' { let s = quoted_string (Buffer.create 16) lexbuf in
+          Buffer.add_string buffer s;
+          id_left buffer lexbuf }
+  | dot_atom as s { Buffer.add_string buffer s;
+                    id_left buffer lexbuf }
+  | '.' { if Buffer.length buffer > 0
+          then begin Buffer.add_char buffer '.'; id_right buffer lexbuf end
+          else raise Lexical_error }
+  | '@' { Buffer.contents buffer }
+  | _   { raise Lexical_error }
+
+and id_right buffer = parse
+  | '(' { id_right buffer (comment 1 lexbuf) }
+  | fws { id_right buffer lexbuf }
+  | '[' { let s = quoted_string (Buffer.create 16) lexbuf in
+          Buffer.add_string buffer s;
+          id_right buffer lexbuf }
+  | dot_atom as s { Buffer.add_string buffer s;
+                    id_right buffer lexbuf }
+  | '.' { if Buffer.length buffer > 0
+          then begin Buffer.add_char buffer '.'; id_right buffer lexbuf end
+          else raise Lexical_error }
+  | '>' { Buffer.contents buffer }
+  | _   { raise Lexical_error }
+
+and  msg_id = parse
+  | '(' { msg_id (comment 1 lexbuf) }
+  | fws { msg_id lexbuf }
+  | '<' { let l = id_left (Buffer.create 16) lexbuf in
+          let r = id_right (Buffer.create 16) lexbuf in
+          (l, r) }
+  | _   { raise (Invalid_argument "Lexer.msg_id") }

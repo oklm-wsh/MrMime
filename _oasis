@@ -73,6 +73,14 @@ Executable test_version
   MainIs:               version_test.ml
   BuildDepends:         mrmime, alcotest, ppx_import, ppx_deriving.std
 
+Executable test_msg_id
+  Path:                 lib_test
+  Build$:               flag(tests)
+  Install:              false
+  CompiledObject:       best
+  MainIs:               msg_id_test.ml
+  BuildDepends:         mrmime, alcotest, ppx_import, ppx_deriving.std
+
 Test test_content_type
   Run$:                 flag(tests)
   TestTools:            test_content_type
@@ -95,4 +103,10 @@ Test test_version
   Run$:                 flag(tests)
   TestTools:            test_version
   Command:              $test_version
+  WorkingDirectory:     .
+
+Test test_msg_id
+  Run$:                 flag(tests)
+  TestTools:            test_msg_id
+  Command:              $test_msg_id
   WorkingDirectory:     .
