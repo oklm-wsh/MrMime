@@ -27,15 +27,12 @@ remove: ["ocamlfind" "remove" "mrmime"]
 depends: [
   "oasis" {build}
   "alcotest" {test}
-  "ppx_deriving" {test}
-  "ppx_import" {test}
   "base64" {test}
   "benchmark" {test}
   "lwt" {test}
   "cohttp" {test}
   "uri" {test}
-  "menhir"
-  "sedlex"
+  "logs"
 ]
 
 available: [ocaml-version >= "4.02.0"]
