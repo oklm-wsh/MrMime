@@ -17,8 +17,3 @@ let pp fmt i =
 
 let equal (a, b) (x, y) =
   (a = x) && (b = y)
-
-let of_string str =
-  try Rfc822.msg_id (Lexing.from_string str)
-  with exn ->
-    Rfc2822.msg_id (Lexing.from_string str)

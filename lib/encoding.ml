@@ -21,13 +21,3 @@ let to_string = function
   | `Binary -> "binary"
   | `Quoted_printable -> "quoted-printable"
   | `Ietf_token s | `X_token s -> s
-
-(** See RFC 2045 § 6.1:
-
-    These values are not case sensitive --  Base64 and BASE64 and bAsE64 are all
-    equivalent.
-*)
-let of_string str =
-  try  Rfc2045.mechanism (Lexing.from_string (String.lowercase str))
-  with Invalid_argument "Lexer.mechanism" ->
-         raise (Invalid_argument "Encoding.of_string")
