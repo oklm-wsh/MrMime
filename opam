@@ -32,6 +32,7 @@ depends: [
   "lwt" {test}
   "cohttp" {test}
   "uri" {test}
+  "fmt"
   "logs"
 ]
 
