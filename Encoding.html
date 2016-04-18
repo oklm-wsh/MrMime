@@ -12,10 +12,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Rfc822" rel="Chapter" href="Rfc822.html">
-<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
-<link title="Rfc2822" rel="Chapter" href="Rfc2822.html">
-<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Address" rel="Chapter" href="Address.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
 <link title="Identity" rel="Chapter" href="Identity.html">
@@ -52,12 +49,4 @@ See RFC 2045 § 6.1:
     assumed  if  the  Content-Transfer-Encoding  header  field  is  not present.<br>
 </div>
 
-<pre><span id="VALto_string"><span class="keyword">val</span> <a href="code_VALEncoding.to_string.html">to_string</a></span> : <code class="type">[< `Base64<br>        | `Binary<br>        | `Bit7<br>        | `Bit8<br>        | `Ietf_token of string<br>        | `Quoted_printable<br>        | `X_token of string ] -><br>       string</code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> <a href="code_VALEncoding.of_string.html">of_string</a></span> : <code class="type">string -><br>       [> `Base64<br>        | `Binary<br>        | `Bit7<br>        | `Bit8<br>        | `Ietf_token of string<br>        | `Quoted_primary<br>        | `X_token of string ]</code></pre><div class="info ">
-See RFC 2045 § 6.1:
-<p>
-
-    These values are not case sensitive --  Base64 and BASE64 and bAsE64 are all
-    equivalent.<br>
-</div>
-</body></html>
+<pre><span id="VALto_string"><span class="keyword">val</span> <a href="code_VALEncoding.to_string.html">to_string</a></span> : <code class="type">[< `Base64<br>        | `Binary<br>        | `Bit7<br>        | `Bit8<br>        | `Ietf_token of string<br>        | `Quoted_printable<br>        | `X_token of string ] -><br>       string</code></pre></body></html>
