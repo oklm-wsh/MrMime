@@ -16,7 +16,7 @@ Library mrmime
   Path:                 lib
   Modules:              MrMime, Address, Parser, Base64, QuotedPrintable, Identity, Encoding, ContentType, MsgID, Version, Loc
   InternalModules:      Flow, Rfc5322
-  BuildDepends:         sedlex, menhirLib, logs, logs.cli, logs.fmt
+  BuildDepends:         logs, logs.cli, logs.fmt
 
 Document "mrmime"
   Type:                 ocamlbuild (0.4)
