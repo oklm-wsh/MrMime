@@ -14,7 +14,7 @@ AlphaFeatures:          ocamlbuild_more_args
 
 Library mrmime
   Path:                 lib
-  Modules:              MrMime, Address, Base64, QuotedPrintable, Identity, Encoding, ContentType, MsgID, Version, Loc
+  Modules:              MrMime, Address, Date, Base64, QuotedPrintable, Identity, Encoding, ContentType, MsgID, Version, Loc
   InternalModules:      Flow, Rfc5322
   BuildDepends:         logs, logs.cli, logs.fmt
 
@@ -39,6 +39,14 @@ Executable test_address
   Install:              false
   CompiledObject:       best
   MainIs:               address_test.ml
+  BuildDepends:         mrmime, alcotest
+
+Executable test_date
+  Path:                 lib_test
+  Build$:               flag(tests)
+  Install:              false
+  CompiledObject:       best
+  MainIs:               date_test.ml
   BuildDepends:         mrmime, alcotest
 
 Executable test_base64
@@ -69,6 +77,12 @@ Test test_address
   Run$:                 flag(tests)
   TestTools:            test_address
   Command:              $test_address
+  WorkingDirectory:     .
+
+Test test_date
+  Run$:                 flag(tests)
+  TestTools:            test_date
+  Command:              $test_date
   WorkingDirectory:     .
 
 Test test_base64
