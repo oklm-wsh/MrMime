@@ -14,9 +14,9 @@ AlphaFeatures:          ocamlbuild_more_args
 
 Library mrmime
   Path:                 lib
-  Modules:              MrMime, Rfc822, Rfc2045, Rfc2822, Parser, Base64, QuotedPrintable, Identity, Encoding, ContentType, MsgID, Version, Loc
-  InternalModules:      Flow
-  BuildDepends:         sedlex, menhirLib
+  Modules:              MrMime, Address, Parser, Base64, QuotedPrintable, Identity, Encoding, ContentType, MsgID, Version, Loc
+  InternalModules:      Flow, Rfc5322
+  BuildDepends:         sedlex, menhirLib, logs, logs.cli, logs.fmt
 
 Document "mrmime"
   Type:                 ocamlbuild (0.4)
@@ -33,13 +33,13 @@ SourceRepository master
   Location:             https://github.com/oklm-wsh/MrMime.git
   Browser:              https://github.com/oklm-wsh/MrMime
 
-Executable test_content_type
+Executable test_address
   Path:                 lib_test
   Build$:               flag(tests)
   Install:              false
   CompiledObject:       best
-  MainIs:               contentType_test.ml
-  BuildDepends:         mrmime, alcotest, ppx_import, ppx_deriving.std
+  MainIs:               address_test.ml
+  BuildDepends:         mrmime, alcotest
 
 Executable test_base64
   Path:                 lib_test
@@ -65,26 +65,10 @@ Executable bench_base64
   MainIs:               base64_bench.ml
   BuildDepends:         mrmime, alcotest, base64, benchmark
 
-Executable test_version
-  Path:                 lib_test
-  Build$:               flag(tests)
-  Install:              false
-  CompiledObject:       best
-  MainIs:               version_test.ml
-  BuildDepends:         mrmime, alcotest, ppx_import, ppx_deriving.std
-
-Executable test_msg_id
-  Path:                 lib_test
-  Build$:               flag(tests)
-  Install:              false
-  CompiledObject:       best
-  MainIs:               msg_id_test.ml
-  BuildDepends:         mrmime, alcotest, ppx_import, ppx_deriving.std
-
-Test test_content_type
+Test test_address
   Run$:                 flag(tests)
-  TestTools:            test_content_type
-  Command:              $test_content_type
+  TestTools:            test_address
+  Command:              $test_address
   WorkingDirectory:     .
 
 Test test_base64
@@ -97,16 +81,4 @@ Test test_quoted_printable
   Run$:                 flag(tests)
   TestTools:            test_quoted_printable
   Command:              $test_quoted_printable
-  WorkingDirectory:     .
-
-Test test_version
-  Run$:                 flag(tests)
-  TestTools:            test_version
-  Command:              $test_version
-  WorkingDirectory:     .
-
-Test test_msg_id
-  Run$:                 flag(tests)
-  TestTools:            test_msg_id
-  Command:              $test_msg_id
   WorkingDirectory:     .
