@@ -1,3 +1,5 @@
+open Base
+
 type domain  = Rfc5322.domain
 type local   = Rfc5322.local
 
@@ -14,47 +16,6 @@ type group =
   ; persons : person list }
 
 type t = [ `Group of group | `Person of person ]
-
-let p = Format.fprintf
-
-let pp_list ?(sep = "") pp_data fmt lst =
-  let rec aux = function
-    | [] -> ()
-    | [ x ] -> pp_data fmt x
-    | x :: r -> p fmt "%a%s" pp_data x sep; aux r
-  in
-
-  aux lst
-
-let pp_string ?(in_qs = false) ?(in_dm = false) fmt =
-  String.iter
-    (function
-     | '\x07' -> p fmt "\\a"
-     | '\b'   -> p fmt "\\b"
-     | '\t'   -> p fmt "\\t"
-     | '\n'   -> p fmt "\\n"
-     | '\x0b' -> p fmt "\\v"
-     | '\r'   -> p fmt "\\r"
-     | ' ' when in_qs -> p fmt " "
-     | '"' when in_qs -> p fmt "\\\""
-     | ']' when in_dm -> p fmt "\\]"
-     | chr when Rfc5322.is_vchar chr -> p fmt "%c" chr
-     | chr    -> p fmt "\\%c" chr)
-
-let pp_atom fmt = function
-  | `Atom s -> pp_string fmt s
-
-let pp_word fmt = function
-  | `Atom s -> pp_string fmt s
-  | `String s -> p fmt "\"%a\"" (pp_string ~in_qs:true ~in_dm:false) s
-
-let pp_phrase fmt =
-  let pp_elt fmt = function
-    | `Dot -> p fmt "."
-    | `FWS -> p fmt " "
-    | #Rfc5322.word as elt -> pp_word fmt elt
-  in
-  pp_list pp_elt fmt
 
 let pp_domain fmt = function
   | `Domain l -> p fmt "%a" (pp_list ~sep:"." pp_atom) l
@@ -81,6 +42,8 @@ let pp_group fmt { name; persons; } =
 let pp fmt = function
   | `Group group -> pp_group fmt group
   | `Person person -> pp_person fmt person
+
+external domain_of_lexer : Rfc5322.domain -> domain = "%identity"
 
 let mailbox_of_lexer (local, domains) =
   let first, rest = match domains with
@@ -114,7 +77,7 @@ let of_string s =
     | `Ok data -> of_lexer data
   in
 
-  let rule = Rfc5322.p_address (fun data state -> `Ok data) in
+  let rule = Rfc5322.p_address (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
   loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
 let to_string t =
@@ -130,6 +93,8 @@ module List =
 struct
   type nonrec t = t list
 
+  let of_lexer = List.map of_lexer
+
   let of_string s =
     let rec loop = function
       | `Error (exn, buf, off, len) ->
@@ -139,13 +104,13 @@ struct
         Format.fprintf fmt "%a (buf: %S)%!"
           Lexer.pp_error exn (Bytes.sub buf off (len - off));
 
-        raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
+        raise (Invalid_argument ("Address.List.of_string: " ^ (Buffer.contents tmp)))
       | `Read (buf, off, len, k) ->
-        raise (Invalid_argument "Address.of_string: unterminated string")
-      | `Ok data -> List.map of_lexer data
+        raise (Invalid_argument "Address.List.of_string: unterminated string")
+      | `Ok data -> of_lexer data
     in
 
-    let rule = Rfc5322.p_address_list (fun data state -> `Ok data) in
+    let rule = Rfc5322.p_address_list (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
     loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
   let pp fmt =

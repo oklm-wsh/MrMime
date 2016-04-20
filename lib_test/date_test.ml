@@ -3,7 +3,7 @@ let date = (module Date : Alcotest.TESTABLE with type t = Date.t)
 let make_compute_test s =
   Printf.sprintf "%S" s,
   `Slow,
-  (fun () -> let _ = Date.of_string in ())
+  (fun () -> let _ = Date.of_string s in ())
 
 let make_pp_test s =
   Printf.sprintf "%S" s,

@@ -1,19 +1,47 @@
-type t = string * string
+open Base
 
-let make a b = (a, b)
+type left  = Rfc5322.left
+type right = Rfc5322.right
+type t     = { left : left; right : right; }
 
-let to_string (left, right) =
-  (* XXX: it's compatible between RFC 822 and RFC 2822:
+let p = Format.fprintf
 
-     RFC 822/addr-spec = local-part "@" domain
-     RFC 822/msg-id    = "<" addr-spec ">"
+let pp_right fmt = function
+  | `Domain l -> p fmt "%a" (pp_list ~sep:"." pp_atom) l
+  | `Literal s -> p fmt "[%a]" (pp_string ~in_qs:false ~in_dm:true) s
 
-     RFC 2822/msg-id   = [CFWS] "<" id-left "@" id-right ">" [CFWS]
-  *)
-  "<" ^ left ^ "@" ^ right ^ ">"
+let pp_left fmt =
+  p fmt "%a" (pp_list ~sep:"." pp_word)
 
-let pp fmt i =
-  Format.fprintf fmt "%s" (to_string i)
+let pp fmt { left; right; } =
+  p fmt "<%a@%a>" pp_left left pp_right right
 
-let equal (a, b) (x, y) =
-  (a = x) && (b = y)
+let of_lexer (left, right) =
+  { left; right; }
+
+let of_string s =
+  let rec loop = function
+    | `Error (exn, buf, off, len) ->
+      let tmp = Buffer.create 16 in
+      let fmt = Format.formatter_of_buffer tmp in
+
+      Format.fprintf fmt "%a (buf: %S)%!"
+        Lexer.pp_error exn (Bytes.sub buf off (len - off));
+
+      raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
+    | `Read (buf, off, len, k) ->
+      raise (Invalid_argument "Address.of_string: unterminated string")
+    | `Ok data -> of_lexer data
+  in
+
+  let rule = Rfc5322.p_msg_id (fun data state -> `Ok data) in
+  loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
+
+let to_string t =
+  let tmp = Buffer.create 16 in
+  let fmt = Format.formatter_of_buffer tmp in
+
+  Format.fprintf fmt "%a%!" pp t;
+  Buffer.contents tmp
+
+let equal = (=)

@@ -14,8 +14,9 @@ type tz =
   | `MST | `MDT | `PST | `PDT
   | `Military_zone of char ]
 
-type date = int * month * int
-type time = int * int * int option
+type date      = int * month * int
+type time      = int * int * int option
+type date_time = day option * date * time * tz
 
 type atom   = [ `Atom of string ]
 type word   = [ atom | `String of string ]
@@ -26,9 +27,42 @@ type domain =
   | `Domain of atom list ]
 
 type local   = word list
-type person  = phrase option * (local * domain list)
+type mailbox = local * domain list
+type person  = phrase option * mailbox
 type group   = phrase * person list
 type address = [ `Group of group | `Person of person ]
+
+type left   = local
+type right  = domain
+type msg_id = left * right
+
+type received =
+  [ `Domain of domain
+  | `Mailbox of mailbox
+  | `Word of word ]
+
+type field =
+  [ `From            of person list
+  | `Date            of date_time
+  | `Sender          of person
+  | `ReplyTo         of address list
+  | `To              of address list
+  | `Cc              of address list
+  | `Bcc             of address list
+  | `Subject         of string
+  | `MessageID       of msg_id
+  | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
+  | `References      of [`Phrase of phrase | `MsgID of msg_id] list
+  | `ResentDate      of date_time
+  | `ResentFrom      of person list
+  | `ResentSender    of person
+  | `ResentTo        of address list
+  | `ResentCc        of address list
+  | `ResentBcc       of address list
+  | `ResentMessageID of msg_id
+  | `Received        of received list * date_time option
+  | `ReturnPath      of mailbox option
+  | `Field of string * string ]
 
 let cur_chr ?(avoid = []) state =
   while List.exists ((=) (Lexer.cur_chr state)) avoid
@@ -91,7 +125,7 @@ let p_repeat ?a ?b f state =
   else raise (Lexer.Error (Lexer.err_unexpected (cur_chr state) state))
 
 let is_obs_no_ws_ctl = function
-  | '\000' .. '\008'
+  | '\001' .. '\008'
   | '\011'
   | '\012'
   | '\014' .. '\031'
@@ -218,7 +252,7 @@ let rec p_fws p state =
          (* … *(CRLF 1*WSP) CRLF e *)
          | chr ->
            (Logs.debug @@ fun m -> m "state: p_fws/rollback");
-           Lexer.roll_back (p true) tmp state)
+           Lexer.roll_back (p (if String.length tmp > 2 then true else has_fws)) tmp state)
         state
     (* … e *)
     | None -> fail has_fws state
@@ -229,6 +263,8 @@ let rec p_fws p state =
     (* WSP / CR *)
     | '\x20' | '\x09' | '\r' as chr ->
       let success has_fws state =
+        (Logs.debug @@ fun m -> m "state: p_fws/loop/success");
+
         match chr with
         (* 1*WSP *(CRLF 1*WSP), so it's obs-fws *)
         | '\x20' | '\x09' ->
@@ -242,6 +278,8 @@ let rec p_fws p state =
         | chr -> p true state
       in
       let fail has_fws state =
+        (Logs.debug @@ fun m -> m "state: p_fws/loop/fail");
+
         (* WSP / CR *)
         match chr with
         | '\r' -> (* CR XXX: don't drop '\r', may be it's \r\n *)
@@ -397,7 +435,9 @@ let is_valid_atext text =
 
 let p_atext state =
   (Logs.debug @@ fun m -> m "state: p_atext");
-  Lexer.p_while is_atext state
+  let s = Lexer.p_while is_atext state in
+  (Logs.debug @@ fun m -> m "state: p_atext %S" s);
+  s
 
 let p_atom p =
   (Logs.debug @@ fun m -> m "state: p_atom");
@@ -477,7 +517,8 @@ let p_qcontent p state =
 
   match cur_chr state with
   | '\\' -> p_quoted_pair (fun chr -> p (String.make 1 chr)) state
-  | chr  -> p (p_qtext state) state
+  | chr when is_qtext chr -> p (p_qtext state) state
+  | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
 
 let p_quoted_string p state =
   (Logs.debug @@ fun m -> m "state: p_quoted_string");
@@ -612,6 +653,108 @@ let p_unstructured p state =
 
   loop state
 
+let p_obs_unstruct p state =
+  (Logs.debug @@ fun m -> m "state: p_obs_unstruct");
+
+  let buf = Buffer.create 16 in
+  let last buf =
+    if Buffer.length buf > 0
+    then fun c -> (Buffer.nth buf (Buffer.length buf - 1)) <> c
+    else fun _ -> false
+  in
+
+  let rec loop1 state =
+    (Logs.debug @@ fun m -> m "state: p_obs_unstruct/loop1");
+
+    if is_obs_utext @@ cur_chr state
+    then begin
+      Buffer.add_char buf (cur_chr state);
+      Lexer.junk_chr state;
+
+      let lf = p_repeat is_lf state in
+      let cr = p_repeat is_cr state in
+
+      if String.length lf = 0
+         && String.length cr = 1
+         && is_lf @@ cur_chr state
+      then Lexer.roll_back (p (Buffer.contents buf)) "\r" state
+      else begin
+        if last buf ' '
+           && (String.length lf > 0 || String.length cr > 0)
+        then Buffer.add_char buf ' ';
+
+        loop1 state
+      end
+    end else p_fws loop0 state
+
+  and loop0 has_fws state =
+    (Logs.debug @@ fun m -> m "state: p_obs_unstruct/loop0 (has_fws: %b)" has_fws);
+
+    if has_fws
+    then begin Buffer.add_char buf ' '; p_fws loop0 state end
+    else begin
+      let lf = p_repeat is_lf state in
+      let cr = p_repeat is_cr state in
+
+      if String.length lf = 0
+         && String.length cr = 1
+         && is_lf @@ cur_chr state
+      then Lexer.roll_back (p (Buffer.contents buf)) "\r" state
+      else begin
+        if last buf ' '
+           && (String.length lf > 0 || String.length cr > 0)
+        then Buffer.add_char buf ' ';
+
+        loop1 state
+      end
+    end
+  in
+
+  p_fws loop0 state
+
+let p_unstructured p state =
+  (Logs.debug @@ fun m -> m "state: p_unstructured");
+
+  let buf = Buffer.create 16 in
+  let last buf =
+    if Buffer.length buf > 0
+    then fun c -> (Buffer.nth buf (Buffer.length buf - 1)) <> c
+    else fun _ -> false
+  in
+
+  let rec loop1 has_fws state =
+    (Logs.debug @@ fun m -> m "state: p_unstructured/loop1 (has_fws: %b)" has_fws);
+
+    match cur_chr state with
+    | chr when is_vchar chr ->
+      if last buf ' ' && has_fws
+      then Buffer.add_char buf ' ';
+
+      (Logs.debug @@ fun m -> m "state: p_unstructured/loop1 (chr: [%S])" (String.make 1 (cur_chr state)));
+      Buffer.add_char buf (cur_chr state);
+      Lexer.junk_chr state;
+      p_fws loop1 state
+    | _ ->
+      p_obs_unstruct (fun data -> p (Buffer.contents buf ^ data)) state
+
+  and loop0 state =
+    (Logs.debug @@ fun m -> m "state: p_unstructured/loop0");
+
+    p_fws (fun has_fws state ->
+      match cur_chr state, has_fws with
+      | ('\x20' | '\x09'), false ->
+        let _ = p_repeat is_wsp state in
+
+        if last buf ' '
+        then Buffer.add_char buf ' ';
+
+        loop0 state
+      | chr, has_fws -> loop1 has_fws state)
+    state
+  in
+
+  loop0 state
+
 (* [CFWS] 2DIGIT [CFWS] *)
 let p_cfws_2digit_cfws p state =
   (Logs.debug @@ fun m -> m "state: p_cfws_2digit_cfws");
@@ -659,6 +802,8 @@ let p_obs_year p state =
   p_cfws (fun _ state -> let y = p_repeat ~a:2 is_digit state in
                          p_cfws (fun _ -> p (int_of_string y)) state) state
 let p_year has_already_fws p state =
+  (Logs.debug @@ fun m -> m "state: p_year");
+
   (* (FWS 4*DIGIT FWS) / obs-year *)
   p_fws (fun has_fws state ->
     if (has_fws || has_already_fws) && p_try is_digit state >= 4
@@ -671,15 +816,23 @@ let p_year has_already_fws p state =
   state
 
 let p_obs_day p state =
+  (Logs.debug @@ fun m -> m "state: p_obs_day");
+
   p_cfws (fun _ state -> let d = p_repeat ~a:1 ~b:2 is_digit state in
                          p_cfws (fun _ -> p (int_of_string d)) state)
     state
 
 let p_day p state =
+  (Logs.debug @@ fun m -> m "state: p_day");
+
   p_fws (fun _ state ->
-         if is_digit (cur_chr state)
+         (Logs.debug @@ fun m -> m "state: p_day (chr: [%S])" (String.make 1 (cur_chr state)));
+
+         if is_digit @@ cur_chr state
          then let d = p_repeat ~a:1 ~b:2 is_digit state in
               p_fws (fun has_fws ->
+                     (Logs.debug @@ fun m -> m "state: p_day (has_fws: %b)" has_fws);
+
                      if has_fws
                      then p (int_of_string d)
                      else raise (Lexer.Error (Lexer.err_expected ' ' state))) state
@@ -687,6 +840,8 @@ let p_day p state =
     state
 
 let p_month p state =
+  (Logs.debug @@ fun m -> m "state: p_month");
+
   let month = p_repeat ~a:3 ~b:3 is_alpha state in
 
   let month = match month with
@@ -707,6 +862,8 @@ let p_month p state =
   p month state
 
 let p_day_name p state =
+  (Logs.debug @@ fun m -> m "state: p_day_name");
+
   let day = p_repeat ~a:3 ~b:3 is_alpha state in
 
   let day = match day with
@@ -722,6 +879,8 @@ let p_day_name p state =
   p day state
 
 let p_day_of_week p =
+  (Logs.debug @@ fun m -> m "state: p_day_of_week");
+
   p_fws
   @@ fun _ state ->
      if is_alpha (cur_chr state) then p_day_name p state
@@ -729,6 +888,8 @@ let p_day_of_week p =
             state
 
 let p_date p =
+  (Logs.debug @@ fun m -> m "state: p_date");
+
   p_day (fun d -> p_month (fun m -> p_year false (fun y -> p (d, m, y))))
 
 let p_time_of_day p =
@@ -825,9 +986,11 @@ let p_date_time p state =
     state
   in
 
-  if is_alpha @@ cur_chr state
-  then p_day_of_week (fun day state -> Lexer.p_chr ',' state; aux ~day state) state
-  else aux state
+  p_fws (fun _ state ->
+         if is_alpha @@ cur_chr state
+         then p_day_of_week (fun day state -> Lexer.p_chr ',' state; aux ~day state) state
+         else aux state)
+    state
 
 (* See RFC 5322 § 3.4.1:
 
@@ -911,8 +1074,9 @@ let p_domain_literal p =
     | ']' ->
       Lexer.p_chr ']' state;
       p_cfws (fun _ -> p (List.rev acc |> String.concat "")) state
-    | chr ->
+    | chr when is_dtext chr || chr = '\\' ->
       p_dtext (fun s -> p_fws (fun _ -> loop (s :: acc))) state
+    | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
   in
 
   p_cfws (fun _ state ->
@@ -1226,9 +1390,17 @@ let p_group p state =
   p_display_name
     (fun display_name state ->
       Lexer.p_chr ':' state;
+
+      (Logs.debug @@ fun m -> m "state: p_group (consume display name)");
+
       match cur_chr state with
       | ';' -> Lexer.p_chr ';' state; p_cfws (fun _ -> p (display_name, [])) state
-      | chr -> p_group_list (fun group -> p_cfws (fun _ -> p (display_name, group))) state)
+      | chr ->
+        p_group_list (fun group ->
+          p_cfws (fun _ state ->
+            Lexer.p_chr ';' state;
+            p (display_name, group) state))
+        state)
     state
 
 let p_address p state =
@@ -1321,3 +1493,230 @@ let p_address_list p state =
                | chr -> p_cfws (fun _ -> obs [address]) state)
               state)
     state
+
+let p_obs_id_left = p_local_part
+
+let p_id_left p state =
+  p_try_rule
+    p
+    (p_obs_id_left p)
+    (p_dot_atom_text (fun data state -> `Ok (data, state)))
+    state
+
+let p_obs_id_right = p_domain
+
+let p_no_fold_literal p state =
+  Lexer.p_chr '[' state;
+  p_dtext (fun d state -> Lexer.p_chr ']' state; p (`Literal d) state) state
+
+let p_id_right p state =
+  p_try_rule
+    p
+    (p_try_rule p (p_obs_id_right p) (p_no_fold_literal (fun data state -> `Ok (data, state))))
+    (p_dot_atom_text (fun data state -> `Ok (`Domain data, state)))
+    state
+
+let p_msg_id p state =
+  p_cfws (fun _ state ->
+    Lexer.p_chr '<' state;
+    p_id_left (fun left state ->
+      Lexer.p_chr '@' state;
+      p_id_right (fun right state ->
+        Lexer.p_chr '>' state;
+        p_cfws (fun _ -> p (left, right)) state)
+      state)
+    state)
+  state
+
+let is_text = function
+  | '\001' .. '\009'
+  | '\011'
+  | '\012'
+  | '\014' .. '\127' -> true
+  | chr -> false
+
+let p_obs_body p state =
+  let buf = Buffer.create 16 in
+
+  let content p state =
+    let _ = p_repeat is_lf state in
+    let _ = p_repeat is_cr state in
+
+    let rec loop state =
+      if is_text @@ cur_chr state
+      || cur_chr state = '\000'
+      then begin
+        Buffer.add_char buf (cur_chr state);
+        let _ = p_repeat is_lf state in
+        let _ = p_repeat is_cr state in
+
+        loop state
+      end else p () state
+    in
+
+    loop state
+  in
+
+  let rec loop state =
+    p_try_rule
+      (fun () -> loop)
+      (fun state ->
+       p_try_rule
+         (fun () state -> loop state)
+         (p (Buffer.contents buf))
+         (content (fun () state -> `Ok ((), state)))
+         state)
+      (fun state -> Lexer.p_chr '\r' state;
+                    Lexer.p_chr '\n' state;
+                    `Ok ((), state))
+      state
+  in
+
+  loop state
+
+let p_body p state =
+  let rec content p state =
+    let buf = Buffer.create 16 in
+
+    let rec loop state =
+      let t = p_repeat ~b:998 is_text state in
+      Buffer.add_string buf t;
+
+      match cur_chr state with
+      | '\r' ->
+        Lexer.p_chr '\r' state;
+        Lexer.p_chr '\n' state;
+
+        loop state
+      | chr -> p (Buffer.contents buf) state
+    in
+
+    loop state
+  in
+
+  p_try_rule p (p_obs_body p) (content (fun data state -> `Ok (data, state))) state
+
+let p_crlf p state =
+  Lexer.p_chr '\r' state;
+  Lexer.p_chr '\n' state;
+  p state
+
+let is_ftext = function
+  | '\033' .. '\057'
+  | '\059' .. '\126' -> true
+  | chr -> false
+
+let p_field_name = p_repeat ~a:1 is_ftext
+
+let p_obs_bcc p state =
+  let rec aux state =
+    p_cfws (fun _ state -> match cur_chr state with
+                           | ',' -> aux state
+                           | chr -> p [] state)
+      state
+  in
+
+  p_try_rule p aux (p_address_list (fun l state -> `Ok (l, state))) state
+
+let p_bcc p state =
+  p_try_rule p (p_obs_bcc p) (p_address_list (fun l state -> `Ok (l, state))) state
+
+let p_phrase_or_msg_id p state =
+  let rec loop acc =
+    p_try_rule
+      (fun x -> loop (`MsgID x :: acc))
+      (p_try_rule
+        (fun x -> loop (`Phrase x :: acc))
+        (p (List.rev acc))
+        (p_phrase (fun data state -> `Ok (data, state))))
+      (p_msg_id (fun data state -> `Ok (data, state)))
+  in
+
+  loop [] state
+
+let p_received_token p state =
+  let rec loop acc =
+    p_try_rule
+      (fun data -> loop (`Domain data :: acc))
+      (p_try_rule
+        (fun data -> loop (`Mailbox data :: acc))
+        (p_try_rule
+          (fun data -> loop (`Mailbox data :: acc))
+          (p_try_rule
+            (fun data -> loop (`Word data :: acc))
+            (p (List.rev acc))
+            (p_word (fun data state -> `Ok (data, state))))
+          (p_addr_spec (fun (local, domain) state -> `Ok ((local, [domain]), state))))
+        (p_angle_addr (fun data state -> `Ok (data, state))))
+      (p_domain (fun data state -> `Ok (data, state)))
+  in
+
+  loop [] state
+
+let p_received p state =
+  p_received_token
+    (fun l state -> match cur_chr state with
+     | ';' ->
+       Lexer.p_chr ';' state;
+       p_date_time (fun date_time -> p (l, Some date_time)) state
+     | chr -> p (l, None) state)
+    state
+
+let p_path p =
+  p_try_rule
+    (fun addr -> p (Some addr))
+    (fun state ->
+      p_cfws
+        (fun _ state ->
+          Lexer.p_chr '<' state;
+          p_cfws
+            (fun _ state ->
+              Lexer.p_chr '>' state;
+              p_cfws (fun _ -> p None) state)
+            state)
+        state)
+    (p_angle_addr (fun data state -> `Ok (data, state)))
+
+let p_field p state =
+  let field = p_field_name state in
+  let _     = p_repeat is_wsp state in
+
+  Lexer.p_chr ':' state;
+
+  let rule = match String.lowercase field with
+    | "from"              -> p_mailbox_list     (fun l -> p_crlf @@ p (`From l))
+    | "sender"            -> p_mailbox          (fun m -> p_crlf @@ p (`Sender m))
+    | "reply-to"          -> p_address_list     (fun l -> p_crlf @@ p (`ReplyTo l))
+    | "to"                -> p_address_list     (fun l -> p_crlf @@ p (`To l))
+    | "cc"                -> p_address_list     (fun l -> p_crlf @@ p (`Cc l))
+    | "bcc"               -> p_bcc              (fun l -> p_crlf @@ p (`Bcc l))
+    | "date"              -> p_date_time        (fun d -> p_crlf @@ p (`Date d))
+    | "message-id"        -> p_msg_id           (fun m -> p_crlf @@ p (`MessageID m))
+    | "subject"           -> p_unstructured     (fun s -> p_crlf @@ p (`Subject s))
+    | "in-reply-to"       -> p_phrase_or_msg_id (fun l -> p_crlf @@ p (`InReplyTo l))
+    | "resent-date"       -> p_date_time        (fun d -> p_crlf @@ p (`ResentDate d))
+    | "resent-from"       -> p_mailbox_list     (fun l -> p_crlf @@ p (`ResentFrom l))
+    | "resent-sender"     -> p_mailbox          (fun m -> p_crlf @@ p (`ResentSender m))
+    | "resent-to"         -> p_address_list     (fun l -> p_crlf @@ p (`ResentTo l))
+    | "resent-cc"         -> p_address_list     (fun l -> p_crlf @@ p (`ResentCc l))
+    | "resent-bcc"        -> p_bcc              (fun l -> p_crlf @@ p (`ResentBcc l))
+    | "resent-message-id" -> p_msg_id           (fun m -> p_crlf @@ p (`ResentMessageID m))
+    | "references"        -> p_phrase_or_msg_id (fun l -> p_crlf @@ p (`References l))
+    | "received"          -> p_received         (fun r -> p_crlf @@ p (`Received r))
+    | "return-path"       -> p_path             (fun a -> p_crlf @@ p (`ReturnPath a))
+    | "comments"
+    | "keywords"          -> p_unstructured @@ (fun data -> p_crlf @@ (p (`Field (field, data))))
+    | field               -> p_unstructured @@ (fun data -> p_crlf @@ (p (`Field (field, data))))
+  in
+
+  rule state
+
+let p_header p state =
+  let rec loop acc state =
+    p_try_rule
+      (fun field -> loop (field :: acc)) (p (List.rev acc))
+      (p_field (fun data state -> `Ok (data, state)))
+      state
+  in
+
+  loop [] state

@@ -14,8 +14,8 @@ AlphaFeatures:          ocamlbuild_more_args
 
 Library mrmime
   Path:                 lib
-  Modules:              MrMime, Address, Date, Base64, QuotedPrintable, Identity, Encoding, ContentType, MsgID, Version, Loc
-  InternalModules:      Flow, Rfc5322
+  Modules:              MrMime, Date, Address, MsgID, Resent, Trace, Header
+  InternalModules:      Option, Base, Lexer, Rfc5322
   BuildDepends:         logs, logs.cli, logs.fmt
 
 Document "mrmime"
@@ -49,29 +49,13 @@ Executable test_date
   MainIs:               date_test.ml
   BuildDepends:         mrmime, alcotest
 
-Executable test_base64
+Executable test_header
   Path:                 lib_test
   Build$:               flag(tests)
   Install:              false
   CompiledObject:       best
-  MainIs:               base64_test.ml
+  MainIs:               header_test.ml
   BuildDepends:         mrmime, alcotest
-
-Executable test_quoted_printable
-  Path:                 lib_test
-  Build$:               flag(tests)
-  Install:              false
-  CompiledObject:       best
-  MainIs:               quotedPrintable_test.ml
-  BuildDepends:         mrmime, alcotest, lwt, uri, cohttp.lwt
-
-Executable bench_base64
-  Path:                 lib_test
-  Build$:               flag(tests)
-  Install:              false
-  CompiledObject:       best
-  MainIs:               base64_bench.ml
-  BuildDepends:         mrmime, alcotest, base64, benchmark
 
 Test test_address
   Run$:                 flag(tests)
@@ -85,14 +69,8 @@ Test test_date
   Command:              $test_date
   WorkingDirectory:     .
 
-Test test_base64
+Test test_header
   Run$:                 flag(tests)
-  TestTools:            test_base64
-  Command:              $test_base64
-  WorkingDirectory:     .
-
-Test test_quoted_printable
-  Run$:                 flag(tests)
-  TestTools:            test_quoted_printable
-  Command:              $test_quoted_printable
+  TestTools:            test_header
+  Command:              $test_header
   WorkingDirectory:     .
