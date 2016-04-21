@@ -16,11 +16,9 @@ type t =
   ; references    : [ phrase | `MsgID of MsgID.t ] list
   ; resents       : Resent.t list
   ; traces        : Trace.t list
+  ; comments      : string option
+  ; keywords      : Rfc5322.phrase list
   ; others        : (string * string) list }
-
-let find f l =
-  try Some (List.find f l)
-  with exn -> None
 
 let of_lexer k l =
   let from          = ref None in
@@ -36,6 +34,8 @@ let of_lexer k l =
   let references    = ref None in
   let resents       = ref [] in
   let traces        = ref [] in
+  let comments      = ref None in
+  let keywords      = ref [] in
   let others        = ref [] in
 
   let sanitize fields =
@@ -53,6 +53,8 @@ let of_lexer k l =
               ; references  = Option.value ~default:[] !references
               ; resents     = !resents
               ; traces      = !traces
+              ; comments    = !comments
+              ; keywords    = !keywords
               ; others      = !others })
         fields
     | _ -> k None fields
@@ -127,6 +129,12 @@ let of_lexer k l =
            | Some trace -> fun l -> traces := trace :: !traces; loop i l
            | None       -> fun l -> loop i l)
           (x :: rest)
+      | `Comments s ->
+        (match !comments with
+         | None   -> comments := Some s; loop i rest
+         | Some _ -> loop (x :: i) rest)
+      | `Keywords l ->
+        keywords := l @ !keywords; loop i rest
       | `Field (field_name, value) ->
         others := (field_name, value) :: !others;
         loop i rest
@@ -170,6 +178,7 @@ let t_to_list
   { from; date; sender; reply_to; target; cc; bcc; subject; msg_id
   ; in_reply_to; references
   ; resents; traces
+  ; comments; keywords
   ; others } =
   let ( >>= ) o f = match o with Some x -> Some (f x) | None -> None in
   let ( @:@ ) o r = match o with Some x -> x :: r | None -> r in
@@ -186,6 +195,8 @@ let t_to_list
   @:@ (references >|= fun l -> `References l)
   @:@ (resents >|= fun l -> `Resent l)
   @:@ (traces >|= fun l -> `Trace l)
+  @:@ (comments >>= fun s -> `Comments s)
+  @:@ (keywords >|= fun l -> `Keywords l)
   @:@ (others >|= fun l -> `Others l)
   @:@ (`From from) :: (`Date date) :: []
 
@@ -210,6 +221,8 @@ let pp_field fmt = function
   | `References l      -> p fmt "References: %a\r\n" (pp_list ~sep:" " pp_ext) l
   | `Resent l          -> p fmt "%a" (pp_list Resent.pp) l
   | `Trace l           -> p fmt "%a" (pp_list Trace.pp) l
+  | `Comments s        -> p fmt "Comments: %s\r\n" s
+  | `Keywords l        -> p fmt "Keywords: %a\r\n" (pp_list ~sep:"," pp_phrase) l
   | `Others l          -> p fmt "%a" (pp_list pp_field) l
 
 let pp fmt t =

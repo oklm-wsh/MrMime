@@ -50,6 +50,8 @@ type field =
   | `Cc              of address list
   | `Bcc             of address list
   | `Subject         of string
+  | `Comments        of string
+  | `Keywords        of phrase list
   | `MessageID       of msg_id
   | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
   | `References      of [`Phrase of phrase | `MsgID of msg_id] list
@@ -1677,6 +1679,36 @@ let p_path p =
         state)
     (p_angle_addr (fun data state -> `Ok (data, state)))
 
+let p_obs_phrase_list p state =
+  let rec loop acc state =
+    p_try_rule
+      (fun s -> loop (s :: acc))
+      (p_cfws (fun _ state ->
+       match cur_chr state with
+       | ',' -> Lexer.p_chr ',' state; loop acc state
+       | chr -> p (List.rev acc) state))
+      (fun state ->
+       Lexer.p_chr ',' state;
+       p_phrase (fun s state -> `Ok (s, state)) state)
+      state
+  in
+
+  p_cfws (fun _ -> p_phrase (fun s -> loop [s])) state
+
+let p_keywords p state =
+  let rec loop p acc =
+    p_phrase (fun s state ->
+      match cur_chr state with
+      | ',' -> Lexer.p_chr ',' state; loop p (s :: acc) state
+      | chr -> p_obs_phrase_list (fun l -> p (List.rev acc @ l)) state)
+  in
+
+  p_try_rule
+    (fun l -> p l)
+    (p_obs_phrase_list p)
+    (p_phrase (fun s -> loop (fun s state -> `Ok (s, state)) [s]))
+    state
+
 let p_field p state =
   let field = p_field_name state in
   let _     = p_repeat is_wsp state in
@@ -1693,6 +1725,8 @@ let p_field p state =
     | "date"              -> p_date_time        (fun d -> p_crlf @@ p (`Date d))
     | "message-id"        -> p_msg_id           (fun m -> p_crlf @@ p (`MessageID m))
     | "subject"           -> p_unstructured     (fun s -> p_crlf @@ p (`Subject s))
+    | "comments"          -> p_unstructured     (fun s -> p_crlf @@ p (`Comments s))
+    | "keywords"          -> p_keywords         (fun l -> p_crlf @@ p (`Keywords l))
     | "in-reply-to"       -> p_phrase_or_msg_id (fun l -> p_crlf @@ p (`InReplyTo l))
     | "resent-date"       -> p_date_time        (fun d -> p_crlf @@ p (`ResentDate d))
     | "resent-from"       -> p_mailbox_list     (fun l -> p_crlf @@ p (`ResentFrom l))
@@ -1704,8 +1738,6 @@ let p_field p state =
     | "references"        -> p_phrase_or_msg_id (fun l -> p_crlf @@ p (`References l))
     | "received"          -> p_received         (fun r -> p_crlf @@ p (`Received r))
     | "return-path"       -> p_path             (fun a -> p_crlf @@ p (`ReturnPath a))
-    | "comments"
-    | "keywords"          -> p_unstructured @@ (fun data -> p_crlf @@ (p (`Field (field, data))))
     | field               -> p_unstructured @@ (fun data -> p_crlf @@ (p (`Field (field, data))))
   in
 

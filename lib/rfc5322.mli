@@ -134,6 +134,8 @@ type field =
   | `Cc              of address list
   | `Bcc             of address list
   | `Subject         of string
+  | `Comments        of string
+  | `Keywords        of phrase list
   | `MessageID       of msg_id
   | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
   | `References      of [`Phrase of phrase | `MsgID of msg_id] list
