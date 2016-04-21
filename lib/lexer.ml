@@ -191,3 +191,20 @@ let of_bytes bytes =
   { buffer = bytes
   ; pos    = 0
   ; len    = Bytes.length bytes }
+
+let p_try_rule success fail rule state =
+  let tmp = Buffer.create 16 in
+
+  Buffer.add_bytes tmp (Bytes.sub state.buffer state.pos (state.len - state.pos));
+
+  let rec loop = function
+    | `Error (_, buf, off, len) -> safe fail (of_string (Buffer.contents tmp))
+    | `Read (buf, off, len, k) ->
+      `Read (buf, off, len,
+        (fun writing ->
+         Buffer.add_bytes tmp (Bytes.sub buf off writing);
+         loop @@ safe k writing))
+    | `Ok (data, state) -> safe (success data) state
+  in
+
+  loop @@ safe rule state

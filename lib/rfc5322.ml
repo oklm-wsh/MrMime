@@ -82,32 +82,19 @@ let p_try f state =
   state.Lexer.pos <- i0;
   n
 
-let p_try_rule success fail rule state =
-  let tmp = Buffer.create 16 in
+(* See RFC 5234 § 3.6:
 
-  Buffer.add_bytes tmp
-    (Bytes.sub state.Lexer.buffer state.Lexer.pos (state.Lexer.len - state.Lexer.pos));
-  (Logs.debug @@ fun m -> m "state: try_rule (save data %S)" (Buffer.contents tmp));
+   The operator "*" preceding an element indicates repetition. The full form is:
 
-  let rec loop = function
-    | `Error (_, buf, off, len) ->
-      (* Buffer.add_bytes tmp (Bytes.sub buf off (len - off)); *)
-      (Logs.debug @@ fun m -> m "state: try_rule/fail");
+     <a>*<b>element
 
-      (Logs.debug @@ fun m -> m "state: try_rule (new buffer %S)" (Buffer.contents tmp));
+   where <a> and <b> are optional decimal values, indicating at least <a> and at
+   most <b> occurrences of the element.
 
-      Lexer.safe fail (Lexer.of_string (Buffer.contents tmp))
-    | `Read (buf, off, len, k) ->
-      `Read (buf, off, len,
-        (fun writing ->
-         Buffer.add_bytes tmp (Bytes.sub buf off writing);
-         (Logs.debug @@ fun m -> m "sate: try_rule (save data %S)" (Buffer.contents tmp));
-         loop @@ Lexer.safe k writing))
-    | `Ok (data, state) -> Lexer.safe (success data) state
-  in
-
-  loop @@ Lexer.safe rule state
-
+   Default values are  0  and  infinity  so  that  *<element> allows any number,
+   including  zero;  1*<element>  requires  at  least  one;  3*3<element> allows
+   exactly 3; and 1*2<element> allows one or two.
+*)
 let p_repeat ?a ?b f state =
   let i0 = state.Lexer.pos in
   let most pos = match b with
@@ -126,6 +113,14 @@ let p_repeat ?a ?b f state =
   then Bytes.sub state.Lexer.buffer i0 (state.Lexer.pos - i0)
   else raise (Lexer.Error (Lexer.err_unexpected (cur_chr state) state))
 
+(* See RFC 5322 § 4.1:
+
+   obs-NO-WS-CTL   = %d1-8 /            ; US-ASCII control
+                     %d11 /             ;  characters that do not
+                     %d12 /             ;  include the carriage
+                     %d14-31 /          ;  return, line feed, and
+                     %d127              ;  white space characters
+*)
 let is_obs_no_ws_ctl = function
   | '\001' .. '\008'
   | '\011'
@@ -141,9 +136,6 @@ let is_cr = (=) '\r'
 (* See RFC 5234 § Appendix B.1:
 
    VCHAR           = %x21-7E              ; visible (printing) characters
-   SP              = %x20
-   HTAB            = %x09                 ; horizontal tab
-   WSP             = SP / HTAB            ; white space
 *)
 let is_vchar = function
   | '\x21' .. '\x7e' -> true
@@ -160,16 +152,18 @@ let s_vchar =
 
   make 0x21 0x7e ((+) 1) |> List.map Char.chr
 
+(* See RFC 5234 § Appendix B.1:
+
+   SP              = %x20
+   HTAB            = %x09                 ; horizontal tab
+   WSP             = SP / HTAB            ; white space
+*)
 let is_wsp = function
   | '\x20' | '\x09' -> true
   | chr             -> false
+
 let s_wsp  = ['\x20'; '\x09']
 
-(* See RFC 5322 § 3.2.1:
-
-   quoted-pair     = ("\" (VCHAR / WSP)) / obs-qp)
-   obs-qp          = "\" (%d0 / obs-NO-WS-CTL / LF / CR)"
-*)
 let of_escaped_character = function
   | 'a' -> '\x07'
   | 'b' -> '\b'
@@ -180,6 +174,11 @@ let of_escaped_character = function
   | 'r' -> '\r'
   | chr -> chr
 
+(* See RFC 5322 § 3.2.1:
+
+   quoted-pair     = ("\" (VCHAR / WSP)) / obs-qp)
+   obs-qp          = "\" (%d0 / obs-NO-WS-CTL / LF / CR)"
+*)
 let p_quoted_pair p state =
   (Logs.debug @@ fun m -> m "state: p_quoted_pair");
 
@@ -203,7 +202,8 @@ let p_quoted_pair p state =
                                           ; Folding white space
    obs-FWS         = 1*WSP *(CRLF 1*WSP)
 
-   XXX: it's [FWS], not FWS!
+   XXX: it's [FWS] (optionnal FWS), not FWS!, the bool argument of [p] inform
+        if we are a FWS token, or not.
 *)
 let rec p_fws p state =
   (* verify if we have *WSP CRLF, if it's true,
@@ -397,7 +397,7 @@ let is_alpha = function
   | '\x61' .. '\x7A' -> true
   | chr              -> false
 
-(* See RFC 3233 § 3.2.3:
+(* See RFC 5322 § 3.2.3:
 
    atext           = ALPHA / DIGIT /      ; Printable US-ASCII
                      "!" / "#" /          ;  characters not including
@@ -441,12 +441,20 @@ let p_atext state =
   (Logs.debug @@ fun m -> m "state: p_atext %S" s);
   s
 
+(* See RFC 5322 § 3.2.3:
+
+   atom            = [CFWS] 1*atext [CFWS]
+*)
 let p_atom p =
   (Logs.debug @@ fun m -> m "state: p_atom");
 
   p_cfws
   @@ fun _ state -> let atext = p_atext state in p_cfws (fun _ -> p atext) state
 
+(* See RFC 5322 § 3.2.3:
+
+   dot-atom-text   = 1*atext *("." 1*atext)
+*)
 let p_dot_atom_text p state =
   (Logs.debug @@ fun m -> m "state: p_dot_atom_text");
 
@@ -460,11 +468,14 @@ let p_dot_atom_text p state =
 
   next [`Atom (p_atext state)] state
 
+(* See RFC 5322 § 3.2.3:
+
+   dot-atom        = [CFWS] dot-atom-text [CFWS]
+*)
 let p_dot_atom p =
   (Logs.debug @@ fun m -> m "state: p_dot_atom");
 
-  (* [CFWS]              dot-atom-text               [CFWS] *)
-     p_cfws @@ (fun _ -> p_dot_atom_text (fun lst -> p_cfws (fun _ -> p lst)))
+  p_cfws @@ (fun _ -> p_dot_atom_text (fun lst -> p_cfws (fun _ -> p lst)))
 
 (* See RFC 5322 § 3.2.3:
 
@@ -514,6 +525,10 @@ let p_qtext state =
   (Logs.debug @@ fun m -> m "state: p_qtext: %S" s);
   s
 
+(* See RFC 5322 § 3.2.4:
+
+   qcontent        = qtext / quoted-pair
+*)
 let p_qcontent p state =
   (Logs.debug @@ fun m -> m "state: p_qcontent");
 
@@ -522,6 +537,12 @@ let p_qcontent p state =
   | chr when is_qtext chr -> p (p_qtext state) state
   | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
 
+(* See RFC 5322 § 3.2.4:
+
+   quoted-string   = [CFWS]
+                     DQUOTE *([FWS] qcontent) [FWS] DQUOTE
+                     [CFWS]
+*)
 let p_quoted_string p state =
   (Logs.debug @@ fun m -> m "state: p_quoted_string");
 
@@ -540,6 +561,10 @@ let p_quoted_string p state =
   in
   p_cfws (fun _ state -> Lexer.p_chr '"' state; loop [] state) state
 
+(* See RFC 5322 § 3.2.5:
+
+   word            = atom / quoted-string
+*)
 let p_word p state =
   (Logs.debug @@ fun m -> m "state: p_word");
 
@@ -555,6 +580,11 @@ let p_word p state =
 
   p_cfws (fun has_fws -> loop has_fws) state
 
+(* See RFC 5322 § 3.2.5 & 4.1:
+
+   phrase          = 1*word / obs-phrase
+   obs-phrase      = word *(word / "." / CFWS)
+*)
 let p_phrase p state =
   (Logs.debug @@ fun m -> m "state: p_phrase");
 
@@ -567,8 +597,8 @@ let p_phrase p state =
   (* XXX: remove unused FWS, if we don't remove that, the pretty-printer raise
           an error. May be, we fix that in the pretty-printer but I decide to
           fix that in this place. *)
-  let rec delete_last_fws = function
-    | `FWS :: r -> delete_last_fws r
+  let rec trim = function
+    | `FWS :: r -> trim r
     | r -> r
   in
 
@@ -584,7 +614,7 @@ let p_phrase p state =
               (Logs.debug @@ fun m -> m "state: p_phrase/obs (has_fws: %b)" has_fws);
 
               p_word (fun word -> obs (add_fws has_fws word words)) state
-            | _ -> p (List.rev @@ delete_last_fws words) state)
+            | _ -> p (trim @@ List.rev @@ trim words) state)
       state
   in
 
@@ -606,10 +636,20 @@ let p_phrase p state =
 
   p_word (fun word -> loop [word]) state
 
+(* See RFC 5322 § 4.1:
+
+   obs-utext       = %d0 / obs-NO-WS-CTL / VCHAR
+*)
 let is_obs_utext = function
   | '\000' -> true
   | chr -> is_obs_no_ws_ctl chr || is_vchar chr
 
+(* See RFC 5322 § 4.1:
+
+   obs-unstruct    = *(( *LF *CR *(obs-utext *LF *CR)) / FWS)
+
+   XXX: old but not wrong (not tested) implementation without record data
+*)
 let p_obs_unstruct p state =
   (* 1*(obs-utext *LF *CR) *)
   let rec loop1 state =
@@ -638,6 +678,12 @@ let p_obs_unstruct p state =
           to [loop0] to try the other pattern than [FWS]. *)
   p_fws (fun _ state -> loop0 state) state
 
+(* See RFC 5322 § 3.2.5
+
+   unstructured    = ( *([FWS] VCHAR) *WSP) / obs-unstruct
+
+   XXX: old but not wrong (not tested) implementation without record data
+*)
 let p_unstructured p state =
   let rec loop state =
     (* [FWS] *)
@@ -655,6 +701,16 @@ let p_unstructured p state =
 
   loop state
 
+(* See RFC 5322 § 4.1:
+
+   obs-unstruct    = *(( *LF *CR *(obs-utext *LF *CR)) / FWS)
+
+   XXX: we have an axiom in this rule, the next token should be a CRLF. And
+        if we have a CRLF (after we try [FWS]), we let the compute to [p]. In
+        another case, we continue to record the data.
+
+        so, the rule is really: *.CRLF[^ WSP] (with '.' it's all character)
+*)
 let p_obs_unstruct p state =
   (Logs.debug @@ fun m -> m "state: p_obs_unstruct");
 
@@ -714,6 +770,12 @@ let p_obs_unstruct p state =
 
   p_fws loop0 state
 
+(* See RFC 5322 § 3.2.5
+
+   unstructured    = ( *([FWS] VCHAR) *WSP) / obs-unstruct
+
+   XXX: same as [obs-unstruct]
+*)
 let p_unstructured p state =
   (Logs.debug @@ fun m -> m "state: p_unstructured");
 
@@ -763,7 +825,12 @@ let p_cfws_2digit_cfws p state =
 
   p_cfws (fun _ state -> let n = p_repeat ~a:2 ~b:2 is_digit state in
                        p_cfws (p (int_of_string n)) state) state
+(* See RFC 5322 § 4.3:
 
+   obs-hour        = [CFWS] 2DIGIT [CFWS]
+   obs-minute      = [CFWS] 2DIGIT [CFWS]
+   obs-second      = [CFWS] 2DIGIT [CFWS]
+*)
 let p_obs_hour p state =
   (Logs.debug @@ fun m -> m "state: p_obs_hour");
   p_cfws_2digit_cfws (fun n _ -> p n) state
@@ -776,6 +843,12 @@ let p_obs_second p state =
   (Logs.debug @@ fun m -> m "state: p_obs_second");
   p_cfws_2digit_cfws p state
 
+(* See RFC 5322 § 3.3:
+
+   hour            = 2DIGIT / obs-hour
+   minute          = 2DIGIT / obs-minute
+   second          = 2DIGIT / obs-second
+*)
 let p_2digit_or_obs p state =
   (Logs.debug @@ fun m -> m "state: p_2digit_or_obs");
 
@@ -799,10 +872,16 @@ let p_second p state =
   (Logs.debug @@ fun m -> m "state: p_second");
   p_2digit_or_obs p state
 
+(* See RFC 5322 § 3.3 & 4.3:
+
+   year            = (FWS 4*DIGIT FWS) / obs-year
+   obs-year        = [CFWS] 2*DIGIT [CFWS]
+*)
 let p_obs_year p state =
   (* [CFWS] 2*DIGIT [CFWS] *)
   p_cfws (fun _ state -> let y = p_repeat ~a:2 is_digit state in
                          p_cfws (fun _ -> p (int_of_string y)) state) state
+
 let p_year has_already_fws p state =
   (Logs.debug @@ fun m -> m "state: p_year");
 
@@ -817,6 +896,11 @@ let p_year has_already_fws p state =
     else p_obs_year p state)
   state
 
+(* See RFC 5322 § 3.3 & 4.3:
+
+   day             = ([FWS] 1*2DIGIT FWS) / obs-day
+   obs-day         = [CFWS] 1*2DIGIT [CFWS]
+*)
 let p_obs_day p state =
   (Logs.debug @@ fun m -> m "state: p_obs_day");
 
@@ -841,6 +925,12 @@ let p_day p state =
          else p_obs_day p state)
     state
 
+(* See RFC 5322 § 3.3:
+
+   month           = "Jan" / "Feb" / "Mar" / "Apr" /
+                     "May" / "Jun" / "Jul" / "Aug" /
+                     "Sep" / "Oct" / "Nov" / "Dec"
+*)
 let p_month p state =
   (Logs.debug @@ fun m -> m "state: p_month");
 
@@ -863,6 +953,11 @@ let p_month p state =
 
   p month state
 
+(* See RFC 5322 § 3.3:
+
+   day-name        = "Mon" / "Tue" / "Wed" / "Thu" /
+                     "Fri" / "Sat" / "Sun"
+*)
 let p_day_name p state =
   (Logs.debug @@ fun m -> m "state: p_day_name");
 
@@ -880,6 +975,11 @@ let p_day_name p state =
 
   p day state
 
+(* See RFC 5322 § 3.3 & 4.3:
+
+   day-of-week     = ([FWS] day-name) / obs-day-of-week
+   obs-day-of-week = [CFWS] day-name [CFWS]
+*)
 let p_day_of_week p =
   (Logs.debug @@ fun m -> m "state: p_day_of_week");
 
@@ -889,11 +989,19 @@ let p_day_of_week p =
      else p_cfws (fun _ -> p_day_name (fun day -> p_cfws (fun _ -> p day)))
             state
 
+(* See RFC 5322 § 3.3;
+
+   date            = day month year
+*)
 let p_date p =
   (Logs.debug @@ fun m -> m "state: p_date");
 
   p_day (fun d -> p_month (fun m -> p_year false (fun y -> p (d, m, y))))
 
+(* See RFC 5322 § 3.3:
+
+   time-of-day     = hour ":" minute [ ":" second ]
+*)
 let p_time_of_day p =
   p_hour
   @@ (fun hh state ->
@@ -905,6 +1013,20 @@ let p_time_of_day p =
        | chr -> p has_fws (hh, mm, None) state)
       state)
 
+(* See RFC 5322 § 3.3:
+
+   obs-zone        = "UT" / "GMT" /     ; Universal Time
+                                        ; North American UT
+                                        ; offsets
+                     "EST" / "EDT" /    ; Eastern:  - 5/ - 4
+                     "CST" / "CDT" /    ; Central:  - 6/ - 5
+                     "MST" / "MDT" /    ; Mountain: - 7/ - 6
+                     "PST" / "PDT" /    ; Pacific:  - 8/ - 7
+                     %d65-73 /          ; Military zones - "A"
+                     %d75-90 /          ; through "I" and "K"
+                     %d97-105 /         ; through "Z", both
+                     %d107-122          ; upper and lower case
+*)
 let p_obs_zone p state =
   let k x = p x state in
   match cur_chr state with
@@ -947,6 +1069,10 @@ let p_obs_zone p state =
   | '\107' .. '\122' as a -> Lexer.junk_chr state; k (`Military_zone a)
   | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
 
+(* See RFC 5322 § 3.3:
+
+   zone            = (FWS ( "+" / "-" ) 4DIGIT) / obs-zone
+*)
 let p_zone has_already_fws p state =
   (Logs.debug @@ fun m -> m "state: p_zone %b" has_already_fws);
 
@@ -966,6 +1092,10 @@ let p_zone has_already_fws p state =
          | _ -> p_obs_zone p state)
     state
 
+(* See RFC 5322 § 3.3:
+
+   time            = time-of-day zone
+*)
 let p_time p state =
   (Logs.debug @@ fun m -> m "state: p_time");
 
@@ -973,6 +1103,10 @@ let p_time p state =
     (fun has_fws (hh, mm, dd) -> p_zone has_fws (fun tz -> p ((hh, mm, dd), tz)))
     state
 
+(* See RFC 5322 § 3.3:
+
+   date-time       = [ day-of-week "," ] date time [CFWS]
+*)
 let p_date_time p state =
   (Logs.debug @@ fun m -> m "state: p_date_time");
 
@@ -994,7 +1128,7 @@ let p_date_time p state =
          else aux state)
     state
 
-(* See RFC 5322 § 3.4.1:
+(* See RFC 5322 § 3.4.1 & 4.4:
 
    dtext           = %d33-90 /            ; Printable US-ASCII
                      %d94-126 /           ;  characters not including
@@ -1143,7 +1277,7 @@ let p_local_part p =
                      [obs-local-part] and it's not just [quoted-string]. *)
     | chr ->
       (* dot-atom / obs-local-part *)
-      p_try_rule
+      Lexer.p_try_rule
         (function
           | [] -> p_obs_local_part p
           | l  -> p_obs_local_part' (List.rev l))
@@ -1151,6 +1285,10 @@ let p_local_part p =
         (p_dot_atom (fun l state -> `Ok (l, state)))
         state)
 
+(* See RFC 5322 § 3.4.1:
+
+   addr-spec       = local-part "@" domain
+*)
 let p_addr_spec p state =
   (Logs.debug @@ fun m -> m "state: p_addr_spec");
 
@@ -1247,6 +1385,9 @@ let p_obs_angle_addr p state =
    ├ if we start with local-part    → ">" [CFWS]
    └ if we start with *(CFWS / ",") → *("," [CFWS] ["@" domain]) ":"
                                       addr-spec ">" [CFWS]
+   --------------------------------------------------
+   And, we have [p_try_rule] to try [addr-spec] firstly and 
+   [obs-angle-addr] secondly.
 
    So, FUCK OFF EMAIL!
 *)
@@ -1266,10 +1407,14 @@ let p_angle_addr p state =
     state
   in
 
-  p_try_rule p (p_obs_angle_addr p)
+  Lexer.p_try_rule p (p_obs_angle_addr p)
     (first (fun data state -> `Ok (data, state)))
     state
 
+(* See RFC 5322 § 3.4:
+
+   display-name    = phrase
+*)
 let p_display_name p state =
   (Logs.debug @@ fun m -> m "state: p_display_name");
   p_phrase p state
@@ -1291,11 +1436,14 @@ let p_name_addr p state =
         state)
     state
 
+(* See RFC 5322 § 3.4:
+
+   mailbox         = name-addr / addr-spec
+*)
 let p_mailbox p state =
   (Logs.debug @@ fun m -> m "state: p_mailbox");
 
-  p_try_rule
-    p
+  Lexer.p_try_rule p
     (p_addr_spec (fun (local_part, domain) -> p (None, (local_part, [domain]))))
     (p_name_addr (fun name_addr state -> `Ok (name_addr, state)))
     state
@@ -1313,7 +1461,7 @@ let p_obs_mbox_list p state =
     | ',' ->
       Lexer.junk_chr state;
 
-      p_try_rule
+      Lexer.p_try_rule
         (fun mailbox state -> loop1 (mailbox :: acc) state)
         (fun state -> p_cfws (fun _ -> loop1 acc) state)
         (fun state -> p_mailbox (fun data state -> `Ok (data, state)) state)
@@ -1343,7 +1491,7 @@ let p_mailbox_list p state =
     | ',' ->
       Lexer.junk_chr state;
 
-      p_try_rule
+      Lexer.p_try_rule
         (fun mailbox -> obs (mailbox :: acc))
         (p_cfws (fun _ -> obs acc))
         (p_mailbox (fun data state -> `Ok (data, state)))
@@ -1373,9 +1521,9 @@ let p_mailbox_list p state =
    group-list      = mailbox-list / CFWS / obs-group-list
 *)
 let p_group_list p state =
-  p_try_rule
+  Lexer.p_try_rule
     (fun data -> p data)
-    (p_try_rule
+    (Lexer.p_try_rule
        (fun () -> p [])
        (p_cfws (fun _ -> p []))
        (p_obs_group_list (fun state -> `Ok ((), state))))
@@ -1405,10 +1553,14 @@ let p_group p state =
         state)
     state
 
+(* See RFC 5322 § 3.4:
+
+   address         = mailbox / group
+*)
 let p_address p state =
   (Logs.debug @@ fun m -> m "state: p_address");
 
-  p_try_rule
+  Lexer.p_try_rule
     (fun group state -> p (`Group group) state)
     (p_mailbox (fun mailbox -> p (`Person mailbox)))
     (p_group (fun data state -> `Ok (data, state)))
@@ -1429,7 +1581,7 @@ let p_obs_addr_list p state =
     | ',' ->
       Lexer.junk_chr state;
 
-      p_try_rule
+      Lexer.p_try_rule
         (fun address -> loop1 (address :: acc))
         (p_cfws (fun _ -> loop1 acc))
         (p_address (fun data state -> `Ok (data, state)))
@@ -1463,7 +1615,7 @@ let p_address_list p state =
     | ',' ->
       Lexer.junk_chr state;
 
-      p_try_rule
+      Lexer.p_try_rule
         (fun address -> obs (address :: acc))
         (p_cfws (fun _ -> obs acc))
         (p_address (fun data state -> `Ok (data, state)))
@@ -1477,7 +1629,7 @@ let p_address_list p state =
 
     match cur_chr state with
     | ',' -> Lexer.junk_chr state;
-      p_try_rule
+      Lexer.p_try_rule
         (fun address -> loop (address :: acc))
         (p_cfws (fun _ -> obs acc))
         (p_address (fun address state -> `Ok (address, state)))
@@ -1496,15 +1648,25 @@ let p_address_list p state =
               state)
     state
 
+(* See RFC 5322 § 3.6.4 & 4.5.4:
+
+   id-left         = dot-atom-text / obs-id-left
+   obs-id-left     = local-part
+*)
 let p_obs_id_left = p_local_part
 
 let p_id_left p state =
-  p_try_rule
-    p
+  Lexer.p_try_rule p
     (p_obs_id_left p)
     (p_dot_atom_text (fun data state -> `Ok (data, state)))
     state
 
+(* See RFC 5322 § 3.6.4 & 4.5.4:
+
+   id-right        = dot-atom-text / no-fold-literal / obs-id-right
+   no-fold-literal = "[" *dtext "]"
+   obs-id-right    =   domain
+*)
 let p_obs_id_right = p_domain
 
 let p_no_fold_literal p state =
@@ -1512,12 +1674,17 @@ let p_no_fold_literal p state =
   p_dtext (fun d state -> Lexer.p_chr ']' state; p (`Literal d) state) state
 
 let p_id_right p state =
-  p_try_rule
-    p
-    (p_try_rule p (p_obs_id_right p) (p_no_fold_literal (fun data state -> `Ok (data, state))))
+  Lexer.p_try_rule p
+    (Lexer.p_try_rule p
+       (p_obs_id_right p)
+       (p_no_fold_literal (fun data state -> `Ok (data, state))))
     (p_dot_atom_text (fun data state -> `Ok (`Domain data, state)))
     state
 
+(* See RFC 5322 § 3.6.4:
+
+   msg-id          = [CFWS] "<" id-left "@" id-right ">" [CFWS]
+*)
 let p_msg_id p state =
   p_cfws (fun _ state ->
     Lexer.p_chr '<' state;
@@ -1530,86 +1697,33 @@ let p_msg_id p state =
     state)
   state
 
-let is_text = function
-  | '\001' .. '\009'
-  | '\011'
-  | '\012'
-  | '\014' .. '\127' -> true
-  | chr -> false
-
-let p_obs_body p state =
-  let buf = Buffer.create 16 in
-
-  let content p state =
-    let _ = p_repeat is_lf state in
-    let _ = p_repeat is_cr state in
-
-    let rec loop state =
-      if is_text @@ cur_chr state
-      || cur_chr state = '\000'
-      then begin
-        Buffer.add_char buf (cur_chr state);
-        let _ = p_repeat is_lf state in
-        let _ = p_repeat is_cr state in
-
-        loop state
-      end else p () state
-    in
-
-    loop state
-  in
-
-  let rec loop state =
-    p_try_rule
-      (fun () -> loop)
-      (fun state ->
-       p_try_rule
-         (fun () state -> loop state)
-         (p (Buffer.contents buf))
-         (content (fun () state -> `Ok ((), state)))
-         state)
-      (fun state -> Lexer.p_chr '\r' state;
-                    Lexer.p_chr '\n' state;
-                    `Ok ((), state))
-      state
-  in
-
-  loop state
-
-let p_body p state =
-  let rec content p state =
-    let buf = Buffer.create 16 in
-
-    let rec loop state =
-      let t = p_repeat ~b:998 is_text state in
-      Buffer.add_string buf t;
-
-      match cur_chr state with
-      | '\r' ->
-        Lexer.p_chr '\r' state;
-        Lexer.p_chr '\n' state;
-
-        loop state
-      | chr -> p (Buffer.contents buf) state
-    in
-
-    loop state
-  in
-
-  p_try_rule p (p_obs_body p) (content (fun data state -> `Ok (data, state))) state
-
 let p_crlf p state =
   Lexer.p_chr '\r' state;
   Lexer.p_chr '\n' state;
   p state
 
+(* See RFC 5322 § 3.6.8:
+
+   ftext           = %d33-57 /          ; Printable US-ASCII
+                     %d59-126           ;  characters not including
+                                          ;  ":".
+*)
 let is_ftext = function
   | '\033' .. '\057'
   | '\059' .. '\126' -> true
   | chr -> false
 
+(* See RFC 5322 § 3.6.8:
+
+   field-name      = 1*ftext
+*)
 let p_field_name = p_repeat ~a:1 is_ftext
 
+(* See RFC 5322 § 4.5.3:
+
+   obs-bcc         = "Bcc" *WSP ":"
+                     (address-list / ( *([CFWS] ",") [CFWS])) CRLF
+*)
 let p_obs_bcc p state =
   let rec aux state =
     p_cfws (fun _ state -> match cur_chr state with
@@ -1618,16 +1732,30 @@ let p_obs_bcc p state =
       state
   in
 
-  p_try_rule p aux (p_address_list (fun l state -> `Ok (l, state))) state
+  Lexer.p_try_rule p aux
+    (p_address_list (fun l state -> `Ok (l, state))) state
 
+(* See RFC 5322 § 3.6.3:
+
+   bcc             = "Bcc:" [address-list / CFWS] CRLF
+*)
 let p_bcc p state =
-  p_try_rule p (p_obs_bcc p) (p_address_list (fun l state -> `Ok (l, state))) state
+  Lexer.p_try_rule p
+    (p_obs_bcc p)
+    (p_address_list (fun l state -> `Ok (l, state))) state
 
+(* phrase / msg-id for:
+
+   references      = "References:" 1*msg-id CRLF
+   obs-references  = "References" *WSP ":" *(phrase / msg-id) CRLF
+   in-reply-to     = "In-Reply-To:" 1*msg-id CRLF
+   obs-in-reply-to = "In-Reply-To" *WSP ":" *(phrase / msg-id) CRLF
+*)
 let p_phrase_or_msg_id p state =
   let rec loop acc =
-    p_try_rule
+    Lexer.p_try_rule
       (fun x -> loop (`MsgID x :: acc))
-      (p_try_rule
+      (Lexer.p_try_rule
         (fun x -> loop (`Phrase x :: acc))
         (p (List.rev acc))
         (p_phrase (fun data state -> `Ok (data, state))))
@@ -1636,15 +1764,19 @@ let p_phrase_or_msg_id p state =
 
   loop [] state
 
+(* See RFC 5322 § 3.6.7:
+
+   received-token  = word / angle-addr / addr-spec / domain
+*)
 let p_received_token p state =
   let rec loop acc =
-    p_try_rule
+    Lexer.p_try_rule
       (fun data -> loop (`Domain data :: acc))
-      (p_try_rule
+      (Lexer.p_try_rule
         (fun data -> loop (`Mailbox data :: acc))
-        (p_try_rule
+        (Lexer.p_try_rule
           (fun data -> loop (`Mailbox data :: acc))
-          (p_try_rule
+          (Lexer.p_try_rule
             (fun data -> loop (`Word data :: acc))
             (p (List.rev acc))
             (p_word (fun data state -> `Ok (data, state))))
@@ -1655,6 +1787,11 @@ let p_received_token p state =
 
   loop [] state
 
+(* See RFC 5322 § 3.6.7:
+
+   received        = "Received:" *received-token ";" date-time CRLF
+   obs-received    = "Received" *WSP ":" *received-token CRLF
+*)
 let p_received p state =
   p_received_token
     (fun l state -> match cur_chr state with
@@ -1664,8 +1801,12 @@ let p_received p state =
      | chr -> p (l, None) state)
     state
 
+(* See RFC 5322 § 3.6.7:
+
+   path            = angle-addr / ([CFWS] "<" [CFWS] ">" [CFWS])
+*)
 let p_path p =
-  p_try_rule
+  Lexer.p_try_rule
     (fun addr -> p (Some addr))
     (fun state ->
       p_cfws
@@ -1679,9 +1820,13 @@ let p_path p =
         state)
     (p_angle_addr (fun data state -> `Ok (data, state)))
 
+(* See RFC 5322 § 4.1:
+
+   obs-phrase-list = [phrase / CFWS] *("," [phrase / CFWS])
+*)
 let p_obs_phrase_list p state =
   let rec loop acc state =
-    p_try_rule
+    Lexer.p_try_rule
       (fun s -> loop (s :: acc))
       (p_cfws (fun _ state ->
        match cur_chr state with
@@ -1695,6 +1840,11 @@ let p_obs_phrase_list p state =
 
   p_cfws (fun _ -> p_phrase (fun s -> loop [s])) state
 
+(* See RFC 5322 § 3.6.5:
+
+   keywords        = "Keywords:" phrase *("," phrase) CRLF
+   obs-keywords    = "Keywords" *WSP ":" obs-phrase-list CRLF
+*)
 let p_keywords p state =
   let rec loop p acc =
     p_phrase (fun s state ->
@@ -1703,12 +1853,17 @@ let p_keywords p state =
       | chr -> p_obs_phrase_list (fun l -> p (List.rev acc @ l)) state)
   in
 
-  p_try_rule
+  Lexer.p_try_rule
     (fun l -> p l)
     (p_obs_phrase_list p)
     (p_phrase (fun s -> loop (fun s state -> `Ok (s, state)) [s]))
     state
 
+(* See RFC 5322 § 3.6.8:
+
+   optional-field  = field-name ":" unstructured CRLF
+   obs-optional    = field-name *WSP ":" unstructured CRLF
+*)
 let p_field p state =
   let field = p_field_name state in
   let _     = p_repeat is_wsp state in
@@ -1745,7 +1900,7 @@ let p_field p state =
 
 let p_header p state =
   let rec loop acc state =
-    p_try_rule
+    Lexer.p_try_rule
       (fun field -> loop (field :: acc)) (p (List.rev acc))
       (p_field (fun data state -> `Ok (data, state)))
       state

@@ -12,12 +12,13 @@ val is_specials       : char -> bool
 val is_qtext          : char -> bool
 val is_dquote         : char -> bool
 val is_obs_utext      : char -> bool
+val is_dtext          : char -> bool
 val is_ftext          : char -> bool
-val is_text           : char -> bool
 
 val is_valid_atext    : string -> bool
 
 val s_wsp             : char list
+val s_vchar           : char list
 
 val p_ctext           : Lexer.t -> string
 val p_atext           : Lexer.t -> string
@@ -43,16 +44,6 @@ val p_dot_atom        : (atom list   -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read
 val p_quoted_string   : (string      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_word            : (word        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_phrase          : (phrase      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_hour        : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_minute      : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_second      : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_hour            : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_minute          : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_second          : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_year        : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_year            : bool -> (int -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_day         : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_day             : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
 type month =
   [ `Jan | `Feb | `Mar | `Apr
@@ -74,6 +65,16 @@ type date      = int * month * int
 type time      = int * int * int option
 type date_time = day option * date * time * tz
 
+val p_obs_hour        : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_minute      : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_second      : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_hour            : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_minute          : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_second          : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_year        : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_year            : bool -> (int -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_day         : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_day             : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_month           : (month        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_day_of_week     : (day          -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_date            : (date         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret

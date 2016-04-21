@@ -38,6 +38,10 @@ val junk_chr   : t -> unit
 val p_chr      : char -> t -> unit
 val p_set      : char list -> t -> unit
 val p_while    : (char -> bool) -> t -> string
+val p_try_rule : ('a -> t -> ([> e | 'c read] as 'c))
+                 -> (t -> 'c)
+                 -> (t -> ([< `Ok of ('a * t) | e | 'e read > `Error] as 'e))
+                 -> t -> 'c
 
 val make       : ?len:int -> unit -> t
 val of_string  : string -> t
