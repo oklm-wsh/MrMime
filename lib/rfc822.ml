@@ -12,3 +12,11 @@ let is_space = (=) ' '
 let is_ctl = function
   | '\000' .. '\031' -> true
   | _                -> false
+
+let is_digit = function
+  | '0' .. '9' -> true
+  | _          -> false
+
+let is_lwsp = function
+  | '\x20' | '\x09' -> true
+  | _               -> false
