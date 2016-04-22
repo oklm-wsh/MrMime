@@ -162,31 +162,40 @@ struct
     | _    -> false
 end
 
-let p_decode p state =
+type ok = [ `Ok of string * Lexer.t ]
+
+let p_decode stop p state =
   let buf = Buffer.create 16 in
 
   let rec decode base64 padding state =
-    match Lexer.cur_chr state with
-    | 'A' .. 'Z'
-    | 'a' .. 'z'
-    | '0' .. '9'
-    | '+' | '/' as chr ->
-      if padding = 0
-      then begin
-        Lexer.junk_chr state;
-        decode (F.add base64 chr buf) padding state
-      end else begin
-        F.flush base64 buf;
-        raise (Lexer.Error (Lexer.err_unexpected chr state))
-      end
-    | '=' ->
-      Lexer.junk_chr state;
-      decode base64 (padding + 1) state
-    | chr ->
-      F.flush base64 buf;
-      if F.padding base64 padding
-      then p (`Base64 (Buffer.contents buf)) state
-      else raise (Lexer.Error (Lexer.err_wrong_padding state))
+    let rec aux = function
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        (match Lexer.cur_chr state with
+         | 'A' .. 'Z'
+         | 'a' .. 'z'
+         | '0' .. '9'
+         | '+' | '/' as chr ->
+           if padding = 0
+           then begin
+             Lexer.junk_chr state;
+             decode (F.add base64 chr buf) padding state
+           end else begin
+             F.flush base64 buf;
+             raise (Lexer.Error (Lexer.err_unexpected chr state))
+           end
+         | '=' ->
+           Lexer.junk_chr state;
+           decode base64 (padding + 1) state
+         | chr ->
+           F.flush base64 buf;
+           if F.padding base64 padding
+           then p (Buffer.contents buf) state
+           else raise (Lexer.Error (Lexer.err_wrong_padding state)))
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+    in aux (stop state)
   in
 
   decode F.default 0 state
@@ -195,15 +204,18 @@ let p_encode stop p state =
   let buf = Buffer.create 16 in
 
   let rec encode base64 state =
-    let continue, state = stop state in
-    match continue with
-    | true ->
-      let chr = Lexer.cur_chr state in
-      Lexer.junk_chr state;
-      encode (T.add base64 chr buf) state
-    | false ->
-      T.flush base64 buf;
-      p (`Base64 (Buffer.contents buf)) state
+    let rec aux = function
+      | `Stop state ->
+        T.flush base64 buf;
+        p (Buffer.contents buf) state
+      | `Continue state ->
+        let chr = Lexer.cur_chr state in
+        Lexer.junk_chr state;
+        encode (T.add base64 chr buf) state
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+    in aux (stop state)
   in
 
   encode (T.make ()) state

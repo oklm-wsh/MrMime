@@ -737,7 +737,7 @@ let p_obs_unstruct p state =
     end
   in
 
-  p_fws loop0 state
+  p_fws (fun has_fws -> Rfc2047.p_try (loop0 has_fws)) state
 
 (* See RFC 5322 § 3.2.5
 
@@ -773,16 +773,18 @@ let p_unstructured p state =
   and loop0 state =
     (Logs.debug @@ fun m -> m "state: p_unstructured/loop0");
 
-    p_fws (fun has_fws state ->
-      match cur_chr state, has_fws with
-      | ('\x20' | '\x09'), false ->
-        let _ = Lexer.p_repeat is_wsp state in
+    p_fws (fun has_fws ->
+      Rfc2047.p_try
+        (fun state ->
+         match cur_chr state, has_fws with
+         | ('\x20' | '\x09'), false ->
+           let _ = Lexer.p_repeat is_wsp state in
 
-        if last buf ' '
-        then Buffer.add_char buf ' ';
+           if last buf ' '
+           then Buffer.add_char buf ' ';
 
-        loop0 state
-      | chr, has_fws -> loop1 has_fws state)
+           loop0 state
+         | chr, has_fws -> loop1 has_fws state))
     state
   in
 
@@ -1630,7 +1632,7 @@ let p_id_left p state =
     (p_dot_atom_text (fun data state -> `Ok (data, state)))
     state
 
-(* See RFC 5322 § 3.6.4 & 4.5.4:
+    (* See RFC 5322 § 3.6.4 & 4.5.4:
 
    id-right        = dot-atom-text / no-fold-literal / obs-id-right
    no-fold-literal = "[" *dtext "]"

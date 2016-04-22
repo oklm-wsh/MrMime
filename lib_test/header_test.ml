@@ -131,6 +131,7 @@ Sender:   Secy@SHOST
 To:       "Al Neuman"@Mad-Host,
           Sam.Irving@Other-Host
 Message-ID:  <some.string@SHOST>
+Subject:  =?iso-8859-1?q?this=20is=20some=20text?=
 |};
 
 (* See RFC 822 § A.3.3 *)

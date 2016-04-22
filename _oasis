@@ -15,7 +15,7 @@ AlphaFeatures:          ocamlbuild_more_args
 Library mrmime
   Path:                 lib
   Modules:              MrMime, Date, Address, MsgID, Resent, Trace, Header
-  InternalModules:      Option, Base, Lexer, Rfc822, Rfc5322, Rfc6854, Rfc2045, Base64, QuotedPrintable
+  InternalModules:      Option, Base, Lexer, Rfc822, Rfc5322, Rfc6854, Rfc2045, Base64, QuotedPrintable, Rfc2047
   BuildDepends:         logs, logs.cli, logs.fmt
 
 Document "mrmime"

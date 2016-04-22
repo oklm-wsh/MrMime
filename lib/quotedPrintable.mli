@@ -11,5 +11,13 @@ val p_qp_part           : (string           -> Lexer.t -> ([> Lexer.err | 'ret L
 val p_qp_line           : (string list      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_quoted_printable  : (string list list -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
-val p_decode : (Lexer.t -> bool * Lexer.t) -> ([> `QuotedPrintable of string ] -> Lexer.t -> 'a) -> Lexer.t -> 'a
-val p_encode : (Lexer.t -> bool * Lexer.t) -> ([> `QuotedPrintable of string ] -> Lexer.t -> 'a) -> Lexer.t -> 'a
+val p_decode :
+  (Lexer.t -> ([< `Continue of Lexer.t | `Stop of Lexer.t  | 'a Lexer.read |
+  Lexer.err > `Error ] as 'a))
+  -> (string -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret))
+  -> Lexer.t -> 'ret
+val p_encode :
+  (Lexer.t -> ([< `Continue of Lexer.t | `Stop of Lexer.t  | 'a Lexer.read |
+  Lexer.err > `Error ] as 'a))
+  -> (string -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret))
+  -> Lexer.t -> 'ret

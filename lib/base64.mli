@@ -84,5 +84,13 @@
     step in some implementations.
 *)
 
-val p_decode : ([> `Base64 of string ] -> Lexer.t -> 'a) -> Lexer.t -> 'a
-val p_encode : (Lexer.t -> bool * Lexer.t) -> ([> `Base64 of string ] -> Lexer.t -> 'a) -> Lexer.t -> 'a
+val p_decode :
+  (Lexer.t -> ([< `Continue of Lexer.t | `Stop of Lexer.t  | 'a Lexer.read |
+  Lexer.err > `Error ] as 'a))
+  -> (string -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret))
+  -> Lexer.t -> 'ret
+val p_encode :
+  (Lexer.t -> ([< `Continue of Lexer.t | `Stop of Lexer.t  | 'a Lexer.read |
+  Lexer.err > `Error ] as 'a))
+  -> (string -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret))
+  -> Lexer.t -> 'ret
