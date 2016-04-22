@@ -74,7 +74,7 @@ let pp_tz fmt = function
   | `Military_zone chr -> p fmt "%c" chr
 
 let pp fmt { day; date = (d, m, y); time = (hh, mm, ss); tz } =
-  p fmt "%a%02d %a %04d %02d:%02d%a %a"
+  p fmt "%a%02d %a %d %02d:%02d%a %a"
     pp_day day d pp_month m y hh mm pp_second ss pp_tz tz
 
 let to_string date =
