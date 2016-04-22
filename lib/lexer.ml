@@ -1,4 +1,4 @@
-(* let () = Logs.set_level ~all:true (Some Logs.Debug) *)
+let () = Logs.set_level ~all:true (Some Logs.Debug)
 let () = Logs.set_reporter (Logs_fmt.reporter ())
 
 type t =
@@ -8,19 +8,21 @@ type t =
 
 type error =
   [ `Unexpected_eoi
-  | `Expected_char   of char
-  | `Expected_set    of char list
-  | `Unexpected_char of char
-  | `Unexpected_str  of string
-  | `Wrong_padding ]
+  | `Expected_char       of char
+  | `Expected_set        of char list
+  | `Unexpected_char     of char
+  | `Unexpected_str      of string
+  | `Wrong_padding
+  | `Unexpected_encoding of string ]
 
-let err e state                  = `Error (e, state.buffer, state.pos, state.len)
-let err_unexpected_eoi state     = err `Unexpected_eoi state
-let err_expected chr state       = err (`Expected_char chr) state
-let err_expected_set set state   = err (`Expected_set set) state
-let err_unexpected chr state     = err (`Unexpected_char chr) state
-let err_unexpected_str str state = err (`Unexpected_str str) state
-let err_wrong_padding state      = err `Wrong_padding state
+let err e state                       = `Error (e, state.buffer, state.pos, state.len)
+let err_unexpected_eoi state          = err `Unexpected_eoi state
+let err_expected chr state            = err (`Expected_char chr) state
+let err_expected_set set state        = err (`Expected_set set) state
+let err_unexpected chr state          = err (`Unexpected_char chr) state
+let err_unexpected_str str state      = err (`Unexpected_str str) state
+let err_wrong_padding state           = err `Wrong_padding state
+let err_unexpected_encoding str state = err (`Unexpected_encoding str) state
 
 let p = Format.fprintf
 
@@ -35,12 +37,13 @@ let pp_lst ?(sep = "") pp_data fmt set =
 let pp_char fmt = p fmt "%c"
 
 let pp_error fmt = function
-  | `Unexpected_eoi      -> p fmt "Unexpected EOI"
-  | `Expected_char chr   -> p fmt "Expected [%S]" (String.make 1 chr)
-  | `Expected_set set    -> p fmt "Expected [%a]" (pp_lst ~sep:" | " pp_char) set
-  | `Unexpected_char chr -> p fmt "Unexpected [%S]" (String.make 1 chr)
-  | `Unexpected_str str  -> p fmt "Unexpected [%S]" str
-  | `Wrong_padding       -> p fmt "Wrong padding"
+  | `Unexpected_eoi          -> p fmt "Unexpected EOI"
+  | `Expected_char chr       -> p fmt "Expected [%S]" (String.make 1 chr)
+  | `Expected_set set        -> p fmt "Expected [%a]" (pp_lst ~sep:" | " pp_char) set
+  | `Unexpected_char chr     -> p fmt "Unexpected [%S]" (String.make 1 chr)
+  | `Unexpected_str str      -> p fmt "Unexpected [%S]" str
+  | `Wrong_padding           -> p fmt "Wrong padding"
+  | `Unexpected_encoding str -> p fmt "Unexpected encoding [%S]" str
 
 type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
@@ -171,6 +174,9 @@ let p_set l state =
     raise (Error (err_expected_set l state))
   | None ->
     raise (Error (err_unexpected_eoi state))
+
+let p_str str state =
+  String.iter (fun chr -> p_chr chr state) str
 
 let p_while f state =
   let i0 = state.pos in

@@ -5,11 +5,12 @@ type t =
 
 type error =
   [ `Unexpected_eoi
-  | `Expected_char   of char
-  | `Expected_set    of char list
-  | `Unexpected_char of char
-  | `Unexpected_str  of string
-  | `Wrong_padding ]
+  | `Expected_char       of char
+  | `Expected_set        of char list
+  | `Unexpected_char     of char
+  | `Unexpected_str      of string
+  | `Wrong_padding
+  | `Unexpected_encoding of string ]
 
 val pp_char  : Format.formatter -> char -> unit
 val pp_lst   : ?sep:string -> (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a list -> unit
@@ -20,13 +21,14 @@ type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
 
 exception Error of err
 
-val err                : error -> t -> err
-val err_unexpected_eoi : t -> err
-val err_expected       : char -> t -> err
-val err_expected_set   : char list -> t -> err
-val err_unexpected     : char -> t -> err
-val err_unexpected_str : string -> t -> err
-val err_wrong_padding  : t -> err
+val err                     : error -> t -> err
+val err_unexpected_eoi      : t -> err
+val err_expected            : char -> t -> err
+val err_expected_set        : char list -> t -> err
+val err_unexpected          : char -> t -> err
+val err_unexpected_str      : string -> t -> err
+val err_wrong_padding       : t -> err
+val err_unexpected_encoding : string -> t -> err
 
 val safe       : ('a -> ([> err ] as 'err)) -> 'a -> 'err
 val read_exact : int -> (string -> t -> ([> err | 'ret read] as 'ret)) -> t -> 'ret
@@ -38,6 +40,7 @@ val cur_chr    : t -> char
 val junk_chr   : t -> unit
 
 val p_chr      : char -> t -> unit
+val p_str      : string -> t -> unit
 val p_set      : char list -> t -> unit
 val p_while    : (char -> bool) -> t -> string
 val p_try_rule : ('a -> t -> ([> err | 'c read] as 'c))
