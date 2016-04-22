@@ -72,47 +72,6 @@ let cur_chr ?(avoid = []) state =
 
   Lexer.cur_chr state
 
-let p_try f state =
-  let i0 = state.Lexer.pos in
-  while state.Lexer.pos < state.Lexer.len
-     && f (Bytes.get state.Lexer.buffer state.Lexer.pos)
-  do state.Lexer.pos <- state.Lexer.pos + 1 done;
-
-  let n = state.Lexer.pos - i0 in
-  state.Lexer.pos <- i0;
-  n
-
-(* See RFC 5234 § 3.6:
-
-   The operator "*" preceding an element indicates repetition. The full form is:
-
-     <a>*<b>element
-
-   where <a> and <b> are optional decimal values, indicating at least <a> and at
-   most <b> occurrences of the element.
-
-   Default values are  0  and  infinity  so  that  *<element> allows any number,
-   including  zero;  1*<element>  requires  at  least  one;  3*3<element> allows
-   exactly 3; and 1*2<element> allows one or two.
-*)
-let p_repeat ?a ?b f state =
-  let i0 = state.Lexer.pos in
-  let most pos = match b with
-    | Some most -> (pos - i0) <= most
-    | None -> true
-  in
-  let least pos = match a with
-    | Some least -> (pos - i0) >= least
-    | None -> true
-  in
-  while state.Lexer.pos < state.Lexer.len
-        && f (Bytes.get state.Lexer.buffer state.Lexer.pos)
-        && most state.Lexer.pos
-  do state.Lexer.pos <- state.Lexer.pos + 1 done;
-  if least state.Lexer.pos
-  then Bytes.sub state.Lexer.buffer i0 (state.Lexer.pos - i0)
-  else raise (Lexer.Error (Lexer.err_unexpected (cur_chr state) state))
-
 (* See RFC 5322 § 4.1:
 
    obs-NO-WS-CTL   = %d1-8 /            ; US-ASCII control
@@ -739,8 +698,8 @@ let p_obs_unstruct p state =
       Buffer.add_char buf (cur_chr state);
       Lexer.junk_chr state;
 
-      let lf = p_repeat is_lf state in
-      let cr = p_repeat is_cr state in
+      let lf = Lexer.p_repeat is_lf state in
+      let cr = Lexer.p_repeat is_cr state in
 
       if String.length lf = 0
          && String.length cr = 1
@@ -761,8 +720,8 @@ let p_obs_unstruct p state =
     if has_fws
     then begin Buffer.add_char buf ' '; p_fws loop0 state end
     else begin
-      let lf = p_repeat is_lf state in
-      let cr = p_repeat is_cr state in
+      let lf = Lexer.p_repeat is_lf state in
+      let cr = Lexer.p_repeat is_cr state in
 
       if String.length lf = 0
          && String.length cr = 1
@@ -817,7 +776,7 @@ let p_unstructured p state =
     p_fws (fun has_fws state ->
       match cur_chr state, has_fws with
       | ('\x20' | '\x09'), false ->
-        let _ = p_repeat is_wsp state in
+        let _ = Lexer.p_repeat is_wsp state in
 
         if last buf ' '
         then Buffer.add_char buf ' ';
@@ -833,7 +792,7 @@ let p_unstructured p state =
 let p_cfws_2digit_cfws p state =
   (Logs.debug @@ fun m -> m "state: p_cfws_2digit_cfws");
 
-  p_cfws (fun _ state -> let n = p_repeat ~a:2 ~b:2 is_digit state in
+  p_cfws (fun _ state -> let n = Lexer.p_repeat ~a:2 ~b:2 is_digit state in
                        p_cfws (p (int_of_string n)) state) state
 (* See RFC 5322 § 4.3:
 
@@ -862,7 +821,7 @@ let p_obs_second p state =
 let p_2digit_or_obs p state =
   (Logs.debug @@ fun m -> m "state: p_2digit_or_obs");
 
-  if p_try is_digit state = 2
+  if Lexer.p_try is_digit state = 2
   then let n = Lexer.p_while is_digit state in
        p_cfws (p (int_of_string n)) state
        (* XXX: in this case, it's possible to
@@ -889,7 +848,7 @@ let p_second p state =
 *)
 let p_obs_year p state =
   (* [CFWS] 2*DIGIT [CFWS] *)
-  p_cfws (fun _ state -> let y = p_repeat ~a:2 is_digit state in
+  p_cfws (fun _ state -> let y = Lexer.p_repeat ~a:2 is_digit state in
                          p_cfws (fun _ -> p (int_of_string y)) state) state
 
 let p_year has_already_fws p state =
@@ -897,7 +856,7 @@ let p_year has_already_fws p state =
 
   (* (FWS 4*DIGIT FWS) / obs-year *)
   p_fws (fun has_fws state ->
-    if (has_fws || has_already_fws) && p_try is_digit state >= 4
+    if (has_fws || has_already_fws) && Lexer.p_try is_digit state >= 4
     then let y = Lexer.p_while is_digit state in
          p_fws (fun has_fws state ->
                 if has_fws
@@ -914,7 +873,7 @@ let p_year has_already_fws p state =
 let p_obs_day p state =
   (Logs.debug @@ fun m -> m "state: p_obs_day");
 
-  p_cfws (fun _ state -> let d = p_repeat ~a:1 ~b:2 is_digit state in
+  p_cfws (fun _ state -> let d = Lexer.p_repeat ~a:1 ~b:2 is_digit state in
                          p_cfws (fun _ -> p (int_of_string d)) state)
     state
 
@@ -925,7 +884,7 @@ let p_day p state =
          (Logs.debug @@ fun m -> m "state: p_day (chr: [%S])" (String.make 1 (cur_chr state)));
 
          if is_digit @@ cur_chr state
-         then let d = p_repeat ~a:1 ~b:2 is_digit state in
+         then let d = Lexer.p_repeat ~a:1 ~b:2 is_digit state in
               p_fws (fun has_fws ->
                      (Logs.debug @@ fun m -> m "state: p_day (has_fws: %b)" has_fws);
 
@@ -944,7 +903,7 @@ let p_day p state =
 let p_month p state =
   (Logs.debug @@ fun m -> m "state: p_month");
 
-  let month = p_repeat ~a:3 ~b:3 is_alpha state in
+  let month = Lexer.p_repeat ~a:3 ~b:3 is_alpha state in
 
   let month = match month with
   | "Jan" -> `Jan
@@ -971,7 +930,7 @@ let p_month p state =
 let p_day_name p state =
   (Logs.debug @@ fun m -> m "state: p_day_name");
 
-  let day = p_repeat ~a:3 ~b:3 is_alpha state in
+  let day = Lexer.p_repeat ~a:3 ~b:3 is_alpha state in
 
   let day = match day with
   | "Mon" -> `Mon
@@ -1046,7 +1005,7 @@ let p_obs_zone p state =
 
     if a = 'G' || a = 'E' || a = 'C'
        && (cur_chr state = 'M' || cur_chr state = 'S' || cur_chr state = 'D')
-    then let next = p_repeat ~a:2 ~b:2 is_alpha state in
+    then let next = Lexer.p_repeat ~a:2 ~b:2 is_alpha state in
          match a, next with
          | 'G', "MT" -> k `GMT
          | 'E', "ST" -> k `EST
@@ -1065,7 +1024,7 @@ let p_obs_zone p state =
     then (Lexer.p_chr 'T' state; k `UT)
     else if a = 'M' || a = 'P'
             && (cur_chr state = 'S' || cur_chr state = 'D')
-    then let next = p_repeat ~a:2 ~b:2 is_alpha state in
+    then let next = Lexer.p_repeat ~a:2 ~b:2 is_alpha state in
          match a, next with
          | 'M', "ST" -> k `MST (* maladie sexuellement transmissible *)
          | 'M', "DT" -> k `MDT
@@ -1090,14 +1049,14 @@ let p_zone has_already_fws p state =
          match has_already_fws || has_fws, cur_chr state with
          | true, '+' ->
            Lexer.p_chr '+' state;
-           let tz = p_repeat ~a:4 ~b:4 is_digit state in
+           let tz = Lexer.p_repeat ~a:4 ~b:4 is_digit state in
            p (`TZ (int_of_string tz)) state
          | true, '-' ->
            Lexer.p_chr '-' state;
-           let tz = p_repeat ~a:4 ~b:4 is_digit state in
+           let tz = Lexer.p_repeat ~a:4 ~b:4 is_digit state in
            p (`TZ (- (int_of_string tz))) state
          | true, chr when is_digit chr ->
-           let tz = p_repeat ~a:4 ~b:4 is_digit state in
+           let tz = Lexer.p_repeat ~a:4 ~b:4 is_digit state in
            p (`TZ (int_of_string tz)) state
          | _ -> p_obs_zone p state)
     state
@@ -1727,7 +1686,7 @@ let is_ftext = function
 
    field-name      = 1*ftext
 *)
-let p_field_name = p_repeat ~a:1 is_ftext
+let p_field_name = Lexer.p_repeat ~a:1 is_ftext
 
 (* See RFC 5322 § 4.5.3:
 
@@ -1886,7 +1845,7 @@ let p_keywords p state =
 *)
 let p_field p state =
   let field = p_field_name state in
-  let _     = p_repeat is_wsp state in
+  let _     = Lexer.p_repeat is_wsp state in
 
   Lexer.p_chr ':' state;
 

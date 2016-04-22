@@ -11,7 +11,8 @@ type error =
   | `Expected_char   of char
   | `Expected_set    of char list
   | `Unexpected_char of char
-  | `Unexpected_str  of string ]
+  | `Unexpected_str  of string
+  | `Wrong_padding ]
 
 let err e state                  = `Error (e, state.buffer, state.pos, state.len)
 let err_unexpected_eoi state     = err `Unexpected_eoi state
@@ -19,6 +20,7 @@ let err_expected chr state       = err (`Expected_char chr) state
 let err_expected_set set state   = err (`Expected_set set) state
 let err_unexpected chr state     = err (`Unexpected_char chr) state
 let err_unexpected_str str state = err (`Unexpected_str str) state
+let err_wrong_padding state      = err `Wrong_padding state
 
 let p = Format.fprintf
 
@@ -38,11 +40,12 @@ let pp_error fmt = function
   | `Expected_set set    -> p fmt "Expected [%a]" (pp_lst ~sep:" | " pp_char) set
   | `Unexpected_char chr -> p fmt "Unexpected [%S]" (String.make 1 chr)
   | `Unexpected_str str  -> p fmt "Unexpected [%S]" str
+  | `Wrong_padding       -> p fmt "Wrong padding"
 
-type e = [ `Error of error * string * int * int ]
+type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
 
-exception Error of e
+exception Error of err
 
 let safe k state =
   try k state
@@ -208,3 +211,43 @@ let p_try_rule success fail rule state =
   in
 
   loop @@ safe rule state
+
+(* See RFC 5234 § 3.6:
+
+   The operator "*" preceding an element indicates repetition. The full form is:
+
+     <a>*<b>element
+
+   where <a> and <b> are optional decimal values, indicating at least <a> and at
+   most <b> occurrences of the element.
+
+   Default values are  0  and  infinity  so  that  *<element> allows any number,
+   including  zero;  1*<element>  requires  at  least  one;  3*3<element> allows
+   exactly 3; and 1*2<element> allows one or two.
+*)
+let p_repeat ?a ?b f state =
+  let i0 = state.pos in
+  let most pos = match b with
+    | Some most -> (pos - i0) <= most
+    | None -> true
+  in
+  let least pos = match a with
+    | Some least -> (pos - i0) >= least
+    | None -> true
+  in
+  while state.pos < state.len
+        && f (Bytes.get state.buffer state.pos)
+        && most state.pos
+  do state.pos <- state.pos + 1 done;
+  if least state.pos
+  then Bytes.sub state.buffer i0 (state.pos - i0)
+  else raise (Error (err_unexpected (cur_chr state) state))
+
+let p_try f state =
+  let i0 = state.pos in
+  while state.pos < state.len
+     && f (Bytes.get state.buffer state.pos)
+  do state.pos <- state.pos + 1 done;
+
+  let n = state.pos - i0 in
+  state.pos <- i0; n

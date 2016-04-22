@@ -8,28 +8,30 @@ type error =
   | `Expected_char   of char
   | `Expected_set    of char list
   | `Unexpected_char of char
-  | `Unexpected_str  of string ]
+  | `Unexpected_str  of string
+  | `Wrong_padding ]
 
 val pp_char  : Format.formatter -> char -> unit
 val pp_lst   : ?sep:string -> (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a list -> unit
 val pp_error : Format.formatter -> error -> unit
 
-type e = [ `Error of error * string * int * int ]
+type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
 
-exception Error of e
+exception Error of err
 
-val err                : error -> t -> e
-val err_unexpected_eoi : t -> e
-val err_expected       : char -> t -> e
-val err_expected_set   : char list -> t -> e
-val err_unexpected     : char -> t -> e
-val err_unexpected_str : string -> t -> e
+val err                : error -> t -> err
+val err_unexpected_eoi : t -> err
+val err_expected       : char -> t -> err
+val err_expected_set   : char list -> t -> err
+val err_unexpected     : char -> t -> err
+val err_unexpected_str : string -> t -> err
+val err_wrong_padding  : t -> err
 
-val safe       : ('a -> ([> e ] as 'err)) -> 'a -> 'err
-val read_exact : int -> (string -> t -> ([> e | 'ret read] as 'ret)) -> t -> 'ret
-val roll_back  : (t -> ([> e | 'ret read ] as 'ret)) -> string -> t -> 'ret
-val read_line  : (t -> ([> e | 'ret read ] as 'ret)) -> t -> 'ret
+val safe       : ('a -> ([> err ] as 'err)) -> 'a -> 'err
+val read_exact : int -> (string -> t -> ([> err | 'ret read] as 'ret)) -> t -> 'ret
+val roll_back  : (t -> ([> err | 'ret read ] as 'ret)) -> string -> t -> 'ret
+val read_line  : (t -> ([> err | 'ret read ] as 'ret)) -> t -> 'ret
 
 val peek_chr   : t -> char option
 val cur_chr    : t -> char
@@ -38,10 +40,12 @@ val junk_chr   : t -> unit
 val p_chr      : char -> t -> unit
 val p_set      : char list -> t -> unit
 val p_while    : (char -> bool) -> t -> string
-val p_try_rule : ('a -> t -> ([> e | 'c read] as 'c))
+val p_try_rule : ('a -> t -> ([> err | 'c read] as 'c))
                  -> (t -> 'c)
-                 -> (t -> ([< `Ok of ('a * t) | e | 'e read > `Error] as 'e))
+                 -> (t -> ([< `Ok of ('a * t) | err | 'e read > `Error] as 'e))
                  -> t -> 'c
+val p_repeat   : ?a:int -> ?b:int -> (char -> bool) -> t -> string
+val p_try      : (char -> bool) -> t -> int
 
 val make       : ?len:int -> unit -> t
 val of_string  : string -> t

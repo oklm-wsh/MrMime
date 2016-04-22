@@ -29,21 +29,21 @@ type atom   = [ `Atom of string ]
 type word   = [ atom | `String of string ]
 type phrase = [ word | `Dot | `FWS ] list
 
-val p_comment         : (Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_ccontent        : (Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_group_list  : (Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_unstruct    : (string      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_unstructured    : (string      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_crlf            : (Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_comment         : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_ccontent        : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_group_list  : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_unstruct    : (string      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_unstructured    : (string      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_crlf            : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
-val p_quoted_pair     : (char        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_fws             : (bool        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_cfws            : (bool        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_atom            : (string      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_dot_atom        : (atom list   -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_quoted_string   : (string      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_word            : (word        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_phrase          : (phrase      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_quoted_pair     : (char        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_fws             : (bool        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_cfws            : (bool        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_atom            : (string      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_dot_atom        : (atom list   -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_quoted_string   : (string      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_word            : (word        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_phrase          : (phrase      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
 type month =
   [ `Jan | `Feb | `Mar | `Apr
@@ -65,24 +65,24 @@ type date      = int * month * int
 type time      = int * int * int option
 type date_time = day option * date * time * tz
 
-val p_obs_hour        : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_minute      : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_second      : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_hour            : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_minute          : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_second          : (int -> bool -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_year        : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_year            : bool -> (int -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_day         : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_day             : (int         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_month           : (month        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_day_of_week     : (day          -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_date            : (date         -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_time_of_day     : (bool -> time -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_zone        : (tz           -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_zone            : bool -> (tz   -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_time            : (time * tz    -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_date_time       : (date_time    -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_hour        : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_minute      : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_second      : (int -> bool -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_hour            : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_minute          : (int -> bool -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_second          : (int -> bool -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_year        : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_year            : bool -> (int -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_day         : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_day             : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_month           : (month        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_day_of_week     : (day          -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_date            : (date         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_time_of_day     : (bool -> time -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_zone        : (tz           -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_zone            : bool -> (tz   -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_time            : (time * tz    -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_date_time       : (date_time    -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
 type domain =
   [ `Literal of string
@@ -94,32 +94,32 @@ type person  = phrase option * mailbox
 type group   = phrase * person list
 type address = [ `Group of group | `Person of person ]
 
-val p_dtext           : (string       -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_domain      : (atom list    -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_local_part  : (local        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_domain_literal  : (string       -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_domain          : (domain       -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_local_part      : (local        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_domain_list : (domain list  -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_route       : (domain list  -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_angle_addr  : (mailbox      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_angle_addr      : (mailbox      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_display_name    : (phrase       -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_name_addr       : (person       -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_mailbox         : (person       -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_mbox_list   : (person list  -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_mailbox_list    : (person list  -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_group_list      : (person list  -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_group           : (group        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_address         : (address      -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_addr_list   : (address list -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_address_list    : (address list -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_dtext           : (string       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_domain      : (atom list    -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_local_part  : (local        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_domain_literal  : (string       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_domain          : (domain       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_local_part      : (local        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_domain_list : (domain list  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_route       : (domain list  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_angle_addr  : (mailbox      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_angle_addr      : (mailbox      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_display_name    : (phrase       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_name_addr       : (person       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_mailbox         : (person       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_mbox_list   : (person list  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_mailbox_list    : (person list  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_group_list      : (person list  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_group           : (group        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_address         : (address      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_addr_list   : (address list -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_address_list    : (address list -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
 type left   = local
 type right  = domain
 type msg_id = left * right
 
-val p_msg_id          : (msg_id       -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_msg_id          : (msg_id       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
 type received =
   [ `Domain of domain
@@ -151,5 +151,5 @@ type field =
   | `ReturnPath      of mailbox option
   | `Field           of string * string ]
 
-val p_field           : (field        -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_header          : (field list   -> Lexer.t -> ([> Lexer.e | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_field           : (field        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_header          : (field list   -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
