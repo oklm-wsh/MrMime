@@ -64,8 +64,6 @@ let p_mechanism p state =
     | 'X' | 'x' -> p_x_token (fun t _ -> p t state) state'
     | chr       -> p_ietf_token (fun t _ -> p t state) state'
 
-let p_subtype = p_extension_token
-
 let p_type p state =
   match String.lowercase @@ p_token state with
   (* discrete-type *)
@@ -80,3 +78,20 @@ let p_type p state =
   (* extension-type *)
   | extension_token ->
     p_extension_token (fun t _ -> p t state) (Lexer.of_string extension_token)
+
+let p_subtype p state =
+  match Lexer.cur_chr state with
+  | 'X' | 'x' -> p_extension_token p state
+  | chr       -> p_ietf_token p state (* | p_iana_token p state *)
+
+let p_value p =
+  Lexer.p_try_rule
+    (fun data -> p (`String data))
+    (fun state -> p (`Token (p_token state)) state)
+    (Rfc5322.p_quoted_string (fun data state -> `Ok (data, state)))
+
+let p_parameter p state =
+  let name = p_attribute state in
+
+  Lexer.p_chr '=' state;
+  p_value (fun value -> p (name, value)) state
