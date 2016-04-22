@@ -231,6 +231,16 @@ let rec p_fws p state =
     else None
   in
 
+  let trim s =
+    let len = Bytes.length s in
+    let i   = ref 0 in
+
+    while !i < len && is_wsp (Bytes.get s !i)
+    do incr i done;
+
+    !i <> 0, Bytes.sub s !i (len - !i)
+  in
+
   (* for *(CRLF 1*WSP) loop  *)
   let rec end_of_line has_fws success fail state =
     match has_line state with
@@ -253,8 +263,8 @@ let rec p_fws p state =
            success true state
          (* … *(CRLF 1*WSP) CRLF e *)
          | chr ->
-           (Logs.debug @@ fun m -> m "state: p_fws/rollback");
-           Lexer.roll_back (p (if String.length tmp > 2 then true else has_fws)) tmp state)
+           let has_fws, tmp = trim tmp in
+           Lexer.roll_back (p has_fws) tmp state)
         state
     (* … e *)
     | None -> fail has_fws state
@@ -1725,10 +1735,18 @@ let p_field_name = p_repeat ~a:1 is_ftext
                      (address-list / ( *([CFWS] ",") [CFWS])) CRLF
 *)
 let p_obs_bcc p state =
+  (Logs.debug @@ fun m -> m "state: p_obs_bcc");
+
+
   let rec aux state =
-    p_cfws (fun _ state -> match cur_chr state with
-                           | ',' -> aux state
-                           | chr -> p [] state)
+    p_cfws (fun _ state ->
+      (Logs.debug @@ fun m -> m "state: p_obs_bcc/aux [%S]"
+       (Bytes.sub state.Lexer.buffer state.Lexer.pos (state.Lexer.len -
+       state.Lexer.pos)));
+
+      match cur_chr state with
+      | ',' -> aux state
+      | chr -> p [] state)
       state
   in
 
@@ -1740,6 +1758,8 @@ let p_obs_bcc p state =
    bcc             = "Bcc:" [address-list / CFWS] CRLF
 *)
 let p_bcc p state =
+  (Logs.debug @@ fun m -> m "state: p_bcc");
+
   Lexer.p_try_rule p
     (p_obs_bcc p)
     (p_address_list (fun l state -> `Ok (l, state))) state
