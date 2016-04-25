@@ -30,11 +30,40 @@ let pp_atom fmt = function
 let pp_word fmt = function
   | `Atom s -> pp_string fmt s
   | `String s -> p fmt "\"%a\"" (pp_string ~in_qs:true ~in_dm:false) s
+  | `Encoded (charset, encoding, s) -> pp_string fmt s
 
 let pp_phrase fmt =
   let pp_elt fmt = function
     | `Dot -> p fmt "."
-    | `FWS -> p fmt " "
+    | `WSP -> p fmt " "
     | #Rfc5322.word as elt -> pp_word fmt elt
   in
   pp_list pp_elt fmt
+
+let pp_text =
+  let pp_encoded charset encoding fmt data =
+    Rfc2047.p_decoded_word
+      charset encoding
+      (fun data _ -> `Ok data)
+      (Lexer.of_string data)
+    |> function
+       | `Ok data -> p fmt "%s" data
+       | _        -> assert false
+  in
+  let pp_elt fmt = function
+    | `WSP -> p fmt " "
+    | #Rfc5322.word as elt -> pp_word fmt elt
+    | `Encoded (charset, encoding, data) ->
+      p fmt "%a" (pp_encoded charset encoding) data
+  in
+  let rec loop fmt = function
+    | [] -> ()
+    | [ x ] -> pp_elt fmt x
+    | (`Encoded _ as a) :: (`Encoded _ as b) :: r ->
+        p fmt "%a %a" pp_elt a pp_elt b; loop fmt r
+    | (`Encoded _ as a) :: (`Atom _ as b) :: r
+    | (`Atom _ as a) :: (`Encoded _ as b) :: r ->
+        p fmt "%a %a" pp_elt a pp_elt b; loop fmt r
+    | x :: r -> pp_elt fmt x; loop fmt r
+  in
+  loop

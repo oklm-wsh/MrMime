@@ -25,25 +25,25 @@ val p_atext           : Lexer.t -> string
 val p_qtext           : Lexer.t -> string
 val p_field_name      : Lexer.t -> string
 
-type atom   = [ `Atom of string ]
-type word   = [ atom | `String of string ]
-type phrase = [ word | `Dot | `FWS ] list
+type atom    = [ `Atom of string ]
+type word    = [ atom | `String of string ]
+type phrase  = [ word | `Dot | `WSP ] list
+type text    = [ word | `WSP | Rfc2047.encoded ] list
 
 val p_comment         : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_ccontent        : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_obs_group_list  : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_unstruct    : (string      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_unstructured    : (string      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_crlf            : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
-val p_quoted_pair     : (char        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_fws             : (bool        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_cfws            : (bool        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_atom            : (string      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_dot_atom        : (atom list   -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_quoted_string   : (string      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_word            : (word        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_phrase          : (phrase      -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_unstructured    : (text         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_quoted_pair     : (char         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_fws             : (bool -> bool -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_cfws            : (bool         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_atom            : (string       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_dot_atom        : (atom list    -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_quoted_string   : (string       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_word            : (word         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_phrase          : (phrase       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
 type month =
   [ `Jan | `Feb | `Mar | `Apr
@@ -65,16 +65,16 @@ type date      = int * month * int
 type time      = int * int * int option
 type date_time = day option * date * time * tz
 
-val p_obs_hour        : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_minute      : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_second      : (int -> bool -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_hour            : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_minute          : (int -> bool -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_second          : (int -> bool -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_year        : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_year            : bool -> (int -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_obs_day         : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
-val p_day             : (int         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_hour        : (int          -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_minute      : (int          -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_second      : (int -> bool  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_hour            : (int          -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_minute          : (int -> bool  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_second          : (int -> bool  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_year        : (int          -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_year            : bool -> (int  -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_obs_day         : (int          -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_day             : (int          -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_month           : (month        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_day_of_week     : (day          -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_date            : (date         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
@@ -134,8 +134,8 @@ type field =
   | `To              of address list
   | `Cc              of address list
   | `Bcc             of address list
-  | `Subject         of string
-  | `Comments        of string
+  | `Subject         of text
+  | `Comments        of text
   | `Keywords        of phrase list
   | `MessageID       of msg_id
   | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
@@ -149,7 +149,7 @@ type field =
   | `ResentMessageID of msg_id
   | `Received        of received list * date_time option
   | `ReturnPath      of mailbox option
-  | `Field           of string * string ]
+  | `Field           of string * text ]
 
 val p_field           : (field        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_header          : (field list   -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret

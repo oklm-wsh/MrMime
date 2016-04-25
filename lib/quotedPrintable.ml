@@ -17,7 +17,7 @@ struct
       | 'A'..'F' -> (Char.code code) - (Char.code 'A') + 10
       | 'a'..'f' -> (Char.code code) - (Char.code 'a') + 10
       | _ -> raise (Invalid_argument "QuotedPrintable.F.hex")
-    in Char.chr ((aux (String.get s 0) * 16) + (aux (String.get s 0)))
+    in Char.chr ((aux (String.get s 0) * 16) + (aux (String.get s 1)))
 
   let add_char buf chr =
     Buffer.add_char buf chr
@@ -233,14 +233,74 @@ let p_quoted_printable p state =
 
   p_qp_line (fun line -> loop [line]) state
 
+(* See RFC 2047 § 4.2:
+
+   The   "Q"   encoding   is   similar   to   the   "Quoted-Printable"  content-
+   transfer-encoding  defined  in  RFC  2045.  It  is  designed  to  allow  text
+   containing mostly  ASCII characters to  be decipherable on  an ASCII terminal
+   without decoding.
+
+   (1) Any 8-bit value  may be represented by a "="  followed by two hexadecimal
+       digits. For example, if the character set in use were ISO-8859-1, the "="
+       character would thus be encoded  as "=3D",  and a SPACE by "=20".  (Upper
+       case should be used for hexadecimal digits "A" through "F".)
+
+   (2) The  8-bit  hexadecimal  value   20  (e.g.,   ISO-8859-1  SPACE)  may  be
+       represented as "_" (underscore, ASCII 95.).  (This character may not pass
+       through some internetwork mail gateways, but its use will greatly enhance
+       readability of  "Q" encoded data with  mail readers  that do  not support
+       this encoding.) Note that the "_" always represents hexadecimal 20,  even
+       if  the  SPACE  character  occupies  a  different  code  position  in the
+       character set in use.
+
+   (3) 8-bit values  which correspond to  printable ASCII characters  other than
+       "=",  "?",  and "_" (underscore), MAY be represented as those characters.
+       (But see section 5 for  restrictions.) In particular,  SPACE and TAB MUST
+       NOT be represented as themselves within encoded words.
+
+*)
+let p_inline_decode stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec decode state =
+    let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        match Lexer.cur_chr state with
+        | '=' ->
+          Lexer.junk_chr state;
+          let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+          F.add_char buf (F.hex s);
+          decode state
+        | '_' ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf ' ';
+          decode state
+        | '?' ->
+          raise (Lexer.Error (Lexer.err_unexpected '?' state))
+        | chr ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf chr;
+          decode state
+    in aux @@ Lexer.safe stop state
+  in
+
+  decode state
+
 let p_decode stop p state =
   let buf = Buffer.create 16 in
 
   let rec decode state =
     let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as r -> r
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        (match Lexer.cur_chr state with
+        match Lexer.cur_chr state with
          | '=' ->
            Lexer.p_chr '=' state;
 
@@ -276,14 +336,66 @@ let p_decode stop p state =
            F.add_char buf chr;
            decode state
 
-         | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state)))
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as r -> r
-    in aux (stop state)
+         | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+    in aux (Lexer.safe stop state)
   in
 
   decode state
+
+let p_inline_encode stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec encode state =
+    let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        match Lexer.cur_chr state with
+        | '=' ->
+          Lexer.junk_chr state;
+          let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+          F.add_char buf (F.hex s);
+          encode state
+        | '\x20' ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf '_';
+          encode state
+        | '\x09' ->
+          Lexer.junk_chr state;
+          Buffer.add_string buf "=09";
+          encode state
+        | '?' ->
+          Lexer.junk_chr state;
+          Buffer.add_string buf "=3F";
+          encode state
+        | '_' ->
+          Lexer.junk_chr state;
+          Buffer.add_string buf "=5F";
+          encode state
+        | '=' ->
+          Lexer.junk_chr state;
+          Buffer.add_string buf "=3D";
+          encode state
+        | chr when is_safe_char chr ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf chr;
+          encode state
+        | chr ->
+          let code = Char.code chr in
+          let h    = (code lsr 4) land (16 - 1) in
+          let l    =  code        land (16 - 1) in
+
+          Buffer.add_char buf '=';
+          Buffer.add_char buf T._to.[h];
+          Buffer.add_char buf T._to.[l];
+
+          encode state
+    in aux @@ Lexer.safe stop state
+  in
+
+  encode state
 
 let p_encode stop p state =
   let buf = Buffer.create 16 in

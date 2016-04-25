@@ -8,13 +8,15 @@ struct
       buffer       : Bytes.t;
       mutable seek : int;
       mutable cnum : int;
+      wrap         : bool;
     }
 
-  let make () =
+  let make ?(wrap = true) () =
     (* XXX: or default? (like module F) *)
     { buffer = Bytes.make 2 (Char.chr 255)
     ; seek = 0
-    ; cnum = 0 }
+    ; cnum = 0
+    ; wrap }
 
   let wrap t buf =
     t.cnum <-
@@ -28,7 +30,7 @@ struct
       assert (t.seek = 2);
 
       let a, b, c = t.buffer.[0], t.buffer.[1], chr in
-      wrap t buf;
+      if t.wrap then wrap t buf;
 
       t.seek <- 0;
 
@@ -54,7 +56,7 @@ struct
     t
 
   let flush t buf =
-    wrap t buf;
+    if t.wrap then wrap t buf;
     match t.seek with
     | 2 ->
       let b, c = t.buffer.[0], t.buffer.[1] in
@@ -162,8 +164,6 @@ struct
     | _    -> false
 end
 
-type ok = [ `Ok of string * Lexer.t ]
-
 let p_decode stop p state =
   let buf = Buffer.create 16 in
 
@@ -219,3 +219,26 @@ let p_encode stop p state =
   in
 
   encode (T.make ()) state
+
+let p_encode' ?(wrap = true) stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec encode base64 state =
+    let rec aux = function
+      | `Stop state ->
+        T.flush base64 buf;
+        p (Buffer.contents buf) state
+      | `Continue state ->
+        let chr = Lexer.cur_chr state in
+        Lexer.junk_chr state;
+        encode (T.add base64 chr buf) state
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+    in aux (stop state)
+  in
+
+  encode (T.make ~wrap ()) state
+
+let p_encode stop p state = p_encode' ~wrap:true stop p state
+let p_inline_encode stop p state = p_encode' ~wrap:false stop p state

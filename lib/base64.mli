@@ -84,6 +84,11 @@
     step in some implementations.
 *)
 
+val p_inline_encode :
+  (Lexer.t -> ([< `Continue of Lexer.t | `Stop of Lexer.t  | 'a Lexer.read |
+  Lexer.err > `Error ] as 'a))
+  -> (string -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret))
+  -> Lexer.t -> 'ret
 val p_decode :
   (Lexer.t -> ([< `Continue of Lexer.t | `Stop of Lexer.t  | 'a Lexer.read |
   Lexer.err > `Error ] as 'a))

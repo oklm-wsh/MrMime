@@ -10,15 +10,15 @@ type t =
   ; target        : Address.List.t option
   ; cc            : Address.List.t option
   ; bcc           : Address.List.t option
-  ; subject       : string option
+  ; subject       : Rfc5322.text option
   ; msg_id        : MsgID.t option
   ; in_reply_to   : [ phrase | `MsgID of MsgID.t ] list
   ; references    : [ phrase | `MsgID of MsgID.t ] list
   ; resents       : Resent.t list
   ; traces        : Trace.t list
-  ; comments      : string option
+  ; comments      : Rfc5322.text option
   ; keywords      : Rfc5322.phrase list
-  ; others        : (string * string) list }
+  ; others        : (string * Rfc5322.text) list }
 
 let of_lexer k l =
   let from          = ref None in
@@ -151,9 +151,9 @@ let of_string s =
       Format.fprintf fmt "%a (buf: %S)%!"
         Lexer.pp_error exn (Bytes.sub buf off (len - off));
 
-      raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
+      raise (Invalid_argument ("Header.of_string: " ^ (Buffer.contents tmp)))
     | `Read (buf, off, len, k) ->
-      raise (Invalid_argument "Address.of_string: unterminated string")
+      raise (Invalid_argument "Header.of_string: unterminated string")
     | `Ok data -> of_lexer (fun x rest -> x) data
   in
 
@@ -161,7 +161,7 @@ let of_string s =
 
   match loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n")) with
   | Some header -> header
-  | None        -> raise (Invalid_argument "Address.of_string: incomplete header")
+  | None        -> raise (Invalid_argument "Header.of_string: incomplete header")
 
 let p = Format.fprintf
 
@@ -205,7 +205,7 @@ let pp_ext fmt = function
   | `MsgID m  -> p fmt "%a" MsgID.pp m
 
 let pp_field fmt (field_name, field) =
-  p fmt "%s: %s\r\n" field_name field
+  p fmt "%s: %a\r\n" field_name pp_text field
 
 let pp_field fmt = function
   | `From l            -> p fmt "From: %a\r\n" (pp_list ~sep:", " Address.pp_person) l
@@ -215,13 +215,13 @@ let pp_field fmt = function
   | `To l              -> p fmt "To: %a\r\n" Address.List.pp l
   | `Cc l              -> p fmt "Cc: %a\r\n" Address.List.pp l
   | `Bcc l             -> p fmt "Bcc: %a\r\n" Address.List.pp l
-  | `Subject s         -> p fmt "Subject: %s\r\n" s
+  | `Subject s         -> p fmt "Subject: %a\r\n" pp_text s
   | `MessageID m       -> p fmt "Message-ID: %a\r\n" MsgID.pp m
   | `InReplyTo l       -> p fmt "In-Reply-To: %a\r\n" (pp_list ~sep:" " pp_ext) l
   | `References l      -> p fmt "References: %a\r\n" (pp_list ~sep:" " pp_ext) l
   | `Resent l          -> p fmt "%a" (pp_list Resent.pp) l
   | `Trace l           -> p fmt "%a" (pp_list Trace.pp) l
-  | `Comments s        -> p fmt "Comments: %s\r\n" s
+  | `Comments s        -> p fmt "Comments: %a\r\n" pp_text s
   | `Keywords l        -> p fmt "Keywords: %a\r\n" (pp_list ~sep:"," pp_phrase) l
   | `Others l          -> p fmt "%a" (pp_list pp_field) l
 

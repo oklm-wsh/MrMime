@@ -18,9 +18,10 @@ type date      = int * month * int
 type time      = int * int * int option
 type date_time = day option * date * time * tz
 
-type atom   = [ `Atom of string ]
-type word   = [ atom | `String of string ]
-type phrase = [ word | `Dot | `FWS ] list
+type atom    = [ `Atom of string ]
+type word    = [ atom | `String of string ]
+type phrase  = [ word | `Dot | `WSP ] list
+type text    = [ word | `WSP | Rfc2047.encoded ] list
 
 type domain =
   [ `Literal of string
@@ -49,8 +50,8 @@ type field =
   | `To              of address list
   | `Cc              of address list
   | `Bcc             of address list
-  | `Subject         of string
-  | `Comments        of string
+  | `Subject         of text
+  | `Comments        of text
   | `Keywords        of phrase list
   | `MessageID       of msg_id
   | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
@@ -64,7 +65,7 @@ type field =
   | `ResentMessageID of msg_id
   | `Received        of received list * date_time option
   | `ReturnPath      of mailbox option
-  | `Field of string * string ]
+  | `Field           of string * text ]
 
 let cur_chr ?(avoid = []) state =
   while List.exists ((=) (Lexer.cur_chr state)) avoid
@@ -162,7 +163,12 @@ let p_quoted_pair p state =
    obs-FWS         = 1*WSP *(CRLF 1*WSP)
 
    XXX: it's [FWS] (optionnal FWS), not FWS!, the bool argument of [p] inform
-        if we are a FWS token, or not.
+        if we are a FWS token and WSP token, or not.
+        it's impossible to have [has_fws = true] and [has_wsp = false], a
+        folding whitespace need at least one whitespace token.
+
+        so for the case [has_fws = true] and [has_wsp = true], you can
+        [assert false].
 *)
 let rec p_fws p state =
   (* verify if we have *WSP CRLF, if it's true,
@@ -201,7 +207,7 @@ let rec p_fws p state =
   in
 
   (* for *(CRLF 1*WSP) loop  *)
-  let rec end_of_line has_fws success fail state =
+  let rec end_of_line has_wsp has_fws success fail state =
     match has_line state with
     | Some tmp ->
       (Logs.debug @@ fun m -> m "state: p_fws/tmp %S" tmp);
@@ -219,21 +225,21 @@ let rec p_fws p state =
 
            (* drop 1*WSP *)
            let _ = Lexer.p_while is_wsp state in
-           success true state
+           success true true state
          (* … *(CRLF 1*WSP) CRLF e *)
          | chr ->
-           let has_fws, tmp = trim tmp in
-           Lexer.roll_back (p has_fws) tmp state)
+           let has_wsp, tmp = trim tmp in
+           Lexer.roll_back (p has_wsp has_fws) tmp state)
         state
     (* … e *)
-    | None -> fail has_fws state
+    | None -> fail has_wsp has_fws state
   in
 
   let rec loop state =
     match cur_chr state with
     (* WSP / CR *)
     | '\x20' | '\x09' | '\r' as chr ->
-      let success has_fws state =
+      let success has_wsp has_fws state =
         (Logs.debug @@ fun m -> m "state: p_fws/loop/success");
 
         match chr with
@@ -241,28 +247,28 @@ let rec p_fws p state =
         | '\x20' | '\x09' ->
           (* it's 1*WSP 1*(CRLF 1*WSP) loop:
              we can have multiple CRLF 1*WSP because we are in obs-fws *)
-          let rec loop _ state =
-            end_of_line true loop (fun _ -> p true) state in
+          let rec loop _ _ state =
+            end_of_line true true loop (fun _ _ -> p true true) state in
 
-          loop true state
+          loop true true state
         (* 1*(CRLF 1*WSP) *)
-        | chr -> p true state
+        | chr -> p true true state
       in
-      let fail has_fws state =
+      let fail has_wsp has_fws state =
         (Logs.debug @@ fun m -> m "state: p_fws/loop/fail");
 
         (* WSP / CR *)
         match chr with
         | '\r' -> (* CR XXX: don't drop '\r', may be it's \r\n *)
-          p true state
+          p has_wsp has_fws state
         | chr  -> (* we have 1*WSP, so we drop 1*WSP *)
-          let _ = Lexer.p_while is_wsp state in p true state
+          let _ = Lexer.p_while is_wsp state in p true has_fws state
       in
 
       (* state (WSP / CR) and try [*WSP CRLF] 1*WSP *)
-      end_of_line false success fail state
+      end_of_line false false success fail state
     (* no fws *)
-    | chr -> p false state
+    | chr -> p false false state
   in
 
   (Logs.debug @@ fun m -> m "state: p_fws");
@@ -312,7 +318,7 @@ and p_comment p state =
       p state
     | chr ->
       (* XXX: we ignore if we passed a fws entity. *)
-      p_fws (fun _ -> p_ccontent @@ p_fws @@ (fun _ -> loop)) state
+      p_fws (fun _ _ -> p_ccontent @@ p_fws @@ (fun _ _ -> loop)) state
   in
 
   loop state
@@ -334,7 +340,7 @@ let p_cfws p state =
     | '(' ->
       (Logs.debug @@ fun m -> m "state: p_cfws 1*([FWS] comment)");
 
-      p_comment (p_fws (fun has_fws' -> loop (has_fws || has_fws') true)) state
+      p_comment (p_fws (fun has_wsp' has_fws' -> loop (has_fws || has_wsp' || has_fws') true)) state
       (* 1*([FWS] comment) [FWS], we ignore if we passed a fws entity. *)
     | chr ->
       (Logs.debug @@ fun m -> m "state: p_cfws/fws (has_fws: %b, has_comment: %b)" has_fws has_comment);
@@ -347,7 +353,7 @@ let p_cfws p state =
       (* [FWS] e, we ignore if we passed a fws entity. *)
   in
 
-  p_fws (fun has_fws -> loop has_fws false) state
+  p_fws (fun has_wsp has_fws -> loop (has_wsp || has_fws) false) state
 
 (* See RFC 5234 § 3.4:
 
@@ -523,9 +529,9 @@ let p_quoted_string p state =
     | chr ->
       p_qcontent
         (fun str ->
-         p_fws (fun has_fws ->
-                (Logs.debug @@ fun m -> m "has_fws: %b" has_fws);
-                loop (if has_fws then " " :: str :: acc else str :: acc)))
+         p_fws (fun has_wsp has_fws ->
+                (Logs.debug @@ fun m -> m "has_wsp: %b" has_wsp);
+                loop (if has_wsp then " " :: str :: acc else str :: acc)))
         state
   in
   p_cfws (fun _ state -> Lexer.p_chr '"' state; loop [] state) state
@@ -543,7 +549,6 @@ let p_word p state =
       (Logs.debug @@ fun m -> m "state: p_word/loop to p_quoted_string [%S]" (String.make 1 '"'));
       p_quoted_string (fun s -> p (`String s)) state
     | chr ->
-      (Logs.debug @@ fun m -> m "state: p_word/loop to p_atom [%S]" (String.make 1 chr));
       p_atom (fun s -> p (`Atom s)) state
   in
 
@@ -559,7 +564,7 @@ let p_phrase p state =
 
   let add_fws has_fws element words =
     if has_fws
-    then element :: `FWS :: words
+    then element :: `WSP :: words
     else element :: words
   in
 
@@ -567,7 +572,7 @@ let p_phrase p state =
           an error. May be, we fix that in the pretty-printer but I decide to
           fix that in this place. *)
   let rec trim = function
-    | `FWS :: r -> trim r
+    | `WSP :: r -> trim r
     | r -> r
   in
 
@@ -599,7 +604,7 @@ let p_phrase p state =
 
               p_word (fun word -> loop (add_fws true word words)) state
             (* XXX: may be it's '.', so we try to switch to obs *)
-            | _ -> obs (if has_fws then `FWS :: words else words) state)
+            | _ -> obs (if has_fws then `WSP :: words else words) state)
       state
   in
 
@@ -645,7 +650,7 @@ let p_obs_unstruct p state =
   (* *(( *LF *CR *(obs-utext *LF *CR )) / FWS)
      XXX: may be we use [has_fws] argument to re try this regexp or to go
           to [loop0] to try the other pattern than [FWS]. *)
-  p_fws (fun _ state -> loop0 state) state
+  p_fws (fun _ _ state -> loop0 state) state
 
 (* See RFC 5322 § 3.2.5
 
@@ -656,7 +661,7 @@ let p_obs_unstruct p state =
 let p_unstructured p state =
   let rec loop state =
     (* [FWS] *)
-    p_fws (fun has_fws state -> match has_fws, cur_chr state with
+    p_fws (fun has_wsp has_fws state -> match has_wsp || has_fws, cur_chr state with
            (* *WSP, go to next *)
            | false, '\x20' | false, '\x09' ->
              let _ = Lexer.p_while is_wsp state in p state
@@ -714,10 +719,10 @@ let p_obs_unstruct p state =
       end
     end else p_fws loop0 state
 
-  and loop0 has_fws state =
+  and loop0 has_wsp has_fws state =
     (Logs.debug @@ fun m -> m "state: p_obs_unstruct/loop0 (has_fws: %b)" has_fws);
 
-    if has_fws
+    if has_wsp
     then begin Buffer.add_char buf ' '; p_fws loop0 state end
     else begin
       let lf = Lexer.p_repeat is_lf state in
@@ -737,7 +742,7 @@ let p_obs_unstruct p state =
     end
   in
 
-  p_fws (fun has_fws -> Rfc2047.p_try (loop0 has_fws)) state
+  p_fws loop0 state
 
 (* See RFC 5322 § 3.2.5
 
@@ -755,12 +760,12 @@ let p_unstructured p state =
     else fun _ -> false
   in
 
-  let rec loop1 has_fws state =
+  let rec loop1 has_wsp has_fws state =
     (Logs.debug @@ fun m -> m "state: p_unstructured/loop1 (has_fws: %b)" has_fws);
 
     match cur_chr state with
     | chr when is_vchar chr ->
-      if last buf ' ' && has_fws
+      if last buf ' ' && has_wsp
       then Buffer.add_char buf ' ';
 
       (Logs.debug @@ fun m -> m "state: p_unstructured/loop1 (chr: [%S])" (String.make 1 (cur_chr state)));
@@ -773,10 +778,8 @@ let p_unstructured p state =
   and loop0 state =
     (Logs.debug @@ fun m -> m "state: p_unstructured/loop0");
 
-    p_fws (fun has_fws ->
-      Rfc2047.p_try
-        (fun state ->
-         match cur_chr state, has_fws with
+    p_fws (fun has_wsp has_fws state ->
+         match cur_chr state, has_wsp with
          | ('\x20' | '\x09'), false ->
            let _ = Lexer.p_repeat is_wsp state in
 
@@ -784,11 +787,170 @@ let p_unstructured p state =
            then Buffer.add_char buf ' ';
 
            loop0 state
-         | chr, has_fws -> loop1 has_fws state))
+         | chr, has_wsp -> loop1 has_wsp has_fws state)
     state
   in
 
   loop0 state
+
+(* XXX: bon là, j'écris en français parce que c'est vraiment de la merde. En
+        gros le [obs-unstruct] ou le [unstructured], c'est de la grosse merde
+        pour 3 points:
+
+        * le premier, c'est que depuis la RFC 2047, on peut mettre DES
+          [encoded-word] dans un [obs-unstruct] ou un [unstructured]. Il faut
+          donc decoder ces fragments premièrement. MAIS il faut bien comprendre
+          qu'un (ou plusieurs) espace entre 2 [encoded-word] n'a aucune
+          signication - en gros avec: '=utf-8?Q?a=    =utf-8?Q?b=', on obtient
+          'ab'. SAUF que dans le cas d'un [encoded-word 1*FWS 1*obs-utext]
+          l'espace est significatif et ça moment là, tu te dis WTF! Bien
+          entendu, les espaces entre deux [1*obs-utext] est tout autant
+          signicatif. DONC OUI C'EST DE LA MERDE.
+
+        * MAIS C'EST PAS FINI! Si on regarde bien la règle, cette pute, elle se
+          termine pas. OUAIS OUAIS! En vrai, elle se termine après avoir essayer
+          le token [FWS], après avoir essayer [*LF] et [*CR], qu'il y est au
+          moins un des deux derniers token existant (donc soit 1*LF ou 1*CR) et
+          qu'après avoir essayer à nouveau un [FWS] si on a pas de [obs-utext],
+          on regarde si on a bien eu un token [FWS] (d'où la nécessité d'avoir
+          [has_wsp] et [has_fws] dans la fonction [p_fws]). DONC (OUAIS C'EST LA
+          MERDE), si on a bien un token [FWS], on recommence, SINON on termine.
+
+        * ENFIN LE PIRE HEIN PARCE QUE ENCORE C'EST GENTIL! Comme on ESSAYE
+          d'avoir un CR* à la fin, IL PEUT ARRIVER (j'ai bien dit il peut mais
+          en vrai ça arrive tout le temps) qu'on consomme le CR du token CRLF
+          OBLIGATOIRE à chaque ligne. DONC la fonction compile si tu termines
+          par un CR ET SI C'EST LE CAS ON ROLLBACK pour récupérer le CR
+          OBLIGATOIRE à la fin de ligne.
+
+        DONC CETTE REGLE, C'EST CARREMENT DE LA MERDE ET VOILA POURQUOI CETTE
+        FONCTION EST AUSSI COMPLEXE. Merci de votre attention.
+*)
+let p_obs_unstruct ?(acc = []) p state =
+  let compile rlst state =
+    let rec aux ?(previous = `None) acc l = match l, previous with
+      | (`Encoded _ as enc) :: r, `LWSP ->
+        aux ~previous:`Enc (enc :: `WSP :: acc) r
+      | (`Encoded _ as enc) :: r, (`ELWSP | `None) ->
+        aux ~previous:`Enc (enc :: acc) r
+      | `Encoded _ :: r, (`Atom | `Enc)
+      | `Atom _ :: r, `Enc ->
+        assert false (* XXX: raise error *)
+      | (`Atom _ as txt) :: r, (`LWSP | `ELWSP) ->
+        aux ~previous:`Atom (txt :: `WSP :: acc) r
+      | (`Atom s as txt) :: r, (`None | `Atom) ->
+        aux ~previous:`Atom (txt :: acc) r
+      | (`LF | `CR | `WSP | `FWS) :: r1 :: r2, (`ELWSP | `Enc) ->
+        aux ~previous:`ELWSP acc (r1 :: r2)
+      | (`LF | `CR | `WSP | `FWS) :: r1 :: r2, (`LWSP | `Atom) ->
+        aux ~previous:`LWSP acc (r1 :: r2)
+      | (`LF | `CR | `WSP | `FWS) :: r1 :: r2, `None ->
+        aux ~previous:`None acc (r1 :: r2)
+      | [ `CR ], _ ->
+        Lexer.roll_back (fun state -> p (List.rev acc) state) "\r" state
+      | [ (`LF | `WSP | `FWS) ], _ | [], _ ->
+        p (List.rev acc) state
+    in
+
+    aux [] (List.rev rlst)
+  in
+
+  let rec data acc =
+    Lexer.p_try_rule
+      (fun (charset, encoding, s) state ->
+       let lf = Lexer.p_repeat is_lf state in
+       let cr = Lexer.p_repeat is_cr state in
+
+       let acc' =
+         match String.length lf, String.length cr with
+         | 0, 0 -> `Encoded (charset, encoding, s) :: acc
+         | n, 0 -> `Encoded (charset, encoding, s) :: `LF :: acc
+         | 0, n -> `Encoded (charset, encoding, s) :: `CR :: acc
+         | _    -> `Encoded (charset, encoding, s) :: `CR :: `LF :: acc
+       in
+
+       match cur_chr state with
+       | chr when is_obs_utext chr -> data acc' state
+       | chr -> loop acc' state)
+      (fun state ->
+       let ts = Lexer.p_while is_obs_utext state in
+       let lf = Lexer.p_repeat is_lf state in
+       let cr = Lexer.p_repeat is_cr state in
+
+       let acc' =
+         match String.length lf, String.length cr with
+         | 0, 0 -> `Atom ts :: acc
+         | n, 0 -> `Atom ts :: `LF :: acc
+         | 0, n -> `Atom ts :: `CR :: acc
+         | _    -> `Atom ts :: `CR :: `LF :: acc
+       in
+
+       match cur_chr state with
+       | chr when is_obs_utext chr -> data acc' state
+       | chr -> loop acc' state)
+      (Rfc2047.p_encoded_word (fun charset encoding s state -> `Ok ((charset, encoding, s), state)))
+
+  and lfcr acc state =
+    let lf = Lexer.p_repeat is_lf state in
+    let cr = Lexer.p_repeat is_cr state in
+
+    let acc' = match String.length lf, String.length cr with
+      | 0, 0 -> acc
+      | n, 0 -> `LF :: acc
+      | 0, n -> `CR :: acc
+      | _    -> `CR :: `LF :: acc
+    in
+
+    match cur_chr state with
+    | chr when is_obs_utext chr -> data acc state
+    | chr when String.length lf > 0 || String.length cr > 0 ->
+      p_fws (fun has_wsp has_fws ->
+             match has_wsp, has_fws with
+             | true, true   -> lfcr (`FWS :: acc')
+             | true, false  -> lfcr (`WSP :: acc')
+             | false, false -> compile acc'
+             | _            -> assert false)
+        state
+    | _ -> compile acc' state
+
+  and loop acc =
+    p_fws (fun has_wsp has_fws ->
+      match has_wsp, has_fws with
+      | true, true   -> loop (`FWS :: acc)
+      | true, false  -> loop (`WSP :: acc)
+      | false, false -> lfcr acc
+      | false, true  -> assert false)
+  in
+
+  loop acc state
+
+let p_unstructured p state =
+  let rec loop acc has_wsp has_fws state =
+    match has_wsp, has_fws, Lexer.cur_chr state with
+    | has_wsp, has_fws, chr when is_vchar chr ->
+      let adder x =
+        if has_fws && has_wsp
+        then x :: `FWS :: acc
+        else if has_wsp
+        then x :: `WSP :: acc
+        else x :: acc
+      in
+      Lexer.p_try_rule
+        (fun (charset, encoding, s) ->
+         p_fws (loop (adder (`Encoded (charset, encoding, s)))))
+        (fun state ->
+         let s = Lexer.p_while is_vchar state in
+         p_fws (loop (adder (`Atom s))) state)
+        (Rfc2047.p_encoded_word (fun charset encoding s state -> `Ok ((charset, encoding, s), state)))
+        state
+    | true, true, _   -> p_obs_unstruct ~acc:(`FWS :: acc) p state
+    | true, false, _  -> p_obs_unstruct ~acc:(`WSP :: acc) p state
+    | false, false, _ -> p_obs_unstruct ~acc p state
+    | false, true, _  -> assert false
+  in
+
+  p_fws (loop []) state
+
 
 (* [CFWS] 2DIGIT [CFWS] *)
 let p_cfws_2digit_cfws p state =
@@ -857,11 +1019,11 @@ let p_year has_already_fws p state =
   (Logs.debug @@ fun m -> m "state: p_year");
 
   (* (FWS 4*DIGIT FWS) / obs-year *)
-  p_fws (fun has_fws state ->
-    if (has_fws || has_already_fws) && Lexer.p_try is_digit state >= 4
+  p_fws (fun has_wsp has_fws state ->
+    if (has_wsp || has_fws || has_already_fws) && Lexer.p_try is_digit state >= 4
     then let y = Lexer.p_while is_digit state in
-         p_fws (fun has_fws state ->
-                if has_fws
+         p_fws (fun has_wsp has_fws state ->
+                if has_wsp || has_fws
                 then p (int_of_string y) state
                 else raise (Lexer.Error (Lexer.err_expected ' ' state))) state
     else p_obs_year p state)
@@ -882,15 +1044,15 @@ let p_obs_day p state =
 let p_day p state =
   (Logs.debug @@ fun m -> m "state: p_day");
 
-  p_fws (fun _ state ->
+  p_fws (fun _ _ state ->
          (Logs.debug @@ fun m -> m "state: p_day (chr: [%S])" (String.make 1 (cur_chr state)));
 
          if is_digit @@ cur_chr state
          then let d = Lexer.p_repeat ~a:1 ~b:2 is_digit state in
-              p_fws (fun has_fws ->
+              p_fws (fun has_wsp has_fws ->
                      (Logs.debug @@ fun m -> m "state: p_day (has_fws: %b)" has_fws);
 
-                     if has_fws
+                     if has_wsp || has_fws
                      then p (int_of_string d)
                      else raise (Lexer.Error (Lexer.err_expected ' ' state))) state
          else p_obs_day p state)
@@ -955,7 +1117,7 @@ let p_day_of_week p =
   (Logs.debug @@ fun m -> m "state: p_day_of_week");
 
   p_fws
-  @@ fun _ state ->
+  @@ fun _ _ state ->
      if is_alpha (cur_chr state) then p_day_name p state
      else p_cfws (fun _ -> p_day_name (fun day -> p_cfws (fun _ -> p day)))
             state
@@ -1047,8 +1209,8 @@ let p_obs_zone p state =
 let p_zone has_already_fws p state =
   (Logs.debug @@ fun m -> m "state: p_zone %b" has_already_fws);
 
-  p_fws (fun has_fws state ->
-         match has_already_fws || has_fws, cur_chr state with
+  p_fws (fun has_wsp has_fws state ->
+         match has_already_fws || has_wsp || has_fws, cur_chr state with
          | true, '+' ->
            Lexer.p_chr '+' state;
            let tz = Lexer.p_repeat ~a:4 ~b:4 is_digit state in
@@ -1093,7 +1255,7 @@ let p_date_time p state =
     state
   in
 
-  p_fws (fun _ state ->
+  p_fws (fun _ _ state ->
          if is_alpha @@ cur_chr state
          then p_day_of_week (fun day state -> Lexer.p_chr ',' state; aux ~day state) state
          else aux state)
@@ -1182,13 +1344,13 @@ let p_domain_literal p =
       Lexer.p_chr ']' state;
       p_cfws (fun _ -> p (List.rev acc |> String.concat "")) state
     | chr when is_dtext chr || chr = '\\' ->
-      p_dtext (fun s -> p_fws (fun _ -> loop (s :: acc))) state
+      p_dtext (fun s -> p_fws (fun _ _ -> loop (s :: acc))) state
     | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
   in
 
   p_cfws (fun _ state ->
           match cur_chr state with
-          | '[' -> Lexer.p_chr '[' state; p_fws (fun _ -> loop []) state
+          | '[' -> Lexer.p_chr '[' state; p_fws (fun _ _ -> loop []) state
           | chr -> raise (Lexer.Error (Lexer.err_expected '[' state)))
 
 (* See RFC 5322 § 3.4.1:
@@ -1669,6 +1831,8 @@ let p_msg_id p state =
   state
 
 let p_crlf p state =
+  (Logs.debug @@ fun m -> m "state: p_crlf");
+
   Lexer.p_chr '\r' state;
   Lexer.p_chr '\n' state;
   p state

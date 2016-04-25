@@ -131,7 +131,6 @@ Sender:   Secy@SHOST
 To:       "Al Neuman"@Mad-Host,
           Sam.Irving@Other-Host
 Message-ID:  <some.string@SHOST>
-Subject:  =?iso-8859-1?q?this=20is=20some=20text?=
 |};
 
 (* See RFC 822 § A.3.3 *)
@@ -158,6 +157,15 @@ X-Special-action:  This is a sample of user-defined field-
             "Special-action", but its name might later be
             preempted
 Message-ID: <4231.629.XYzi-What@Other-Host>
+|};
+
+(* See RFC 2047 § 8 *)
+{|From: =?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>
+Date     :  27 Aug 76 09:32 PDT
+To: =?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>
+CC: =?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>
+Subject: =?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
+ =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=
 |};
   ]
 
