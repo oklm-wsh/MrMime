@@ -27,15 +27,14 @@ val p_field_name      : Lexer.t -> string
 
 type atom    = [ `Atom of string ]
 type word    = [ atom | `String of string ]
-type phrase  = [ word | `Dot | `WSP ] list
-type text    = [ word | `WSP | Rfc2047.encoded ] list
+type phrase  = [ word | `Dot | `WSP | Rfc2047.encoded ] list
 
 val p_comment         : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_ccontent        : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_obs_group_list  : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_crlf            : (Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 
-val p_unstructured    : (text         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
+val p_unstructured    : (phrase       -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_quoted_pair     : (char         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_fws             : (bool -> bool -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_cfws            : (bool         -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
@@ -134,8 +133,8 @@ type field =
   | `To              of address list
   | `Cc              of address list
   | `Bcc             of address list
-  | `Subject         of text
-  | `Comments        of text
+  | `Subject         of phrase
+  | `Comments        of phrase
   | `Keywords        of phrase list
   | `MessageID       of msg_id
   | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
@@ -149,7 +148,7 @@ type field =
   | `ResentMessageID of msg_id
   | `Received        of received list * date_time option
   | `ReturnPath      of mailbox option
-  | `Field           of string * text ]
+  | `Field           of string * phrase ]
 
 val p_field           : (field        -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret
 val p_header          : (field list   -> Lexer.t -> ([> Lexer.err | 'ret Lexer.read ] as 'ret)) -> Lexer.t -> 'ret

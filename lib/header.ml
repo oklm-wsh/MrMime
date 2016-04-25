@@ -10,15 +10,15 @@ type t =
   ; target        : Address.List.t option
   ; cc            : Address.List.t option
   ; bcc           : Address.List.t option
-  ; subject       : Rfc5322.text option
+  ; subject       : Rfc5322.phrase option
   ; msg_id        : MsgID.t option
   ; in_reply_to   : [ phrase | `MsgID of MsgID.t ] list
   ; references    : [ phrase | `MsgID of MsgID.t ] list
   ; resents       : Resent.t list
   ; traces        : Trace.t list
-  ; comments      : Rfc5322.text option
+  ; comments      : Rfc5322.phrase option
   ; keywords      : Rfc5322.phrase list
-  ; others        : (string * Rfc5322.text) list }
+  ; others        : (string * Rfc5322.phrase) list }
 
 let of_lexer k l =
   let from          = ref None in
@@ -205,7 +205,7 @@ let pp_ext fmt = function
   | `MsgID m  -> p fmt "%a" MsgID.pp m
 
 let pp_field fmt (field_name, field) =
-  p fmt "%s: %a\r\n" field_name pp_text field
+  p fmt "%s: %a\r\n" field_name pp_phrase field
 
 let pp_field fmt = function
   | `From l            -> p fmt "From: %a\r\n" (pp_list ~sep:", " Address.pp_person) l
@@ -215,13 +215,13 @@ let pp_field fmt = function
   | `To l              -> p fmt "To: %a\r\n" Address.List.pp l
   | `Cc l              -> p fmt "Cc: %a\r\n" Address.List.pp l
   | `Bcc l             -> p fmt "Bcc: %a\r\n" Address.List.pp l
-  | `Subject s         -> p fmt "Subject: %a\r\n" pp_text s
+  | `Subject s         -> p fmt "Subject: %a\r\n" pp_phrase s
   | `MessageID m       -> p fmt "Message-ID: %a\r\n" MsgID.pp m
   | `InReplyTo l       -> p fmt "In-Reply-To: %a\r\n" (pp_list ~sep:" " pp_ext) l
   | `References l      -> p fmt "References: %a\r\n" (pp_list ~sep:" " pp_ext) l
   | `Resent l          -> p fmt "%a" (pp_list Resent.pp) l
   | `Trace l           -> p fmt "%a" (pp_list Trace.pp) l
-  | `Comments s        -> p fmt "Comments: %a\r\n" pp_text s
+  | `Comments s        -> p fmt "Comments: %a\r\n" pp_phrase s
   | `Keywords l        -> p fmt "Keywords: %a\r\n" (pp_list ~sep:"," pp_phrase) l
   | `Others l          -> p fmt "%a" (pp_list pp_field) l
 

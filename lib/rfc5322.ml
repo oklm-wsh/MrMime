@@ -20,8 +20,7 @@ type date_time = day option * date * time * tz
 
 type atom    = [ `Atom of string ]
 type word    = [ atom | `String of string ]
-type phrase  = [ word | `Dot | `WSP ] list
-type text    = [ word | `WSP | Rfc2047.encoded ] list
+type phrase  = [ word | `Dot | `WSP | Rfc2047.encoded ] list
 
 type domain =
   [ `Literal of string
@@ -50,8 +49,8 @@ type field =
   | `To              of address list
   | `Cc              of address list
   | `Bcc             of address list
-  | `Subject         of text
-  | `Comments        of text
+  | `Subject         of phrase
+  | `Comments        of phrase
   | `Keywords        of phrase list
   | `MessageID       of msg_id
   | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
@@ -65,7 +64,7 @@ type field =
   | `ResentMessageID of msg_id
   | `Received        of received list * date_time option
   | `ReturnPath      of mailbox option
-  | `Field           of string * text ]
+  | `Field           of string * phrase ]
 
 let cur_chr ?(avoid = []) state =
   while List.exists ((=) (Lexer.cur_chr state)) avoid
@@ -587,7 +586,11 @@ let p_phrase p state =
             | chr when is_atext chr || is_dquote chr ->
               (Logs.debug @@ fun m -> m "state: p_phrase/obs (has_fws: %b)" has_fws);
 
-              p_word (fun word -> obs (add_fws has_fws word words)) state
+              Rfc2047.p_try_rule
+                (fun word -> obs (add_fws has_fws word words))
+                p_word
+                state
+              (* p_word (fun word -> obs (add_fws has_fws word words)) state *)
             | _ -> p (trim @@ List.rev @@ trim words) state)
       state
   in
@@ -602,13 +605,20 @@ let p_phrase p state =
             | chr when is_atext chr || is_dquote chr ->
               (Logs.debug @@ fun m -> m "state: p_phrase/loop (has_fws: %b)" has_fws);
 
-              p_word (fun word -> loop (add_fws true word words)) state
+              Rfc2047.p_try_rule
+                (fun word -> loop (add_fws true word words))
+                p_word
+                state
+              (* p_word (fun word -> loop (add_fws true word words)) state *)
             (* XXX: may be it's '.', so we try to switch to obs *)
             | _ -> obs (if has_fws then `WSP :: words else words) state)
       state
   in
 
-  p_word (fun word -> loop [word]) state
+  p_fws (fun _ _ ->
+         Rfc2047.p_try_rule
+           (fun word -> loop [word])
+           p_word) state
 
 (* See RFC 5322 § 4.1:
 
@@ -1547,6 +1557,8 @@ let p_angle_addr p state =
 (* See RFC 5322 § 3.4:
 
    display-name    = phrase
+
+   XXX: Updated by RFC 2047
 *)
 let p_display_name p state =
   (Logs.debug @@ fun m -> m "state: p_display_name");

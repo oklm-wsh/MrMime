@@ -93,9 +93,10 @@ let p_decoded_word charset encoding p state =
        p (Buffer.contents buf) state)
       state
 
-let p_try p =
+let p_try_rule p rule =
   (Logs.debug @@ fun m -> m "state: p_try (RFC 2047)");
 
   Lexer.p_try_rule
-    (fun really_data -> Lexer.roll_back p really_data) p
-    (p_encoded_word (fun _ _ data state -> `Ok (data, state)))
+    (fun encoded -> p (`Encoded encoded))
+    (rule p)
+    (p_encoded_word (fun charset encoding data state -> `Ok ((charset, encoding, data), state)))

@@ -32,15 +32,7 @@ let pp_word fmt = function
   | `String s -> p fmt "\"%a\"" (pp_string ~in_qs:true ~in_dm:false) s
   | `Encoded (charset, encoding, s) -> pp_string fmt s
 
-let pp_phrase fmt =
-  let pp_elt fmt = function
-    | `Dot -> p fmt "."
-    | `WSP -> p fmt " "
-    | #Rfc5322.word as elt -> pp_word fmt elt
-  in
-  pp_list pp_elt fmt
-
-let pp_text =
+let pp_phrase =
   let pp_encoded charset encoding fmt data =
     Rfc2047.p_decoded_word
       charset encoding
@@ -52,6 +44,7 @@ let pp_text =
   in
   let pp_elt fmt = function
     | `WSP -> p fmt " "
+    | `Dot -> p fmt "."
     | #Rfc5322.word as elt -> pp_word fmt elt
     | `Encoded (charset, encoding, data) ->
       p fmt "%a" (pp_encoded charset encoding) data
