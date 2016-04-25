@@ -353,11 +353,6 @@ let p_inline_encode stop p state =
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
         match Lexer.cur_chr state with
-        | '=' ->
-          Lexer.junk_chr state;
-          let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
-          F.add_char buf (F.hex s);
-          encode state
         | '\x20' ->
           Lexer.junk_chr state;
           Buffer.add_char buf '_';
@@ -383,6 +378,8 @@ let p_inline_encode stop p state =
           Buffer.add_char buf chr;
           encode state
         | chr ->
+          Lexer.junk_chr state;
+
           let code = Char.code chr in
           let h    = (code lsr 4) land (16 - 1) in
           let l    =  code        land (16 - 1) in
