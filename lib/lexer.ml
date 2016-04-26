@@ -15,7 +15,8 @@ type error =
   | `Wrong_padding
   | `Unexpected_encoding of string ]
 
-let err e state                       = `Error (e, state.buffer, state.pos, state.len)
+let err e state                       = `Error
+                                        (e, state.buffer, state.pos, state.len)
 let err_unexpected_eoi state          = err `Unexpected_eoi state
 let err_expected chr state            = err (`Expected_char chr) state
 let err_expected_set set state        = err (`Expected_set set) state
@@ -39,7 +40,8 @@ let pp_char fmt = p fmt "%c"
 let pp_error fmt = function
   | `Unexpected_eoi          -> p fmt "Unexpected EOI"
   | `Expected_char chr       -> p fmt "Expected [%S]" (String.make 1 chr)
-  | `Expected_set set        -> p fmt "Expected [%a]" (pp_lst ~sep:" | " pp_char) set
+  | `Expected_set set        -> p fmt "Expected [%a]"
+                                  (pp_lst ~sep:" | " pp_char) set
   | `Unexpected_char chr     -> p fmt "Unexpected [%S]" (String.make 1 chr)
   | `Unexpected_str str      -> p fmt "Unexpected [%S]" str
   | `Wrong_padding           -> p fmt "Wrong padding"
@@ -86,7 +88,10 @@ let rec roll_back k data state =
   if state.pos > len
   then begin
     for i = 0 to len - 1
-    do Bytes.set state.buffer (state.pos - 1 - i) (Bytes.get data (len - 1 - i)) done;
+    do Bytes.set state.buffer
+         (state.pos - 1 - i)
+         (Bytes.get data (len - 1 - i))
+    done;
     state.pos <- state.pos - len;
 
     safe k state
@@ -204,7 +209,8 @@ let of_bytes bytes =
 let p_try_rule success fail rule state =
   let tmp = Buffer.create 16 in
 
-  Buffer.add_bytes tmp (Bytes.sub state.buffer state.pos (state.len - state.pos));
+  Buffer.add_bytes tmp
+    (Bytes.sub state.buffer state.pos (state.len - state.pos));
 
   let rec loop = function
     | `Error (_, buf, off, len) -> safe fail (of_string (Buffer.contents tmp))

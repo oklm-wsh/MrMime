@@ -12,7 +12,6 @@ struct
     }
 
   let make ?(wrap = true) () =
-    (* XXX: or default? (like module F) *)
     { buffer = Bytes.make 2 (Char.chr 255)
     ; seek = 0
     ; cnum = 0

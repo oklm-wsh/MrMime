@@ -71,7 +71,8 @@ let of_lexer k l =
          | Some _ -> loop i rest)
       | `From f ->
         (match !from with
-         | None   -> from := Some (List.map Address.person_of_lexer f); loop i rest
+         | None   -> from := Some (List.map Address.person_of_lexer f);
+                     loop i rest
          (* XXX: may be it's an error *)
          | Some _ -> loop i rest)
       | `Sender c ->
@@ -161,7 +162,7 @@ let of_string s =
 
   match loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n")) with
   | Some header -> header
-  | None        -> raise (Invalid_argument "Header.of_string: incomplete header")
+  | None -> raise (Invalid_argument "Header.of_string: incomplete header")
 
 let p = Format.fprintf
 
@@ -208,7 +209,8 @@ let pp_field fmt (field_name, field) =
   p fmt "%s: %a\r\n" field_name pp_phrase field
 
 let pp_field fmt = function
-  | `From l            -> p fmt "From: %a\r\n" (pp_list ~sep:", " Address.pp_person) l
+  | `From l            -> p fmt "From: %a\r\n"
+                            (pp_list ~sep:", " Address.pp_person) l
   | `Date d            -> p fmt "Date: %a\r\n" Date.pp d
   | `Sender e          -> p fmt "Sender: %a\r\n" Address.pp_person e
   | `ReplyTo l         -> p fmt "Reply-To: %a\r\n" Address.List.pp l
@@ -217,12 +219,15 @@ let pp_field fmt = function
   | `Bcc l             -> p fmt "Bcc: %a\r\n" Address.List.pp l
   | `Subject s         -> p fmt "Subject: %a\r\n" pp_phrase s
   | `MessageID m       -> p fmt "Message-ID: %a\r\n" MsgID.pp m
-  | `InReplyTo l       -> p fmt "In-Reply-To: %a\r\n" (pp_list ~sep:" " pp_ext) l
-  | `References l      -> p fmt "References: %a\r\n" (pp_list ~sep:" " pp_ext) l
+  | `InReplyTo l       -> p fmt "In-Reply-To: %a\r\n"
+                            (pp_list ~sep:" " pp_ext) l
+  | `References l      -> p fmt "References: %a\r\n"
+                            (pp_list ~sep:" " pp_ext) l
   | `Resent l          -> p fmt "%a" (pp_list Resent.pp) l
   | `Trace l           -> p fmt "%a" (pp_list Trace.pp) l
   | `Comments s        -> p fmt "Comments: %a\r\n" pp_phrase s
-  | `Keywords l        -> p fmt "Keywords: %a\r\n" (pp_list ~sep:"," pp_phrase) l
+  | `Keywords l        -> p fmt "Keywords: %a\r\n"
+                            (pp_list ~sep:"," pp_phrase) l
   | `Others l          -> p fmt "%a" (pp_list pp_field) l
 
 let pp fmt t =

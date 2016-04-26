@@ -77,7 +77,8 @@ let of_string s =
     | `Ok data -> of_lexer data
   in
 
-  let rule = Rfc5322.p_address (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
+  let rule = Rfc5322.p_address
+    (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
   loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
 let to_string t =
@@ -104,13 +105,15 @@ struct
         Format.fprintf fmt "%a (buf: %S)%!"
           Lexer.pp_error exn (Bytes.sub buf off (len - off));
 
-        raise (Invalid_argument ("Address.List.of_string: " ^ (Buffer.contents tmp)))
+        raise (Invalid_argument ("Address.List.of_string: "
+                                 ^ (Buffer.contents tmp)))
       | `Read (buf, off, len, k) ->
         raise (Invalid_argument "Address.List.of_string: unterminated string")
       | `Ok data -> of_lexer data
     in
 
-    let rule = Rfc5322.p_address_list (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
+    let rule = Rfc5322.p_address_list
+      (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
     loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
   let pp fmt =

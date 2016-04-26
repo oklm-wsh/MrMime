@@ -31,10 +31,8 @@ struct
   let _to = "0123456789ABCDEF"
 
   type t =
-    {
-      word             : Buffer.t;
-      mutable position : int;
-    }
+    { word             : Buffer.t
+    ; mutable position : int }
 
   let make () =
     { word = Buffer.create 16
@@ -290,6 +288,96 @@ let p_inline_decode stop p state =
 
   decode state
 
+(* See RFC 2045 § 6.7:
+
+   The Quoted-Printable encoding is intended to represent data that
+   largely consists of octets that correspond to printable characters in
+   the US-ASCII character set.  It encodes the data in such a way that
+   the resulting octets are unlikely to be modified by mail transport.
+   If the data being encoded are mostly US-ASCII text, the encoded form
+   of the data remains largely recognizable by humans.  A body which is
+   entirely US-ASCII may also be encoded in Quoted-Printable to ensure
+   the integrity of the data should the message pass through a
+   character-translating, and/or line-wrapping gateway.
+
+   In this encoding, octets are to be represented as determined by the
+   following rules:
+
+    (1)   (General 8bit representation) Any octet, except a CR or
+          LF that is part of a CRLF line break of the canonical
+          (standard) form of the data being encoded, may be
+          represented by an "=" followed by a two digit
+          hexadecimal representation of the octet's value.  The
+          digits of the hexadecimal alphabet, for this purpose,
+          are "0123456789ABCDEF".  Uppercase letters must be
+          used; lowercase letters are not allowed.  Thus, for
+          example, the decimal value 12 (US-ASCII form feed) can
+          be represented by "=0C", and the decimal value 61 (US-
+          ASCII EQUAL SIGN) can be represented by "=3D".  This
+          rule must be followed except when the following rules
+          allow an alternative encoding.
+
+    (2)   (Literal representation) Octets with decimal values of
+          33 through 60 inclusive, and 62 through 126, inclusive,
+          MAY be represented as the US-ASCII characters which
+          correspond to those octets (EXCLAMATION POINT through
+          LESS THAN, and GREATER THAN through TILDE,
+          respectively).
+
+    (3)   (White Space) Octets with values of 9 and 32 MAY be
+          represented as US-ASCII TAB (HT) and SPACE characters,
+          respectively, but MUST NOT be so represented at the end
+          of an encoded line.  Any TAB (HT) or SPACE characters
+          on an encoded line MUST thus be followed on that line
+          by a printable character.  In particular, an "=" at the
+          end of an encoded line, indicating a soft line break
+          (see rule #5) may follow one or more TAB (HT) or SPACE
+          characters.  It follows that an octet with decimal
+          value 9 or 32 appearing at the end of an encoded line
+          must be represented according to Rule #1.  This rule is
+          necessary because some MTAs (Message Transport Agents,
+          programs which transport messages from one user to
+          another, or perform a portion of such transfers) are
+          known to pad lines of text with SPACEs, and others are
+          known to remove "white space" characters from the end
+          of a line.  Therefore, when decoding a Quoted-Printable
+          body, any trailing white space on a line must be
+          deleted, as it will necessarily have been added by
+          intermediate transport agents.
+
+    (4)   (Line Breaks) A line break in a text body, represented
+          as a CRLF sequence in the text canonical form, must be
+          represented by a (RFC 822) line break, which is also a
+          CRLF sequence, in the Quoted-Printable encoding.  Since
+          the canonical representation of media types other than
+          text do not generally include the representation of
+          line breaks as CRLF sequences, no hard line breaks
+          (i.e. line breaks that are intended to be meaningful
+          and to be displayed to the user) can occur in the
+          quoted-printable encoding of such types.  Sequences
+          like "=0D", "=0A", "=0A=0D" and "=0D=0A" will routinely
+          appear in non-text data represented in quoted-
+          printable, of course.
+
+          Note that many implementations may elect to encode the
+          local representation of various content types directly
+          rather than converting to canonical form first,
+          encoding, and then converting back to local
+          representation.  In particular, this may apply to plain
+          text material on systems that use newline conventions
+          other than a CRLF terminator sequence.  Such an
+          implementation optimization is permissible, but only
+          when the combined canonicalization-encoding step is
+          equivalent to performing the three steps separately.
+
+    (5)   (Soft Line Breaks) The Quoted-Printable encoding
+          REQUIRES that encoded lines be no more than 76
+          characters long.  If longer lines are to be encoded
+          with the Quoted-Printable encoding, "soft" line breaks
+          must be used.  An equal sign as the last character on a
+          encoded line indicates such a non-significant ("soft")
+          line break in the encoded text.
+*)
 let p_decode stop p state =
   let buf = Buffer.create 16 in
 
@@ -297,7 +385,7 @@ let p_decode stop p state =
     let rec aux = function
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as r -> r
+      | #Lexer.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
         match Lexer.cur_chr state with

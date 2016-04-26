@@ -1,9 +1,7 @@
 type t =
-  {
-    ty         : string;
-    subty      : string;
-    parameters : (string * string) list;
-  }
+  { ty         : string
+  ; subty      : string
+  ; parameters : (string * string) list }
 
 let ty { ty; _ } = ty
 let subty { subty; _ } = subty

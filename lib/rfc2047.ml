@@ -16,7 +16,9 @@ let is_especials = function
   | '=' -> true
   | chr -> false
 
-let p_encoding_text = Lexer.p_while (function ' ' | '?' -> false | chr -> true)
+let p_encoding_text =
+  Lexer.p_while
+    (function ' ' | '?' -> false | chr -> true)
 
 let p_token =
   let is chr =
@@ -66,7 +68,8 @@ let p_decoded_word charset encoding p state =
   Buffer.add_string buf "=?";
   Buffer.add_string buf charset;
   Buffer.add_string buf "?";
-  Buffer.add_string buf (match encoding with QuotedPrintable -> "Q" | Base64 -> "B");
+  Buffer.add_string buf
+    (match encoding with QuotedPrintable -> "Q" | Base64 -> "B");
   Buffer.add_string buf "?";
 
   match encoding with
@@ -99,4 +102,5 @@ let p_try_rule p rule =
   Lexer.p_try_rule
     (fun encoded -> p (`Encoded encoded))
     (rule p)
-    (p_encoded_word (fun charset encoding data state -> `Ok ((charset, encoding, data), state)))
+    (p_encoded_word (fun charset encoding data state ->
+                     `Ok ((charset, encoding, data), state)))

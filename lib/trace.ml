@@ -35,7 +35,9 @@ let of_lexer k l =
         received := (l, d) :: !received; loop i rest
       | `ReturnPath a ->
         (match !path with
-         | None   -> path := Some (Option.bind Address.mailbox_of_lexer a); loop i rest
+         | None   ->
+           path := Some (Option.bind Address.mailbox_of_lexer a);
+           loop i rest
          | Some _ -> sanitize (List.rev (x :: i) @ l))
       | field -> loop (field :: i) rest
   in
