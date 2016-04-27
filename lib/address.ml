@@ -59,7 +59,7 @@ let pp fmt = function
 let domain_of_lexer ?(relax = true) = function
   | `Domain a -> `Domain a
   | `Literal s ->
-    try LiteralDomain.of_string ~relax s
+    try (LiteralDomain.of_string ~relax s :> domain)
     with exn -> if relax then `Literal s else raise exn
 
 let mailbox_of_lexer ?(relax = true) (local, domains) =
