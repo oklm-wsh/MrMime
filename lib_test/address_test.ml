@@ -364,7 +364,8 @@ let err_tests =
   ; "first.last@[IPv6::a2::b4]"
   ; "first.last@[IPv6:a1:a2:a3:a4:b1:b2:b3:]"
   ; "first.last@[IPv6::a2:a3:a4:b1:b2:b3:b4]"
-  ; "first.last@[IPv6:a1:a2:a3:a4::b1:b2:b3:b4]" ]
+  ; "first.last@[IPv6:a1:a2:a3:a4::b1:b2:b3:b4]"
+  ; "=?us-ascii?Q?Chri's_Smith?= =?us-ascii?Q?Henry?= <.@gmail.com,@hotmail.fr:henry.chris+porno@(Chris's host.)public.example> (je suis un connard en puissance)" ]
 
 let () =
   Alcotest.run "Address test"
