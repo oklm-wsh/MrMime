@@ -10,6 +10,8 @@ license:      "MIT"
 
 build: [
   ["./configure"
+    "--disable-tests"
+    "--disable-docs"
     "--prefix=%{prefix}%"]
   [make]
 ]
@@ -17,6 +19,13 @@ build: [
 build-test: [
   ["./configure"
     "--enable-tests"
+    "--prefix=%{prefix}%"]
+  [make "test"]
+]
+
+build-doc: [
+  ["./configure"
+    "--enable-docs"
     "--prefix=%{prefix}%"]
   [make "test"]
 ]
