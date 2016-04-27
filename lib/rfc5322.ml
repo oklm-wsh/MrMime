@@ -830,6 +830,7 @@ let p_obs_domain_list p state =
   let rec loop1 acc state =
     match cur_chr state with
     | ',' ->
+      Lexer.junk_chr state;
       p_cfws
         (fun _ state -> match cur_chr state with
          | '@' ->
@@ -843,10 +844,10 @@ let p_obs_domain_list p state =
   (* *(CFWS / ",") "@" domain *)
   let rec loop0 state =
     match cur_chr state with
-    | ',' -> Lexer.junk_chr state; loop0 state
+    | ',' -> Lexer.junk_chr state; p_cfws (fun _ -> loop0) state
     | '@' -> Lexer.junk_chr state; p_domain (fun domain -> loop1 [domain]) state
     (* XXX: may be raise an error *)
-    | chr -> p_cfws (fun has_fws -> loop0) state
+    | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
   in
 
   p_cfws (fun _ -> loop0) state
