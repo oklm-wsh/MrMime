@@ -25,12 +25,14 @@ SourceRepository master
   Browser:              https://github.com/oklm-wsh/MrMime
 
 Executable to_html
+  Build$:               flag(docs)
   Install:              false
   Path:                 web
   MainIs:               to_html.ml
   BuildDepends:         tyxml, cmdliner
 
 Executable validator
+  Build$:               flag(docs)
   Install:              false
   Path:                 web
   MainIs:               validator.ml
