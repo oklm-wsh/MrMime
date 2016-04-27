@@ -4,41 +4,48 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="previous" href="Encoding.html">
-<link rel="next" href="MsgID.html">
+<link rel="previous" href="Trace.html">
+<link rel="next" href="Header.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
-<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Address" rel="Chapter" href="Address.html">
 <link title="Date" rel="Chapter" href="Date.html">
-<link title="Base64" rel="Chapter" href="Base64.html">
-<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Identity" rel="Chapter" href="Identity.html">
-<link title="Encoding" rel="Chapter" href="Encoding.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
 <link title="MsgID" rel="Chapter" href="MsgID.html">
-<link title="Version" rel="Chapter" href="Version.html">
-<link title="Loc" rel="Chapter" href="Loc.html"><title>ContentType</title>
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Header" rel="Chapter" href="Header.html"><title>ContentType</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="Encoding.html" title="Encoding">Previous</a>
+<div class="navbar"><a class="pre" href="Trace.html" title="Trace">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
-&nbsp;<a class="post" href="MsgID.html" title="MsgID">Next</a>
+&nbsp;<a class="post" href="Header.html" title="Header">Next</a>
 </div>
 <h1>Module <a href="type_ContentType.html">ContentType</a></h1>
 
 <pre><span class="keyword">module</span> ContentType: <code class="code"><span class="keyword">sig</span></code> <a href="ContentType.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
+<pre><span id="TYPEty"><span class="keyword">type</span> <code class="type"></code>ty</span> = <code class="type">Rfc2045.ty</code> </pre>
+
+
+<pre><span id="TYPEsubty"><span class="keyword">type</span> <code class="type"></code>subty</span> = <code class="type">Rfc2045.subty</code> </pre>
+
+
+<pre><span id="TYPEvalue"><span class="keyword">type</span> <code class="type"></code>value</span> = <code class="type">Rfc2045.value</code> </pre>
+
+
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="VALty"><span class="keyword">val</span> ty</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> string</code></pre>
-<pre><span id="VALsubty"><span class="keyword">val</span> subty</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> string</code></pre>
-<pre><span id="VALparameters"><span class="keyword">val</span> parameters</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> (string * string) list</code></pre>
-<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?parameters:(string * string) list -> string -> string -> <a href="ContentType.html#TYPEt">t</a></code></pre>
+<pre><span id="VALty"><span class="keyword">val</span> ty</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEty">ty</a></code></pre>
+<pre><span id="VALsubty"><span class="keyword">val</span> subty</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEsubty">subty</a></code></pre>
+<pre><span id="VALparameters"><span class="keyword">val</span> parameters</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> (string * Rfc2045.value) list</code></pre>
+<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?parameters:(string * <a href="ContentType.html#TYPEvalue">value</a>) list -><br>       <a href="ContentType.html#TYPEty">ty</a> -> <a href="ContentType.html#TYPEsubty">subty</a> -> <a href="ContentType.html#TYPEt">t</a></code></pre>
 <pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a></code></pre>
+<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">Rfc2045.content -> <a href="ContentType.html#TYPEt">t</a></code></pre>
 <pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="ContentType.html#TYPEt">t</a> -> unit</code></pre>
 <pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEt">t</a> -> bool</code></pre></body></html>

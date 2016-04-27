@@ -17,6 +17,7 @@
 <link title="MsgID" rel="Chapter" href="MsgID.html">
 <link title="Resent" rel="Chapter" href="Resent.html">
 <link title="Trace" rel="Chapter" href="Trace.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
 <link title="Header" rel="Chapter" href="Header.html"><title>LiteralDomain</title>
 </head>
 <body>
@@ -24,15 +25,14 @@
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
 &nbsp;<a class="post" href="Address.html" title="Address">Next</a>
 </div>
-<h1>Module <a href="type_LiteralDomain.html">LiteralDomain</a> (<a href="code_LiteralDomain.html">.ml</a>)</h1>
+<h1>Module <a href="type_LiteralDomain.html">LiteralDomain</a></h1>
 
 <pre><span class="keyword">module</span> LiteralDomain: <code class="code"><span class="keyword">sig</span></code> <a href="LiteralDomain.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type">[ `General of string * string | `IPv4 of Ipaddr.V4.t | `IPv6 of Ipaddr.V6.t ]</code> </pre>
 
 
-<pre><span id="VALof_string"><span class="keyword">val</span> <a href="code_VALLiteralDomain.of_string.html">of_string</a></span> : <code class="type">?relax:bool -><br>       string -><br>       [> `General of string * string | `IPv4 of Ipaddr.V4.t | `IPv6 of Ipaddr.V6.t ]</code></pre>
-<pre><span id="VALp"><span class="keyword">val</span> <a href="code_VALLiteralDomain.p.html">p</a></span> : <code class="type">Format.formatter -> ('a, Format.formatter, unit) Pervasives.format -> 'a</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALLiteralDomain.pp.html">pp</a></span> : <code class="type">Format.formatter -><br>       [< `General of string * string | `IPv4 of Ipaddr.V4.t | `IPv6 of Ipaddr.V6.t ] -><br>       unit</code></pre>
-<pre><span id="VALequal"><span class="keyword">val</span> <a href="code_VALLiteralDomain.equal.html">equal</a></span> : <code class="type">'a -> 'a -> bool</code></pre>
-<pre><span id="VALsize"><span class="keyword">val</span> <a href="code_VALLiteralDomain.size.html">size</a></span> : <code class="type">[< `General of string * string | `IPv4 of Ipaddr.V4.t | `IPv6 of Ipaddr.V6.t ] -><br>       int</code></pre></body></html>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?relax:bool -> string -> <a href="LiteralDomain.html#TYPEt">t</a></code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="LiteralDomain.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="LiteralDomain.html#TYPEt">t</a> -> <a href="LiteralDomain.html#TYPEt">t</a> -> bool</code></pre>
+<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type"><a href="LiteralDomain.html#TYPEt">t</a> -> int</code></pre></body></html>
