@@ -1,3 +1,25 @@
+type ty =
+  [ `Application
+  | `Audio
+  | `Ietf_token of string
+  | `Image
+  | `Message
+  | `Multipart
+  | `Text
+  | `Video
+  | `X_token of string ]
+
+type subty =
+  [ `Ietf_token of string
+  | `Iana_token of string
+  | `X_token of string ]
+
+type value =
+  [ `String of string
+  | `Token of string ]
+
+type content = ty * subty * (string * value) list
+
 let is_tspecials = function
   | '(' | ')' | '<' | '>'  | '@'
   | ',' | ';' | ':' | '\\' | '"'
@@ -41,7 +63,7 @@ let p_composite_type p state =
 
 let p_discrete_type p state =
   match String.lowercase @@ p_token state with
-  | "text" -> p `Text state
+  | "text"  -> p `Text state
   | "image" -> p `Image state
   | "audio" -> p `Audio state
   | "video" -> p `Video state
@@ -49,7 +71,7 @@ let p_discrete_type p state =
   | extension_token ->
     p_extension_token (fun t _ -> p t state) (Lexer.of_string extension_token)
 
-let p_msg_id = Rfc5322.p_msg_id
+let p_msg_id = Rfc822.p_msg_id
 
 let p_mechanism p state =
   match String.lowercase @@ p_token state with
@@ -82,16 +104,59 @@ let p_type p state =
 let p_subtype p state =
   match Lexer.cur_chr state with
   | 'X' | 'x' -> p_extension_token p state
-  | chr       -> p_ietf_token p state (* | p_iana_token p state *)
+  | chr       ->
+    let token = p_token state in
+    match token with
+    | "plain" -> p (`Iana_token "plain") state
+    | token   -> p (`Ietf_token token) state
+    (* p_ietf_token p state | p_iana_token p state *)
 
 let p_value p =
   Lexer.p_try_rule
     (fun data -> p (`String data))
     (fun state -> p (`Token (p_token state)) state)
-    (Rfc5322.p_quoted_string (fun data state -> `Ok (data, state)))
+    (Rfc822.p_quoted_string (fun data state -> `Ok (data, state)))
 
 let p_parameter p state =
+  (Logs.debug @@ fun m -> m "state: p_parameter");
   let name = p_attribute state in
 
   Lexer.p_chr '=' state;
   p_value (fun value -> p (name, value)) state
+
+let p_content p state =
+  (Logs.debug @@ fun m -> m "state: p_content");
+
+  let rec loop p state =
+    let rec aux acc state =
+      (Logs.debug @@ fun m -> m "state: p_content/loop");
+
+      match Lexer.cur_chr state with
+      | ';' ->
+        Lexer.junk_chr state;
+        Rfc822.p_fws
+          (fun _ _ ->
+           p_parameter
+             (fun parameter -> Rfc822.p_fws (fun _ _ -> aux (parameter :: acc))))
+          state
+      | chr -> p (List.rev acc) state
+    in
+
+    aux [] state
+  in
+  Rfc822.p_fws
+    (fun _ _ ->
+     p_type
+       (fun ty state ->
+        Lexer.p_chr '/' state;
+        Rfc822.p_fws
+          (fun _ _ ->
+           p_subtype
+            (fun subty ->
+             Rfc822.p_fws
+              (fun _ _ state ->
+               match Lexer.cur_chr state with
+               | ';' -> loop (fun parameters -> p (ty, subty, parameters)) state
+               | chr -> p (ty, subty, []) state)))
+          state))
+    state
