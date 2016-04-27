@@ -1,7 +1,9 @@
 open Base
 
-type domain  = [ Rfc5322.domain | LiteralDomain.t ]
-type local   = Rfc5322.local
+type domain   = [ Rfc5322.domain | LiteralDomain.t ]
+type local    = Rfc5322.local
+type encoding = Rfc2047.encoding = QuotedPrintable | Base64
+type phrase   = Rfc5322.phrase
 
 let size_of_local =
   List.fold_left (fun acc -> function

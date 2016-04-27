@@ -1,0 +1,108 @@
+@import url(http://fonts.googleapis.com/css?family=Montserrat+Alternates);
+
+* {
+  margin:  0;
+  padding: 0;
+}
+
+body {
+  background-color: #46a4ff;
+}
+
+/*
+#ff6b6b
+#a3d46e
+#eaca75
+#435e87
+#cf8243
+#789ec6
+#ababab
+#555753
+#ff8d8d
+#c8e7a8
+#ffd155
+#587aa4
+#f6a24f
+#46a4ff
+#cdb844
+*/
+
+.field {
+  display: flex;
+  position: relative;
+  margin: 5em auto;
+  width: 70%;
+  flex-direction: row;
+  box-shadow:
+    1px 1px 0 rgb(207, 130, 67),
+    2px 2px 0 rgb(207, 130, 67),
+    3px 3px 0 rgb(207, 130, 67),
+    4px 4px 0 rgb(207, 130, 67),
+    5px 5px 0 rgb(207, 130, 67),
+    6px 6px 0 rgb(207, 130, 67),
+    7px 7px 0 rgb(207, 130, 67)
+    ;
+}
+
+.field > input[type="text"],
+.field > button
+{
+  display: block;
+  font: 1.2em 'Montserrat Alternates';
+}
+
+.field > input[type="text"] {
+  flex: 1;
+  padding: 0.6em;
+  border: 0.2em solid rgb(246, 162, 79);
+}
+
+.field > button {
+  padding: 0.6em 0.8em;
+  background-color: rgb(246, 162, 79);
+  border: none;
+  color: #FFFFFF;
+}
+
+.error {
+  display: flex;
+  position: relative;
+  margin: auto;
+  width: 70%;
+  flex-direction: row;
+  box-shadow:
+    1px 1px 0 rgb(255, 107, 107),
+    2px 2px 0 rgb(255, 107, 107),
+    3px 3px 0 rgb(255, 107, 107),
+    4px 4px 0 rgb(255, 107, 107),
+    5px 5px 0 rgb(255, 107, 107),
+    6px 6px 0 rgb(255, 107, 107),
+    7px 7px 0 rgb(255, 107, 107)
+    ;
+  background-color: #ff8d8d;
+  color: #FFFFFF;
+  padding: 0.6em;
+  font: 1.2em 'Montserrat Alternates' !important;
+}
+
+.ok {
+  display: flex;
+  position: relative;
+  margin: auto;
+  width: 70%;
+  flex-direction: row;
+  box-shadow:
+    1px 1px 0 rgb(34, 34, 34),
+    2px 2px 0 rgb(34, 34, 34),
+    3px 3px 0 rgb(34, 34, 34),
+    4px 4px 0 rgb(34, 34, 34),
+    5px 5px 0 rgb(34, 34, 34),
+    6px 6px 0 rgb(34, 34, 34),
+    7px 7px 0 rgb(34, 34, 34)
+    ;
+  background-color: #474949;
+}
+
+.hidden {
+  display: none;
+}
