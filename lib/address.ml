@@ -1,7 +1,19 @@
 open Base
 
-type domain  = Rfc5322.domain
+type domain  = [ Rfc5322.domain | LiteralDomain.t ]
 type local   = Rfc5322.local
+
+let size_of_local =
+  List.fold_left (fun acc -> function
+    | `Atom s -> String.length s + acc
+    | `String s -> String.length s + acc) 0
+
+let size_of_domain domain =
+  let aux = List.fold_left (fun acc -> function `Atom s -> String.length s + acc) 0 in
+  match domain with
+  | `Domain l -> aux l
+  | `Literal s -> String.length s
+  | #LiteralDomain.t as l -> LiteralDomain.size l
 
 type mailbox =
   { local   : local
@@ -20,6 +32,7 @@ type t = [ `Group of group | `Person of person ]
 let pp_domain fmt = function
   | `Domain l -> p fmt "%a" (pp_list ~sep:"." pp_atom) l
   | `Literal s -> p fmt "[%a]" (pp_string ~in_qs:false ~in_dm:true) s
+  | #LiteralDomain.t as l -> p fmt "[%a]" LiteralDomain.pp l
 
 let pp_local fmt =
   p fmt "%a" (pp_list ~sep:"." pp_word)
@@ -43,26 +56,42 @@ let pp fmt = function
   | `Group group -> pp_group fmt group
   | `Person person -> pp_person fmt person
 
-external domain_of_lexer : Rfc5322.domain -> domain = "%identity"
+let domain_of_lexer ?(relax = true) = function
+  | `Domain a -> `Domain a
+  | `Literal s ->
+    try LiteralDomain.of_string ~relax s
+    with exn -> if relax then `Literal s else raise exn
 
-let mailbox_of_lexer (local, domains) =
+let mailbox_of_lexer ?(relax = true) (local, domains) =
+  let domains = List.map (domain_of_lexer ~relax) domains in
+
   let first, rest = match domains with
     | first :: rest -> first, rest
     | _ -> raise (Invalid_argument "Address.mailbox_of_lexer")
   in
-  { local; domain = (first, rest); }
 
-let person_of_lexer (name, mailbox) =
-  { name; mailbox = mailbox_of_lexer mailbox; }
+  let size_of_rest =
+    List.length rest = 0
+    || List.for_all (fun x -> x > 0) (List.map size_of_domain rest)
+  in
 
-let group_of_lexer (name, persons) =
-  { name; persons = List.map person_of_lexer persons; }
+  if size_of_local local > 0
+  && size_of_domain first > 0
+  && size_of_rest
+  then { local; domain = (first, rest); }
+  else raise (Invalid_argument "Address.mailbox_of_lexer")
 
-let of_lexer = function
-  | `Group group -> `Group (group_of_lexer group)
-  | `Person person -> `Person (person_of_lexer person)
+let person_of_lexer ?(relax = true) (name, mailbox) =
+  { name; mailbox = mailbox_of_lexer ~relax mailbox; }
 
-let of_string s =
+let group_of_lexer ?(relax = true) (name, persons) =
+  { name; persons = List.map (person_of_lexer ~relax) persons; }
+
+let of_lexer ?(relax = true) = function
+  | `Group group -> `Group (group_of_lexer ~relax group)
+  | `Person person -> `Person (person_of_lexer ~relax person)
+
+let of_string ?(relax = true) s =
   let rec loop = function
     | `Error (exn, buf, off, len) ->
       let tmp = Buffer.create 16 in
@@ -74,7 +103,7 @@ let of_string s =
       raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
     | `Read (buf, off, len, k) ->
       raise (Invalid_argument "Address.of_string: unterminated string")
-    | `Ok data -> of_lexer data
+    | `Ok data -> of_lexer ~relax data
   in
 
   let rule = Rfc5322.p_address
@@ -94,9 +123,9 @@ module List =
 struct
   type nonrec t = t list
 
-  let of_lexer = List.map of_lexer
+  let of_lexer ?(relax = true) = List.map (of_lexer ~relax)
 
-  let of_string s =
+  let of_string ?(relax = true) s =
     let rec loop = function
       | `Error (exn, buf, off, len) ->
         let tmp = Buffer.create 16 in
@@ -109,7 +138,7 @@ struct
                                  ^ (Buffer.contents tmp)))
       | `Read (buf, off, len, k) ->
         raise (Invalid_argument "Address.List.of_string: unterminated string")
-      | `Ok data -> of_lexer data
+      | `Ok data -> of_lexer ~relax data
     in
 
     let rule = Rfc5322.p_address_list

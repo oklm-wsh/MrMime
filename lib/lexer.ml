@@ -13,7 +13,10 @@ type error =
   | `Unexpected_char     of char
   | `Unexpected_str      of string
   | `Wrong_padding
-  | `Unexpected_encoding of string ]
+  | `Unexpected_encoding of string
+  | `Invalid_ipv6
+  | `Invalid_ipv4
+  | `Invalid_ipv4v6 ]
 
 let err e state                       = `Error
                                         (e, state.buffer, state.pos, state.len)
@@ -24,6 +27,9 @@ let err_unexpected chr state          = err (`Unexpected_char chr) state
 let err_unexpected_str str state      = err (`Unexpected_str str) state
 let err_wrong_padding state           = err `Wrong_padding state
 let err_unexpected_encoding str state = err (`Unexpected_encoding str) state
+let err_invalid_ipv6 state            = err `Invalid_ipv6 state
+let err_invalid_ipv4 state            = err `Invalid_ipv4 state
+let err_invalid_ipv4v6 state          = err `Invalid_ipv4v6 state
 
 let p = Format.fprintf
 
@@ -46,6 +52,9 @@ let pp_error fmt = function
   | `Unexpected_str str      -> p fmt "Unexpected [%S]" str
   | `Wrong_padding           -> p fmt "Wrong padding"
   | `Unexpected_encoding str -> p fmt "Unexpected encoding [%S]" str
+  | `Invalid_ipv6            -> p fmt "Invalid IPv6"
+  | `Invalid_ipv4            -> p fmt "Invalid IPv4"
+  | `Invalid_ipv4v6          -> p fmt "Invalid IPv4 or IPv6"
 
 type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
@@ -163,6 +172,7 @@ let p_chr chr state =
 
   match peek_chr state with
   | Some c when chr = c ->
+    (Logs.debug @@ fun m -> m "state: p_chr [%S]" (String.make 1 c));
     junk_chr state
   | Some _ ->
     raise (Error (err_expected chr state))

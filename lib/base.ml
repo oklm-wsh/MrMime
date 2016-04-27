@@ -18,6 +18,7 @@ let pp_string ?(in_qs = false) ?(in_dm = false) fmt =
      | '\n'   -> p fmt "\\n"
      | '\x0b' -> p fmt "\\v"
      | '\r'   -> p fmt "\\r"
+     | '\\'   -> p fmt "\\\\"
      | ' ' when in_qs -> p fmt " "
      | '"' when in_qs -> p fmt "\\\""
      | ']' when in_dm -> p fmt "\\]"

@@ -2,4 +2,4 @@ S lib/
 
 B _build/lib/
 
-PKG alcotest logs logs.cli logs.fmt base64 benchmark lwt cohttp uri
+PKG alcotest logs logs.cli logs.fmt base64 benchmark lwt cohttp uri ipaddr
