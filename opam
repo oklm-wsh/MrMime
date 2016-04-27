@@ -34,23 +34,23 @@ install: [make "install"]
 remove: ["ocamlfind" "remove" "mrmime"]
 
 depends: [
-  "oasis" {build}
-  "alcotest" {test}
-  "base64" {test}
-  "benchmark" {test}
-  "lwt" {test}
-  "cohttp" {test}
-  "uri" {test}
+  "oasis"             {build}
+  "alcotest"          {test}
+  "base64"            {test}
+  "benchmark"         {test}
+  "lwt"               {test}
+  "cohttp"            {test}
+  "uri"               {test}
   "fmt"
   "logs"
   "ipaddr"
-  "ezjsonm" {doc}
-  "yojson" {doc}
-  "react" {doc}
-  "reactiveData" {doc}
+  "ezjsonm"           {doc}
+  "yojson"            {doc}
+  "react"             {doc}
+  "reactiveData"      {doc}
   "ocplib-json-typed" {doc}
-  "cstruct" {doc}
-  "js_of_ocaml" {doc}
+  "cstruct"           {doc}
+  "js_of_ocaml"
 ]
 
 available: [ocaml-version >= "4.02.0"]
