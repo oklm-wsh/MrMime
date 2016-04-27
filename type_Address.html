@@ -7,6 +7,7 @@
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
 <link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
 <link title="MsgID" rel="Chapter" href="MsgID.html">
 <link title="Resent" rel="Chapter" href="Resent.html">
@@ -21,23 +22,23 @@
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;person<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;group<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_string&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_string&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_string&nbsp;:&nbsp;<span class="constructor">Address</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:&nbsp;<span class="constructor">Address</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;person_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc5322</span>.person&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.person<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;person_of_lexer&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.person&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.person<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp_person&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.person&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;domain_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc5322</span>.domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.domain<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;domain_of_lexer&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.domain<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp_domain&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mailbox_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc5322</span>.mailbox&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.mailbox<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;mailbox_of_lexer&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.mailbox&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.mailbox<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp_mailbox&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.mailbox&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">List</span>&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;nonrec&nbsp;t&nbsp;=&nbsp;<span class="constructor">Address</span>.t&nbsp;list<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_string&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_string&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_string&nbsp;:&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span><br>

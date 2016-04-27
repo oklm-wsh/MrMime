@@ -1,0 +1,35 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html"><title>LiteralDomain.of_string</title>
+</head>
+<body>
+<code class="code"><span class="keyword">let</span>&nbsp;of_string&nbsp;?(relax&nbsp;=&nbsp;<span class="keyword">true</span>)&nbsp;s&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;=&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(exn,&nbsp;buf,&nbsp;off,&nbsp;len)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tmp&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;fmt&nbsp;=&nbsp;<span class="constructor">Format</span>.formatter_of_buffer&nbsp;tmp&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Format</span>.fprintf&nbsp;fmt&nbsp;<span class="string">"%a&nbsp;(buf:&nbsp;%S)%!"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.pp_error&nbsp;exn&nbsp;(<span class="constructor">Bytes</span>.sub&nbsp;buf&nbsp;off&nbsp;(len&nbsp;-&nbsp;off));<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;(<span class="string">"Address.of_string:&nbsp;"</span>&nbsp;^&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;tmp)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,&nbsp;k)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"Address.of_string:&nbsp;unterminated&nbsp;string"</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;data<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;=&nbsp;<span class="constructor">Rfc5321</span>.p_address_literal&nbsp;~relax<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.p_crlf&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;data))&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;loop&nbsp;@@&nbsp;<span class="constructor">Lexer</span>.safe&nbsp;rule&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;(s&nbsp;^&nbsp;<span class="string">"\r\n\r\n"</span>))</code></body></html>
