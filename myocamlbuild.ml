@@ -5,9 +5,10 @@ open Ocamlbuild_plugin
 
 let () = flag ["js_of_ocaml"] (A "+weak.js")
 
-let cstruct = Ocamlbuild_pack.Findlib.query "cstruct"
-
-let () = flag ["js_of_ocaml"] (A (Filename.concat cstruct.Ocamlbuild_pack.Findlib.location "cstruct.js"))
+let cstruct =
+  try let pkg = Ocamlbuild_pack.Findlib.query "cstruct" in
+      flag ["js_of_ocaml"] (A (Filename.concat pkg.Ocamlbuild_pack.Findlib.location "cstruct.js"))
+  with exn -> ()
 
 let () = dispatch
   (fun hook ->
