@@ -29,22 +29,94 @@
 
 <pre><span class="keyword">module</span> Address: <code class="code"><span class="keyword">sig</span></code> <a href="Address.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="TYPEdomain"><span class="keyword">type</span> <code class="type"></code>domain</span> </pre>
+<pre><span id="TYPEatom"><span class="keyword">type</span> <code class="type"></code>atom</span> = <code class="type">[ `Atom of string ]</code> </pre>
 
 
-<pre><span id="TYPElocal"><span class="keyword">type</span> <code class="type"></code>local</span> </pre>
+<pre><span id="TYPEdomain"><span class="keyword">type</span> <code class="type"></code>domain</span> = <code class="type">[ `Domain of <a href="Address.html#TYPEatom">atom</a> list<br>       | `General of string * string<br>       | `IPv4 of Ipaddr.V4.t<br>       | `IPv6 of Ipaddr.V6.t<br>       | `Literal of string ]</code> </pre>
 
 
-<pre><span id="TYPEmailbox"><span class="keyword">type</span> <code class="type"></code>mailbox</span> </pre>
+<pre><span id="TYPElocal"><span class="keyword">type</span> <code class="type"></code>local</span> = <code class="type">[ `Atom of string | `String of string ] list</code> </pre>
 
 
-<pre><span id="TYPEperson"><span class="keyword">type</span> <code class="type"></code>person</span> </pre>
+<pre><span id="TYPEencoding"><span class="keyword">type</span> <code class="type"></code>encoding</span> = <code class="type">Rfc2047.encoding</code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTencoding.QuotedPrintable"><span class="constructor">QuotedPrintable</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTencoding.Base64"><span class="constructor">Base64</span></span></code></td>
+
+</tr></table>
 
 
-<pre><span id="TYPEgroup"><span class="keyword">type</span> <code class="type"></code>group</span> </pre>
+
+<pre><span id="TYPEphrase"><span class="keyword">type</span> <code class="type"></code>phrase</span> = <code class="type">[ `Atom of string<br>       | `Dot<br>       | `Encoded of string * <a href="Address.html#TYPEencoding">encoding</a> * string<br>       | `String of string<br>       | `WSP ] list</code> </pre>
 
 
-<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+<pre><code><span id="TYPEmailbox"><span class="keyword">type</span> <code class="type"></code>mailbox</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmailbox.local">local</span>&nbsp;: <code class="type"><a href="Address.html#TYPElocal">local</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmailbox.domain">domain</span>&nbsp;: <code class="type"><a href="Address.html#TYPEdomain">domain</a> * <a href="Address.html#TYPEdomain">domain</a> list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><code><span id="TYPEperson"><span class="keyword">type</span> <code class="type"></code>person</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTperson.name">name</span>&nbsp;: <code class="type"><a href="Address.html#TYPEphrase">phrase</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTperson.mailbox">mailbox</span>&nbsp;: <code class="type"><a href="Address.html#TYPEmailbox">mailbox</a></code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><code><span id="TYPEgroup"><span class="keyword">type</span> <code class="type"></code>group</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTgroup.name">name</span>&nbsp;: <code class="type"><a href="Address.html#TYPEphrase">phrase</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTgroup.persons">persons</span>&nbsp;: <code class="type"><a href="Address.html#TYPEperson">person</a> list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type">[ `Group of <a href="Address.html#TYPEgroup">group</a> | `Person of <a href="Address.html#TYPEperson">person</a> ]</code> </pre>
 
 
 <pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?relax:bool -> string -> <a href="Address.html#TYPEt">t</a></code></pre>

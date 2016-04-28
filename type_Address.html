@@ -17,12 +17,28 @@
 </head>
 <body>
 <code class="code"><span class="keyword">sig</span><br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;domain<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;local<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;mailbox<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;person<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;group<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;atom&nbsp;=&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;]<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;domain&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.atom&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">General</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">IPv4</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Ipaddr</span>.<span class="constructor">V4</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">IPv6</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Ipaddr</span>.<span class="constructor">V6</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Literal</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;]<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;local&nbsp;=&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;]&nbsp;list<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;encoding&nbsp;=&nbsp;<span class="constructor">Rfc2047</span>.encoding&nbsp;=&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Base64</span><br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;phrase&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Dot</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Address</span>.encoding&nbsp;*&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;]&nbsp;list<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;mailbox&nbsp;=&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;local&nbsp;:&nbsp;<span class="constructor">Address</span>.local;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;domain&nbsp;:&nbsp;<span class="constructor">Address</span>.domain&nbsp;*&nbsp;<span class="constructor">Address</span>.domain&nbsp;list;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;person&nbsp;=&nbsp;{&nbsp;name&nbsp;:&nbsp;<span class="constructor">Address</span>.phrase&nbsp;option;&nbsp;mailbox&nbsp;:&nbsp;<span class="constructor">Address</span>.mailbox;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;group&nbsp;=&nbsp;{&nbsp;name&nbsp;:&nbsp;<span class="constructor">Address</span>.phrase;&nbsp;persons&nbsp;:&nbsp;<span class="constructor">Address</span>.person&nbsp;list;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;t&nbsp;=&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Group</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.group&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Person</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.person&nbsp;]<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_string&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_string&nbsp;:&nbsp;<span class="constructor">Address</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:&nbsp;?relax:bool&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.t<br>
