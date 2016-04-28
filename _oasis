@@ -11,7 +11,6 @@ Plugins:                META (0.3), DevFiles (0.3)
 BuildTools:             ocamlbuild
 OCamlVersion:           >= 4.02
 AlphaFeatures:          ocamlbuild_more_args
-XOCamlbuildPluginTags:  package(js_of_ocaml.ocamlbuild)
 
 Library mrmime
   Path:                 lib
@@ -24,30 +23,11 @@ SourceRepository master
   Location:             https://github.com/oklm-wsh/MrMime.git
   Browser:              https://github.com/oklm-wsh/MrMime
 
-Executable to_html
-  Build$:               flag(docs)
-  Install:              false
-  Path:                 web
-  MainIs:               to_html.ml
-  BuildDepends:         tyxml, cmdliner
-
-Executable validator
-  Build$:               flag(docs)
-  Install:              false
-  Path:                 web
-  MainIs:               validator.ml
-  BuildDepends:         js_of_ocaml, js_of_ocaml.ppx, js_of_ocaml.tyxml, react, reactiveData, ocplib-json-typed, ezjsonm, yojson, mrmime
-  CompiledObject:       byte
-
 Document "mrmime"
   Type:                 ocamlbuild (0.4)
   BuildTools:           ocamldoc
-  BuildTools+:          to_html
-  BuildTools+:          validator
   Title:                "MrMime"
-  PostCommand:          cp doc/* mrmime.docdir/ && \
-    jsoo_minify '_build/web/validator.js' -o 'web/validator.js' && \
-    $to_html -s 'web/validator.js' > 'validator.html'
+  PostCommand:          cp doc/* mrmime.docdir/
   XOCamlbuildPath:      .
   XOCamlbuildLibraries: mrmime
   XOCamlbuildExtraArgs:

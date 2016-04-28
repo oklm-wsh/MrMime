@@ -1,6 +1,7 @@
 open Base
 
-type domain   = [ Rfc5322.domain | LiteralDomain.t ]
+type atom     = Rfc5322.atom
+type domain   = [ `Domain of atom list | `Literal of string | LiteralDomain.t ]
 type local    = Rfc5322.local
 type encoding = Rfc2047.encoding = QuotedPrintable | Base64
 type phrase   = Rfc5322.phrase
@@ -22,11 +23,11 @@ type mailbox =
   ; domain  : domain * domain list }
 
 type person =
-  { name    : Rfc5322.phrase option
+  { name    : phrase option
   ; mailbox : mailbox }
 
 type group =
-  { name    : Rfc5322.phrase
+  { name    : phrase
   ; persons : person list }
 
 type t = [ `Group of group | `Person of person ]

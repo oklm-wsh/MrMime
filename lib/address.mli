@@ -1,15 +1,16 @@
-type domain   = [ Rfc5322.domain | LiteralDomain.t ]
-and  local    = Rfc5322.local
+type atom     = [ `Atom of string ]
+type domain   = [ `Domain of atom list | `Literal of string | LiteralDomain.t ]
+and  local    = [ atom | `String of string ] list
 and  encoding = Rfc2047.encoding = QuotedPrintable | Base64
-and  phrase   = Rfc5322.phrase
+and  phrase   = [ atom | `Dot | `Encoded of (string * encoding * string) | `String of string | `WSP ] list
 and  mailbox  =
   { local   : local
   ; domain  : domain * domain list }
 and  person   =
-  { name    : Rfc5322.phrase option
+  { name    : phrase option
   ; mailbox : mailbox }
 and  group    =
-  { name    : Rfc5322.phrase
+  { name    : phrase
   ; persons : person list }
 and  t        = [ `Group of group | `Person of person ]
 
