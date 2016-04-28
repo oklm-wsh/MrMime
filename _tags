@@ -1,3 +1,3 @@
 # OASIS_START
 # OASIS_STOP
-true: use_menhir
+<lib/iana.ml{,i}>: ppx_iana

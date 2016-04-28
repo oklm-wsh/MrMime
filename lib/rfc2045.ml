@@ -101,15 +101,25 @@ let p_type p state =
   | extension_token ->
     p_extension_token (fun t _ -> p t state) (Lexer.of_string extension_token)
 
-let p_subtype p state =
+let ty_to_string = function
+  | `Text -> "text"
+  | `Image -> "image"
+  | `Audio -> "audio"
+  | `Video -> "video"
+  | `Application -> "application"
+  | `Message -> "message"
+  | `Multipart -> "multipart"
+  | `X_token s | `Ietf_token s -> s
+
+let p_subtype ty p state =
   match Lexer.cur_chr state with
   | 'X' | 'x' -> p_extension_token p state
   | chr       ->
     let token = p_token state in
-    match token with
-    | "plain" -> p (`Iana_token "plain") state
-    | token   -> p (`Ietf_token token) state
-    (* p_ietf_token p state | p_iana_token p state *)
+    try Iana.Map.find ty Iana.database
+        |> Iana.Set.find token
+        |> fun value -> p (`Iana_token value) state
+    with exn -> p (`X_token token) state
 
 let p_value p =
   Lexer.p_try_rule
@@ -151,7 +161,7 @@ let p_content p state =
         Lexer.p_chr '/' state;
         Rfc822.p_fws
           (fun _ _ ->
-           p_subtype
+           p_subtype (ty_to_string ty)
             (fun subty ->
              Rfc822.p_fws
               (fun _ _ state ->
