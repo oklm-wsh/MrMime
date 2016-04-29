@@ -68,6 +68,7 @@ type field =
   | `ReturnPath      of mailbox option
   | `ContentType     of Rfc2045.content
   | `MIMEVersion     of Rfc2045.version
+  | `ContentEncoding of Rfc2045.encoding
   | `Field           of string * phrase ]
 
 let cur_chr ?(avoid = []) state =
@@ -1416,6 +1417,8 @@ let p_field p state =
       Rfc2045.p_content  (fun c -> p_crlf @@ p (`ContentType c))
     | "mime-version"      ->
       Rfc2045.p_version  (fun v -> p_crlf @@ p (`MIMEVersion v))
+    | "content-encoding"  ->
+      Rfc2045.p_encoding (fun e -> p_crlf @@ p (`ContentEncoding e))
     | field               ->
       p_unstructured @@ (fun data -> p_crlf @@ (p (`Field (field, data))))
   in

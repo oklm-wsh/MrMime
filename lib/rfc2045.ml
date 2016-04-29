@@ -20,6 +20,14 @@ type value =
 
 type content = ty * subty * (string * value) list
 type version = int * int
+type encoding =
+  [ `Base64
+  | `Bit7
+  | `Bit8
+  | `Binary
+  | `QuotedPrintable
+  | `Ietf_token of string
+  | `X_token of string ]
 
 let is_tspecials = function
   | '(' | ')' | '<' | '>'  | '@'
@@ -179,3 +187,16 @@ let p_version p state =
       state)
     state)
   state
+
+let p_mechanism p state =
+  match String.lowercase @@ p_token state with
+  | "7bit" -> p `Bit7 state
+  | "8bit" -> p `Bit8 state
+  | "binary" -> p `Binary state
+  | "quoted-printable" -> p `QuotedPrintable state
+  | "base64" -> p `Base64 state
+  | extension_token ->
+    p_extension_token (fun t _ -> p t state) (Lexer.of_string extension_token)
+
+let p_encoding p =
+  Rfc822.p_cfws (fun _ -> p_mechanism (fun e -> Rfc822.p_cfws (fun _ -> p e)))

@@ -7,6 +7,7 @@ type t =
   ; from          : Address.person list
   ; content       : ContentType.t
   ; version       : Version.t
+  ; encoding      : Encoding.t
   ; sender        : Address.person option
   ; reply_to      : Address.List.t option
   ; target        : Address.List.t option
@@ -40,6 +41,7 @@ let of_lexer k l =
   let keywords      = ref [] in
   let content       = ref None in
   let version       = ref None in
+  let encoding      = ref None in
   let others        = ref [] in
 
   let sanitize fields =
@@ -48,6 +50,7 @@ let of_lexer k l =
       k (Some { date; from
               ; content     = Option.value ~default:ContentType.default !content
               ; version     = Option.value ~default:Version.default !version
+              ; encoding    = Option.value ~default:Encoding.default !encoding
               ; sender      = !sender
               ; reply_to    = !reply_to
               ; target      = !target
@@ -89,6 +92,11 @@ let of_lexer k l =
       | `MIMEVersion v ->
         (match !content with
          | None   -> version := Some (Version.of_lexer v);
+                     loop i rest
+         | Some _ -> loop i rest)
+      | `ContentEncoding v ->
+        (match !content with
+         | None   -> encoding := Some (Encoding.of_lexer v);
                      loop i rest
          | Some _ -> loop i rest)
       | `Sender c ->
@@ -192,7 +200,7 @@ let pp_list ?(last = false) ?(sep = "") pp_data fmt lst =
   aux lst
 
 let t_to_list
-  { date; from; content; version
+  { date; from; content; version; encoding
   ; sender; reply_to; target; cc; bcc; subject; msg_id
   ; in_reply_to; references
   ; resents; traces
@@ -216,7 +224,7 @@ let t_to_list
   @:@ (comments >>= fun s -> `Comments s)
   @:@ (keywords >|= fun l -> `Keywords l)
   @:@ (others >|= fun l -> `Others l)
-  @:@ (`MIMEVersion version) :: (`ContentType content) :: (`From from) :: (`Date date) :: []
+  @:@ (`ContentEncoding encoding) :: (`MIMEVersion version) :: (`ContentType content) :: (`From from) :: (`Date date) :: []
 
 let pp_ext fmt = function
   | `Phrase l -> p fmt "%a" pp_phrase l
@@ -247,6 +255,7 @@ let pp_field fmt = function
                             (pp_list ~sep:"," pp_phrase) l
   | `MIMEVersion v     -> p fmt "MIME-Version: %a\r\n" Version.pp v
   | `ContentType c     -> p fmt "Content-Type: %a\r\n" ContentType.pp c
+  | `ContentEncoding e -> p fmt "Content-Encoding: %a\r\n" Encoding.pp e
   | `Others l          -> p fmt "%a" (pp_list pp_field) l
 
 let pp fmt t =

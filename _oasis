@@ -22,7 +22,7 @@ Flag update
 
 Library mrmime
   Path:                 lib
-  Modules:              MrMime, Date, LiteralDomain, Address, MsgID, Resent, Trace, Version, ContentType, Header
+  Modules:              MrMime, Date, LiteralDomain, Address, MsgID, Resent, Trace, Version, ContentType, Encoding, Header
   InternalModules:      Option, Base, Iana, Lexer, Rfc822, Rfc5321, Rfc5322, Rfc6854, Rfc2045, Base64, QuotedPrintable, Rfc2047
   BuildDepends:         logs, logs.cli, logs.fmt, ipaddr
 
