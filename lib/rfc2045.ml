@@ -19,6 +19,7 @@ type value =
   | `Token of string ]
 
 type content = ty * subty * (string * value) list
+type version = int * int
 
 let is_tspecials = function
   | '(' | ')' | '<' | '>'  | '@'
@@ -147,26 +148,34 @@ let p_content p state =
         Rfc822.p_fws
           (fun _ _ ->
            p_parameter
-             (fun parameter -> Rfc822.p_fws (fun _ _ -> aux (parameter :: acc))))
+             (fun parameter ->
+              Rfc822.p_fws (fun _ _ -> aux (parameter :: acc))))
           state
       | chr -> p (List.rev acc) state
     in
 
     aux [] state
   in
-  Rfc822.p_fws
-    (fun _ _ ->
-     p_type
-       (fun ty state ->
-        Lexer.p_chr '/' state;
-        Rfc822.p_fws
-          (fun _ _ ->
-           p_subtype (ty_to_string ty)
-            (fun subty ->
-             Rfc822.p_fws
-              (fun _ _ state ->
-               match Lexer.cur_chr state with
-               | ';' -> loop (fun parameters -> p (ty, subty, parameters)) state
-               | chr -> p (ty, subty, []) state)))
-          state))
-    state
+  Rfc822.p_cfws
+    (fun _ -> p_type (fun ty state ->
+      Lexer.p_chr '/' state;
+      Rfc822.p_cfws (fun _ ->
+        p_subtype (ty_to_string ty) (fun subty ->
+        Rfc822.p_cfws (fun _ state ->
+          match Lexer.cur_chr state with
+          | ';' -> loop (fun parameters -> Rfc822.p_cfws (fun _ -> p (ty, subty, parameters))) state
+          | chr -> p (ty, subty, []) state)))
+    state))
+  state
+
+let p_version p state =
+  Rfc822.p_cfws (fun _ state ->
+    let a = int_of_string @@ Lexer.p_while Rfc822.is_digit state in
+    Rfc822.p_cfws (fun _ state ->
+      Lexer.p_chr '.' state;
+      Rfc822.p_cfws (fun _ state ->
+        let b = int_of_string @@ Lexer.p_while Rfc822.is_digit state in
+        Rfc822.p_cfws (fun _ -> (Logs.debug @@ fun m -> m "state: p_version (%d.%d)" a b); p (a, b)) state)
+      state)
+    state)
+  state

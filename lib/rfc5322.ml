@@ -67,6 +67,7 @@ type field =
   | `Received        of received list * date_time option
   | `ReturnPath      of mailbox option
   | `ContentType     of Rfc2045.content
+  | `MIMEVersion     of Rfc2045.version
   | `Field           of string * phrase ]
 
 let cur_chr ?(avoid = []) state =
@@ -1412,8 +1413,9 @@ let p_field p state =
     | "return-path"       ->
       p_path             (fun a -> p_crlf @@ p (`ReturnPath a))
     | "content-type"      ->
-      p_cfws (fun _ -> Rfc2045.p_content (fun c -> p_cfws (fun _ ->
-        (Logs.debug @@ fun m -> m "We have a CONTENT-TYPE"); p_crlf @@ p (`ContentType c))))
+      Rfc2045.p_content  (fun c -> p_crlf @@ p (`ContentType c))
+    | "mime-version"      ->
+      Rfc2045.p_version  (fun v -> p_crlf @@ p (`MIMEVersion v))
     | field               ->
       p_unstructured @@ (fun data -> p_crlf @@ (p (`Field (field, data))))
   in
