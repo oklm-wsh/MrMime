@@ -21,7 +21,6 @@ Library mrmime
   Modules:              MrMime, Date, LiteralDomain, Address, MsgID, Resent, Trace, ContentType, Header
   InternalModules:      Option, Base, Iana, Lexer, Rfc822, Rfc5321, Rfc5322, Rfc6854, Rfc2045, Base64, QuotedPrintable, Rfc2047
   BuildDepends:         logs, logs.cli, logs.fmt, ipaddr
-  DataFiles:            iana.xml
 
 SourceRepository master
   Type:                 git
@@ -30,6 +29,7 @@ SourceRepository master
 
 Executable ppx_iana
   Path:                 ppx
+  Install:              false
   MainIs:               ppx_iana.ml
   BuildDepends:         compiler-libs.common, cmdliner, xmlm, ppx_tools, ppx_tools.metaquot
   CompiledObject:       byte
