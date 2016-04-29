@@ -1,3 +1,13 @@
+type atom    = [ `Atom of string ]
+type word    = [ atom | `String of string ]
+type local   = word list
+type domain  =
+  [ `Literal of string
+  | `Domain of atom list ]
+type left   = local
+type right  = domain
+type msg_id = left * right
+
 (* See RFC 822 § 3.3:
 
    SPACE       =  <ASCII SP, space>            ; (     40,      32. )

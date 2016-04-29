@@ -20,23 +20,19 @@ type date      = int * month * int
 type time      = int * int * int option
 type date_time = day option * date * time * tz
 
-type atom    = [ `Atom of string ]
-type word    = [ atom | `String of string ]
+type atom    = Rfc822.atom
+type word    = Rfc822.word
 type phrase  = [ word | `Dot | `WSP | Rfc2047.encoded ] list
 
-type domain =
-  [ `Literal of string
-  | `Domain of atom list ]
-
-type local   = word list
+type domain  = Rfc822.domain
+type local   = Rfc822.local
 type mailbox = local * domain list
 type person  = phrase option * mailbox
 type group   = phrase * person list
 type address = [ `Group of group | `Person of person ]
-
-type left   = local
-type right  = domain
-type msg_id = left * right
+type left    = Rfc822.left
+type right   = Rfc822.right
+type msg_id  = Rfc822.msg_id
 
 type received =
   [ `Domain of domain
@@ -67,8 +63,9 @@ type field =
   | `Received        of received list * date_time option
   | `ReturnPath      of mailbox option
   | `ContentType     of Rfc2045.content
-  | `MIMEVersion     of Rfc2045.version
+  | `MimeVersion     of Rfc2045.version
   | `ContentEncoding of Rfc2045.encoding
+  | `ContentID       of Rfc2045.id
   | `Field           of string * phrase ]
 
 let cur_chr ?(avoid = []) state =
@@ -1416,9 +1413,11 @@ let p_field p state =
     | "content-type"      ->
       Rfc2045.p_content  (fun c -> p_crlf @@ p (`ContentType c))
     | "mime-version"      ->
-      Rfc2045.p_version  (fun v -> p_crlf @@ p (`MIMEVersion v))
+      Rfc2045.p_version  (fun v -> p_crlf @@ p (`MimeVersion v))
     | "content-encoding"  ->
       Rfc2045.p_encoding (fun e -> p_crlf @@ p (`ContentEncoding e))
+    | "content-id"        ->
+      Rfc2045.p_id       (fun i -> p_crlf @@ p (`ContentID i))
     | field               ->
       p_unstructured @@ (fun data -> p_crlf @@ (p (`Field (field, data))))
   in

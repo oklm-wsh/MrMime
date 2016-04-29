@@ -28,6 +28,7 @@ type encoding =
   | `QuotedPrintable
   | `Ietf_token of string
   | `X_token of string ]
+type id = Rfc822.msg_id
 
 let is_tspecials = function
   | '(' | ')' | '<' | '>'  | '@'
@@ -200,3 +201,6 @@ let p_mechanism p state =
 
 let p_encoding p =
   Rfc822.p_cfws (fun _ -> p_mechanism (fun e -> Rfc822.p_cfws (fun _ -> p e)))
+
+let p_id p =
+  Rfc822.p_cfws (fun _ -> Rfc822.p_msg_id (fun m -> Rfc822.p_cfws (fun _ -> p m)))

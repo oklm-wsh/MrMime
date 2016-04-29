@@ -5,9 +5,7 @@ type phrase = [ `Phrase of Rfc5322.phrase ]
 type t =
   { date          : Date.t
   ; from          : Address.person list
-  ; content       : ContentType.t
-  ; version       : Version.t
-  ; encoding      : Encoding.t
+  ; content       : Content.t
   ; sender        : Address.person option
   ; reply_to      : Address.List.t option
   ; target        : Address.List.t option
@@ -39,18 +37,14 @@ let of_lexer k l =
   let traces        = ref [] in
   let comments      = ref None in
   let keywords      = ref [] in
-  let content       = ref None in
-  let version       = ref None in
-  let encoding      = ref None in
+  let content       = ref (Content.make ()) in
   let others        = ref [] in
 
   let sanitize fields =
     match !date, !from with
     | Some date, Some from ->
       k (Some { date; from
-              ; content     = Option.value ~default:ContentType.default !content
-              ; version     = Option.value ~default:Version.default !version
-              ; encoding    = Option.value ~default:Encoding.default !encoding
+              ; content     = !content
               ; sender      = !sender
               ; reply_to    = !reply_to
               ; target      = !target
@@ -83,21 +77,6 @@ let of_lexer k l =
          | None   -> from := Some (List.map Address.person_of_lexer f);
                      loop i rest
          (* XXX: may be it's an error *)
-         | Some _ -> loop i rest)
-      | `ContentType c ->
-        (match !content with
-         | None   -> content := Some (ContentType.of_lexer c);
-                     loop i rest
-         | Some _ -> loop i rest)
-      | `MIMEVersion v ->
-        (match !content with
-         | None   -> version := Some (Version.of_lexer v);
-                     loop i rest
-         | Some _ -> loop i rest)
-      | `ContentEncoding v ->
-        (match !content with
-         | None   -> encoding := Some (Encoding.of_lexer v);
-                     loop i rest
          | Some _ -> loop i rest)
       | `Sender c ->
         (match !sender with
@@ -148,6 +127,8 @@ let of_lexer k l =
            | Some resent -> fun l -> resents := resent :: !resents; loop i l
            | None        -> fun l -> loop i l)
           (x :: rest)
+      | `ContentType _ | `ContentEncoding _ | `ContentID _ | `MimeVersion _ ->
+        Content.of_lexer (fun c -> content := c; loop i) (x :: rest)
       | `ReturnPath _ | `Received _ ->
         Trace.of_lexer
           (function
@@ -200,7 +181,7 @@ let pp_list ?(last = false) ?(sep = "") pp_data fmt lst =
   aux lst
 
 let t_to_list
-  { date; from; content; version; encoding
+  { date; from; content
   ; sender; reply_to; target; cc; bcc; subject; msg_id
   ; in_reply_to; references
   ; resents; traces
@@ -224,7 +205,7 @@ let t_to_list
   @:@ (comments >>= fun s -> `Comments s)
   @:@ (keywords >|= fun l -> `Keywords l)
   @:@ (others >|= fun l -> `Others l)
-  @:@ (`ContentEncoding encoding) :: (`MIMEVersion version) :: (`ContentType content) :: (`From from) :: (`Date date) :: []
+  @:@ (`Content content) :: (`From from) :: (`Date date) :: []
 
 let pp_ext fmt = function
   | `Phrase l -> p fmt "%a" pp_phrase l
@@ -237,6 +218,7 @@ let pp_field fmt = function
   | `From l            -> p fmt "From: %a\r\n"
                             (pp_list ~sep:", " Address.pp_person) l
   | `Date d            -> p fmt "Date: %a\r\n" Date.pp d
+  | `Content c         -> p fmt "%a" Content.pp c
   | `Sender e          -> p fmt "Sender: %a\r\n" Address.pp_person e
   | `ReplyTo l         -> p fmt "Reply-To: %a\r\n" Address.List.pp l
   | `To l              -> p fmt "To: %a\r\n" Address.List.pp l
@@ -253,9 +235,6 @@ let pp_field fmt = function
   | `Comments s        -> p fmt "Comments: %a\r\n" pp_phrase s
   | `Keywords l        -> p fmt "Keywords: %a\r\n"
                             (pp_list ~sep:"," pp_phrase) l
-  | `MIMEVersion v     -> p fmt "MIME-Version: %a\r\n" Version.pp v
-  | `ContentType c     -> p fmt "Content-Type: %a\r\n" ContentType.pp c
-  | `ContentEncoding e -> p fmt "Content-Encoding: %a\r\n" Encoding.pp e
   | `Others l          -> p fmt "%a" (pp_list pp_field) l
 
 let pp fmt t =
