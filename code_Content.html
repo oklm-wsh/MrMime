@@ -1,0 +1,90 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html"><title>Content</title>
+</head>
+<body>
+<code class="code"><span class="keyword">type</span>&nbsp;t&nbsp;=<br>
+&nbsp;&nbsp;{&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t<br>
+&nbsp;&nbsp;;&nbsp;encoding&nbsp;:&nbsp;<span class="constructor">ContentEncoding</span>.t<br>
+&nbsp;&nbsp;;&nbsp;version&nbsp;&nbsp;:&nbsp;<span class="constructor">MimeVersion</span>.t<br>
+&nbsp;&nbsp;;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">MsgID</span>.t&nbsp;option&nbsp;}<br>
+<br>
+<span class="keyword">let</span>&nbsp;make<br>
+&nbsp;&nbsp;?(ty&nbsp;=&nbsp;<span class="constructor">ContentType</span>.default)<br>
+&nbsp;&nbsp;?(encoding&nbsp;=&nbsp;<span class="constructor">ContentEncoding</span>.default)<br>
+&nbsp;&nbsp;?(version&nbsp;=&nbsp;<span class="constructor">MimeVersion</span>.default)<br>
+&nbsp;&nbsp;?id&nbsp;()&nbsp;=<br>
+&nbsp;&nbsp;{&nbsp;ty;&nbsp;encoding;&nbsp;version;&nbsp;id;&nbsp;}<br>
+<br>
+<span class="keyword">let</span>&nbsp;of_lexer&nbsp;k&nbsp;l&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;encoding&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;version&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;sanitize&nbsp;fields&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;k&nbsp;({&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">ContentType</span>.default&nbsp;!ty<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;encoding&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">ContentEncoding</span>.default&nbsp;!encoding<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;version&nbsp;&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">MimeVersion</span>.default&nbsp;!version<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;!id&nbsp;})&nbsp;fields<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;i&nbsp;l&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;l&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;sanitize&nbsp;(<span class="constructor">List</span>.rev&nbsp;i)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;x&nbsp;::&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;x&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;c&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!ty&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;ty&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">ContentType</span>.of_lexer&nbsp;c);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;i&nbsp;rest<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(x&nbsp;::&nbsp;i)&nbsp;rest)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!encoding&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;encoding&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">ContentEncoding</span>.of_lexer&nbsp;e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;i&nbsp;rest<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(x&nbsp;::&nbsp;i)&nbsp;rest)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">MimeVersion</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!version&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;version&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">MimeVersion</span>.of_lexer&nbsp;v);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;i&nbsp;rest<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(x&nbsp;::&nbsp;i)&nbsp;rest)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!id&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;id&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">MsgID</span>.of_lexer&nbsp;e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;i&nbsp;rest<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(x&nbsp;::&nbsp;i)&nbsp;rest)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;i)&nbsp;rest<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;loop&nbsp;[]&nbsp;l<br>
+<br>
+<span class="keyword">let</span>&nbsp;p&nbsp;=&nbsp;<span class="constructor">Format</span>.fprintf<br>
+<br>
+<span class="keyword">let</span>&nbsp;pp&nbsp;fmt&nbsp;{&nbsp;ty;&nbsp;encoding;&nbsp;version;&nbsp;id;&nbsp;}&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pp_field_opt&nbsp;fmt&nbsp;field_name&nbsp;pp_field&nbsp;field_opt&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field_opt&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"%s:&nbsp;%a\r\n"</span>&nbsp;field_name&nbsp;pp_field&nbsp;field<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"MIME-Version:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">MimeVersion</span>.pp&nbsp;version;<br>
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Type:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentType</span>.pp&nbsp;ty;<br>
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Encoding:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentEncoding</span>.pp&nbsp;encoding;<br>
+&nbsp;&nbsp;pp_field_opt&nbsp;fmt&nbsp;<span class="string">"Content-ID"</span>&nbsp;<span class="constructor">MsgID</span>.pp&nbsp;id;<br>
+</code></body></html>

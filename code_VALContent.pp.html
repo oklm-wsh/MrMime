@@ -1,0 +1,32 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html"><title>Content.pp</title>
+</head>
+<body>
+<code class="code"><span class="keyword">let</span>&nbsp;pp&nbsp;fmt&nbsp;{&nbsp;ty;&nbsp;encoding;&nbsp;version;&nbsp;id;&nbsp;}&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pp_field_opt&nbsp;fmt&nbsp;field_name&nbsp;pp_field&nbsp;field_opt&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field_opt&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"%s:&nbsp;%a\r\n"</span>&nbsp;field_name&nbsp;pp_field&nbsp;field<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"MIME-Version:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">MimeVersion</span>.pp&nbsp;version;<br>
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Type:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentType</span>.pp&nbsp;ty;<br>
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Encoding:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentEncoding</span>.pp&nbsp;encoding;<br>
+&nbsp;&nbsp;pp_field_opt&nbsp;fmt&nbsp;<span class="string">"Content-ID"</span>&nbsp;<span class="constructor">MsgID</span>.pp&nbsp;id;</code></body></html>

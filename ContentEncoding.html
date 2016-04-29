@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="ContentType.html">
+<link rel="next" href="Content.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html"><title>ContentEncoding</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="ContentType.html" title="ContentType">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Content.html" title="Content">Next</a>
+</div>
+<h1>Module <a href="type_ContentEncoding.html">ContentEncoding</a></h1>
+
+<pre><span class="keyword">module</span> ContentEncoding: <code class="code"><span class="keyword">sig</span></code> <a href="ContentEncoding.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type">[ `Base64<br>       | `Binary<br>       | `Bit7<br>       | `Bit8<br>       | `Ietf_token of string<br>       | `QuotedPrintable<br>       | `X_token of string ]</code> </pre>
+
+
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="ContentEncoding.html#TYPEt">t</a></code></pre>
+<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="ContentEncoding.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">Rfc2045.encoding -> <a href="ContentEncoding.html#TYPEt">t</a></code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="ContentEncoding.html#TYPEt">t</a> -> unit</code></pre></body></html>
