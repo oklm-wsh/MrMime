@@ -82,36 +82,22 @@ let make_expr symbol db =
     in
     [%expr Map.add [%e (str key)] (Set.of_list [%e (to_expr_lst value)]) [%e acc]]) db symbol
 
-let ppx = function
-  | Some filename ->
-    { default_mapper with
-      expr = fun mapper expr ->
-      match expr with
-      | { pexp_desc =
-          Pexp_extension ({ txt = "iana"; _ }, pstr);
-          pexp_loc; _ } ->
-        begin match pstr with
-        | PStr [{ pstr_desc =
-                  Pstr_eval ({ pexp_loc = loc;
-                               pexp_desc = Pexp_apply (database, ["", { pexp_desc = Pexp_constant (Const_string (filename, _)) } ]) }, _) }]
-          ->
-          let db = compute filename in
-          make_expr database db
-        | _ -> default_mapper.expr mapper expr end
-      | x -> default_mapper.expr mapper x }
-  | None ->
-    { default_mapper with
-      expr = fun mapper expr ->
-      match expr with
-      | { pexp_desc =
-          Pexp_extension ({ txt = "iana"; _ }, _);
-          pexp_loc; _ } ->
-        { expr with pexp_desc = Pexp_construct ({ txt = Lident "()"; loc = pexp_loc }, None) }
-      | x -> default_mapper.expr mapper x }
-
-let file =
-  let doc = "IANA document (in XML)" in
-  Arg.(value & opt (some string) None & info ["file"] ~doc)
+let ppx =
+  { default_mapper with
+    expr = fun mapper expr ->
+    match expr with
+    | { pexp_desc =
+        Pexp_extension ({ txt = "iana"; _ }, pstr);
+        pexp_loc; _ } ->
+      begin match pstr with
+      | PStr [{ pstr_desc =
+                Pstr_eval ({ pexp_loc = loc;
+                             pexp_desc = Pexp_apply (database, ["", { pexp_desc = Pexp_constant (Const_string (filename, _)) } ]) }, _) }]
+        ->
+        let db = compute filename in
+        make_expr database db
+      | _ -> default_mapper.expr mapper expr end
+    | x -> default_mapper.expr mapper x }
 
 let cmd =
   let doc = "PPX to fill a IANA database" in
@@ -123,7 +109,7 @@ let cmd =
   ; `I ("ocaml", "Set.Make(String).t Map.Make(String).t")
   ; `P "In other case, the compilation will fail." ]
   in
-  Term.(pure ppx $ file), Term.info "ppx_iana" ~doc ~man
+  Term.(pure ppx), Term.info "ppx_iana" ~doc ~man
 
 let iana_mapper argv =
   match Term.eval ~argv:(Array.of_list ("ppx_iana" :: argv)) cmd with

@@ -11,7 +11,7 @@ license:      "MIT"
 build: [
   ["./configure"
     "--disable-tests"
-    "--disable-docs"
+    "--enable-iana"
     "--prefix=%{prefix}%"]
   [make]
 ]
@@ -19,6 +19,7 @@ build: [
 build-test: [
   ["./configure"
     "--enable-tests"
+    "--enable-iana"
     "--prefix=%{prefix}%"]
   [make "test"]
 ]
@@ -26,6 +27,7 @@ build-test: [
 build-doc: [
   ["./configure"
     "--enable-docs"
+    "--enable-iana"
     "--prefix=%{prefix}%"]
   [make "test"]
 ]

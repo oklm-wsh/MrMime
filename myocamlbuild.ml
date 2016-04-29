@@ -8,8 +8,7 @@ let env          = BaseEnvLight.load ~filename:env_filename ~allow_empty:true ()
 let iana         = bool_of_string @@ BaseEnvLight.var_get "iana" env
 
 let ppx_iana = "ppx/ppx_iana.byte"
-let opt_iana = function true -> "--file 'iana.xml'" | false -> ""
-let cmd_iana x = ppx_iana ^ " " ^ (opt_iana x)
+let cmd_iana x = ppx_iana
 
 let () = dispatch
   (function

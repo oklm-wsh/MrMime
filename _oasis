@@ -14,7 +14,7 @@ AlphaFeatures:          ocamlbuild_more_args
 
 Flag iana
   Description:          IANA Database
-  Default:              false
+  Default:              true
 
 Library mrmime
   Path:                 lib
