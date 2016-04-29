@@ -40,6 +40,9 @@ depends: [
   "cmdliner"          {build}
   "xmlm"              {build}
   "ppx_tools"         {build}
+  "lwt"               {build}
+  "uri"               {build}
+  "cohttp"            {build}
   "alcotest"          {test}
   "fmt"
   "logs"
