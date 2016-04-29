@@ -16,6 +16,10 @@ Flag iana
   Description:          IANA Database
   Default:              true
 
+Flag update
+  Description:          Get IANA Database
+  Default:              true
+
 Library mrmime
   Path:                 lib
   Modules:              MrMime, Date, LiteralDomain, Address, MsgID, Resent, Trace, ContentType, Header
@@ -32,6 +36,13 @@ Executable ppx_iana
   Install:              false
   MainIs:               ppx_iana.ml
   BuildDepends:         compiler-libs.common, cmdliner, xmlm, ppx_tools, ppx_tools.metaquot
+  CompiledObject:       byte
+
+Executable get_iana
+  Path:                 ppx
+  Install:              false
+  MainIs:               get_iana.ml
+  BuildDepends:         lwt, cohttp.lwt, cmdliner
   CompiledObject:       byte
 
 Document "mrmime"
