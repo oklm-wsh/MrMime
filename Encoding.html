@@ -4,50 +4,37 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="previous" href="Identity.html">
-<link rel="next" href="ContentType.html">
+<link rel="previous" href="ContentType.html">
+<link rel="next" href="Header.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
-<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Address" rel="Chapter" href="Address.html">
 <link title="Date" rel="Chapter" href="Date.html">
-<link title="Base64" rel="Chapter" href="Base64.html">
-<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Identity" rel="Chapter" href="Identity.html">
-<link title="Encoding" rel="Chapter" href="Encoding.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
 <link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
 <link title="Version" rel="Chapter" href="Version.html">
-<link title="Loc" rel="Chapter" href="Loc.html"><title>Encoding</title>
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Encoding" rel="Chapter" href="Encoding.html">
+<link title="Header" rel="Chapter" href="Header.html"><title>Encoding</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="Identity.html" title="Identity">Previous</a>
+<div class="navbar"><a class="pre" href="ContentType.html" title="ContentType">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
-&nbsp;<a class="post" href="ContentType.html" title="ContentType">Next</a>
+&nbsp;<a class="post" href="Header.html" title="Header">Next</a>
 </div>
-<h1>Module <a href="type_Encoding.html">Encoding</a> (<a href="code_Encoding.html">.ml</a>)</h1>
+<h1>Module <a href="type_Encoding.html">Encoding</a></h1>
 
-<pre><span class="keyword">module</span> Encoding: <code class="code"><span class="keyword">sig</span></code> <a href="Encoding.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-See RFC 2045 § 6.1:
-<p>
+<pre><span class="keyword">module</span> Encoding: <code class="code"><span class="keyword">sig</span></code> <a href="Encoding.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-    This is the default value -- that is,  "Content-Transfer-Encoding:  7BIT" is
-    assumed  if  the  Content-Transfer-Encoding  header  field  is  not present.<br>
-</div>
-<hr width="100%">
-
-<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type">[ `Base64<br>       | `Binary<br>       | `Bit7<br>       | `Bit8<br>       | `Ietf_token of string<br>       | `Quoted_printable<br>       | `X_token of string ]</code> </pre>
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type">[ `Base64<br>       | `Binary<br>       | `Bit7<br>       | `Bit8<br>       | `Ietf_token of string<br>       | `QuotedPrintable<br>       | `X_token of string ]</code> </pre>
 
 
-<pre><span id="VALdefault"><span class="keyword">val</span> <a href="code_VALEncoding.default.html">default</a></span> : <code class="type">[> `Bit7 ]</code></pre><div class="info ">
-See RFC 2045 § 6.1:
-<p>
-
-    This is the default value -- that is,  "Content-Transfer-Encoding:  7BIT" is
-    assumed  if  the  Content-Transfer-Encoding  header  field  is  not present.<br>
-</div>
-
-<pre><span id="VALto_string"><span class="keyword">val</span> <a href="code_VALEncoding.to_string.html">to_string</a></span> : <code class="type">[< `Base64<br>        | `Binary<br>        | `Bit7<br>        | `Bit8<br>        | `Ietf_token of string<br>        | `Quoted_printable<br>        | `X_token of string ] -><br>       string</code></pre></body></html>
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="Encoding.html#TYPEt">t</a></code></pre>
+<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="Encoding.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">Rfc2045.encoding -> <a href="Encoding.html#TYPEt">t</a></code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Encoding.html#TYPEt">t</a> -> unit</code></pre></body></html>
