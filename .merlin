@@ -5,5 +5,5 @@ B _build/lib/
 FLAG -ppx './_build/ppx/ppx_iana.byte --file iana.xml'
 FLAG -safe-string
 
-PKG alcotest logs logs.cli logs.fmt base64 benchmark lwt cohttp uri ipaddr
+PKG alcotest logs logs.cli logs.fmt ipaddr
 PKG cmdliner compiler-libs xmlm ppx_tools.metaquot ppx_tools
