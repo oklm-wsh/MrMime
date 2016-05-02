@@ -1,3 +1,8 @@
+type literal_domain =
+  [ `IPv4 of Ipaddr.V4.t
+  | `IPv6 of Ipaddr.V6.t
+  | `General of (string * string) ]
+
 let p_ipv4_address_literal p state =
   (Logs.debug @@ fun m -> m "state: p_ipv4_address_literal");
 
@@ -47,19 +52,26 @@ let p_general_address_literal p state =
   p_ldh_str (fun tag state ->
              Lexer.p_chr ':' state;
              let content = Lexer.p_while is_dcontent state in
-             p (tag, content) state)
+             (* XXX:  we already try to parse IPv6 tag, so if we are in this
+                      case, we have an invalid IPv6 data.
+                TODO: mey be it's useful to associate a lexer with the tag
+                      and try this. I have no time for that.
+             *)
+             if Iana.Set.exists ((=) tag) Iana.tag && tag <> "IPv6"
+             then p (tag, content) state
+             else if tag = "IPv6"
+             then raise (Lexer.Error (Lexer.err_invalid_ipv6 state))
+             else raise (Lexer.Error (Lexer.err_invalid_tag tag state)))
     state
 
-let p_address_literal ?(relax = true) p =
+let p_address_literal p =
   Lexer.p_try_rule
     (fun ipv4 -> p (`IPv4 ipv4))
     (Lexer.p_try_rule
       (fun ipv6 -> p (`IPv6 ipv6))
       (fun state ->
-        if relax
-        then p_general_address_literal
-               (fun (tag, content) -> p (`General (tag, content)))
-               state
-        else raise (Lexer.Error (Lexer.err_invalid_ipv4v6 state)))
+        p_general_address_literal
+          (fun (tag, content) -> p (`General (tag, content)))
+          state)
       (p_ipv6_address_literal (fun v6 state -> `Ok (v6, state))))
     (p_ipv4_address_literal (fun v4 state -> `Ok (v4, state)))

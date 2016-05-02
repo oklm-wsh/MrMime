@@ -59,14 +59,10 @@ let pp fmt = function
   | `Group group -> pp_group fmt group
   | `Person person -> pp_person fmt person
 
-let domain_of_lexer ?(relax = true) = function
-  | `Domain a -> `Domain a
-  | `Literal s ->
-    try (LiteralDomain.of_string ~relax s :> domain)
-    with exn -> if relax then `Literal s else raise exn
+let domain_of_lexer x = (x :> domain)
 
-let mailbox_of_lexer ?(relax = true) (local, domains) =
-  let domains = List.map (domain_of_lexer ~relax) domains in
+let mailbox_of_lexer (local, domains) =
+  let domains = List.map domain_of_lexer domains in
 
   let first, rest = match domains with
     | first :: rest -> first, rest
@@ -84,17 +80,17 @@ let mailbox_of_lexer ?(relax = true) (local, domains) =
   then { local; domain = (first, rest); }
   else raise (Invalid_argument "Address.mailbox_of_lexer")
 
-let person_of_lexer ?(relax = true) (name, mailbox) =
-  { name; mailbox = mailbox_of_lexer ~relax mailbox; }
+let person_of_lexer (name, mailbox) =
+  { name; mailbox = mailbox_of_lexer mailbox; }
 
-let group_of_lexer ?(relax = true) (name, persons) =
-  { name; persons = List.map (person_of_lexer ~relax) persons; }
+let group_of_lexer (name, persons) =
+  { name; persons = List.map person_of_lexer persons; }
 
-let of_lexer ?(relax = true) = function
-  | `Group group -> `Group (group_of_lexer ~relax group)
-  | `Person person -> `Person (person_of_lexer ~relax person)
+let of_lexer = function
+  | `Group group -> `Group (group_of_lexer group)
+  | `Person person -> `Person (person_of_lexer person)
 
-let of_string ?(relax = true) s =
+let of_string s =
   let rec loop = function
     | `Error (exn, buf, off, len) ->
       let tmp = Buffer.create 16 in
@@ -106,7 +102,7 @@ let of_string ?(relax = true) s =
       raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
     | `Read (buf, off, len, k) ->
       raise (Invalid_argument "Address.of_string: unterminated string")
-    | `Ok data -> of_lexer ~relax data
+    | `Ok data -> of_lexer data
   in
 
   let rule = Rfc5322.p_address
@@ -126,9 +122,9 @@ module List =
 struct
   type nonrec t = t list
 
-  let of_lexer ?(relax = true) = List.map (of_lexer ~relax)
+  let of_lexer = List.map of_lexer
 
-  let of_string ?(relax = true) s =
+  let of_string s =
     let rec loop = function
       | `Error (exn, buf, off, len) ->
         let tmp = Buffer.create 16 in
@@ -141,7 +137,7 @@ struct
                                  ^ (Buffer.contents tmp)))
       | `Read (buf, off, len, k) ->
         raise (Invalid_argument "Address.List.of_string: unterminated string")
-      | `Ok data -> of_lexer ~relax data
+      | `Ok data -> of_lexer data
     in
 
     let rule = Rfc5322.p_address_list

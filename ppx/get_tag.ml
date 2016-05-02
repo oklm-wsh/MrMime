@@ -4,8 +4,8 @@ module Client = Cohttp_lwt_unix.Client
 module Body   = Cohttp_lwt_body
 
 let iana_database =
-  Uri.of_string "http://www.iana.org/assignments/media-types/media-types.xml"
-let filename = "iana.xml"
+  Uri.of_string "http://www.iana.org/assignments/address-literal-tags/address-literal-tags.xml"
+let filename = "tag.xml"
 
 let save filename url =
   Client.call `GET url
@@ -24,23 +24,23 @@ let do_cmd filename url =
 open Cmdliner
 
 let file =
-  let doc = "Filename to save the IANA database" in
+  let doc = "Filename to save the Address Literal Tags IANA database" in
   Arg.(value & opt string filename & info ["f"; "file"] ~doc)
 
 let uri = (fun s -> `Ok (Uri.of_string s)), Uri.pp_hum
 
 let url =
-  let doc = "URL to the IANA database (XML format)" in
+  let doc = "URL to the Address Literal Tags IANA database (XML format)" in
   Arg.(value & opt uri iana_database & info ["u"; "url"] ~doc)
 
 let cmd =
   let doc = "Downloader of IANA database" in
   let man =
   [ `S "Description"
-  ; `P "$(tname) download the IANA database and save in file." ]
+  ; `P "$(tname) download the Address Literal Tags IANA database and save in file." ]
   in
   Term.(pure do_cmd $ file $ url),
-  Term.info "get_iana" ~doc ~man
+  Term.info "get_tag" ~doc ~man
 
 let () = match Term.eval cmd with
   | `Error _ -> exit 1

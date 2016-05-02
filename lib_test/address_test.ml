@@ -20,7 +20,7 @@ let make_exn_test s =
   Printf.sprintf "%S" s,
   `Slow,
   (fun () ->
-   try ignore (Address.List.of_string ~relax:false s); raise Expect_exception
+   try ignore (Address.List.of_string s); raise Expect_exception
    with Invalid_argument _ -> ())
 
 let tests =
@@ -44,10 +44,6 @@ let tests =
   ; "\"\a\"@x.test"
   ; "\"\x07\"@x.test"
   ; "\"\\\x07\"@x.test"
-  ; "jdoe@[RFC-5322-\\a-domain-literal]"
-  ; "jdoe@[RFC-5322-\\t-domain-literal]"
-  ; "jdoe@[RFC-5322-\\]-domain-literal]"
-  ; "jdoe@[RFC-5322-domain-literal] (comment)"
   ; "pete@[255.255.255.255]"
   ; "\"mary\"@example.net"
   ; "\"\\\"\"@example.net"
@@ -365,7 +361,11 @@ let err_tests =
   ; "first.last@[IPv6:a1:a2:a3:a4:b1:b2:b3:]"
   ; "first.last@[IPv6::a2:a3:a4:b1:b2:b3:b4]"
   ; "first.last@[IPv6:a1:a2:a3:a4::b1:b2:b3:b4]"
-  ; "=?us-ascii?Q?Chri's_Smith?= =?us-ascii?Q?Henry?= <.@gmail.com,@hotmail.fr:henry.chris+porno@(Chris's host.)public.example> (je suis un connard en puissance)" ]
+  ; "=?us-ascii?Q?Chri's_Smith?= =?us-ascii?Q?Henry?= <.@gmail.com,@hotmail.fr:henry.chris+porno@(Chris's host.)public.example> (je suis un connard en puissance)" 
+  ; "jdoe@[RFC-5322-\\a-domain-literal]"
+  ; "jdoe@[RFC-5322-\\t-domain-literal]"
+  ; "jdoe@[RFC-5322-\\]-domain-literal]"
+  ; "jdoe@[RFC-5322-domain-literal] (comment)" ]
 
 let () =
   Alcotest.run "Address test"

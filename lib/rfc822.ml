@@ -31,6 +31,26 @@ let is_lwsp = function
   | '\x20' | '\x09' -> true
   | _               -> false
 
+(* See RFC 822 § 3.3:
+
+   text        =  <any CHAR, including bare    ; => atoms, specials,
+                   CR & bare LF, but NOT       ;  comments and
+                   including CRLF>             ;  quoted-strings are
+                                               ;  NOT recognized.
+*)
+let p_text p state =
+  let rec loop has_content has_cr state =
+    match Lexer.cur_chr state with
+    | '\n' when has_cr ->
+      Lexer.roll_back (p has_content) "\r" state
+    | '\r' -> loop has_content true state
+    | chr ->
+      Lexer.junk_chr state;
+      loop true false state
+  in
+
+  loop false false state
+
 (* COMMON PART BETWEEN RFC 822 AND RFC 5322 ***********************************)
 
 (* See RFC 5234 § Appendix B.1:
@@ -750,3 +770,9 @@ let p_msg_id p state =
       state)
     state)
   state
+
+let p_crlf p state =
+  Lexer.p_chr '\r' state;
+  Lexer.p_chr '\n' state;
+
+  p state

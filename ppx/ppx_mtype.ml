@@ -87,7 +87,7 @@ let ppx =
     expr = fun mapper expr ->
     match expr with
     | { pexp_desc =
-        Pexp_extension ({ txt = "iana"; _ }, pstr);
+        Pexp_extension ({ txt = "mtype"; _ }, pstr);
         pexp_loc; _ } ->
       begin match pstr with
       | PStr [{ pstr_desc =
@@ -100,21 +100,21 @@ let ppx =
     | x -> default_mapper.expr mapper x }
 
 let cmd =
-  let doc = "PPX to fill a IANA database" in
+  let doc = "PPX to fill a Media types IANA database" in
   let man =
   [ `S "Description"
-  ; `P "$(tname) is a ppx to fill a database from a IANA XML file."
+  ; `P "$(tname) is a ppx to fill a database from a Media types IANA XML file."
   ; `S "Requirement"
   ; `P "The PPX can only refill a: "
   ; `I ("ocaml", "Set.Make(String).t Map.Make(String).t")
   ; `P "In other case, the compilation will fail." ]
   in
-  Term.(pure ppx), Term.info "ppx_iana" ~doc ~man
+  Term.(pure ppx), Term.info "ppx_mtype" ~doc ~man
 
 let iana_mapper argv =
-  match Term.eval ~argv:(Array.of_list ("ppx_iana" :: argv)) cmd with
+  match Term.eval ~argv:(Array.of_list ("ppx_mtype" :: argv)) cmd with
   | `Error _   -> exit 1
   | `Ok mapper -> mapper
   | _          -> exit 0
 
-let () = register "iana" iana_mapper
+let () = register "mtype" iana_mapper

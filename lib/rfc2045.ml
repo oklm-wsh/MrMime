@@ -126,7 +126,7 @@ let p_subtype ty p state =
   | 'X' | 'x' -> p_extension_token p state
   | chr       ->
     let token = p_token state in
-    try Iana.Map.find ty Iana.database
+    try Iana.Map.find ty Iana.mtype
         |> Iana.Set.find token
         |> fun value -> p (`Iana_token value) state
     with exn -> p (`X_token token) state

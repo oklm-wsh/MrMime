@@ -12,12 +12,16 @@ BuildTools:             ocamlbuild
 OCamlVersion:           >= 4.02
 AlphaFeatures:          ocamlbuild_more_args
 
-Flag iana
-  Description:          IANA Database
+Flag mtype
+  Description:          Media types IANA Database
+  Default:              true
+
+Flag tag
+  Description:          Address Literal Tags IANA Database
   Default:              true
 
 Flag update
-  Description:          Get IANA Database
+  Description:          Get Media types and Address Literal Tags IANA Database
   Default:              true
 
 Library mrmime
@@ -31,17 +35,31 @@ SourceRepository master
   Location:             https://github.com/oklm-wsh/MrMime.git
   Browser:              https://github.com/oklm-wsh/MrMime
 
-Executable ppx_iana
+Executable ppx_mtype
   Path:                 ppx
   Install:              false
-  MainIs:               ppx_iana.ml
+  MainIs:               ppx_mtype.ml
   BuildDepends:         compiler-libs.common, cmdliner, xmlm, ppx_tools, ppx_tools.metaquot
   CompiledObject:       byte
 
-Executable get_iana
+Executable ppx_tag
   Path:                 ppx
   Install:              false
-  MainIs:               get_iana.ml
+  MainIs:               ppx_tag.ml
+  BuildDepends:         compiler-libs.common, cmdliner, xmlm, ppx_tools, ppx_tools.metaquot
+  CompiledObject:       byte
+
+Executable get_mtype
+  Path:                 ppx
+  Install:              false
+  MainIs:               get_mtype.ml
+  BuildDepends:         lwt, cohttp.lwt, cmdliner
+  CompiledObject:       byte
+
+Executable get_tag
+  Path:                 ppx
+  Install:              false
+  MainIs:               get_tag.ml
   BuildDepends:         lwt, cohttp.lwt, cmdliner
   CompiledObject:       byte
 

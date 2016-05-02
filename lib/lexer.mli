@@ -13,7 +13,8 @@ type error =
   | `Unexpected_encoding of string
   | `Invalid_ipv6
   | `Invalid_ipv4
-  | `Invalid_ipv4v6 ]
+  | `Invalid_ipv4v6
+  | `Invalid_tag         of string ]
 
 val pp_char  : Format.formatter -> char -> unit
 val pp_lst   : ?sep:string -> (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a list -> unit
@@ -35,6 +36,7 @@ val err_unexpected_encoding : string -> t -> err
 val err_invalid_ipv6        : t -> err
 val err_invalid_ipv4        : t -> err
 val err_invalid_ipv4v6      : t -> err
+val err_invalid_tag         : string -> t -> err
 
 val safe       : ('a -> ([> err ] as 'err)) -> 'a -> 'err
 val read_exact : int -> (string -> t -> ([> err | 'ret read] as 'ret)) -> t -> 'ret

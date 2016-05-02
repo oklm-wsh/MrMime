@@ -24,7 +24,7 @@ type atom    = Rfc822.atom
 type word    = Rfc822.word
 type phrase  = [ word | `Dot | `WSP | Rfc2047.encoded ] list
 
-type domain  = Rfc822.domain
+type domain  = [ Rfc822.domain | Rfc5321.literal_domain ]
 type local   = Rfc822.local
 type mailbox = local * domain list
 type person  = phrase option * mailbox
@@ -765,7 +765,21 @@ let p_domain_literal p =
     match cur_chr state with
     | ']' ->
       Lexer.p_chr ']' state;
-      p_cfws (fun _ -> p (List.rev acc |> String.concat "")) state
+      p_cfws (fun _ state ->
+              Rfc5321.p_address_literal
+                (fun d state' ->
+                 let open Lexer in
+                 if state'.pos = state'.len
+                 (* XXX: we use the old state! *)
+                 then p d state
+                 (* XXX: we need to verify if we consume all data, in another
+                         case, it's an error! *)
+                 else raise (Error (err_unexpected_str
+                                      (Bytes.sub state'.buffer
+                                                 state'.pos
+                                                 (state'.len - state'.pos))
+                                      state')))
+                (Lexer.of_string @@ String.concat "" @@ List.rev acc)) state
     | chr when is_dtext chr || chr = '\\' ->
       p_dtext (fun s -> p_fws (fun _ _ -> loop (s :: acc))) state
     | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
@@ -797,7 +811,7 @@ let p_domain p =
   p_cfws (fun _ state ->
     match cur_chr state with
     (* it's domain-literal *)
-    | '[' -> p_domain_literal (fun s -> p (`Literal s)) state
+    | '[' -> p_domain_literal (fun d -> p d) state
     (* it's dot-atom or obs-domain *)
     | chr ->
       p_dot_atom   (* may be we are [CFWS] allowed by obs-domain *)

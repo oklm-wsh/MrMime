@@ -16,7 +16,8 @@ type error =
   | `Unexpected_encoding of string
   | `Invalid_ipv6
   | `Invalid_ipv4
-  | `Invalid_ipv4v6 ]
+  | `Invalid_ipv4v6
+  | `Invalid_tag         of string ]
 
 let err e state                       = `Error
                                         (e, state.buffer, state.pos, state.len)
@@ -30,6 +31,7 @@ let err_unexpected_encoding str state = err (`Unexpected_encoding str) state
 let err_invalid_ipv6 state            = err `Invalid_ipv6 state
 let err_invalid_ipv4 state            = err `Invalid_ipv4 state
 let err_invalid_ipv4v6 state          = err `Invalid_ipv4v6 state
+let err_invalid_tag tag state         = err (`Invalid_tag tag) state
 
 let p = Format.fprintf
 
@@ -55,6 +57,7 @@ let pp_error fmt = function
   | `Invalid_ipv6            -> p fmt "Invalid IPv6"
   | `Invalid_ipv4            -> p fmt "Invalid IPv4"
   | `Invalid_ipv4v6          -> p fmt "Invalid IPv4 or IPv6"
+  | `Invalid_tag tag         -> p fmt "Invalid tag [%s]" tag
 
 type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]

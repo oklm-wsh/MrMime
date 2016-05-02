@@ -5,7 +5,7 @@ type t =
   | `IPv4 of Ipaddr.V4.t
   | `IPv6 of Ipaddr.V6.t ]
 
-let of_string ?(relax = true) s =
+let of_string s =
   let rec loop = function
     | `Error (exn, buf, off, len) ->
       let tmp = Buffer.create 16 in
@@ -20,7 +20,7 @@ let of_string ?(relax = true) s =
     | `Ok data -> data
   in
 
-  let rule = Rfc5321.p_address_literal ~relax
+  let rule = Rfc5321.p_address_literal
     (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
   loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
