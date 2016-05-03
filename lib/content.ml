@@ -11,47 +11,47 @@ let make
   ?id () =
   { ty; encoding; version; id; }
 
-let of_lexer k l =
+let of_lexer fields p state =
   let ty       = ref None in
   let encoding = ref None in
   let version  = ref None in
   let id       = ref None in
 
   let sanitize fields =
-    k ({ ty       = Option.value ~default:ContentType.default !ty
+    p ({ ty       = Option.value ~default:ContentType.default !ty
        ; encoding = Option.value ~default:ContentEncoding.default !encoding
        ; version  = Option.value ~default:MimeVersion.default !version
-       ; id       = !id }) fields
+       ; id       = !id }) fields state
   in
 
-  let rec loop i l = match l with
-    | [] -> sanitize (List.rev i)
-    | x :: rest ->
-      match x with
+  let rec loop garbage fields = match fields with
+    | [] -> sanitize (List.rev garbage)
+    | field :: rest ->
+      match field with
       | `ContentType c ->
         (match !ty with
          | None   -> ty := Some (ContentType.of_lexer c);
-                     loop i rest
-         | Some _ -> loop (x :: i) rest)
+                     loop garbage rest
+         | Some _ -> loop (field :: garbage) rest)
       | `ContentEncoding e ->
         (match !encoding with
          | None   -> encoding := Some (ContentEncoding.of_lexer e);
-                     loop i rest
-         | Some _ -> loop (x :: i) rest)
+                     loop garbage rest
+         | Some _ -> loop (field :: garbage) rest)
       | `MimeVersion v ->
         (match !version with
          | None   -> version := Some (MimeVersion.of_lexer v);
-                     loop i rest
-         | Some _ -> loop (x :: i) rest)
+                     loop garbage rest
+         | Some _ -> loop (field :: garbage) rest)
       | `ContentID e ->
         (match !id with
          | None   -> id := Some (MsgID.of_lexer e);
-                     loop i rest
-         | Some _ -> loop (x :: i) rest)
-      | field -> loop (field :: i) rest
+                     loop garbage rest
+         | Some _ -> loop (field :: garbage) rest)
+      | field -> loop (field :: garbage) rest
   in
 
-  loop [] l
+  loop [] fields
 
 let p = Format.fprintf
 

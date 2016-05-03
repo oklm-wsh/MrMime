@@ -1,4 +1,4 @@
-(* let () = Logs.set_level ~all:true (Some Logs.Debug) *)
+let () = Logs.set_level ~all:true (Some Logs.Debug)
 let () = Logs.set_reporter (Logs_fmt.reporter ())
 
 type t =
@@ -17,7 +17,11 @@ type error =
   | `Invalid_ipv6
   | `Invalid_ipv4
   | `Invalid_ipv4v6
-  | `Invalid_tag         of string ]
+  | `Invalid_tag         of string
+  | `Invalid_field       of string
+  | `Nothing_to_do
+  | `Invalid_header
+  | `Unexpected_field    of string]
 
 let err e state                       = `Error
                                         (e, state.buffer, state.pos, state.len)
@@ -32,6 +36,10 @@ let err_invalid_ipv6 state            = err `Invalid_ipv6 state
 let err_invalid_ipv4 state            = err `Invalid_ipv4 state
 let err_invalid_ipv4v6 state          = err `Invalid_ipv4v6 state
 let err_invalid_tag tag state         = err (`Invalid_tag tag) state
+let err_invalid_field field state     = err (`Invalid_field field) state
+let err_nothing_to_do state           = err `Nothing_to_do state
+let err_invalid_header state          = err `Invalid_header state
+let err_unexpected_field field state  = err (`Unexpected_field field) state
 
 let p = Format.fprintf
 
@@ -58,11 +66,27 @@ let pp_error fmt = function
   | `Invalid_ipv4            -> p fmt "Invalid IPv4"
   | `Invalid_ipv4v6          -> p fmt "Invalid IPv4 or IPv6"
   | `Invalid_tag tag         -> p fmt "Invalid tag [%s]" tag
+  | `Invalid_field field     -> p fmt "Invalid field [%s]" field
+  | `Nothing_to_do           -> p fmt "Nothing to do at this point"
+  | `Invalid_header          -> p fmt "Invalid header"
+  | `Unexpected_field field  -> p fmt "Unexpected field [%s]" field
 
 type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
 
+let pp_err fmt = function
+  | `Error (err, buffer, pos, len) ->
+    p fmt "Error: %a" pp_error err
+
 exception Error of err
+
+let () = Printexc.register_printer
+  (function Error err ->
+     let buf = Buffer.create 16 in
+     let fmt = Format.formatter_of_buffer buf in
+     Format.fprintf fmt "%a%!" pp_err err;
+     Some (Buffer.contents buf)
+   | _ -> None)
 
 let safe k state =
   try k state

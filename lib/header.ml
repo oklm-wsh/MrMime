@@ -5,7 +5,6 @@ type phrase = [ `Phrase of Rfc5322.phrase ]
 type t =
   { date          : Date.t
   ; from          : Address.person list
-  ; content       : Content.t
   ; sender        : Address.person option
   ; reply_to      : Address.List.t option
   ; target        : Address.List.t option
@@ -17,11 +16,11 @@ type t =
   ; references    : [ phrase | `MsgID of MsgID.t ] list
   ; resents       : Resent.t list
   ; traces        : Trace.t list
-  ; comments      : Rfc5322.phrase option
+  ; comments      : Rfc5322.phrase list
   ; keywords      : Rfc5322.phrase list
   ; others        : (string * Rfc5322.phrase) list }
 
-let of_lexer k l =
+let of_lexer fields p state =
   let from          = ref None in
   let date          = ref None in
   let sender        = ref None in
@@ -35,16 +34,14 @@ let of_lexer k l =
   let references    = ref None in
   let resents       = ref [] in
   let traces        = ref [] in
-  let comments      = ref None in
+  let comments      = ref [] in
   let keywords      = ref [] in
-  let content       = ref (Content.make ()) in
   let others        = ref [] in
 
   let sanitize fields =
     match !date, !from with
     | Some date, Some from ->
-      k (Some { date; from
-              ; content     = !content
+      p (Some { date; from
               ; sender      = !sender
               ; reply_to    = !reply_to
               ; target      = !target
@@ -59,94 +56,152 @@ let of_lexer k l =
               ; comments    = !comments
               ; keywords    = !keywords
               ; others      = !others })
-        fields
-    | _ -> k None fields
+        fields state
+    | _ -> p None fields state
   in
 
-  let rec loop i l = match l with
-    | [] -> sanitize (List.rev i)
-    | x :: rest ->
-      match x with
+  (* See RFC 5322 § 3.6:
+
+     +----------------+--------+------------+----------------------------+
+     | Field          | Min    | Max number | Notes                      |
+     |                | number |            |                            |
+     +-------------------------------------------------------------------+
+     | orig-date      | 1      | 1          |                            |
+     | from           | 1      | 1          | See sender and 3.6.2       |
+     | sender         | 0*     | 1          | MUST occur with            |
+     |                |        |            | multi-address from - see   |
+     |                |        |            | 3.6.2                      |
+     | reply-to       | 0      | 1          |                            |
+     | to             | 0      | 1          |                            |
+     | cc             | 0      | 1          |                            |
+     | bcc            | 0      | 1          |                            |
+     | message-id     | 0*     | 1          | SHOULD be present - see    |
+     |                |        |            | 3.6.4                      |
+     | in-reply-to    | 0*     | 1          | SHOULD occur in some       |
+     |                |        |            | replies - see 3.6.4        |
+     | references     | 0*     | 1          | SHOULD occur in some       |
+     |                |        |            | replies - see 3.6.4        |
+     | subject        | 0      | 1          |                            |
+     | comments       | 0      | unlimited  |                            |
+     | keywords       | 0      | unlimited  |                            |
+     | optional-field | 0      | unlimited  |                            |
+     +----------------+--------+------------+----------------------------+
+  *)
+  let rec loop garbage fields = match fields with
+    | [] -> sanitize (List.rev garbage)
+    | field :: rest ->
+      match field with
       | `Date d ->
         (match !date with
-         | None   -> date := Some (Date.of_lexer d); loop i rest
-         (* XXX: may be it's an error *)
-         | Some _ -> loop i rest)
+         | None   -> date := Some (Date.of_lexer d);
+                     loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Date" state)))
       | `From f ->
         (match !from with
          | None   -> from := Some (List.map Address.person_of_lexer f);
-                     loop i rest
-         (* XXX: may be it's an error *)
-         | Some _ -> loop i rest)
+                     loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "From" state)))
       | `Sender c ->
         (match !sender with
-         | None   -> sender := Some (Address.person_of_lexer c); loop i rest
-         | Some _ -> loop (x :: i) rest)
+         | None   -> sender := Some (Address.person_of_lexer c); loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Sender" state)))
       | `ReplyTo r ->
         (match !reply_to with
-         | None   -> reply_to := Some (Address.List.of_lexer r); loop i rest
-         | Some _ -> loop (x :: i) rest)
+         | None   -> reply_to := Some (Address.List.of_lexer r); loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Reply-To" state)))
       | `To l ->
         (match !target with
-         | None   -> target := Some (Address.List.of_lexer l); loop i rest
-         | Some _ -> loop (x :: i) rest)
+         | None   -> target := Some (Address.List.of_lexer l); loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "To" state)))
       | `Cc l ->
         (match !cc with
-         | None   -> cc := Some (Address.List.of_lexer l); loop i rest
-         | Some _ -> loop (x :: i) rest)
+         | None   -> cc := Some (Address.List.of_lexer l); loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Cc" state)))
       | `Bcc l ->
         (match !bcc with
-         | None   -> bcc := Some (Address.List.of_lexer l); loop i rest
-         | Some _ -> loop (x :: i) rest)
-      | `Subject s ->
-        (match !subject with
-         | None   -> subject := Some s; loop i rest
-         | Some _ -> loop (x :: i) rest)
+         | None   -> bcc := Some (Address.List.of_lexer l); loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Bcc" state)))
       | `MessageID m ->
         (match !msg_id with
-         | None   -> msg_id := Some (MsgID.of_lexer m); loop i rest
-         | Some _ -> loop (x :: i) rest)
+         | None   -> msg_id := Some (MsgID.of_lexer m); loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Message-ID" state)))
       | `InReplyTo l ->
         let f = List.map (function `MsgID m -> `MsgID (MsgID.of_lexer m)
                                  | #phrase as x -> x)
         in
         (match !in_reply_to with
-         | None   -> in_reply_to := Some (f l); loop i rest
-         | Some _ -> loop (x :: i) rest)
+         | None   -> in_reply_to := Some (f l); loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "In-Reply-To" state)))
       | `References l ->
         let f = List.map (function `MsgID m -> `MsgID (MsgID.of_lexer m)
                                  | #phrase as x -> x)
         in
-        (match !in_reply_to with
-         | None   -> references := Some (f l); loop i rest
-         | Some _ -> loop (x :: i) rest)
-      | `ResentDate _ | `ResentFrom _ | `ResentSender _ | `ResentTo _
-      | `ResentCc _   | `ResentBcc _  | `ResentMessageID _ ->
-        Resent.of_lexer
-          (function
-           | Some resent -> fun l -> resents := resent :: !resents; loop i l
-           | None        -> fun l -> loop i l)
-          (x :: rest)
-      | `ContentType _ | `ContentEncoding _ | `ContentID _ | `MimeVersion _ ->
-        Content.of_lexer (fun c -> content := c; loop i) (x :: rest)
-      | `ReturnPath _ | `Received _ ->
-        Trace.of_lexer
-          (function
-           | Some trace -> fun l -> traces := trace :: !traces; loop i l
-           | None       -> fun l -> loop i l)
-          (x :: rest)
-      | `Comments s ->
-        (match !comments with
-         | None   -> comments := Some s; loop i rest
-         | Some _ -> loop (x :: i) rest)
+        (match !references with
+         | None   -> references := Some (f l); loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "References" state)))
+      | `Subject s ->
+        (match !subject with
+         | None   -> subject := Some s; loop garbage rest
+         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Subject" state)))
+      | `Comments c ->
+        comments := c :: !comments;
+        loop garbage rest
       | `Keywords l ->
-        keywords := l @ !keywords; loop i rest
+        keywords := l @ !keywords; loop garbage rest
       | `Field (field_name, value) ->
         others := (field_name, value) :: !others;
-        loop i rest
+        loop garbage rest
+
+      (* See RFC 5322 § 3.6:
+
+         +----------------+--------+------------+----------------------------+
+         | Field          | Min    | Max number | Notes                      |
+         |                | number |            |                            |
+         +-------------------------------------------------------------------+
+         | resent-date    | 0*     | unlimited* | One per block, required if |
+         |                |        |            | other resent fields are    |
+         |                |        |            | present - see 3.6.6        |
+         | resent-from    | 0      | unlimited* | One per block - see 3.6.6  |
+         | resent-sender  | 0*     | unlimited* | One per block, MUST occur  |
+         |                |        |            | with multi-address         |
+         |                |        |            | resent-from - see 3.6.6    |
+         | resent-to      | 0      | unlimited* | One per block - see 3.6.6  |
+         | resent-cc      | 0      | unlimited* | One per block - see 3.6.6  |
+         | resent-bcc     | 0      | unlimited* | One per block - see 3.6.6  |
+         | resent-msg-id  | 0      | unlimited* | One per block - see 3.6.6  |
+         +-------------------------------------------------------------------+
+      *)
+      | `ResentDate _ | `ResentFrom _ | `ResentSender _ | `ResentTo _
+      | `ResentCc _   | `ResentBcc _  | `ResentMessageID _ | `ResentReplyTo _ ->
+        Resent.of_lexer
+          (field :: rest)
+          (function
+           | Some resent -> fun fields state -> resents := resent :: !resents;
+                                                loop garbage fields
+           | None        -> fun fields state -> loop garbage fields)
+          state
+
+      (* See RFC 5322 § 3.6:
+
+         +----------------+--------+------------+----------------------------+
+         | Field          | Min    | Max number | Notes                      |
+         |                | number |            |                            |
+         +----------------+--------+------------+----------------------------+
+         | trace          | 0      | unlimited  | Block prepended - see      |
+         |                |        |            | 3.6.7                      |
+         +-------------------------------------------------------------------+
+      *)
+      | `ReturnPath _ | `Received _ ->
+        Trace.of_lexer
+          (field :: rest)
+          (function
+           | Some trace -> fun fields state -> traces := trace :: !traces;
+                                               loop garbage fields
+           | None       -> fun fields state -> loop garbage fields)
+          state
   in
 
-  loop [] l
+  loop [] fields
 
 let of_string s =
   let rec loop = function
@@ -160,10 +215,12 @@ let of_string s =
       raise (Invalid_argument ("Header.of_string: " ^ (Buffer.contents tmp)))
     | `Read (buf, off, len, k) ->
       raise (Invalid_argument "Header.of_string: unterminated string")
-    | `Ok data -> of_lexer (fun x rest -> x) data
+    | `Ok (data, state) -> of_lexer data (fun x rest state -> x) state
   in
 
-  let rule = Rfc5322.p_header (fun data state -> `Ok data) in
+  let rule = Rfc5322.p_header
+    (fun field p state -> raise (Lexer.Error (Lexer.err_nothing_to_do state)))
+    (fun fields state -> `Ok (fields, state)) in
 
   match loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n")) with
   | Some header -> header
@@ -181,7 +238,7 @@ let pp_list ?(last = false) ?(sep = "") pp_data fmt lst =
   aux lst
 
 let t_to_list
-  { date; from; content
+  { date; from
   ; sender; reply_to; target; cc; bcc; subject; msg_id
   ; in_reply_to; references
   ; resents; traces
@@ -202,10 +259,10 @@ let t_to_list
   @:@ (references >|= fun l -> `References l)
   @:@ (resents >|= fun l -> `Resent l)
   @:@ (traces >|= fun l -> `Trace l)
-  @:@ (comments >>= fun s -> `Comments s)
+  @:@ (comments >|= fun l -> `Comments l)
   @:@ (keywords >|= fun l -> `Keywords l)
   @:@ (others >|= fun l -> `Others l)
-  @:@ (`Content content) :: (`From from) :: (`Date date) :: []
+  @:@ (`From from) :: (`Date date) :: []
 
 let pp_ext fmt = function
   | `Phrase l -> p fmt "%a" pp_phrase l
@@ -232,7 +289,7 @@ let pp_field fmt = function
                             (pp_list ~sep:" " pp_ext) l
   | `Resent l          -> p fmt "%a" (pp_list Resent.pp) l
   | `Trace l           -> p fmt "%a" (pp_list Trace.pp) l
-  | `Comments s        -> p fmt "Comments: %a\r\n" pp_phrase s
+  | `Comments l        -> p fmt "%a" (pp_list (fun fmt x -> p fmt "Comments: %a\r\n" pp_phrase x)) l
   | `Keywords l        -> p fmt "Keywords: %a\r\n"
                             (pp_list ~sep:"," pp_phrase) l
   | `Others l          -> p fmt "%a" (pp_list pp_field) l
