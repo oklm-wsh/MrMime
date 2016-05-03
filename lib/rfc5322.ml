@@ -60,12 +60,9 @@ type field =
   | `ResentCc        of address list
   | `ResentBcc       of address list
   | `ResentMessageID of msg_id
+  | `ResentReplyTo   of address list
   | `Received        of received list * date_time option
   | `ReturnPath      of mailbox option
-  | `ContentType     of Rfc2045.content
-  | `MimeVersion     of Rfc2045.version
-  | `ContentEncoding of Rfc2045.encoding
-  | `ContentID       of Rfc2045.id
   | `Field           of string * phrase ]
 
 let cur_chr ?(avoid = []) state =
@@ -1371,7 +1368,7 @@ let p_keywords p state =
    optional-field  = field-name ":" unstructured CRLF
    obs-optional    = field-name *WSP ":" unstructured CRLF
 *)
-let p_field p state =
+let p_field extend p state =
   let field = p_field_name state in
   let _     = Lexer.p_repeat is_wsp state in
 
@@ -1380,69 +1377,119 @@ let p_field p state =
   (Logs.debug @@ fun m -> m "state: p_field (with: %s)" field);
 
   let rule = match String.lowercase field with
-    | "from"              ->
-      p_mailbox_list     (fun l -> p_crlf @@ p (`From l))
-    | "sender"            ->
-      p_mailbox          (fun m -> p_crlf @@ p (`Sender m))
-    | "reply-to"          ->
-      p_address_list     (fun l -> p_crlf @@ p (`ReplyTo l))
-    | "to"                ->
-      p_address_list     (fun l -> p_crlf @@ p (`To l))
-    | "cc"                ->
-      p_address_list     (fun l -> p_crlf @@ p (`Cc l))
-    | "bcc"               ->
-      p_bcc              (fun l -> p_crlf @@ p (`Bcc l))
-    | "date"              ->
-      p_date_time        (fun d -> p_crlf @@ p (`Date d))
-    | "message-id"        ->
-      p_msg_id           (fun m -> p_crlf @@ p (`MessageID m))
-    | "subject"           ->
-      p_unstructured     (fun s -> p_crlf @@ p (`Subject s))
-    | "comments"          ->
-      p_unstructured     (fun s -> p_crlf @@ p (`Comments s))
-    | "keywords"          ->
-      p_keywords         (fun l -> p_crlf @@ p (`Keywords l))
-    | "in-reply-to"       ->
-      p_phrase_or_msg_id (fun l -> p_crlf @@ p (`InReplyTo l))
-    | "resent-date"       ->
-      p_date_time        (fun d -> p_crlf @@ p (`ResentDate d))
-    | "resent-from"       ->
-      p_mailbox_list     (fun l -> p_crlf @@ p (`ResentFrom l))
-    | "resent-sender"     ->
-      p_mailbox          (fun m -> p_crlf @@ p (`ResentSender m))
-    | "resent-to"         ->
-      p_address_list     (fun l -> p_crlf @@ p (`ResentTo l))
-    | "resent-cc"         ->
-      p_address_list     (fun l -> p_crlf @@ p (`ResentCc l))
-    | "resent-bcc"        ->
-      p_bcc              (fun l -> p_crlf @@ p (`ResentBcc l))
-    | "resent-message-id" ->
-      p_msg_id           (fun m -> p_crlf @@ p (`ResentMessageID m))
-    | "references"        ->
-      p_phrase_or_msg_id (fun l -> p_crlf @@ p (`References l))
-    | "received"          ->
-      p_received         (fun r -> p_crlf @@ p (`Received r))
-    | "return-path"       ->
-      p_path             (fun a -> p_crlf @@ p (`ReturnPath a))
-    | "content-type"      ->
-      Rfc2045.p_content  (fun c -> p_crlf @@ p (`ContentType c))
-    | "mime-version"      ->
-      Rfc2045.p_version  (fun v -> p_crlf @@ p (`MimeVersion v))
-    | "content-encoding"  ->
-      Rfc2045.p_encoding (fun e -> p_crlf @@ p (`ContentEncoding e))
-    | "content-id"        ->
-      Rfc2045.p_id       (fun i -> p_crlf @@ p (`ContentID i))
-    | field               ->
-      p_unstructured @@ (fun data -> p_crlf @@ (p (`Field (field, data))))
+    (* See RFC 5322 § 3.6.1 & 4.5.1:
+
+       orig-date       = "Date:" date-time CRLF
+       obs-orig-date   = "Date" *WSP ":" date-time CRLF
+    *)
+    | "date" -> p_date_time (fun d -> p_crlf @@ p (`Date d))
+    (* See RFC 5322 § 3.6.2 & 4.5.2:
+
+       from            = "From:" mailbox-list CRLF
+       obs-from        = "From" *WSP ":" mailbox-list CRLF
+       sender          = "Sender:" mailbox CRLF
+       obs-sender      = "Sender" *WSP ":" mailbox CRLF
+       reply-to        = "Reply-To:" address-list CRLF
+       obs-reply-to    = "Reply-To" *WSP ":" address-list CRLF
+    *)
+    | "from" -> p_mailbox_list (fun l -> p_crlf @@ p (`From l))
+    | "sender" -> p_mailbox (fun m -> p_crlf @@ p (`Sender m))
+    | "reply-to" -> p_address_list (fun l -> p_crlf @@ p (`ReplyTo l))
+    (* See RFC 5322 § 3.6.3 & 4.5.3:
+
+       to              = "To:" address-list CRLF
+       obs-to          = "To" *WSP ":" address-list CRLF
+       cc              = "Cc:" address-list CRLF
+       obs-cc          = "Cc" *WSP ":" address-list CRLF
+       bcc             = "Bcc:" [address-list / CFWS] CRLF
+       obs-bcc         = "Bcc" *WSP ":"
+                            (address-list / ( *([CFWS] ",") [CFWS])) CRLF
+    *)
+    | "to" -> p_address_list (fun l -> p_crlf @@ p (`To l))
+    | "cc" -> p_address_list (fun l -> p_crlf @@ p (`Cc l))
+    | "bcc" -> p_bcc (fun l -> p_crlf @@ p (`Bcc l))
+    (* See RFC 5322 § 3.6.4 & 4.5.4:
+
+       message-id      = "Message-ID:" msg-id CRLF
+       obs-message-id  = "Message-ID" *WSP ":" msg-id CRLF
+       in-reply-to     = "In-Reply-To:" 1*msg-id CRLF
+       obs-in-reply-to = "In-Reply-To" *WSP ":" *(phrase / msg-id) CRLF
+       references      = "References:" 1*msg-id CRLF
+       obs-references  = "References" *WSP ":" *(phrase / msg-id) CRLF
+    *)
+    | "message-id" -> p_msg_id (fun m -> p_crlf @@ p (`MessageID m))
+    | "in-reply-to" -> p_phrase_or_msg_id (fun l -> p_crlf @@ p (`InReplyTo l))
+    | "references" -> p_phrase_or_msg_id (fun l -> p_crlf @@ p (`References l))
+
+    (* See RFC 5322 § 3.6.5 & 4.5.5:
+
+       subject         = "Subject:" unstructured CRLF
+       obs-subject     = "Subject" *WSP ":" unstructured CRLF
+       comments        = "Comments:" unstructured CRLF
+       obs-comments    = "Comments" *WSP ":" unstructured CRLF
+       keywords        = "Keywords:" phrase *("," phrase) CRLF
+       obs-keywords    = "Keywords" *WSP ":" obs-phrase-list CRLF
+    *)
+    | "subject" -> p_unstructured (fun s -> p_crlf @@ p (`Subject s))
+    | "comments" -> p_unstructured (fun s -> p_crlf @@ p (`Comments s))
+    | "keywords" -> p_keywords (fun l -> p_crlf @@ p (`Keywords l))
+
+    (* See RFC 5322 § 3.6.6 & 4.5.6:
+
+       resent-date     = "Resent-Date:" date-time CRLF
+       obs-resent-date = "Resent-Date" *WSP ":" date-time CRLF
+       resent-from     = "Resent-From:" mailbox-list CRLF
+       obs-resent-from = "Resent-From" *WSP ":" mailbox-list CRLF
+       resent-sender   = "Resent-Sender:" mailbox CRLF
+       obs-resent-send = "Resent-Sender" *WSP ":" mailbox CRLF
+       resent-to       = "Resent-To:" address-list CRLF
+       obs-resent-to   = "Resent-To" *WSP ":" address-list CRLF
+       resent-cc       = "Resent-Cc:" address-list CRLF
+       obs-resent-cc   = "Resent-Cc" *WSP ":" address-list CRLF
+       resent-bcc      = "Resent-Bcc:" [address-list / CFWS] CRLF
+       obs-resent-bcc  = "Resent-Bcc" *WSP ":"
+                            (address-list / ( *([CFWS] ",") [CFWS])) CRLF
+       resent-msg-id   = "Resent-Message-ID:" msg-id CRLF
+       obs-resent-mid  = "Resent-Message-ID" *WSP ":" msg-id CRLF
+       obs-resent-rply = "Resent-Reply-To" *WSP ":" address-list CRLF
+    *)
+    | "resent-date" -> p_date_time (fun d -> p_crlf @@ p (`ResentDate d))
+    | "resent-from" -> p_mailbox_list (fun l -> p_crlf @@ p (`ResentFrom l))
+    | "resent-sender" -> p_mailbox (fun m -> p_crlf @@ p (`ResentSender m))
+    | "resent-to" -> p_address_list (fun l -> p_crlf @@ p (`ResentTo l))
+    | "resent-cc" -> p_address_list (fun l -> p_crlf @@ p (`ResentCc l))
+    | "resent-bcc" -> p_bcc (fun l -> p_crlf @@ p (`ResentBcc l))
+    | "resent-message-id" -> p_msg_id (fun m -> p_crlf @@ p (`ResentMessageID m))
+    | "resent-reply-to" -> p_address_list (fun l -> p_crlf @@ p (`ResentReplyTo l))
+    (* See RFC 5322 § 3.6.7 & 4.5.7:
+
+       trace           = [return]
+                         1*received
+       return          = "Return-Path:" path CRLF
+       received        = "Received:" *received-token ";" date-time CRLF
+       obs-return      = "Return-Path" *WSP ":" path CRLF
+       obs-received    = "Received" *WSP ":" *received-token CRLF
+    *)
+    | "received" -> p_received (fun r -> p_crlf @@ p (`Received r))
+    | "return-path" -> p_path (fun a -> p_crlf @@ p (`ReturnPath a))
+    (* See RFC 5322 § 3.6.8 & 4.5.8:
+
+       optional-field  = field-name ":" unstructured CRLF
+       obs-optional    = field-name *WSP ":" unstructured CRLF
+    *)
+    | field ->
+      Lexer.p_try_rule p
+        (p_unstructured @@ (fun value -> p_crlf @@ p (`Field (field, value))))
+        (extend field (fun data state -> `Ok (data, state)))
   in
 
   rule state
 
-let p_header p state =
+let p_header extend p state =
   let rec loop acc state =
     Lexer.p_try_rule
       (fun field -> loop (field :: acc)) (p (List.rev acc))
-      (p_field (fun data state -> `Ok (data, state)))
+      (p_field extend (fun data state -> `Ok (data, state)))
       state
   in
 
