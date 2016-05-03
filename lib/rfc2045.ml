@@ -204,3 +204,30 @@ let p_encoding p =
 
 let p_id p =
   Rfc822.p_cfws (fun _ -> Rfc822.p_msg_id (fun m -> Rfc822.p_cfws (fun _ -> p m)))
+
+let p_entity_headers extend field p state =
+  let rule =
+    match field with
+    | "content-type" -> p_content (fun c -> Rfc822.p_crlf @@ p (`ContentType c))
+    | "content-encoding" -> p_encoding (fun e -> Rfc822.p_crlf @@ p (`ContentEncoding e))
+    | "content-id" -> p_id (fun i -> Rfc822.p_crlf @@ p (`ContentID i))
+    | "content-description" -> Rfc822.p_text (fun s -> Rfc822.p_crlf @@ p (`ContentDescription s))
+    | field ->
+      (* XXX: the optionnal-field [fields] is handle by RFC 822 or RFC 5322.
+              in this case, we raise an error. *)
+      if String.sub field 0 8 = "content-"
+      then let field = String.sub field 8 (String.length field - 8) in
+           Lexer.p_try_rule p
+             (Rfc822.p_text @@ (fun value -> Rfc822.p_crlf @@ p (`Content (field, value))))
+             (extend field (fun data state -> `Ok (data, state)))
+      else raise (Lexer.Error (Lexer.err_invalid_field field state))
+  in
+
+  rule state
+
+let p_mime_message_headers extend field p =
+  match field with
+  | "mime-version" -> p_version (fun v -> Rfc822.p_crlf @@ p (`MimeVersion v))
+  | field -> p_entity_headers extend field p
+
+let p_mime_part_headers = p_entity_headers
