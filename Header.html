@@ -35,6 +35,6 @@
 
 <pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">string -> <a href="Header.html#TYPEt">t</a></code></pre>
 <pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="Header.html#TYPEt">t</a> -> string</code></pre>
-<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">(<a href="Header.html#TYPEt">t</a> option -> Rfc5322.field list -> 'a) -> Rfc5322.field list -> 'a</code></pre>
+<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">Rfc5322.field list -><br>       (<a href="Header.html#TYPEt">t</a> option -> Rfc5322.field list -> Lexer.t -> 'a) -> Lexer.t -> 'a</code></pre>
 <pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="Header.html#TYPEt">t</a> -> <a href="Header.html#TYPEt">t</a> -> bool</code></pre>
 <pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Header.html#TYPEt">t</a> -> unit</code></pre></body></html>
