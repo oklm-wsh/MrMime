@@ -49,6 +49,10 @@ let p_body boundary content p state =
   | `Ietf_token _
   | `X_token _ -> raise (Lexer.Error (Lexer.err_nothing_to_do state))
 
+type 'a t =
+  | Discrete of string
+  | Composite of 'a t option list
+
 let p_multipart boundary content self p_body' p state =
   Rfc2046.p_multipart_body' boundary
     (fun fields ->
@@ -57,11 +61,11 @@ let p_multipart boundary content self p_body' p state =
       match rest with
       | [] ->
         self content p_body'
-          (function `Discrete data -> fun state -> `Ok (`Discrete data, state))
-          (function `Composite data -> fun state -> `Ok (`Composite data, state))
+          (fun data -> fun state -> `Ok (Discrete data, state))
+          (fun data -> fun state -> `Ok (Composite data, state))
           state
       | _  -> raise (Lexer.Error (Lexer.err_invalid_header state))))
-    (fun l -> p (`Composite l))
+    p
   state
 
 let rec switch content p_body' p_discrete p_composite state =
@@ -74,7 +78,7 @@ let rec switch content p_body' p_discrete p_composite state =
   | `Image
   | `Audio
   | `Video
-  | `Application -> p_body' content (fun data -> p_discrete (`Discrete data)) state
+  | `Application -> p_body' content (fun data -> p_discrete data) state
   (* composite top-level media types *)
   | `Message
   | `Multipart ->
@@ -93,7 +97,7 @@ let rec switch content p_body' p_discrete p_composite state =
           content
           switch
           (p_body (Some boundary))
-          (fun data -> p_composite (`Composite data))
+          (fun data -> p_composite data)
           state
     with Not_found -> raise (Lexer.Error (Lexer.err_nothing_to_do state))
 
@@ -102,5 +106,4 @@ let p_message p state =
   (fun fields ->
    c_header fields
    (fun header content ->
-    switch content (p_body None) (function `Discrete data -> p header (`Discrete
-    data)) (function `Composite data -> p header (`Composite data))))
+    switch content (p_body None) (fun data -> p header (Discrete data)) (fun data -> p header (Composite data))))
