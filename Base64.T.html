@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Base64.F.html">
+<link rel="Up" href="Base64.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Base64.T</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Base64.html" title="Base64">Up</a>
+&nbsp;<a class="post" href="Base64.F.html" title="Base64.F">Next</a>
+</div>
+<h1>Module <a href="type_Base64.T.html">Base64.T</a> (<a href="code_Base64.T.html">.ml</a>)</h1>
+
+<pre><span class="keyword">module</span> T: <code class="code"><span class="keyword">sig</span></code> <a href="Base64.T.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="VAL_to"><span class="keyword">val</span> <a href="code_VALBase64.T._to.html">_to</a></span> : <code class="type">string</code></pre>
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.buffer">buffer</span>&nbsp;: <code class="type">Bytes.t</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span class="keyword">mutable&nbsp;</span><span id="TYPEELTt.seek">seek</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span class="keyword">mutable&nbsp;</span><span id="TYPEELTt.cnum">cnum</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.wrap">wrap</span>&nbsp;: <code class="type">bool</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALmake"><span class="keyword">val</span> <a href="code_VALBase64.T.make.html">make</a></span> : <code class="type">?wrap:bool -> unit -> <a href="Base64.T.html#TYPEt">t</a></code></pre>
+<pre><span id="VALwrap"><span class="keyword">val</span> <a href="code_VALBase64.T.wrap.html">wrap</a></span> : <code class="type"><a href="Base64.T.html#TYPEt">t</a> -> Buffer.t -> unit</code></pre>
+<pre><span id="VALadd"><span class="keyword">val</span> <a href="code_VALBase64.T.add.html">add</a></span> : <code class="type"><a href="Base64.T.html#TYPEt">t</a> -> char -> Buffer.t -> <a href="Base64.T.html#TYPEt">t</a></code></pre>
+<pre><span id="VALflush"><span class="keyword">val</span> <a href="code_VALBase64.T.flush.html">flush</a></span> : <code class="type"><a href="Base64.T.html#TYPEt">t</a> -> Buffer.t -> unit</code></pre></body></html>

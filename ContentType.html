@@ -8,6 +8,7 @@
 <link rel="next" href="ContentEncoding.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
@@ -21,7 +22,21 @@
 <link title="ContentType" rel="Chapter" href="ContentType.html">
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
-<link title="Header" rel="Chapter" href="Header.html"><title>ContentType</title>
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>ContentType</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="MimeVersion.html" title="MimeVersion">Previous</a>
@@ -32,13 +47,13 @@
 
 <pre><span class="keyword">module</span> ContentType: <code class="code"><span class="keyword">sig</span></code> <a href="ContentType.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="TYPEty"><span class="keyword">type</span> <code class="type"></code>ty</span> = <code class="type">Rfc2045.ty</code> </pre>
+<pre><span id="TYPEty"><span class="keyword">type</span> <code class="type"></code>ty</span> = <code class="type"><a href="Rfc2045.html#TYPEty">Rfc2045.ty</a></code> </pre>
 
 
-<pre><span id="TYPEsubty"><span class="keyword">type</span> <code class="type"></code>subty</span> = <code class="type">Rfc2045.subty</code> </pre>
+<pre><span id="TYPEsubty"><span class="keyword">type</span> <code class="type"></code>subty</span> = <code class="type"><a href="Rfc2045.html#TYPEsubty">Rfc2045.subty</a></code> </pre>
 
 
-<pre><span id="TYPEvalue"><span class="keyword">type</span> <code class="type"></code>value</span> = <code class="type">Rfc2045.value</code> </pre>
+<pre><span id="TYPEvalue"><span class="keyword">type</span> <code class="type"></code>value</span> = <code class="type"><a href="Rfc2045.html#TYPEvalue">Rfc2045.value</a></code> </pre>
 
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
@@ -46,9 +61,9 @@
 
 <pre><span id="VALty"><span class="keyword">val</span> ty</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEty">ty</a></code></pre>
 <pre><span id="VALsubty"><span class="keyword">val</span> subty</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEsubty">subty</a></code></pre>
-<pre><span id="VALparameters"><span class="keyword">val</span> parameters</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> (string * Rfc2045.value) list</code></pre>
+<pre><span id="VALparameters"><span class="keyword">val</span> parameters</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> (string * <a href="Rfc2045.html#TYPEvalue">Rfc2045.value</a>) list</code></pre>
 <pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?parameters:(string * <a href="ContentType.html#TYPEvalue">value</a>) list -><br>       <a href="ContentType.html#TYPEty">ty</a> -> <a href="ContentType.html#TYPEsubty">subty</a> -> <a href="ContentType.html#TYPEt">t</a></code></pre>
 <pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a></code></pre>
-<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">Rfc2045.content -> <a href="ContentType.html#TYPEt">t</a></code></pre>
+<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type"><a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a> -> <a href="ContentType.html#TYPEt">t</a></code></pre>
 <pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="ContentType.html#TYPEt">t</a> -> unit</code></pre>
 <pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="ContentType.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEt">t</a> -> bool</code></pre></body></html>

@@ -4,42 +4,114 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="previous" href="MrMime.html">
-<link rel="next" href="Rfc2045.html">
+<link rel="previous" href="Lexer.html">
+<link rel="next" href="Rfc5321.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
 <link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
-<link title="Rfc2822" rel="Chapter" href="Rfc2822.html">
-<link title="Parser" rel="Chapter" href="Parser.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Identity" rel="Chapter" href="Identity.html">
-<link title="Encoding" rel="Chapter" href="Encoding.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="MsgID" rel="Chapter" href="MsgID.html">
-<link title="Version" rel="Chapter" href="Version.html">
-<link title="Loc" rel="Chapter" href="Loc.html"><title>Rfc822</title>
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="MrMime.html" title="MrMime">Previous</a>
+<div class="navbar"><a class="pre" href="Lexer.html" title="Lexer">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
-&nbsp;<a class="post" href="Rfc2045.html" title="Rfc2045">Next</a>
+&nbsp;<a class="post" href="Rfc5321.html" title="Rfc5321">Next</a>
 </div>
 <h1>Module <a href="type_Rfc822.html">Rfc822</a> (<a href="code_Rfc822.html">.ml</a>)</h1>
 
 <pre><span class="keyword">module</span> Rfc822: <code class="code"><span class="keyword">sig</span></code> <a href="Rfc822.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="EXCEPTIONLexical_error"><span class="keyword">exception</span> Lexical_error</span></pre>
+<pre><span id="TYPEatom"><span class="keyword">type</span> <code class="type"></code>atom</span> = <code class="type">[ `Atom of string ]</code> </pre>
 
-<pre><span id="VAL__ocaml_lex_tables"><span class="keyword">val</span> <a href="code_VALRfc822.__ocaml_lex_tables.html">__ocaml_lex_tables</a></span> : <code class="type">Lexing.lex_tables</code></pre>
-<pre><span id="VALcomment"><span class="keyword">val</span> <a href="code_VALRfc822.comment.html">comment</a></span> : <code class="type">int -> Lexing.lexbuf -> Lexing.lexbuf</code></pre>
-<pre><span id="VAL__ocaml_lex_comment_rec"><span class="keyword">val</span> <a href="code_VALRfc822.__ocaml_lex_comment_rec.html">__ocaml_lex_comment_rec</a></span> : <code class="type">int -> Lexing.lexbuf -> int -> Lexing.lexbuf</code></pre>
-<pre><span id="VALquoted_string"><span class="keyword">val</span> <a href="code_VALRfc822.quoted_string.html">quoted_string</a></span> : <code class="type">Buffer.t -> Lexing.lexbuf -> string</code></pre>
-<pre><span id="VAL__ocaml_lex_quoted_string_rec"><span class="keyword">val</span> <a href="code_VALRfc822.__ocaml_lex_quoted_string_rec.html">__ocaml_lex_quoted_string_rec</a></span> : <code class="type">Buffer.t -> Lexing.lexbuf -> int -> string</code></pre>
-<pre><span id="VALmsg_id"><span class="keyword">val</span> <a href="code_VALRfc822.msg_id.html">msg_id</a></span> : <code class="type">Lexing.lexbuf -> string * string</code></pre>
-<pre><span id="VAL__ocaml_lex_msg_id_rec"><span class="keyword">val</span> <a href="code_VALRfc822.__ocaml_lex_msg_id_rec.html">__ocaml_lex_msg_id_rec</a></span> : <code class="type">Lexing.lexbuf -> int -> string * string</code></pre></body></html>
+
+<pre><span id="TYPEword"><span class="keyword">type</span> <code class="type"></code>word</span> = <code class="type">[ `Atom of string | `String of string ]</code> </pre>
+
+
+<pre><span id="TYPElocal"><span class="keyword">type</span> <code class="type"></code>local</span> = <code class="type"><a href="Rfc822.html#TYPEword">word</a> list</code> </pre>
+
+
+<pre><span id="TYPEdomain"><span class="keyword">type</span> <code class="type"></code>domain</span> = <code class="type">[ `Domain of <a href="Rfc822.html#TYPEatom">atom</a> list | `Literal of string ]</code> </pre>
+
+
+<pre><span id="TYPEleft"><span class="keyword">type</span> <code class="type"></code>left</span> = <code class="type"><a href="Rfc822.html#TYPElocal">local</a></code> </pre>
+
+
+<pre><span id="TYPEright"><span class="keyword">type</span> <code class="type"></code>right</span> = <code class="type"><a href="Rfc822.html#TYPEdomain">domain</a></code> </pre>
+
+
+<pre><span id="TYPEmsg_id"><span class="keyword">type</span> <code class="type"></code>msg_id</span> = <code class="type"><a href="Rfc822.html#TYPEleft">left</a> * <a href="Rfc822.html#TYPEright">right</a></code> </pre>
+
+
+<pre><span id="VALis_space"><span class="keyword">val</span> <a href="code_VALRfc822.is_space.html">is_space</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_ctl"><span class="keyword">val</span> <a href="code_VALRfc822.is_ctl.html">is_ctl</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_digit"><span class="keyword">val</span> <a href="code_VALRfc822.is_digit.html">is_digit</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_lwsp"><span class="keyword">val</span> <a href="code_VALRfc822.is_lwsp.html">is_lwsp</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALp_text"><span class="keyword">val</span> <a href="code_VALRfc822.p_text.html">p_text</a></span> : <code class="type">(bool -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'ret) ]<br>         as 'ret)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'ret</code></pre>
+<pre><span id="VALp_field_name"><span class="keyword">val</span> <a href="code_VALRfc822.p_field_name.html">p_field_name</a></span> : <code class="type"><a href="Lexer.html#TYPEt">Lexer.t</a> -> string</code></pre>
+<pre><span id="VALis_wsp"><span class="keyword">val</span> <a href="code_VALRfc822.is_wsp.html">is_wsp</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_d0"><span class="keyword">val</span> <a href="code_VALRfc822.is_d0.html">is_d0</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_lf"><span class="keyword">val</span> <a href="code_VALRfc822.is_lf.html">is_lf</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_cr"><span class="keyword">val</span> <a href="code_VALRfc822.is_cr.html">is_cr</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_obs_no_ws_ctl"><span class="keyword">val</span> <a href="code_VALRfc822.is_obs_no_ws_ctl.html">is_obs_no_ws_ctl</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_vchar"><span class="keyword">val</span> <a href="code_VALRfc822.is_vchar.html">is_vchar</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALof_escaped_character"><span class="keyword">val</span> <a href="code_VALRfc822.of_escaped_character.html">of_escaped_character</a></span> : <code class="type">char -> char</code></pre>
+<pre><span id="VALp_quoted_pair"><span class="keyword">val</span> <a href="code_VALRfc822.p_quoted_pair.html">p_quoted_pair</a></span> : <code class="type">(char -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_fws"><span class="keyword">val</span> <a href="code_VALRfc822.p_fws.html">p_fws</a></span> : <code class="type">(bool -><br>        bool -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALis_ctext"><span class="keyword">val</span> <a href="code_VALRfc822.is_ctext.html">is_ctext</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALp_ctext"><span class="keyword">val</span> <a href="code_VALRfc822.p_ctext.html">p_ctext</a></span> : <code class="type"><a href="Lexer.html#TYPEt">Lexer.t</a> -> string</code></pre>
+<pre><span id="VALp_ccontent"><span class="keyword">val</span> <a href="code_VALRfc822.p_ccontent.html">p_ccontent</a></span> : <code class="type">(<a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_comment"><span class="keyword">val</span> <a href="code_VALRfc822.p_comment.html">p_comment</a></span> : <code class="type">(<a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_cfws"><span class="keyword">val</span> <a href="code_VALRfc822.p_cfws.html">p_cfws</a></span> : <code class="type">(bool -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALis_qtext"><span class="keyword">val</span> <a href="code_VALRfc822.is_qtext.html">is_qtext</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_dquote"><span class="keyword">val</span> <a href="code_VALRfc822.is_dquote.html">is_dquote</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALp_qtext"><span class="keyword">val</span> <a href="code_VALRfc822.p_qtext.html">p_qtext</a></span> : <code class="type"><a href="Lexer.html#TYPEt">Lexer.t</a> -> string</code></pre>
+<pre><span id="VALp_qcontent"><span class="keyword">val</span> <a href="code_VALRfc822.p_qcontent.html">p_qcontent</a></span> : <code class="type">(string -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_quoted_string"><span class="keyword">val</span> <a href="code_VALRfc822.p_quoted_string.html">p_quoted_string</a></span> : <code class="type">(string -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALis_alpha"><span class="keyword">val</span> <a href="code_VALRfc822.is_alpha.html">is_alpha</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_digit"><span class="keyword">val</span> <a href="code_VALRfc822.is_digit.html">is_digit</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALis_atext"><span class="keyword">val</span> <a href="code_VALRfc822.is_atext.html">is_atext</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALp_atext"><span class="keyword">val</span> <a href="code_VALRfc822.p_atext.html">p_atext</a></span> : <code class="type"><a href="Lexer.html#TYPEt">Lexer.t</a> -> string</code></pre>
+<pre><span id="VALp_atom"><span class="keyword">val</span> <a href="code_VALRfc822.p_atom.html">p_atom</a></span> : <code class="type">(string -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_word"><span class="keyword">val</span> <a href="code_VALRfc822.p_word.html">p_word</a></span> : <code class="type">([> `Atom of string | `String of string ] -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_obs_local_part"><span class="keyword">val</span> <a href="code_VALRfc822.p_obs_local_part.html">p_obs_local_part</a></span> : <code class="type">([> `Atom of string | `String of string ] list -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_dot_atom_text"><span class="keyword">val</span> <a href="code_VALRfc822.p_dot_atom_text.html">p_dot_atom_text</a></span> : <code class="type">([> `Atom of string ] list -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_dot_atom"><span class="keyword">val</span> <a href="code_VALRfc822.p_dot_atom.html">p_dot_atom</a></span> : <code class="type">([> `Atom of string ] list -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_local_part"><span class="keyword">val</span> <a href="code_VALRfc822.p_local_part.html">p_local_part</a></span> : <code class="type">([> `Atom of string | `String of string ] list -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALis_dtext"><span class="keyword">val</span> <a href="code_VALRfc822.is_dtext.html">is_dtext</a></span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALp_dtext"><span class="keyword">val</span> <a href="code_VALRfc822.p_dtext.html">p_dtext</a></span> : <code class="type">(string -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_obs_domain"><span class="keyword">val</span> <a href="code_VALRfc822.p_obs_domain.html">p_obs_domain</a></span> : <code class="type">([> `Atom of string ] list -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_domain_literal"><span class="keyword">val</span> <a href="code_VALRfc822.p_domain_literal.html">p_domain_literal</a></span> : <code class="type">(string -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_domain"><span class="keyword">val</span> <a href="code_VALRfc822.p_domain.html">p_domain</a></span> : <code class="type">([> `Domain of [> `Atom of string ] list | `Literal of string ] -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_obs_id_left"><span class="keyword">val</span> <a href="code_VALRfc822.p_obs_id_left.html">p_obs_id_left</a></span> : <code class="type">([> `Atom of string | `String of string ] list -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_id_left"><span class="keyword">val</span> <a href="code_VALRfc822.p_id_left.html">p_id_left</a></span> : <code class="type">([> `Atom of string | `String of string ] list -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_obs_id_right"><span class="keyword">val</span> <a href="code_VALRfc822.p_obs_id_right.html">p_obs_id_right</a></span> : <code class="type">([> `Domain of [> `Atom of string ] list | `Literal of string ] -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_no_fold_literal"><span class="keyword">val</span> <a href="code_VALRfc822.p_no_fold_literal.html">p_no_fold_literal</a></span> : <code class="type">([> `Literal of string ] -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_id_right"><span class="keyword">val</span> <a href="code_VALRfc822.p_id_right.html">p_id_right</a></span> : <code class="type">([> `Domain of [> `Atom of string ] list | `Literal of string ] -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_msg_id"><span class="keyword">val</span> <a href="code_VALRfc822.p_msg_id.html">p_msg_id</a></span> : <code class="type">([> `Atom of string | `String of string ] list *<br>        [> `Domain of [> `Atom of string ] list | `Literal of string ] -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_crlf"><span class="keyword">val</span> <a href="code_VALRfc822.p_crlf.html">p_crlf</a></span> : <code class="type">(<a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre></body></html>

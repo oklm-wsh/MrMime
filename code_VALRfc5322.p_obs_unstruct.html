@@ -1,0 +1,134 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_obs_unstruct</title>
+</head>
+<body>
+<code class="code"><span class="keyword">let</span>&nbsp;p_obs_unstruct&nbsp;?(acc&nbsp;=&nbsp;[])&nbsp;p&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;compile&nbsp;rlst&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;?(previous&nbsp;=&nbsp;<span class="keywordsign">`</span><span class="constructor">None</span>)&nbsp;acc&nbsp;l&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;l,&nbsp;previous&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;_&nbsp;<span class="keyword">as</span>&nbsp;enc)&nbsp;::&nbsp;r,&nbsp;<span class="keywordsign">`</span><span class="constructor">LWSP</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;~previous:<span class="keywordsign">`</span><span class="constructor">Enc</span>&nbsp;(enc&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc)&nbsp;r<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;_&nbsp;<span class="keyword">as</span>&nbsp;enc)&nbsp;::&nbsp;r,&nbsp;(<span class="keywordsign">`</span><span class="constructor">ELWSP</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">None</span>)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;~previous:<span class="keywordsign">`</span><span class="constructor">Enc</span>&nbsp;(enc&nbsp;::&nbsp;acc)&nbsp;r<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;_&nbsp;::&nbsp;r,&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Enc</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;_&nbsp;::&nbsp;r,&nbsp;<span class="keywordsign">`</span><span class="constructor">Enc</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span>&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;raise&nbsp;error&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;_&nbsp;<span class="keyword">as</span>&nbsp;txt)&nbsp;::&nbsp;r,&nbsp;(<span class="keywordsign">`</span><span class="constructor">LWSP</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ELWSP</span>)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;~previous:<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;(txt&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc)&nbsp;r<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;s&nbsp;<span class="keyword">as</span>&nbsp;txt)&nbsp;::&nbsp;r,&nbsp;(<span class="keywordsign">`</span><span class="constructor">None</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;~previous:<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;(txt&nbsp;::&nbsp;acc)&nbsp;r<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">FWS</span>)&nbsp;::&nbsp;r1&nbsp;::&nbsp;r2,&nbsp;(<span class="keywordsign">`</span><span class="constructor">ELWSP</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Enc</span>)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;~previous:<span class="keywordsign">`</span><span class="constructor">ELWSP</span>&nbsp;acc&nbsp;(r1&nbsp;::&nbsp;r2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">FWS</span>)&nbsp;::&nbsp;r1&nbsp;::&nbsp;r2,&nbsp;(<span class="keywordsign">`</span><span class="constructor">LWSP</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;~previous:<span class="keywordsign">`</span><span class="constructor">LWSP</span>&nbsp;acc&nbsp;(r1&nbsp;::&nbsp;r2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">FWS</span>)&nbsp;::&nbsp;r1&nbsp;::&nbsp;r2,&nbsp;<span class="keywordsign">`</span><span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;~previous:<span class="keywordsign">`</span><span class="constructor">None</span>&nbsp;acc&nbsp;(r1&nbsp;::&nbsp;r2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;],&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.roll_back&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)&nbsp;state)&nbsp;<span class="string">"\r"</span>&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[&nbsp;(<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">FWS</span>)&nbsp;],&nbsp;_&nbsp;<span class="keywordsign">|</span>&nbsp;[],&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;[]&nbsp;(<span class="constructor">List</span>.rev&nbsp;rlst)<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;data&nbsp;acc&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;(charset,&nbsp;encoding,&nbsp;s)&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lf&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_repeat&nbsp;is_lf&nbsp;state&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;cr&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_repeat&nbsp;is_cr&nbsp;state&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;acc'&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.length&nbsp;lf,&nbsp;<span class="constructor">String</span>.length&nbsp;cr&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0,&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;(charset,&nbsp;encoding,&nbsp;s)&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;n,&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;(charset,&nbsp;encoding,&nbsp;s)&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0,&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;(charset,&nbsp;encoding,&nbsp;s)&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;(charset,&nbsp;encoding,&nbsp;s)&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_obs_utext&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;data&nbsp;acc'&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;acc'&nbsp;state)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ts&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_while&nbsp;is_obs_utext&nbsp;state&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lf&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_repeat&nbsp;is_lf&nbsp;state&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;cr&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_repeat&nbsp;is_cr&nbsp;state&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;acc'&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.length&nbsp;lf,&nbsp;<span class="constructor">String</span>.length&nbsp;cr&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0,&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;ts&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;n,&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;ts&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0,&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;ts&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;ts&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_obs_utext&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;data&nbsp;acc'&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;acc'&nbsp;state)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc2047</span>.p_encoded_word<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;charset&nbsp;encoding&nbsp;s&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((charset,&nbsp;encoding,&nbsp;s),&nbsp;state)))<br>
+<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;lfcr&nbsp;acc&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lf&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_repeat&nbsp;is_lf&nbsp;state&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;cr&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_repeat&nbsp;is_cr&nbsp;state&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;acc'&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.length&nbsp;lf,&nbsp;<span class="constructor">String</span>.length&nbsp;cr&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0,&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;n,&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0,&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">LF</span>&nbsp;::&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_obs_utext&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;data&nbsp;acc&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;<span class="constructor">String</span>.length&nbsp;lf&nbsp;&gt;&nbsp;0&nbsp;<span class="keywordsign">||</span>&nbsp;<span class="constructor">String</span>.length&nbsp;cr&nbsp;&gt;&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_fws&nbsp;(<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;has_wsp,&nbsp;has_fws&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">true</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lfcr&nbsp;(<span class="keywordsign">`</span><span class="constructor">FWS</span>&nbsp;::&nbsp;acc')<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">false</span>&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lfcr&nbsp;(<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc')<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;compile&nbsp;acc'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;compile&nbsp;acc'&nbsp;state<br>
+<br>
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;loop&nbsp;acc&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;p_fws&nbsp;(<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;has_wsp,&nbsp;has_fws&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">true</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keywordsign">`</span><span class="constructor">FWS</span>&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">false</span>&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lfcr&nbsp;acc<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">true</span>&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span>)<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;loop&nbsp;acc&nbsp;state</code></body></html>

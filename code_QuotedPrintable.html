@@ -7,254 +7,550 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="Parser" rel="Chapter" href="Parser.html">
-<link title="Encoding" rel="Chapter" href="Encoding.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="Loc" rel="Chapter" href="Loc.html"><title>QuotedPrintable</title>
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable</title>
 </head>
 <body>
-<code class="code">#&nbsp;1&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;<br>
-&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">F</span>&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">struct</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hex&nbsp;a&nbsp;b&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;aux&nbsp;code&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;code&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'0'</span>..<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'0'</span>)&nbsp;+&nbsp;0<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>..<span class="string">'F'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'A'</span>)&nbsp;+&nbsp;10<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>..<span class="string">'f'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'a'</span>)&nbsp;+&nbsp;10<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"QuotedPrintable.F.hex"</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Char</span>.chr&nbsp;(((aux&nbsp;a)&nbsp;*&nbsp;16)&nbsp;+&nbsp;(aux&nbsp;b))<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_char&nbsp;buf&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr<br>
-&nbsp;&nbsp;<span class="keyword">end</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">T</span>&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">struct</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_to&nbsp;=&nbsp;<span class="string">"0123456789ABCDEF"</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;word&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">Buffer</span>.t;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">mutable</span>&nbsp;position&nbsp;:&nbsp;int;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;make&nbsp;()&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;word&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;position&nbsp;=&nbsp;0&nbsp;}<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_break&nbsp;buf&nbsp;({&nbsp;position;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;position&nbsp;&gt;&nbsp;0<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buf&nbsp;<span class="string">"=\n"</span>;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;0;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;commit_word&nbsp;buf&nbsp;({&nbsp;position;&nbsp;word;&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;or&nbsp;TODO,&nbsp;does&nbsp;not&nbsp;handle&nbsp;a&nbsp;word&nbsp;with&nbsp;size&nbsp;&gt;&nbsp;76&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wrap_bigword&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;length&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_char&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrap_bigword&nbsp;buf&nbsp;t&nbsp;1;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;chr<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrap_bigword&nbsp;buf&nbsp;t&nbsp;3;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;code&nbsp;=&nbsp;<span class="constructor">Char</span>.code&nbsp;chr&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;h&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(code&nbsp;<span class="keyword">lsr</span>&nbsp;4)&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;l&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;<span class="string">'='</span>;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[h];<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[l]<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_wsp&nbsp;buf&nbsp;t&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add_char&nbsp;buf&nbsp;t&nbsp;chr;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;t&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;chr&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;t&nbsp;chr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;());<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;0<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;flush&nbsp;buf&nbsp;t&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t<br>
-&nbsp;&nbsp;<span class="keyword">end</span><br>
-<br>
-#&nbsp;89&nbsp;"lib/quotedPrintable.ml"<br>
-<span class="keyword">let</span>&nbsp;__ocaml_lex_tables&nbsp;=&nbsp;{<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_base&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\250\255\251\255\252\255\117\000\255\255\001\000\119\000\002\000\124\000\092\000\254\255\004\000\253\255\195\000\251\255\252\255\253\255\255\255\005\000\255\255"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_backtrk&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\255\255\255\255\255\255\255\255\005\000\255\255\005\000\003\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\001\000\255\255"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_default&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\001\000\000\000\000\000\000\000\255\255\000\000\255\255\255\255\255\255\255\255\255\255\000\000\255\255\000\000\015\000\000\000\000\000\000\000\000\000\255\255\000\000"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_trans&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\007\000\005\000\005\000\005\000\006\000\011\000\020\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\007\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\004\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\003\000\011\000\009\000\005\000\012\000\000\000\008\000\009\000\005\000\000\000\000\000\008\000\000\000\000\000\013\000\013\000\013\000\013\000\013\000\013\000\013\000\013\000\013\000\013\000\000\000\009\000\000\000\000\000\000\000\000\000\009\000\013\000\013\000\013\000\013\000\013\000\013\000\000\000\000\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\010\000\010\000\010\000\010\000\010\000\010\000\000\000\013\000\013\000\013\000\013\000\013\000\013\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\019\000\018\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\010\000\010\000\010\000\010\000\010\000\010\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\019\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\002\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\017\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\016\000"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_check&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\000\000\000\000\006\000\008\000\000\000\012\000\019\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\004\000\007\000\007\000\004\000\255\255\007\000\009\000\009\000\255\255\255\255\009\000\255\255\255\255\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\010\000\255\255\007\000\255\255\255\255\255\255\255\255\009\000\010\000\010\000\010\000\010\000\010\000\010\000\255\255\255\255\004\000\004\000\004\000\004\000\004\000\004\000\004\000\004\000\004\000\004\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\004\000\004\000\004\000\004\000\004\000\004\000\255\255\010\000\010\000\010\000\010\000\010\000\010\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\014\000\014\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\004\000\004\000\004\000\004\000\004\000\004\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\000\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\014\000\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\014\000"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_base_code&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\001\000\000\000\004\000"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_backtrk_code&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_default_code&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_trans_code&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_check_code&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255"</span>;<br>
-&nbsp;&nbsp;<span class="constructor">Lexing</span>.lex_code&nbsp;=&nbsp;<br>
-&nbsp;&nbsp;&nbsp;<span class="string">"\255\000\255\255\000\001\255"</span>;<br>
-}<br>
-<br>
-<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;0<br>
-<span class="keyword">and</span>&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;128&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_newline&nbsp;buf;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;311&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;137&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;316&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
-<span class="keyword">let</span><br>
-#&nbsp;147&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a<br>
-#&nbsp;322&nbsp;"lib/quotedPrintable.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;1)<br>
-<span class="keyword">and</span><br>
-#&nbsp;147&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b<br>
-#&nbsp;327&nbsp;"lib/quotedPrintable.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;2)&nbsp;<span class="keyword">in</span><br>
-#&nbsp;148&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">F</span>.hex&nbsp;a&nbsp;b);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;333&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
-<span class="keyword">let</span><br>
-#&nbsp;156&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
-#&nbsp;339&nbsp;"lib/quotedPrintable.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;157&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf&nbsp;chr;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;344&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;159&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;()&nbsp;)<br>
-#&nbsp;349&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;5&nbsp;<span class="keywordsign">-&gt;</span><br>
-<span class="keyword">let</span><br>
-#&nbsp;160&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
-#&nbsp;355&nbsp;"lib/quotedPrintable.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;163&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">F</span>.add_char&nbsp;buf&nbsp;chr;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buf&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;360&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_decode_rec&nbsp;buf&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
-<br>
-<span class="keyword">and</span>&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;=<br>
-&nbsp;&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem&nbsp;&lt;-&nbsp;<span class="constructor">Array</span>.make&nbsp;2&nbsp;(-1)&nbsp;;&nbsp;<span class="comment">(*&nbsp;L=1&nbsp;[1]&nbsp;&lt;-&nbsp;p&nbsp;;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem.(1)&nbsp;&lt;-&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;;<br>
-&nbsp;&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;14<br>
-<span class="keyword">and</span>&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.new_engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span><br>
-<span class="keyword">let</span><br>
-#&nbsp;167&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
-#&nbsp;375&nbsp;"lib/quotedPrintable.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char_opt&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_mem.(0)&nbsp;<span class="keyword">in</span><br>
-#&nbsp;168&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_newline&nbsp;buf&nbsp;acc&nbsp;chr;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;380&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
-<span class="keyword">let</span><br>
-#&nbsp;171&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
-#&nbsp;386&nbsp;"lib/quotedPrintable.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;172&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_wsp&nbsp;buf&nbsp;acc&nbsp;chr;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;391&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
-<span class="keyword">let</span><br>
-#&nbsp;175&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
-#&nbsp;397&nbsp;"lib/quotedPrintable.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;176&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_char&nbsp;buf&nbsp;acc&nbsp;chr;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;402&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
-#&nbsp;179&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.flush&nbsp;buf&nbsp;acc&nbsp;)<br>
-#&nbsp;407&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span><br>
-<span class="keyword">let</span><br>
-#&nbsp;180&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chr<br>
-#&nbsp;413&nbsp;"lib/quotedPrintable.ml"<br>
-=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;<span class="keyword">in</span><br>
-#&nbsp;181&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">T</span>.add_quoted_char&nbsp;buf&nbsp;acc&nbsp;chr;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;)<br>
-#&nbsp;418&nbsp;"lib/quotedPrintable.ml"<br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_encode_rec&nbsp;buf&nbsp;acc&nbsp;lexbuf&nbsp;__ocaml_lex_state<br>
-<br>
-;;<br>
-<br>
-#&nbsp;184&nbsp;"lib/quotedPrintable.mll"<br>
-&nbsp;<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;encode&nbsp;buf&nbsp;lexbuf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;encode&nbsp;buf&nbsp;(<span class="constructor">T</span>.make&nbsp;())&nbsp;lexbuf<br>
-<br>
-#&nbsp;430&nbsp;"lib/quotedPrintable.ml"<br>
+<code class="code">module F =
+struct
+  let add_newline buf =
+    Buffer.add_char buf '\n'
+
+  let hex a b =
+    let aux code = match code with
+      | '0'..'9' -> (Char.code code) - (Char.code '0') + 0
+      | 'A'..'F' -> (Char.code code) - (Char.code 'A') + 10
+      | 'a'..'f' -> (Char.code code) - (Char.code 'a') + 10
+      | _ -> raise (Invalid_argument "QuotedPrintable.F.hex")
+    in Char.chr (((aux a) * 16) + (aux b))
+
+  let hex s =
+    let aux code = match code with
+      | '0'..'9' -> (Char.code code) - (Char.code '0') + 0
+      | 'A'..'F' -> (Char.code code) - (Char.code 'A') + 10
+      | 'a'..'f' -> (Char.code code) - (Char.code 'a') + 10
+      | _ -> raise (Invalid_argument "QuotedPrintable.F.hex")
+    in Char.chr ((aux (String.get s 0) * 16) + (aux (String.get s 1)))
+
+  let add_char buf chr =
+    Buffer.add_char buf chr
+
+  let add_string buf str =
+    Buffer.add_string buf str
+end
+
+module T =
+struct
+  let _to = "0123456789ABCDEF"
+
+  type t =
+    { word             : Buffer.t
+    ; mutable position : int }
+
+  let make () =
+    { word = Buffer.create 16
+    ; position = 0 }
+
+  let add_break buf ({ position; _ } as t) =
+    if position > 0
+    then begin
+      Buffer.add_string buf "=\n";
+      t.position <- 0;
+    end
+
+  let commit_word buf ({ position; word; } as t) =
+    if position + Buffer.length word >= 76
+    then add_break buf t;
+
+    Buffer.add_buffer buf word;
+    t.position <- t.position + Buffer.length word;
+    Buffer.clear word
+
+  (* XXX: or TODO, does not handle a word with size > 76 *)
+  let wrap_bigword buf ({ word; _ } as t) length =
+    if Buffer.length word >= 76 then add_break buf t;
+
+    Buffer.add_buffer buf word;
+    t.position <- t.position + Buffer.length word;
+    Buffer.clear word
+
+  let add_char buf ({ word; _ } as t) chr =
+    wrap_bigword buf t 1;
+    Buffer.add_char word chr
+
+  let add_quoted_char buf ({ word; _ } as t) chr =
+    wrap_bigword buf t 3;
+
+    let code = Char.code chr in
+    let h    = (code lsr 4) land (16 - 1) in
+    let l    =  code        land (16 - 1) in
+
+    Buffer.add_char word '=';
+    Buffer.add_char word _to.[h];
+    Buffer.add_char word _to.[l]
+
+  let add_wsp buf t chr =
+    add_char buf t chr;
+    commit_word buf t
+
+  let add_newline buf t chr =
+    (match chr with
+     | Some chr -> add_quoted_char buf t chr
+     | None -> ());
+    commit_word buf t;
+    Buffer.add_char buf '\n';
+    t.position <- 0
+
+  let flush buf t =
+    commit_word buf t
+end
+
+(* See RFC 2045 § 6.7:
+
+   safe-char       := <any octet with decimal value of 33 through
+                       60 inclusive, and 62 through 126>
+                       ; Characters not listed as "mail-safe" in
+                       ; RFC 2049 are also not recommended.
+*)
+let is_safe_char = function
+  | '\033' .. '\060'
+  | '\062' .. '\126' -> true
+  | _                -> false
+
+(* See RFC 2045 § 6.7:
+
+   hex-octet       := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
+                        ; Octet must be used for characters > 127, =,
+                        ; SPACEs or TABs at the ends of lines, and is
+                        ; recommended for any character not listed in
+                        ; RFC 2049 as "mail-safe".
+*)
+let is_hex_octet = function
+  | 'A' .. 'F' -> true
+  | chr        -> Rfc822.is_digit chr
+
+let p_hex_octet p state =
+  Lexer.p_chr '=' state;
+
+  let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+  p (F.hex s) state
+
+(* See RFC 2045 § 6.7:
+
+   ptext           := hex-octet / safe-char
+*)
+let p_ptext p state =
+  let buf = Buffer.create 16 in
+
+  let rec loop state =
+    match Lexer.cur_chr state with
+    | '=' -> p_hex_octet (fun chr state -> Buffer.add_char buf chr; loop state) state
+    | chr when is_safe_char chr ->
+      Buffer.add_char buf chr;
+      loop state
+    | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+  in
+
+  loop state
+
+(* See RFC 2045 § 6.7:
+
+   qp-section      := [*(ptext / SPACE / TAB) ptext]
+*)
+let p_qp_section p state =
+  let rec loop acc =
+    Lexer.p_try_rule (fun data -> loop (data :: acc))
+      (fun state ->
+       match Lexer.cur_chr state with
+       | '\x20' | '\x09' ->
+         Lexer.junk_chr state;
+         loop acc state
+       | chr -> p (String.concat " " @@ List.rev acc) state)
+      (p_ptext (fun data state -> `Ok (data, state)) state)
+  in
+
+  loop [] state
+
+(* See RFC 2045 § 6.7:
+
+   qp-segment      := qp-section *(SPACE / TAB) "="
+                        ; Maximum length of 76 characters
+*)
+let p_qp_segment p state =
+  p_qp_section
+    (fun s state ->
+     let _ = Lexer.p_repeat (function '\x20' | '\x09' -> true | _ -> false) in
+     Lexer.p_chr '=' state;
+     p s state)
+    state
+
+(* See RFC 2045 § 6.7:
+
+   qp-part         := qp-section
+                        ; Maximum length of 76 characters
+*)
+let p_qp_part = p_qp_section
+
+(* See RFC 2045 § 6.7:
+
+   transport-padding := *LWSP-char
+                          ; Composers MUST NOT generate
+                          ; non-zero length transport
+                          ; padding, but receivers MUST
+                          ; be able to handle padding
+                          ; added by message transports.
+
+*)
+let p_transport_padding p state =
+  let _ = Lexer.p_repeat Rfc822.is_lwsp state in
+  p state
+
+(* See RFC 2045 § 6.7:
+
+   qp-line         := *(qp-segment transport-padding CRLF)
+                      qp-part transport-padding
+*)
+let p_qp_line p state =
+  let rec loop acc =
+    Lexer.p_try_rule
+      (fun seg -> loop (seg :: acc))
+      (p_qp_part (fun seg -> p_transport_padding (p (List.rev @@ seg :: acc))))
+      (p_qp_segment
+       (fun seg ->
+        p_transport_padding
+          (fun state ->
+           Lexer.p_chr '\r' state;
+           Lexer.p_chr '\n' state;
+           `Ok (seg, state))))
+  in
+
+  loop [] state
+
+(* See RFC 2045 § 6.7:
+
+   quoted-printable := qp-line *(CRLF qp-line)
+*)
+let p_quoted_printable p state =
+  let rec loop acc =
+    Lexer.p_try_rule
+      (fun line -> loop (line :: acc))
+      (p (List.rev acc))
+      (fun state ->
+       Lexer.p_chr '\r' state;
+       Lexer.p_chr '\n' state;
+
+       p_qp_line (fun line state -> `Ok (line, state)) state)
+  in
+
+  p_qp_line (fun line -> loop [line]) state
+
+(* See RFC 2047 § 4.2:
+
+   The   "Q"   encoding   is   similar   to   the   "Quoted-Printable"  content-
+   transfer-encoding  defined  in  RFC  2045.  It  is  designed  to  allow  text
+   containing mostly  ASCII characters to  be decipherable on  an ASCII terminal
+   without decoding.
+
+   (1) Any 8-bit value  may be represented by a "="  followed by two hexadecimal
+       digits. For example, if the character set in use were ISO-8859-1, the "="
+       character would thus be encoded  as "=3D",  and a SPACE by "=20".  (Upper
+       case should be used for hexadecimal digits "A" through "F".)
+
+   (2) The  8-bit  hexadecimal  value   20  (e.g.,   ISO-8859-1  SPACE)  may  be
+       represented as "_" (underscore, ASCII 95.).  (This character may not pass
+       through some internetwork mail gateways, but its use will greatly enhance
+       readability of  "Q" encoded data with  mail readers  that do  not support
+       this encoding.) Note that the "_" always represents hexadecimal 20,  even
+       if  the  SPACE  character  occupies  a  different  code  position  in the
+       character set in use.
+
+   (3) 8-bit values  which correspond to  printable ASCII characters  other than
+       "=",  "?",  and "_" (underscore), MAY be represented as those characters.
+       (But see section 5 for  restrictions.) In particular,  SPACE and TAB MUST
+       NOT be represented as themselves within encoded words.
+
+*)
+let p_inline_decode stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec decode state =
+    let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        match Lexer.cur_chr state with
+        | '=' ->
+          Lexer.junk_chr state;
+          let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+          F.add_char buf (F.hex s);
+          decode state
+        | '_' ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf ' ';
+          decode state
+        | '?' ->
+          raise (Lexer.Error (Lexer.err_unexpected '?' state))
+        | chr ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf chr;
+          decode state
+    in aux @@ Lexer.safe stop state
+  in
+
+  decode state
+
+(* See RFC 2045 § 6.7:
+
+   The Quoted-Printable encoding is intended to represent data that
+   largely consists of octets that correspond to printable characters in
+   the US-ASCII character set.  It encodes the data in such a way that
+   the resulting octets are unlikely to be modified by mail transport.
+   If the data being encoded are mostly US-ASCII text, the encoded form
+   of the data remains largely recognizable by humans.  A body which is
+   entirely US-ASCII may also be encoded in Quoted-Printable to ensure
+   the integrity of the data should the message pass through a
+   character-translating, and/or line-wrapping gateway.
+
+   In this encoding, octets are to be represented as determined by the
+   following rules:
+
+    (1)   (General 8bit representation) Any octet, except a CR or
+          LF that is part of a CRLF line break of the canonical
+          (standard) form of the data being encoded, may be
+          represented by an "=" followed by a two digit
+          hexadecimal representation of the octet's value.  The
+          digits of the hexadecimal alphabet, for this purpose,
+          are "0123456789ABCDEF".  Uppercase letters must be
+          used; lowercase letters are not allowed.  Thus, for
+          example, the decimal value 12 (US-ASCII form feed) can
+          be represented by "=0C", and the decimal value 61 (US-
+          ASCII EQUAL SIGN) can be represented by "=3D".  This
+          rule must be followed except when the following rules
+          allow an alternative encoding.
+
+    (2)   (Literal representation) Octets with decimal values of
+          33 through 60 inclusive, and 62 through 126, inclusive,
+          MAY be represented as the US-ASCII characters which
+          correspond to those octets (EXCLAMATION POINT through
+          LESS THAN, and GREATER THAN through TILDE,
+          respectively).
+
+    (3)   (White Space) Octets with values of 9 and 32 MAY be
+          represented as US-ASCII TAB (HT) and SPACE characters,
+          respectively, but MUST NOT be so represented at the end
+          of an encoded line.  Any TAB (HT) or SPACE characters
+          on an encoded line MUST thus be followed on that line
+          by a printable character.  In particular, an "=" at the
+          end of an encoded line, indicating a soft line break
+          (see rule #5) may follow one or more TAB (HT) or SPACE
+          characters.  It follows that an octet with decimal
+          value 9 or 32 appearing at the end of an encoded line
+          must be represented according to Rule #1.  This rule is
+          necessary because some MTAs (Message Transport Agents,
+          programs which transport messages from one user to
+          another, or perform a portion of such transfers) are
+          known to pad lines of text with SPACEs, and others are
+          known to remove "white space" characters from the end
+          of a line.  Therefore, when decoding a Quoted-Printable
+          body, any trailing white space on a line must be
+          deleted, as it will necessarily have been added by
+          intermediate transport agents.
+
+    (4)   (Line Breaks) A line break in a text body, represented
+          as a CRLF sequence in the text canonical form, must be
+          represented by a (RFC 822) line break, which is also a
+          CRLF sequence, in the Quoted-Printable encoding.  Since
+          the canonical representation of media types other than
+          text do not generally include the representation of
+          line breaks as CRLF sequences, no hard line breaks
+          (i.e. line breaks that are intended to be meaningful
+          and to be displayed to the user) can occur in the
+          quoted-printable encoding of such types.  Sequences
+          like "=0D", "=0A", "=0A=0D" and "=0D=0A" will routinely
+          appear in non-text data represented in quoted-
+          printable, of course.
+
+          Note that many implementations may elect to encode the
+          local representation of various content types directly
+          rather than converting to canonical form first,
+          encoding, and then converting back to local
+          representation.  In particular, this may apply to plain
+          text material on systems that use newline conventions
+          other than a CRLF terminator sequence.  Such an
+          implementation optimization is permissible, but only
+          when the combined canonicalization-encoding step is
+          equivalent to performing the three steps separately.
+
+    (5)   (Soft Line Breaks) The Quoted-Printable encoding
+          REQUIRES that encoded lines be no more than 76
+          characters long.  If longer lines are to be encoded
+          with the Quoted-Printable encoding, "soft" line breaks
+          must be used.  An equal sign as the last character on a
+          encoded line indicates such a non-significant ("soft")
+          line break in the encoded text.
+*)
+let p_decode stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec decode state =
+    let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        match Lexer.cur_chr state with
+         | '=' ->
+           Lexer.p_chr '=' state;
+
+           if Lexer.p_try is_hex_octet state = 2
+           then begin
+             let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+
+             F.add_char buf (F.hex s);
+             decode state
+           end else begin
+             Lexer.p_chr '\r' state;
+             Lexer.p_chr '\n' state;
+
+             decode state
+           end
+         | '\x20' | '\x09' ->
+           let lwsp = Lexer.p_while Rfc822.is_lwsp state in
+
+           if Lexer.cur_chr state = '\r'
+           then begin
+             Lexer.p_chr '\r' state;
+             Lexer.p_chr '\n' state;
+
+             F.add_newline buf;
+             decode state
+           end else begin
+             F.add_string buf lwsp;
+             decode state
+           end
+
+         | chr when is_safe_char chr  ->
+           Lexer.junk_chr state;
+           F.add_char buf chr;
+           decode state
+
+         | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+    in aux (Lexer.safe stop state)
+  in
+
+  decode state
+
+let p_inline_encode stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec encode state =
+    let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        match Lexer.cur_chr state with
+        | '\x20' ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf '_';
+          encode state
+        | '\x09' ->
+          Lexer.junk_chr state;
+          Buffer.add_string buf "=09";
+          encode state
+        | '?' ->
+          Lexer.junk_chr state;
+          Buffer.add_string buf "=3F";
+          encode state
+        | '_' ->
+          Lexer.junk_chr state;
+          Buffer.add_string buf "=5F";
+          encode state
+        | '=' ->
+          Lexer.junk_chr state;
+          Buffer.add_string buf "=3D";
+          encode state
+        | chr when is_safe_char chr ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf chr;
+          encode state
+        | chr ->
+          Lexer.junk_chr state;
+
+          let code = Char.code chr in
+          let h    = (code lsr 4) land (16 - 1) in
+          let l    =  code        land (16 - 1) in
+
+          Buffer.add_char buf '=';
+          Buffer.add_char buf T._to.[h];
+          Buffer.add_char buf T._to.[l];
+
+          encode state
+    in aux @@ Lexer.safe stop state
+  in
+
+  encode state
+
+let p_encode stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec encode qp state =
+    let rec aux = function
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        (match Lexer.cur_chr state with
+         | '\x20' | '\x09' as chr ->
+           Lexer.junk_chr state;
+
+           if Lexer.cur_chr state = '\n'
+           then begin
+             T.add_newline buf qp (Some chr);
+             Lexer.junk_chr state;
+             encode qp state
+           end else begin
+             T.add_wsp buf qp chr;
+             encode qp state
+           end
+         | chr when is_safe_char chr ->
+           T.add_char buf qp chr;
+           Lexer.junk_chr state;
+           encode qp state
+         | chr ->
+           T.add_quoted_char buf qp chr;
+           Lexer.junk_chr state;
+           encode qp state)
+      | #Lexer.err as r -> r
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+    in aux (stop state)
+  in
+
+  encode (T.make ()) state
 </code></body></html>

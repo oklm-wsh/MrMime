@@ -1,0 +1,139 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_fws</title>
+</head>
+<body>
+<code class="code">let rec p_fws p state =
+  (* verify if we have *WSP CRLF, if it's true,
+     we return a [tmp] buffer containing *WSP CRLF data.
+
+     it's not destructive, so you need to drop data with [tmp] if you try to get
+     the input after the CRLF. *)
+  let has_line state =
+    let tmp = Buffer.create 16 in
+    let rec loop cr_read j =
+      Buffer.add_char tmp (Bytes.get state.Lexer.buffer j);
+
+      if j >= state.Lexer.len then false
+      else
+        match Bytes.get state.Lexer.buffer j with
+        | '\n' ->
+          if cr_read then true else loop false (j + 1)
+        | '\r' ->
+          loop true (j + 1)
+        | '\x20' | '\x09' -> loop false (j + 1)
+        | _ -> false
+    in
+    if loop false state.Lexer.pos
+    then Some (Buffer.contents tmp)
+    else None
+  in
+
+  let trim s =
+    let len = Bytes.length s in
+    let i   = ref 0 in
+
+    while !i < len && is_wsp (Bytes.get s !i)
+    do incr i done;
+
+    !i <> 0, Bytes.sub s !i (len - !i)
+  in
+
+  (* for *(CRLF 1*WSP) loop  *)
+  let rec end_of_line has_wsp has_fws success fail state =
+    match has_line state with
+    | Some tmp ->
+      (Logs.debug @@ fun m -> m "state: p_fws/tmp %S" tmp);
+
+      state.Lexer.pos <- state.Lexer.pos + String.length tmp;
+
+      Lexer.read_line
+        (fun state ->
+         (Logs.debug @@ fun m -> m "state: p_fws/read_line");
+
+         match Lexer.cur_chr state with
+         (* … 1*(CRLF 1*WSP) *)
+         | '\x20' | '\x09' ->
+           (Logs.debug @@ fun m -> m "state: p_fws … 1*(CRLF 1*WSP)");
+
+           (* drop 1*WSP *)
+           let _ = Lexer.p_while is_wsp state in
+           success true true state
+         (* … *(CRLF 1*WSP) CRLF e *)
+         | chr ->
+           let has_wsp, tmp = trim tmp in
+           Lexer.roll_back (p has_wsp has_fws) tmp state)
+        state
+    (* … e *)
+    | None -> fail has_wsp has_fws state
+  in
+
+  let rec loop state =
+    match Lexer.cur_chr state with
+    (* WSP / CR *)
+    | '\x20' | '\x09' | '\r' as chr ->
+      let success has_wsp has_fws state =
+        (Logs.debug @@ fun m -> m "state: p_fws/loop/success");
+
+        match chr with
+        (* 1*WSP *(CRLF 1*WSP), so it's obs-fws *)
+        | '\x20' | '\x09' ->
+          (* it's 1*WSP 1*(CRLF 1*WSP) loop:
+             we can have multiple CRLF 1*WSP because we are in obs-fws *)
+          let rec loop _ _ state =
+            end_of_line true true loop (fun _ _ -> p true true) state in
+
+          loop true true state
+        (* 1*(CRLF 1*WSP) *)
+        | chr -> p true true state
+      in
+      let fail has_wsp has_fws state =
+        (Logs.debug @@ fun m -> m "state: p_fws/loop/fail");
+
+        (* WSP / CR *)
+        match chr with
+        | '\r' -> (* CR XXX: don't drop '\r', may be it's \r\n *)
+          p has_wsp has_fws state
+        | chr  -> (* we have 1*WSP, so we drop 1*WSP *)
+          let _ = Lexer.p_while is_wsp state in p true has_fws state
+      in
+
+      (* state (WSP / CR) and try [*WSP CRLF] 1*WSP *)
+      end_of_line false false success fail state
+    (* no fws *)
+    | chr -> p false false state
+  in
+
+  (Logs.debug @@ fun m -> m "state: p_fws");
+  loop state</code></body></html>

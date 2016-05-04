@@ -7,18 +7,36 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="Parser" rel="Chapter" href="Parser.html">
-<link title="Encoding" rel="Chapter" href="Encoding.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="Loc" rel="Chapter" href="Loc.html"><title>QuotedPrintable.T.wrap_bigword</title>
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T.wrap_bigword</title>
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;wrap_bigword&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;length&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word</code></body></html>

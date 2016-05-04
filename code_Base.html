@@ -1,0 +1,100 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Base</title>
+</head>
+<body>
+<code class="code">let p = Format.fprintf
+
+let pp_list ?(sep = "") pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> p fmt "%a%s" pp_data x sep; aux r
+  in
+
+  aux lst
+
+let pp_string ?(in_qs = false) ?(in_dm = false) fmt =
+  String.iter
+    (function
+     | '\x07' -> p fmt "\\a"
+     | '\b'   -> p fmt "\\b"
+     | '\t'   -> p fmt "\\t"
+     | '\n'   -> p fmt "\\n"
+     | '\x0b' -> p fmt "\\v"
+     | '\r'   -> p fmt "\\r"
+     | '\\'   -> p fmt "\\\\"
+     | ' ' when in_qs -> p fmt " "
+     | '"' when in_qs -> p fmt "\\\""
+     | ']' when in_dm -> p fmt "\\]"
+     | chr when Rfc5322.is_vchar chr -> p fmt "%c" chr
+     | chr    -> p fmt "\\%c" chr)
+
+let pp_atom fmt = function
+  | `Atom s -> pp_string fmt s
+
+let pp_word fmt = function
+  | `Atom s -> pp_string fmt s
+  | `String s -> p fmt "\"%a\"" (pp_string ~in_qs:true ~in_dm:false) s
+  | `Encoded (charset, encoding, s) -> pp_string fmt s
+
+let pp_phrase =
+  let pp_encoded charset encoding fmt data =
+    Rfc2047.p_decoded_word
+      charset encoding
+      (fun data _ -> `Ok data)
+      (Lexer.of_string data)
+    |> function
+       | `Ok data -> p fmt "%s" data
+       | _        -> assert false
+  in
+  let pp_elt fmt = function
+    | `WSP -> p fmt " "
+    | `Dot -> p fmt "."
+    | #Rfc5322.word as elt -> pp_word fmt elt
+    | `Encoded (charset, encoding, data) ->
+      p fmt "%a" (pp_encoded charset encoding) data
+  in
+  let rec loop fmt = function
+    | [] -> ()
+    | [ x ] -> pp_elt fmt x
+    | (`Encoded _ as a) :: (`Encoded _ as b) :: r ->
+        p fmt "%a %a" pp_elt a pp_elt b; loop fmt r
+    | (`Encoded _ as a) :: (`Atom _ as b) :: r
+    | (`Atom _ as a) :: (`Encoded _ as b) :: r ->
+        p fmt "%a %a" pp_elt a pp_elt b; loop fmt r
+    | x :: r -> pp_elt fmt x; loop fmt r
+  in
+  loop
+</code></body></html>

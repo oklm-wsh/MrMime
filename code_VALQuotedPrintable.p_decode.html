@@ -1,0 +1,87 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.p_decode</title>
+</head>
+<body>
+<code class="code">let p_decode stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec decode state =
+    let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        match Lexer.cur_chr state with
+         | '=' ->
+           Lexer.p_chr '=' state;
+
+           if Lexer.p_try is_hex_octet state = 2
+           then begin
+             let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+
+             F.add_char buf (F.hex s);
+             decode state
+           end else begin
+             Lexer.p_chr '\r' state;
+             Lexer.p_chr '\n' state;
+
+             decode state
+           end
+         | '\x20' | '\x09' ->
+           let lwsp = Lexer.p_while Rfc822.is_lwsp state in
+
+           if Lexer.cur_chr state = '\r'
+           then begin
+             Lexer.p_chr '\r' state;
+             Lexer.p_chr '\n' state;
+
+             F.add_newline buf;
+             decode state
+           end else begin
+             F.add_string buf lwsp;
+             decode state
+           end
+
+         | chr when is_safe_char chr  ->
+           Lexer.junk_chr state;
+           F.add_char buf chr;
+           decode state
+
+         | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+    in aux (Lexer.safe stop state)
+  in
+
+  decode state</code></body></html>
