@@ -4,6 +4,9 @@ type t =
   ; version  : MimeVersion.t
   ; id       : MsgID.t option }
 
+let ty { ty; _ } = ty
+let encoding { encoding; _ } = encoding
+
 let make
   ?(ty = ContentType.default)
   ?(encoding = ContentEncoding.default)

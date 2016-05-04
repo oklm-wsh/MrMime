@@ -171,8 +171,7 @@ let of_lexer fields p state =
          | resent-msg-id  | 0      | unlimited* | One per block - see 3.6.6  |
          +-------------------------------------------------------------------+
       *)
-      | `ResentDate _ | `ResentFrom _ | `ResentSender _ | `ResentTo _
-      | `ResentCc _   | `ResentBcc _  | `ResentMessageID _ | `ResentReplyTo _ ->
+      | #Rfc5322.resent ->
         Resent.of_lexer
           (field :: rest)
           (function
@@ -191,7 +190,7 @@ let of_lexer fields p state =
          |                |        |            | 3.6.7                      |
          +-------------------------------------------------------------------+
       *)
-      | `ReturnPath _ | `Received _ ->
+      | #Rfc5322.trace ->
         Trace.of_lexer
           (field :: rest)
           (function
@@ -199,6 +198,7 @@ let of_lexer fields p state =
                                                loop garbage fields
            | None       -> fun fields state -> loop garbage fields)
           state
+      | field -> loop (field :: garbage) rest
   in
 
   loop [] fields

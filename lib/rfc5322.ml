@@ -39,6 +39,20 @@ type received =
   | `Mailbox of mailbox
   | `Word of word ]
 
+type resent =
+  [ `ResentDate      of date_time
+  | `ResentFrom      of person list
+  | `ResentSender    of person
+  | `ResentTo        of address list
+  | `ResentCc        of address list
+  | `ResentBcc       of address list
+  | `ResentMessageID of msg_id
+  | `ResentReplyTo   of address list ]
+
+type trace =
+  [ `Received        of received list * date_time option
+  | `ReturnPath      of mailbox option ]
+
 type field =
   [ `From            of person list
   | `Date            of date_time
@@ -53,17 +67,9 @@ type field =
   | `MessageID       of msg_id
   | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
   | `References      of [`Phrase of phrase | `MsgID of msg_id] list
-  | `ResentDate      of date_time
-  | `ResentFrom      of person list
-  | `ResentSender    of person
-  | `ResentTo        of address list
-  | `ResentCc        of address list
-  | `ResentBcc       of address list
-  | `ResentMessageID of msg_id
-  | `ResentReplyTo   of address list
-  | `Received        of received list * date_time option
-  | `ReturnPath      of mailbox option
-  | `Field           of string * phrase ]
+  | `Field           of string * phrase
+  | resent
+  | trace ]
 
 let cur_chr ?(avoid = []) state =
   while List.exists ((=) (Lexer.cur_chr state)) avoid
@@ -117,9 +123,7 @@ let is_valid_atext text =
         && is_atext (String.get text !i)
   do incr i done;
 
-  if !i = String.length text
-  then true
-  else false
+  !i = String.length text
 
 (* See RFC 5322 § 3.2.3:
 
@@ -1494,3 +1498,47 @@ let p_header extend p state =
   in
 
   loop [] state
+
+(* See RFC 5322 § 3.5:
+
+   body            =   ( *( *998text CRLF) *998text) / obs-body
+   text            =   %d1-9 /            ; Characters excluding CR
+                       %d11 /             ;  and LF
+                       %d12 /
+                       %d14-127
+   obs-body        =   *(( *LF *CR *((%d0 / text) *LF *CR)) / CRLF)
+
+   XXX: if we don't care about the limit (998 characters per line - and it's
+        this case in [obs-body]), [body] and [obs-body] accept all input and
+        avoid only CRLF rule.
+*)
+let p_body stop p state =
+  let buf = Buffer.create 16 in
+
+  let rec body has_cr state =
+    let rec aux = function
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+      | #Lexer.err as err -> err
+      | `Continue state ->
+        match Lexer.cur_chr state with
+        | '\n' when has_cr ->
+          Lexer.junk_chr state;
+          body false state
+        | '\r' when has_cr ->
+          Lexer.junk_chr state;
+          Buffer.add_char buf '\r';
+          body true state
+        | '\r' ->
+          Lexer.junk_chr state;
+          body true state
+        | chr ->
+          if has_cr then Buffer.add_char buf '\r';
+          Lexer.junk_chr state;
+          Buffer.add_char buf chr;
+          body false state
+    in aux @@ Lexer.safe stop state
+  in
+
+  body false state

@@ -30,6 +30,10 @@ type encoding =
   | `X_token of string ]
 type id = Rfc822.msg_id
 
+let value_to_string = function
+  | `String s -> s
+  | `Token s  -> s
+
 let is_tspecials = function
   | '(' | ')' | '<' | '>'  | '@'
   | ',' | ';' | ':' | '\\' | '"'
@@ -225,9 +229,30 @@ let p_entity_headers extend field p state =
 
   rule state
 
+let p_entity_headers' extend p state =
+  let rec loop acc state =
+    Lexer.p_try_rule
+      (fun field -> loop (field :: acc))
+      (p (List.rev acc))
+      (fun state ->
+        let field = Rfc822.p_field_name state in
+        let _     = Lexer.p_repeat Rfc822.is_lwsp state in
+
+        Lexer.p_chr ':' state;
+
+        p_entity_headers extend field (fun data state -> `Ok (data, state)) state)
+      state
+  in
+
+  loop [] state
+
 let p_mime_message_headers extend field p =
   match field with
   | "mime-version" -> p_version (fun v -> Rfc822.p_crlf @@ p (`MimeVersion v))
   | field -> p_entity_headers extend field p
 
 let p_mime_part_headers = p_entity_headers
+let p_mime_part_headers' = p_entity_headers'
+
+module Base64 = Base64
+module QuotedPrintable = QuotedPrintable

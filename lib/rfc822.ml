@@ -43,13 +43,24 @@ let p_text p state =
     match Lexer.cur_chr state with
     | '\n' when has_cr ->
       Lexer.roll_back (p has_content) "\r" state
-    | '\r' -> loop has_content true state
+    | '\r' ->
+      Lexer.junk_chr state;
+      loop has_content true state
     | chr ->
       Lexer.junk_chr state;
       loop true false state
   in
 
   loop false false state
+
+(* See RFC 822 § 3.2:
+
+   field-name  =  1*<any CHAR, excluding CTLs, SPACE, and ":">
+*)
+let p_field_name state =
+  Lexer.p_repeat ~a:1
+    (function ':' -> false | chr -> not (is_ctl chr) && not (is_space chr))
+    state
 
 (* COMMON PART BETWEEN RFC 822 AND RFC 5322 ***********************************)
 
