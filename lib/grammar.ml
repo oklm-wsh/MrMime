@@ -44,25 +44,36 @@ let p_body boundary content p state =
   match Content.encoding content with
   | `Binary | `Bit8 | `Bit7 -> Rfc5322.p_body stop p state
   | `Base64                 -> Rfc2045.Base64.p_decode stop p state
-  | `QuotedPrintable        -> Rfc2045.Base64.p_decode stop p state
+  | `QuotedPrintable        -> Rfc2045.QuotedPrintable.p_decode stop p state
   (* unknow case, so TODO! *)
   | `Ietf_token _
   | `X_token _ -> raise (Lexer.Error (Lexer.err_nothing_to_do state))
 
-let p_multipart boundary content self p_body' p state =
+let rec p_multipart boundary content p_body' p state =
   Rfc2046.p_multipart_body' boundary
-    (fun fields ->
-     Content.of_lexer fields
-     (fun content rest state ->
-      match rest with
-      | [] ->
-        self content p_body'
-          (fun data -> fun state -> `Ok (`Discrete data, state))
-          (fun data -> fun state -> `Ok (`Composite data, state))
-          state
-      | _  -> raise (Lexer.Error (Lexer.err_invalid_header state))))
+    (fun fields next ->
+       Content.of_lexer fields
+         (fun content rest state ->
+            match rest with
+            | [] ->
+              (match ContentType.ty @@ Content.ty content with
+               | #Rfc2045.other ->
+                 raise (Lexer.Error (Lexer.err_nothing_to_do state))
+               | #Rfc2045.discrete ->
+                 p_body' content (fun data -> next (`Discrete data)) state
+               | #Rfc2045.composite ->
+                 let parameters = ContentType.parameters @@ Content.ty content in
+                 try let boundary = (Rfc2045.value_to_string @@ List.assoc "boundary" parameters) in
+                   p_multipart
+                     boundary
+                     content
+                     (p_body (Some boundary))
+                     (fun data -> next (`Composite data))
+                     state
+                 with Not_found -> raise (Lexer.Error (Lexer.err_nothing_to_do state)))
+            | _  -> raise (Lexer.Error (Lexer.err_invalid_header state))))
     p
-  state
+    state
 
 let rec switch content p_body' p_discrete p_composite state =
   match ContentType.ty @@ Content.ty content with
@@ -85,7 +96,6 @@ let rec switch content p_body' p_discrete p_composite state =
         p_multipart
           boundary
           content
-          switch
           (p_body (Some boundary))
           (fun data -> p_composite data)
           state
@@ -93,7 +103,11 @@ let rec switch content p_body' p_discrete p_composite state =
 
 let p_message p state =
   p_header
-  (fun fields ->
-   c_header fields
-   (fun header content ->
-    switch content (p_body None) (fun data -> p header (`Discrete data)) (fun data -> p header (`Composite data))))
+    (fun fields ->
+       c_header fields
+         (fun header content ->
+            ((switch content (p_body None)
+                (fun data -> p header (`Discrete data))
+                (fun data -> p header (`Composite data)))
+            :> Lexer.t -> ([> `Error of Lexer.error * string * int * int
+                           | `Read of Bytes.t * int * int * (int -> 'a) ] as 'a))))

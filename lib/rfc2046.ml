@@ -94,12 +94,25 @@ let p_close_delimiter' boundary p state =
 let m_close_delimiter boundary =
   (m_delimiter boundary) ^ "--"
 
-let p_body_part' boundary p_octet p state =
+(* See RFC 2046 § 5.1:
+
+   body-part := MIME-part-headers [CRLF *OCTET]
+                ; Lines in a body-part must not start
+                ; with the specified dash-boundary and
+                ; the delimiter must not appear anywhere
+                ; in the body part.  Note that the
+                ; semantics of a body-part differ from
+                ; the semantics of a message, as
+                ; described in the text.
+
+   XXX: [p_octet] must be stop to the boundary
+*)
+let p_body_part' (type data) boundary p_octet p state =
   let next fields =
     Lexer.p_try_rule
-      (fun data -> p (Some data))
+      (fun data -> p (Some (data : data)))
       (p None)
-      (Rfc822.p_crlf @@ p_octet fields)
+      (Rfc822.p_crlf @@ p_octet fields (fun data state -> `Ok ((data : data), state)))
   in
 
   Lexer.p_try_rule next
@@ -112,10 +125,7 @@ let p_body_part' boundary p_octet p state =
 (* See RFC 2046 § 5.1.1:
 
    encapsulation := delimiter transport-padding
-
-   XXX: it's not the same as RFC 2046. we need to stop at the begin of the body
-        because it may be encoded (with Base64 or QuotedPrintable) and it's
-        ineffective to save the date and recompute in Base64/QuotedPrintable.
+                    CRLF body-part
 *)
 let p_encapsulation' boundary p_octet p =
   p_delimiter' boundary
@@ -125,9 +135,10 @@ let p_encapsulation' boundary p_octet p =
 
    multipart-body := [preamble CRLF]
                      dash-boundary transport-padding CRLF
-                     body-part
-
-   XXX: same as [p_encapsulation']
+                     body-part *encapsulation
+                     close-delimiter
+                     transport-padding
+                     [CRLF epilogue]
 *)
 let p_multipart_body' boundary p_octet p =
   let stop has_text =
