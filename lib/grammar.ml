@@ -49,10 +49,6 @@ let p_body boundary content p state =
   | `Ietf_token _
   | `X_token _ -> raise (Lexer.Error (Lexer.err_nothing_to_do state))
 
-type 'a t =
-  | Discrete of string
-  | Composite of 'a t option list
-
 let p_multipart boundary content self p_body' p state =
   Rfc2046.p_multipart_body' boundary
     (fun fields ->
@@ -61,8 +57,8 @@ let p_multipart boundary content self p_body' p state =
       match rest with
       | [] ->
         self content p_body'
-          (fun data -> fun state -> `Ok (Discrete data, state))
-          (fun data -> fun state -> `Ok (Composite data, state))
+          (fun data -> fun state -> `Ok (`Discrete data, state))
+          (fun data -> fun state -> `Ok (`Composite data, state))
           state
       | _  -> raise (Lexer.Error (Lexer.err_invalid_header state))))
     p
@@ -71,17 +67,11 @@ let p_multipart boundary content self p_body' p state =
 let rec switch content p_body' p_discrete p_composite state =
   match ContentType.ty @@ Content.ty content with
   (* unknow case, so TODO! *)
-  | `Ietf_token _
-  | `X_token _ -> raise (Lexer.Error (Lexer.err_nothing_to_do state))
+  | #Rfc2045.other     -> raise (Lexer.Error (Lexer.err_nothing_to_do state))
   (* discrete top-level media types *)
-  | `Text
-  | `Image
-  | `Audio
-  | `Video
-  | `Application -> p_body' content (fun data -> p_discrete data) state
+  | #Rfc2045.discrete  -> p_body' content (fun data -> p_discrete data) state
   (* composite top-level media types *)
-  | `Message
-  | `Multipart ->
+  | #Rfc2045.composite ->
     (* See RFC 2046 § 5.1.1:
 
        The  Content-Type field  for multipart  entities requires  one parameter,
@@ -106,4 +96,4 @@ let p_message p state =
   (fun fields ->
    c_header fields
    (fun header content ->
-    switch content (p_body None) (fun data -> p header (Discrete data)) (fun data -> p header (Composite data))))
+    switch content (p_body None) (fun data -> p header (`Discrete data)) (fun data -> p header (`Composite data))))

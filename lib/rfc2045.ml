@@ -1,13 +1,16 @@
-type ty =
+type discrete =
   [ `Application
   | `Audio
-  | `Ietf_token of string
   | `Image
-  | `Message
-  | `Multipart
   | `Text
-  | `Video
+  | `Video ]
+type composite =
+  [ `Message
+  | `Multipart ]
+type other =
+  [ `Ietf_token of string
   | `X_token of string ]
+type ty = [ discrete | composite | other ]
 
 type subty =
   [ `Ietf_token of string
