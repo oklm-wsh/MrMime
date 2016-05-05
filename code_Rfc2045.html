@@ -34,16 +34,19 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045</title>
 </head>
 <body>
-<code class="code"><span class="keyword">type</span>&nbsp;ty&nbsp;=<br>
+<code class="code"><span class="keyword">type</span>&nbsp;discrete&nbsp;=<br>
 &nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span>&nbsp;]<br>
+<span class="keyword">type</span>&nbsp;composite&nbsp;=<br>
+&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>&nbsp;]<br>
+<span class="keyword">type</span>&nbsp;other&nbsp;=<br>
+&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;]<br>
+<span class="keyword">type</span>&nbsp;ty&nbsp;=&nbsp;[&nbsp;discrete&nbsp;<span class="keywordsign">|</span>&nbsp;composite&nbsp;<span class="keywordsign">|</span>&nbsp;other&nbsp;]<br>
 <br>
 <span class="keyword">type</span>&nbsp;subty&nbsp;=<br>
 &nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>

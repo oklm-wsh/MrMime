@@ -37,17 +37,11 @@
 <code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;switch&nbsp;content&nbsp;p_body'&nbsp;p_discrete&nbsp;p_composite&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">ContentType</span>.ty&nbsp;@@&nbsp;<span class="constructor">Content</span>.ty&nbsp;content&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;unknow&nbsp;case,&nbsp;so&nbsp;TODO!&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;_<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Lexer</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Lexer</span>.err_nothing_to_do&nbsp;state))<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.other&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Lexer</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Lexer</span>.err_nothing_to_do&nbsp;state))<br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;discrete&nbsp;top-level&nbsp;media&nbsp;types&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_body'&nbsp;content&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_discrete&nbsp;data)&nbsp;state<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.discrete&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_body'&nbsp;content&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_discrete&nbsp;data)&nbsp;state<br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;composite&nbsp;top-level&nbsp;media&nbsp;types&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.composite&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;&nbsp;Content-Type&nbsp;field&nbsp;&nbsp;for&nbsp;multipart&nbsp;&nbsp;entities&nbsp;requires&nbsp;&nbsp;one&nbsp;parameter,<br>

@@ -47,6 +47,15 @@
 
 <pre><span class="keyword">module</span> Rfc2045: <code class="code"><span class="keyword">sig</span></code> <a href="Rfc2045.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
+<pre><span id="TYPEdiscrete"><span class="keyword">type</span> <code class="type"></code>discrete</span> = <code class="type">[ `Application | `Audio | `Image | `Text | `Video ]</code> </pre>
+
+
+<pre><span id="TYPEcomposite"><span class="keyword">type</span> <code class="type"></code>composite</span> = <code class="type">[ `Message | `Multipart ]</code> </pre>
+
+
+<pre><span id="TYPEother"><span class="keyword">type</span> <code class="type"></code>other</span> = <code class="type">[ `Ietf_token of string | `X_token of string ]</code> </pre>
+
+
 <pre><span id="TYPEty"><span class="keyword">type</span> <code class="type"></code>ty</span> = <code class="type">[ `Application<br>       | `Audio<br>       | `Ietf_token of string<br>       | `Image<br>       | `Message<br>       | `Multipart<br>       | `Text<br>       | `Video<br>       | `X_token of string ]</code> </pre>
 
 
