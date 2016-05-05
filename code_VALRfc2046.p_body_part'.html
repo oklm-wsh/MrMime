@@ -34,12 +34,12 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.p_body_part'</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_body_part'&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_body_part'&nbsp;(<span class="keyword">type</span>&nbsp;data)&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;next&nbsp;fields&nbsp;=<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;data))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;(data&nbsp;:&nbsp;data)))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p&nbsp;<span class="constructor">None</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p_octet&nbsp;fields)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p_octet&nbsp;fields&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((data&nbsp;:&nbsp;data),&nbsp;state)))<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
 &nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule&nbsp;next<br>

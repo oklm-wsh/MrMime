@@ -130,12 +130,25 @@
 <span class="keyword">let</span>&nbsp;m_close_delimiter&nbsp;boundary&nbsp;=<br>
 &nbsp;&nbsp;(m_delimiter&nbsp;boundary)&nbsp;^&nbsp;<span class="string">"--"</span><br>
 <br>
-<span class="keyword">let</span>&nbsp;p_body_part'&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=<br>
+<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1:<br>
+<br>
+&nbsp;&nbsp;&nbsp;body-part&nbsp;:=&nbsp;MIME-part-headers&nbsp;[CRLF&nbsp;*OCTET]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;Lines&nbsp;in&nbsp;a&nbsp;body-part&nbsp;must&nbsp;not&nbsp;start<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;with&nbsp;the&nbsp;specified&nbsp;dash-boundary&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;the&nbsp;delimiter&nbsp;must&nbsp;not&nbsp;appear&nbsp;anywhere<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;in&nbsp;the&nbsp;body&nbsp;part.&nbsp;&nbsp;Note&nbsp;that&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;semantics&nbsp;of&nbsp;a&nbsp;body-part&nbsp;differ&nbsp;from<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;the&nbsp;semantics&nbsp;of&nbsp;a&nbsp;message,&nbsp;as<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;described&nbsp;in&nbsp;the&nbsp;text.<br>
+<br>
+&nbsp;&nbsp;&nbsp;XXX:&nbsp;[p_octet]&nbsp;must&nbsp;be&nbsp;stop&nbsp;to&nbsp;the&nbsp;boundary<br>
+*)</span><br>
+<span class="keyword">let</span>&nbsp;p_body_part'&nbsp;(<span class="keyword">type</span>&nbsp;data)&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;next&nbsp;fields&nbsp;=<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;data))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;(data&nbsp;:&nbsp;data)))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p&nbsp;<span class="constructor">None</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p_octet&nbsp;fields)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p_octet&nbsp;fields&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((data&nbsp;:&nbsp;data),&nbsp;state)))<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
 &nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule&nbsp;next<br>
@@ -148,10 +161,7 @@
 <span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:<br>
 <br>
 &nbsp;&nbsp;&nbsp;encapsulation&nbsp;:=&nbsp;delimiter&nbsp;transport-padding<br>
-<br>
-&nbsp;&nbsp;&nbsp;XXX:&nbsp;it's&nbsp;not&nbsp;the&nbsp;same&nbsp;as&nbsp;RFC&nbsp;2046.&nbsp;we&nbsp;need&nbsp;to&nbsp;stop&nbsp;at&nbsp;the&nbsp;begin&nbsp;of&nbsp;the&nbsp;body<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;because&nbsp;it&nbsp;may&nbsp;be&nbsp;encoded&nbsp;(with&nbsp;Base64&nbsp;or&nbsp;QuotedPrintable)&nbsp;and&nbsp;it's<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ineffective&nbsp;to&nbsp;save&nbsp;the&nbsp;date&nbsp;and&nbsp;recompute&nbsp;in&nbsp;Base64/QuotedPrintable.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CRLF&nbsp;body-part<br>
 *)</span><br>
 <span class="keyword">let</span>&nbsp;p_encapsulation'&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;=<br>
 &nbsp;&nbsp;p_delimiter'&nbsp;boundary<br>
@@ -161,9 +171,10 @@
 <br>
 &nbsp;&nbsp;&nbsp;multipart-body&nbsp;:=&nbsp;[preamble&nbsp;CRLF]<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dash-boundary&nbsp;transport-padding&nbsp;CRLF<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;body-part<br>
-<br>
-&nbsp;&nbsp;&nbsp;XXX:&nbsp;same&nbsp;as&nbsp;[p_encapsulation']<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;body-part&nbsp;*encapsulation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close-delimiter<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transport-padding<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[CRLF&nbsp;epilogue]<br>
 *)</span><br>
 <span class="keyword">let</span>&nbsp;p_multipart_body'&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;stop&nbsp;has_text&nbsp;=<br>
