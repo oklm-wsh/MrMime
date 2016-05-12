@@ -75,14 +75,19 @@ let is_lwsp = function
                                                ;  NOT recognized.
 *)
 let p_text p state =
+  let buf = Buffer.create 16 in
+
   let rec loop has_content has_cr state =
     match Lexer.cur_chr state with
     | '\n' when has_cr ->
-      Lexer.roll_back (p has_content) "\r" state
+      Lexer.roll_back (p has_content (Buffer.contents buf)) "\r" state
     | '\r' ->
+      if has_cr then Buffer.add_char buf '\r';
       Lexer.junk_chr state;
       loop has_content true state
     | chr ->
+      if has_cr then Buffer.add_char buf '\r';
+      Buffer.add_char buf chr;
       Lexer.junk_chr state;
       loop true false state
   in

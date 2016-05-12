@@ -1408,14 +1408,7 @@ let p_keywords p state =
    optional-field  = field-name ":" unstructured CRLF
    obs-optional    = field-name *WSP ":" unstructured CRLF
 *)
-let p_field extend p state =
-  let field = p_field_name state in
-  let _     = Lexer.p_repeat is_wsp state in
-
-  Lexer.p_chr ':' state;
-
-  (Logs.debug @@ fun m -> m "state: p_field (with: %s)" field);
-
+let p_field extend field p state =
   let rule = match String.lowercase field with
     (* See RFC 5322 § 3.6.1 & 4.5.1:
 
@@ -1529,7 +1522,13 @@ let p_header extend p state =
   let rec loop acc state =
     Lexer.p_try_rule
       (fun field -> loop (field :: acc)) (p (List.rev acc))
-      (p_field extend (fun data state -> `Ok (data, state)))
+      (fun state ->
+       let field = p_field_name state in
+       let _     = Lexer.p_repeat is_wsp state in
+
+       Lexer.p_chr ':' state;
+
+       p_field extend field (fun data state -> `Ok (data, state)) state)
       state
   in
 
@@ -1551,6 +1550,9 @@ let p_header extend p state =
 let p_body stop p state =
   let buf = Buffer.create 16 in
 
+  (Logs.debug @@ fun m -> m "state: p_body (RFC 5322) [%S]"
+   (let open Lexer in Bytes.sub state.buffer state.pos (state.len - state.pos)));
+
   let rec body has_cr state =
     let rec aux = function
       | `Stop state -> p (Buffer.contents buf) state
@@ -1561,6 +1563,8 @@ let p_body stop p state =
         match Lexer.cur_chr state with
         | '\n' when has_cr ->
           Lexer.junk_chr state;
+          Buffer.add_char buf '\n'; (* XXX: Line-break in UNIX system (may be we
+                                       can become more configuration) *)
           body false state
         | '\r' when has_cr ->
           Lexer.junk_chr state;

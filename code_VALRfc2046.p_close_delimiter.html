@@ -31,10 +31,8 @@
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
 <link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
 <link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
-<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.p_mime_message_headers</title>
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.p_close_delimiter</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_mime_message_headers&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"mime-version"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_version&nbsp;(<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">MimeVersion</span>&nbsp;v))<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_field&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_close_delimiter&nbsp;boundary&nbsp;p&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;p_delimiter&nbsp;boundary&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Lexer</span>.p_str&nbsp;<span class="string">"--"</span>&nbsp;state;&nbsp;p&nbsp;state)&nbsp;state</code></body></html>

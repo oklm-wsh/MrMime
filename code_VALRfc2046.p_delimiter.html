@@ -34,5 +34,5 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.p_delimiter</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_delimiter&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p_dash_boundary&nbsp;p</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_delimiter&nbsp;boundary&nbsp;p&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;(p_dash_boundary&nbsp;boundary&nbsp;p)&nbsp;state</code></body></html>

@@ -37,7 +37,7 @@
 <code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;switch&nbsp;content&nbsp;p_body'&nbsp;p_discrete&nbsp;p_composite&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">ContentType</span>.ty&nbsp;@@&nbsp;<span class="constructor">Content</span>.ty&nbsp;content&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;unknow&nbsp;case,&nbsp;so&nbsp;TODO!&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.other&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Lexer</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Lexer</span>.err_nothing_to_do&nbsp;state))<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.other<br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;discrete&nbsp;top-level&nbsp;media&nbsp;types&nbsp;*)</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.discrete&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_body'&nbsp;content&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_discrete&nbsp;data)&nbsp;state<br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;composite&nbsp;top-level&nbsp;media&nbsp;types&nbsp;*)</span><br>
@@ -54,8 +54,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;<span class="keyword">let</span>&nbsp;boundary&nbsp;=&nbsp;(<span class="constructor">Rfc2045</span>.value_to_string&nbsp;@@&nbsp;<span class="constructor">List</span>.assoc&nbsp;<span class="string">"boundary"</span>&nbsp;parameters)&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_multipart<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boundary<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_body&nbsp;(<span class="constructor">Some</span>&nbsp;boundary))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_composite&nbsp;data)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Not_found</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Lexer</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Lexer</span>.err_nothing_to_do&nbsp;state))</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Not_found</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Lexer</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Lexer</span>.err_expected_boundary&nbsp;state))</code></body></html>

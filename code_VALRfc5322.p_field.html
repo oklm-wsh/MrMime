@@ -34,14 +34,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_field</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_field&nbsp;extend&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;field&nbsp;=&nbsp;p_field_name&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_repeat&nbsp;is_wsp&nbsp;state&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_chr&nbsp;<span class="string">':'</span>&nbsp;state;<br>
-<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_field&nbsp;(with:&nbsp;%s)"</span>&nbsp;field);<br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_field&nbsp;extend&nbsp;field&nbsp;p&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase&nbsp;field&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.1&nbsp;&amp;&nbsp;4.5.1:<br>
 <br>
