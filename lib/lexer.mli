@@ -20,7 +20,8 @@ type error =
   | `Nothing_to_do
   | `Invalid_header
   | `Unexpected_field    of string
-  | `Invalid_boundary    of string ]
+  | `Invalid_boundary    of string
+  | `Expected_boundary ]
 
 val pp_char  : Format.formatter -> char -> unit
 val pp_lst   : ?sep:string -> (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a list -> unit
@@ -49,6 +50,7 @@ val err_nothing_to_do       : t -> err
 val err_invalid_header      : t -> err
 val err_unexpected_field    : string -> t -> err
 val err_invalid_boundary    : string -> t -> err
+val err_expected_boundary   : t -> err
 
 val safe       : ('a -> ([> err ] as 'err)) -> 'a -> 'err
 val read_exact : int -> (string -> t -> ([> err | 'ret read] as 'ret)) -> t -> 'ret

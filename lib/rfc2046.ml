@@ -16,15 +16,7 @@ let is_valid_bchars str =
 
   !i = String.length str
 
-let p_boundary p state =
-  let b = Lexer.p_repeat ~a:0 ~b:69 is_bcharsnospace state in
-  p b state
-
-let p_dash_boundary p state =
-  Lexer.p_str "--" state;
-  p_boundary p state
-
-let p_dash_boundary' boundary p state =
+let p_dash_boundary boundary p state =
   Lexer.p_str "--" state;
   Lexer.p_str boundary state;
   p state
@@ -35,9 +27,6 @@ let m_dash_boundary boundary =
 let p_transport_padding p state =
   let _ = Lexer.p_repeat Rfc822.is_lwsp state in
   p state
-
-let p_delimiter p state =
-  Rfc822.p_crlf @@ p_dash_boundary p
 
 (* See RFC 2046 § 5.1.1:
 
@@ -70,8 +59,6 @@ let p_discard_text stop p state =
 
    preamble := discard-text
    epilogue := discard-text
-
-   XXX: with and without check of [dash-boundary] in [preamble]
 *)
 let p_preamble = p_discard_text
 let p_epilogue = p_discard_text
@@ -82,14 +69,14 @@ let p_epilogue = p_discard_text
 
    XXX: need to be compose with [dash-boundary]
 *)
-let p_delimiter' boundary p state =
-  Rfc822.p_crlf (p_dash_boundary' boundary p) state
+let p_delimiter boundary p state =
+  Rfc822.p_crlf (p_dash_boundary boundary p) state
 
 let m_delimiter boundary =
   "\r\n" ^ (m_dash_boundary boundary)
 
-let p_close_delimiter' boundary p state =
-  p_delimiter' boundary (fun state -> Lexer.p_str "--" state; p state) state
+let p_close_delimiter boundary p state =
+  p_delimiter boundary (fun state -> Lexer.p_str "--" state; p state) state
 
 let m_close_delimiter boundary =
   (m_delimiter boundary) ^ "--"
@@ -107,19 +94,24 @@ let m_close_delimiter boundary =
 
    XXX: [p_octet] must be stop to the boundary
 *)
-let p_body_part' (type data) boundary p_octet p state =
-  let next fields =
+let p_body_part (type data) boundary p_octet p state =
+  (Logs.debug @@ fun m -> m "state: p_body_part [%S]"
+   (let open Lexer in (Bytes.sub state.buffer state.pos (state.len - state.pos))));
+
+  let next fields state =
     Lexer.p_try_rule
       (fun data -> p (Some (data : data)))
       (p None)
       (Rfc822.p_crlf @@ p_octet fields (fun data state -> `Ok ((data : data), state)))
+      state
   in
 
   Lexer.p_try_rule next
     (next [])
-    (Rfc2045.p_mime_part_headers'
-     (fun field -> raise (Lexer.Error (Lexer.err_invalid_field field state)))
-     (fun fields state -> `Ok (fields, state)))
+    (Rfc2045.p_mime_part_headers
+       (fun field next state -> raise (Lexer.Error (Lexer.err_invalid_field field state)))
+       (Rfc5322.p_field (fun field -> raise (Lexer.Error (Lexer.err_invalid_field field state))))
+       (fun fields state -> `Ok (fields, state)))
     state
 
 (* See RFC 2046 § 5.1.1:
@@ -127,9 +119,10 @@ let p_body_part' (type data) boundary p_octet p state =
    encapsulation := delimiter transport-padding
                     CRLF body-part
 *)
-let p_encapsulation' boundary p_octet p =
-  p_delimiter' boundary
-    (p_transport_padding @@ Rfc822.p_crlf @@ p_body_part' boundary p_octet p)
+let p_encapsulation boundary p_octet p state =
+  p_delimiter boundary
+    (p_transport_padding @@ Rfc822.p_crlf @@ p_body_part boundary p_octet p)
+    state
 
 (* See RFC 2046 § 5.1.1:
 
@@ -140,45 +133,57 @@ let p_encapsulation' boundary p_octet p =
                      transport-padding
                      [CRLF epilogue]
 *)
-let p_multipart_body' boundary p_octet p =
-  let stop has_text =
+let p_multipart_body boundary parent_boundary p_octet p state =
+  let stop_preamble has_text =
     let dash_boundary = m_dash_boundary boundary in
     Lexer.p_try_rule
-      (fun () -> Lexer.roll_back (fun state -> `Stop state) ((if has_text then "\r\n" else "") ^ dash_boundary))
+      (fun () state ->
+       Lexer.roll_back
+         (fun state -> `Stop state)
+         dash_boundary
+         state)
       (fun state -> `Continue state)
-      (match has_text with
-       | false -> p_dash_boundary' boundary (fun state-> `Ok ((), state))
-       | true  -> Rfc822.p_crlf @@ p_dash_boundary' boundary (fun state-> `Ok ((), state)))
+      (p_dash_boundary boundary (fun state-> `Ok ((), state)))
   in
-  let stop_at_crlfcrlf state =
-    Lexer.p_try_rule
-      (fun () -> Lexer.roll_back (fun state -> `Stop state) "\r\n\r\n")
-      (fun state -> `Continue state)
-      (Rfc822.p_crlf @@ Rfc822.p_crlf @@ (fun state -> `Ok ((), state)))
+  let stop_epilogue state =
+    (Logs.debug @@ fun m -> m "state: p_multipart'/stop");
+
+    match parent_boundary with
+    | None ->
+      Lexer.p_try_rule
+        (fun () -> Lexer.roll_back (fun state -> `Stop state) "\r\n\r\n")
+        (fun state -> `Continue state)
+        (Rfc822.p_crlf @@ Rfc822.p_crlf @@ (fun state -> `Ok ((), state)))
+    | Some boundary ->
+      let delimiter = m_delimiter boundary in
+      let close_delimiter = m_close_delimiter boundary in
+      Lexer.p_try_rule
+        (fun () -> Lexer.roll_back (fun state -> `Stop state) close_delimiter)
+        (Lexer.p_try_rule
+           (fun () -> Lexer.roll_back (fun state -> `Stop state) delimiter)
+           (fun state -> `Continue state)
+           (p_delimiter boundary (fun state -> `Ok ((), state))))
+        (p_close_delimiter boundary (fun state -> `Ok ((), state)))
   in
   let rec next acc =
     Lexer.p_try_rule
       (fun data -> next (data :: acc))
-      (p_close_delimiter' boundary @@ p_transport_padding
+      (p_close_delimiter boundary @@ p_transport_padding
        @@ Lexer.p_try_rule
             (fun () -> p (List.rev acc))
             (p (List.rev acc))
-            (Rfc822.p_crlf @@ p_epilogue stop_at_crlfcrlf (fun _ state -> `Ok ((), state))))
-      (p_encapsulation' boundary p_octet (fun data state -> `Ok (data, state)))
+            (Rfc822.p_crlf
+             @@ p_epilogue stop_epilogue (fun _ state -> `Ok ((), state))))
+      (p_encapsulation boundary p_octet (fun data state -> `Ok (data, state)))
   in
 
-  p_preamble stop
-    (function
-     | false ->
-       p_dash_boundary' boundary
+  (Logs.debug @@ fun m -> m "state: p_multipart_body [%S]"
+   (let open Lexer in Bytes.sub state.buffer state.pos (state.len - state.pos)));
+
+  p_preamble stop_preamble
+    (fun has_preamble ->
+       p_dash_boundary boundary
        @@ p_transport_padding
        @@ Rfc822.p_crlf
-       @@ p_body_part' boundary p_octet
-       @@ fun data -> next [data]
-     | true ->
-       Rfc822.p_crlf
-       @@ p_dash_boundary' boundary
-       @@ p_transport_padding
-       @@ Rfc822.p_crlf
-       @@ p_body_part' boundary p_octet
-       @@ fun data -> next [data])
+       @@ p_body_part boundary p_octet
+       @@ fun data -> next [data]) state

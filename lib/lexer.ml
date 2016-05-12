@@ -23,7 +23,8 @@ type error =
   | `Nothing_to_do
   | `Invalid_header
   | `Unexpected_field    of string
-  | `Invalid_boundary    of string ]
+  | `Invalid_boundary    of string
+  | `Expected_boundary ]
 
 let err e state                       = `Error
                                         (e, state.buffer, state.pos, state.len)
@@ -44,6 +45,7 @@ let err_nothing_to_do state           = err `Nothing_to_do state
 let err_invalid_header state          = err `Invalid_header state
 let err_unexpected_field field state  = err (`Unexpected_field field) state
 let err_invalid_boundary bound state  = err (`Invalid_boundary bound) state
+let err_expected_boundary state       = err `Expected_boundary state
 
 let p = Format.fprintf
 
@@ -76,6 +78,7 @@ let pp_error fmt = function
   | `Invalid_header          -> p fmt "Invalid header"
   | `Unexpected_field field  -> p fmt "Unexpected field [%s]" field
   | `Invalid_boundary bound  -> p fmt "Invalid boundary [%S]" bound
+  | `Expected_boundary       -> p fmt "Expected boundary parameter"
 
 type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
@@ -256,7 +259,10 @@ let p_try_rule success fail rule state =
     (Bytes.sub state.buffer state.pos (state.len - state.pos));
 
   let rec loop = function
-    | `Error (_, buf, off, len) -> safe fail (of_string (Buffer.contents tmp))
+    | `Error (err, buf, off, len) ->
+      (Logs.debug @@ fun m -> m "state: p_try_rule/fail (err: %a)"
+       pp_error err);
+      safe fail (of_string (Buffer.contents tmp))
     | `Read (buf, off, len, k) ->
       `Read (buf, off, len,
         (fun writing ->

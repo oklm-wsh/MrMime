@@ -33,6 +33,13 @@ type encoding =
   | `X_token of string ]
 type id = Rfc822.msg_id
 
+type field =
+  [ `ContentType of content
+  | `ContentEncoding of encoding
+  | `ContentID of id
+  | `ContentDescription of string
+  | `Content of string * string ]
+
 let value_to_string = function
   | `String s -> s
   | `Token s  -> s
@@ -212,27 +219,29 @@ let p_encoding p =
 let p_id p =
   Rfc822.p_cfws (fun _ -> Rfc822.p_msg_id (fun m -> Rfc822.p_cfws (fun _ -> p m)))
 
-let p_entity_headers extend field p state =
+let p_field mime_extend extend field p state =
   let rule =
-    match field with
+    match String.lowercase field with
     | "content-type" -> p_content (fun c -> Rfc822.p_crlf @@ p (`ContentType c))
     | "content-encoding" -> p_encoding (fun e -> Rfc822.p_crlf @@ p (`ContentEncoding e))
     | "content-id" -> p_id (fun i -> Rfc822.p_crlf @@ p (`ContentID i))
-    | "content-description" -> Rfc822.p_text (fun s -> Rfc822.p_crlf @@ p (`ContentDescription s))
+    | "content-description" -> Rfc822.p_text (fun _ s -> Rfc822.p_crlf @@ p (`ContentDescription s))
     | field ->
       (* XXX: the optionnal-field [fields] is handle by RFC 822 or RFC 5322.
               in this case, we raise an error. *)
-      if String.sub field 0 8 = "content-"
+      if String.length field >= 8 && String.sub field 0 8 = "content-"
       then let field = String.sub field 8 (String.length field - 8) in
            Lexer.p_try_rule p
-             (Rfc822.p_text @@ (fun value -> Rfc822.p_crlf @@ p (`Content (field, value))))
-             (extend field (fun data state -> `Ok (data, state)))
-      else raise (Lexer.Error (Lexer.err_invalid_field field state))
+             (Rfc822.p_text @@ (fun _ value -> Rfc822.p_crlf @@ p (`Content (field, value))))
+             (mime_extend field (fun data state -> `Ok (data, state)))
+      else extend field p
   in
 
   rule state
 
-let p_entity_headers' extend p state =
+let p_entity_headers extend_mime extend p state =
+  (Logs.debug @@ fun m -> m "state: p_entity_headers'");
+
   let rec loop acc state =
     Lexer.p_try_rule
       (fun field -> loop (field :: acc))
@@ -242,20 +251,21 @@ let p_entity_headers' extend p state =
         let _     = Lexer.p_repeat Rfc822.is_lwsp state in
 
         Lexer.p_chr ':' state;
+        (Logs.debug @@ fun m -> m "state: p_entity_headers (try with %s)" field);
 
-        p_entity_headers extend field (fun data state -> `Ok (data, state)) state)
+        p_field extend_mime extend field (fun data state -> `Ok (data, state)) state)
       state
   in
 
   loop [] state
 
-let p_mime_message_headers extend field p =
+let p_mime_message_headers extend_mime extend field p =
   match field with
   | "mime-version" -> p_version (fun v -> Rfc822.p_crlf @@ p (`MimeVersion v))
-  | field -> p_entity_headers extend field p
+  | field -> p_field extend_mime extend field p
 
 let p_mime_part_headers = p_entity_headers
-let p_mime_part_headers' = p_entity_headers'
+let p_mime_part_headers' = p_entity_headers
 
 module Base64 = Base64
 module QuotedPrintable = QuotedPrintable
