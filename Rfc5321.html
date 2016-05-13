@@ -23,10 +23,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -53,7 +56,7 @@
 <pre><span id="VALp_ipv4_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ipv4_address_literal.html">p_ipv4_address_literal</a></span> : <code class="type">(Ipaddr.V4.t -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
 <pre><span id="VALp_ipv6_addr"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ipv6_addr.html">p_ipv6_addr</a></span> : <code class="type">(Ipaddr.V6.t -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
 <pre><span id="VALp_ipv6_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ipv6_address_literal.html">p_ipv6_address_literal</a></span> : <code class="type">(Ipaddr.V6.t -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
-<pre><span id="VALp_ldh_str"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ldh_str.html">p_ldh_str</a></span> : <code class="type">(string -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_ldh_str"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ldh_str.html">p_ldh_str</a></span> : <code class="type">(bytes -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
 <pre><span id="VALis_dcontent"><span class="keyword">val</span> <a href="code_VALRfc5321.is_dcontent.html">is_dcontent</a></span> : <code class="type">char -> bool</code></pre>
-<pre><span id="VALp_general_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_general_address_literal.html">p_general_address_literal</a></span> : <code class="type">(Iana.Set.elt * string -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
-<pre><span id="VALp_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_address_literal.html">p_address_literal</a></span> : <code class="type">([> `General of Iana.Set.elt * string<br>         | `IPv4 of Ipaddr.V4.t<br>         | `IPv6 of Ipaddr.V6.t ] -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Lexer.html#TYPEerror">Lexer.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre></body></html>
+<pre><span id="VALp_general_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_general_address_literal.html">p_general_address_literal</a></span> : <code class="type">(bytes * bytes -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
+<pre><span id="VALp_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_address_literal.html">p_address_literal</a></span> : <code class="type">([> `General of bytes * bytes | `IPv4 of Ipaddr.V4.t | `IPv6 of Ipaddr.V6.t ] -><br>        <a href="Lexer.html#TYPEt">Lexer.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of bytes * int * 'b * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre></body></html>

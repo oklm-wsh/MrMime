@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -35,11 +38,11 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_ldh_str&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;s&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_while<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;s&nbsp;=&nbsp;p_while<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">function</span>&nbsp;<span class="string">'a'</span>&nbsp;..&nbsp;<span class="string">'z'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>&nbsp;..&nbsp;<span class="string">'Z'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'-'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;state<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
 &nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;(<span class="constructor">String</span>.length&nbsp;s&nbsp;-&nbsp;1)&nbsp;=&nbsp;<span class="string">'-'</span><br>
-&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;raise&nbsp;(<span class="constructor">Lexer</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Lexer</span>.err_unexpected&nbsp;<span class="string">'-'</span>&nbsp;state))<br>
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;<span class="string">'-'</span>&nbsp;state))<br>
 &nbsp;&nbsp;<span class="keyword">else</span>&nbsp;p&nbsp;s&nbsp;state</code></body></html>

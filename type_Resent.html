@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -36,6 +39,16 @@
 <body>
 <code class="code"><span class="keyword">sig</span><br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;field&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentBcc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentCc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentDate</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Date</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentFrom</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.person&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentMessageID</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MsgID</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentReplyTo</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentSender</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.person<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentTo</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t&nbsp;]<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;field_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc5322</span>.resent&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Resent</span>.field<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="constructor">Rfc5322</span>.resent&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>resent)&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Resent</span>.t&nbsp;option&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>resent&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Lexer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Lexer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a<br>

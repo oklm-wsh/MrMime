@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -36,11 +39,11 @@
 <body>
 <code class="code">let p_qp_section p state =
   let rec loop acc =
-    Lexer.p_try_rule (fun data -> loop (data :: acc))
+    p_try_rule (fun data -> loop (data :: acc))
       (fun state ->
-       match Lexer.cur_chr state with
+       match cur_chr state with
        | '\x20' | '\x09' ->
-         Lexer.junk_chr state;
+         junk_chr state;
          loop acc state
        | chr -> p (String.concat " " @@ List.rev acc) state)
       (p_ptext (fun data state -> `Ok (data, state)) state)

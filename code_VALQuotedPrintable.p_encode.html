@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -41,14 +44,14 @@
     let rec aux = function
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        (match Lexer.cur_chr state with
+        (match cur_chr state with
          | '\x20' | '\x09' as chr ->
-           Lexer.junk_chr state;
+           junk_chr state;
 
-           if Lexer.cur_chr state = '\n'
+           if cur_chr state = '\n'
            then begin
              T.add_newline buf qp (Some chr);
-             Lexer.junk_chr state;
+             junk_chr state;
              encode qp state
            end else begin
              T.add_wsp buf qp chr;
@@ -56,15 +59,15 @@
            end
          | chr when is_safe_char chr ->
            T.add_char buf qp chr;
-           Lexer.junk_chr state;
+           junk_chr state;
            encode qp state
          | chr ->
            T.add_quoted_char buf qp chr;
-           Lexer.junk_chr state;
+           junk_chr state;
            encode qp state)
-      | #Lexer.err as r -> r
+      | #Error.err as r -> r
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
     in aux (stop state)
   in
 

@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -34,7 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822</title>
 </head>
 <body>
-<code class="code">type atom    = [ `Atom of string ]
+<code class="code">open BaseLexer
+
+type atom    = [ `Atom of string ]
 type word    = [ atom | `String of string ]
 type local   = word list
 type domain  =
@@ -78,17 +83,17 @@ let p_text p state =
   let buf = Buffer.create 16 in
 
   let rec loop has_content has_cr state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | '\n' when has_cr ->
-      Lexer.roll_back (p has_content (Buffer.contents buf)) "\r" state
+      roll_back (p has_content (Buffer.contents buf)) "\r" state
     | '\r' ->
       if has_cr then Buffer.add_char buf '\r';
-      Lexer.junk_chr state;
+      junk_chr state;
       loop has_content true state
     | chr ->
       if has_cr then Buffer.add_char buf '\r';
       Buffer.add_char buf chr;
-      Lexer.junk_chr state;
+      junk_chr state;
       loop true false state
   in
 
@@ -99,7 +104,7 @@ let p_text p state =
    field-name  =  1*<any CHAR, excluding CTLs, SPACE, and ":">
 *)
 let p_field_name state =
-  Lexer.p_repeat ~a:1
+  p_repeat ~a:1
     (function ':' -> false | chr -> not (is_ctl chr) && not (is_space chr))
     state
 
@@ -171,9 +176,9 @@ let of_escaped_character = function
 let p_quoted_pair p state =
   (Logs.debug @@ fun m -> m "state: p_quoted_pair");
 
-  Lexer.p_chr '\\' state;
+  p_chr '\\' state;
 
-  let chr = Lexer.cur_chr state in
+  let chr = cur_chr state in
 
   if is_d0 chr
   || is_obs_no_ws_ctl chr
@@ -181,8 +186,8 @@ let p_quoted_pair p state =
   || is_cr chr
   || is_vchar chr
   || is_wsp chr
-  then (Lexer.junk_chr state; p (of_escaped_character chr) state)
-  else raise (Lexer.Error (Lexer.err_unexpected chr state))
+  then (junk_chr state; p (of_escaped_character chr) state)
+  else raise (Error.Error (Error.err_unexpected chr state))
 
 (* See RFC 5322 § 3.2.2:
 
@@ -247,29 +252,29 @@ let rec p_fws p state =
 
       state.Lexer.pos <- state.Lexer.pos + String.length tmp;
 
-      Lexer.read_line
+      read_line
         (fun state ->
          (Logs.debug @@ fun m -> m "state: p_fws/read_line");
 
-         match Lexer.cur_chr state with
+         match cur_chr state with
          (* … 1*(CRLF 1*WSP) *)
          | '\x20' | '\x09' ->
            (Logs.debug @@ fun m -> m "state: p_fws … 1*(CRLF 1*WSP)");
 
            (* drop 1*WSP *)
-           let _ = Lexer.p_while is_wsp state in
+           let _ = p_while is_wsp state in
            success true true state
          (* … *(CRLF 1*WSP) CRLF e *)
          | chr ->
            let has_wsp, tmp = trim tmp in
-           Lexer.roll_back (p has_wsp has_fws) tmp state)
+           roll_back (p has_wsp has_fws) tmp state)
         state
     (* … e *)
     | None -> fail has_wsp has_fws state
   in
 
   let rec loop state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     (* WSP / CR *)
     | '\x20' | '\x09' | '\r' as chr ->
       let success has_wsp has_fws state =
@@ -295,7 +300,7 @@ let rec p_fws p state =
         | '\r' -> (* CR XXX: don't drop '\r', may be it's \r\n *)
           p has_wsp has_fws state
         | chr  -> (* we have 1*WSP, so we drop 1*WSP *)
-          let _ = Lexer.p_while is_wsp state in p true has_fws state
+          let _ = p_while is_wsp state in p true has_fws state
       in
 
       (* state (WSP / CR) and try [*WSP CRLF] 1*WSP *)
@@ -327,7 +332,7 @@ let is_ctext = function
   | '\093' .. '\126' -> true
   | chr -> is_obs_no_ws_ctl chr
 
-let rec p_ctext = Lexer.p_while is_ctext
+let rec p_ctext = p_while is_ctext
 
 (* See RFC 5322 § 3.2.2:
 
@@ -341,7 +346,7 @@ let rec p_ctext = Lexer.p_while is_ctext
 let rec p_ccontent p state =
   (Logs.debug @@ fun m -> m "state: p_ccontent");
 
-  match Lexer.cur_chr state with
+  match cur_chr state with
   | '\\' -> p_quoted_pair (fun chr -> p) state
   | '(' -> p_comment p state
   | chr -> let s = p_ctext state in
@@ -351,13 +356,13 @@ let rec p_ccontent p state =
 and p_comment p state =
   (Logs.debug @@ fun m -> m "state: p_comment");
 
-  Lexer.p_chr '(' state;
+  p_chr '(' state;
 
   let rec loop state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | ')' ->
       (Logs.debug @@ fun m -> m "state: p_comment/end");
-      Lexer.junk_chr state;
+      junk_chr state;
       p state
     | chr ->
       (* XXX: we ignore if we passed a fws entity. *)
@@ -380,7 +385,7 @@ let p_cfws p state =
 
   let rec loop has_fws has_comment state =
     (* [FWS] *)
-    match Lexer.cur_chr state with
+    match cur_chr state with
     (* 1*([FWS] comment) *)
     | '(' ->
       (Logs.debug @@ fun m -> m "state: p_cfws 1*([FWS] comment)");
@@ -430,7 +435,7 @@ let is_dquote = (=) '"'
 
 let p_qtext state =
   (Logs.debug @@ fun m -> m "state: p_qtext");
-  let s = Lexer.p_while is_qtext state in
+  let s = p_while is_qtext state in
   (Logs.debug @@ fun m -> m "state: p_qtext: %S" s);
   s
 
@@ -441,10 +446,10 @@ let p_qtext state =
 let p_qcontent p state =
   (Logs.debug @@ fun m -> m "state: p_qcontent");
 
-  match Lexer.cur_chr state with
+  match cur_chr state with
   | '\\' -> p_quoted_pair (fun chr -> p (String.make 1 chr)) state
   | chr when is_qtext chr -> p (p_qtext state) state
-  | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+  | chr -> raise (Error.Error (Error.err_unexpected chr state))
 
 (* See RFC 5322 § 3.2.4:
 
@@ -461,9 +466,9 @@ let p_quoted_string p state =
   (Logs.debug @@ fun m -> m "state: p_quoted_string");
 
   let rec loop acc state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | '"' ->
-      Lexer.p_chr '"' state;
+      p_chr '"' state;
       p_cfws (fun _ -> p (List.rev acc |> String.concat "")) state
     | chr ->
       p_qcontent
@@ -473,7 +478,7 @@ let p_quoted_string p state =
                 loop (if has_wsp then " " :: str :: acc else str :: acc)))
         state
   in
-  p_cfws (fun _ state -> Lexer.p_chr '"' state; loop [] state) state
+  p_cfws (fun _ state -> p_chr '"' state; loop [] state) state
 
 (* See RFC 5234 § Appendix B.1:
 
@@ -530,7 +535,7 @@ let is_atext = function
 
 let p_atext state =
   (Logs.debug @@ fun m -> m "state: p_atext");
-  let s = Lexer.p_while is_atext state in
+  let s = p_while is_atext state in
   (Logs.debug @@ fun m -> m "state: p_atext %S" s);
   s
 
@@ -561,7 +566,7 @@ let p_word p state =
   (Logs.debug @@ fun m -> m "state: p_word");
 
   let loop has_fws state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | '"' -> p_quoted_string (fun s -> p (`String s)) state
     | chr -> p_atom (fun s -> p (`Atom s)) state
   in
@@ -579,8 +584,8 @@ let p_word p state =
 *)
 let p_obs_local_part p =
   let rec loop acc state =
-    match Lexer.cur_chr state with
-    | '.' -> Lexer.junk_chr state; p_word (fun o -> loop (o :: acc)) state
+    match cur_chr state with
+    | '.' -> junk_chr state; p_word (fun o -> loop (o :: acc)) state
     | chr -> p (List.rev acc) state
   in
 
@@ -596,8 +601,8 @@ let p_dot_atom_text p state =
   let rec next acc state =
     (Logs.debug @@ fun m -> m "state: p_dot_atom_text/next");
 
-    match Lexer.cur_chr state with
-    | '.' -> Lexer.junk_chr state; next (`Atom (p_atext state) :: acc) state
+    match cur_chr state with
+    | '.' -> junk_chr state; next (`Atom (p_atext state) :: acc) state
     | chr -> p (List.rev acc) state
   in
 
@@ -630,8 +635,8 @@ let p_local_part p =
     (Logs.debug @@ fun m -> m "state: p_local_part/obs");
 
     let rec loop acc state =
-      match Lexer.cur_chr state with
-      | '.' -> Lexer.junk_chr state; p_word (fun o -> loop (o :: acc)) state
+      match cur_chr state with
+      | '.' -> junk_chr state; p_word (fun o -> loop (o :: acc)) state
       | chr -> p (List.rev acc) state
     in
 
@@ -639,13 +644,13 @@ let p_local_part p =
   in
 
   p_cfws (fun _ state ->
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | '"' -> p_quoted_string (fun s -> p_obs_local_part' [`String s]) state
              (* XXX: may be we should continue because it's [word] from
                      [obs-local-part] and it's not just [quoted-string]. *)
     | chr ->
       (* dot-atom / obs-local-part *)
-      Lexer.p_try_rule
+      p_try_rule
         (function
           | [] -> p_obs_local_part p
           | l  -> p_obs_local_part' (List.rev l))
@@ -673,13 +678,13 @@ let is_dtext = function
 
 let p_dtext p state =
   let rec loop acc state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | '\033' .. '\090'
     | '\094' .. '\126' ->
-      let s = Lexer.p_while is_dtext state in
+      let s = p_while is_dtext state in
       loop (s :: acc) state
     | chr when is_obs_no_ws_ctl chr ->
-      let s = Lexer.p_while is_dtext state in
+      let s = p_while is_dtext state in
       loop (s :: acc) state
     | '\\' ->
       p_quoted_pair
@@ -701,8 +706,8 @@ let p_dtext p state =
 *)
 let p_obs_domain p =
   let rec loop acc state =
-    match Lexer.cur_chr state with
-    | '.' -> Lexer.junk_chr state; p_atom (fun o -> loop (`Atom o :: acc)) state
+    match cur_chr state with
+    | '.' -> junk_chr state; p_atom (fun o -> loop (`Atom o :: acc)) state
     | chr -> p (List.rev acc) state
   in
 
@@ -718,19 +723,19 @@ let p_obs_domain p =
 *)
 let p_domain_literal p =
   let rec loop acc state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | ']' ->
-      Lexer.p_chr ']' state;
+      p_chr ']' state;
       p_cfws (fun _ -> p (List.rev acc |> String.concat "")) state
     | chr when is_dtext chr || chr = '\\' ->
       p_dtext (fun s -> p_fws (fun _ _ -> loop (s :: acc))) state
-    | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+    | chr -> raise (Error.Error (Error.err_unexpected chr state))
   in
 
   p_cfws (fun _ state ->
-          match Lexer.cur_chr state with
-          | '[' -> Lexer.p_chr '[' state; p_fws (fun _ _ -> loop []) state
-          | chr -> raise (Lexer.Error (Lexer.err_expected '[' state)))
+          match cur_chr state with
+          | '[' -> p_chr '[' state; p_fws (fun _ _ -> loop []) state
+          | chr -> raise (Error.Error (Error.err_expected '[' state)))
 
 (* See RFC 5322 § 3.4.1:
 
@@ -745,9 +750,9 @@ let p_domain_literal p =
 let p_domain p =
   let p_obs_domain' p =
     let rec loop acc state =
-      match Lexer.cur_chr state with
+      match cur_chr state with
       | '.' ->
-        Lexer.junk_chr state;
+        junk_chr state;
         p_atom (fun o -> loop (`Atom o :: acc)) state
       | chr -> p (List.rev acc) state
     in
@@ -757,7 +762,7 @@ let p_domain p =
 
   (* XXX: dot-atom, domain-literal or obs-domain start with [CFWS] *)
   p_cfws (fun _ state ->
-    match Lexer.cur_chr state with
+    match cur_chr state with
     (* it's domain-literal *)
     | '[' -> p_domain_literal (fun s -> p (`Literal s)) state
     (* it's dot-atom or obs-domain *)
@@ -777,7 +782,7 @@ let p_domain p =
 let p_obs_id_left = p_local_part
 
 let p_id_left p state =
-  Lexer.p_try_rule p
+  p_try_rule p
     (p_obs_id_left p)
     (p_dot_atom_text (fun data state -> `Ok (data, state)))
     state
@@ -791,12 +796,12 @@ let p_id_left p state =
 let p_obs_id_right = p_domain
 
 let p_no_fold_literal p state =
-  Lexer.p_chr '[' state;
-  p_dtext (fun d state -> Lexer.p_chr ']' state; p (`Literal d) state) state
+  p_chr '[' state;
+  p_dtext (fun d state -> p_chr ']' state; p (`Literal d) state) state
 
 let p_id_right p state =
-  Lexer.p_try_rule p
-    (Lexer.p_try_rule p
+  p_try_rule p
+    (p_try_rule p
        (p_obs_id_right p)
        (p_no_fold_literal (fun data state -> `Ok (data, state))))
     (p_dot_atom_text (fun data state -> `Ok (`Domain data, state)))
@@ -813,19 +818,19 @@ let p_id_right p state =
 *)
 let p_msg_id p state =
   p_cfws (fun _ state ->
-    Lexer.p_chr '<' state;
+    p_chr '<' state;
     p_id_left (fun left state ->
-      Lexer.p_chr '@' state;
+      p_chr '@' state;
       p_id_right (fun right state ->
-        Lexer.p_chr '>' state;
+        p_chr '>' state;
         p_cfws (fun _ -> p (left, right)) state)
       state)
     state)
   state
 
 let p_crlf p state =
-  Lexer.p_chr '\r' state;
-  Lexer.p_chr '\n' state;
+  p_chr '\r' state;
+  p_chr '\n' state;
 
   p state
 </code></body></html>

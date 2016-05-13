@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -35,7 +38,7 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;cur_chr&nbsp;?(avoid&nbsp;=&nbsp;[])&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">while</span>&nbsp;<span class="constructor">List</span>.exists&nbsp;((=)&nbsp;(<span class="constructor">Lexer</span>.cur_chr&nbsp;state))&nbsp;avoid<br>
+&nbsp;&nbsp;<span class="keyword">while</span>&nbsp;<span class="constructor">List</span>.exists&nbsp;((=)&nbsp;(cur_chr&nbsp;state))&nbsp;avoid<br>
 &nbsp;&nbsp;<span class="keyword">do</span>&nbsp;state.<span class="constructor">Lexer</span>.pos&nbsp;&lt;-&nbsp;state.<span class="constructor">Lexer</span>.pos&nbsp;+&nbsp;1&nbsp;<span class="keyword">done</span>;<br>
 <br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.cur_chr&nbsp;state</code></body></html>
+&nbsp;&nbsp;cur_chr&nbsp;state</code></body></html>

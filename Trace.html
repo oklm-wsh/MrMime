@@ -23,10 +23,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -50,5 +53,15 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
+<pre><span id="TYPEword"><span class="keyword">type</span> <code class="type"></code>word</span> = <code class="type">[ `Word of <a href="Rfc5322.html#TYPEword">Rfc5322.word</a> ]</code> </pre>
+
+
+<pre><span id="TYPEreceived"><span class="keyword">type</span> <code class="type"></code>received</span> = <code class="type">[ `Domain of <a href="Address.html#TYPEdomain">Address.domain</a><br>       | `Mailbox of <a href="Address.html#TYPEmailbox">Address.mailbox</a><br>       | `Word of <a href="Rfc5322.html#TYPEword">Rfc5322.word</a> ]</code> </pre>
+
+
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Received of <a href="Trace.html#TYPEreceived">received</a> list * <a href="Date.html#TYPEt">Date.t</a> option<br>       | `ReturnPath of <a href="Address.html#TYPEmailbox">Address.mailbox</a> option ]</code> </pre>
+
+
+<pre><span id="VALfield_of_lexer"><span class="keyword">val</span> field_of_lexer</span> : <code class="type"><a href="Rfc5322.html#TYPEtrace">Rfc5322.trace</a> -> <a href="Trace.html#TYPEfield">field</a></code></pre>
 <pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">([> <a href="Rfc5322.html#TYPEtrace">Rfc5322.trace</a> ] as 'trace) list -><br>       (<a href="Trace.html#TYPEt">t</a> option -> 'trace list -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a) -> <a href="Lexer.html#TYPEt">Lexer.t</a> -> 'a</code></pre>
 <pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Trace.html#TYPEt">t</a> -> unit</code></pre></body></html>

@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -78,29 +81,29 @@
 
       state.Lexer.pos <- state.Lexer.pos + String.length tmp;
 
-      Lexer.read_line
+      read_line
         (fun state ->
          (Logs.debug @@ fun m -> m "state: p_fws/read_line");
 
-         match Lexer.cur_chr state with
+         match cur_chr state with
          (* … 1*(CRLF 1*WSP) *)
          | '\x20' | '\x09' ->
            (Logs.debug @@ fun m -> m "state: p_fws … 1*(CRLF 1*WSP)");
 
            (* drop 1*WSP *)
-           let _ = Lexer.p_while is_wsp state in
+           let _ = p_while is_wsp state in
            success true true state
          (* … *(CRLF 1*WSP) CRLF e *)
          | chr ->
            let has_wsp, tmp = trim tmp in
-           Lexer.roll_back (p has_wsp has_fws) tmp state)
+           roll_back (p has_wsp has_fws) tmp state)
         state
     (* … e *)
     | None -> fail has_wsp has_fws state
   in
 
   let rec loop state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     (* WSP / CR *)
     | '\x20' | '\x09' | '\r' as chr ->
       let success has_wsp has_fws state =
@@ -126,7 +129,7 @@
         | '\r' -> (* CR XXX: don't drop '\r', may be it's \r\n *)
           p has_wsp has_fws state
         | chr  -> (* we have 1*WSP, so we drop 1*WSP *)
-          let _ = Lexer.p_while is_wsp state in p true has_fws state
+          let _ = p_while is_wsp state in p true has_fws state
       in
 
       (* state (WSP / CR) and try [*WSP CRLF] 1*WSP *)

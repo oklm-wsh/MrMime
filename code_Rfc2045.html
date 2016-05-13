@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -34,7 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045</title>
 </head>
 <body>
-<code class="code"><span class="keyword">type</span>&nbsp;discrete&nbsp;=<br>
+<code class="code"><span class="keyword">open</span>&nbsp;<span class="constructor">BaseLexer</span><br>
+<br>
+<span class="keyword">type</span>&nbsp;discrete&nbsp;=<br>
 &nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span><br>
@@ -76,6 +81,9 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;string&nbsp;]<br>
 <br>
+<span class="keyword">type</span>&nbsp;mime_field&nbsp;=<br>
+&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">MimeVersion</span>&nbsp;<span class="keyword">of</span>&nbsp;int&nbsp;*&nbsp;int&nbsp;]<br>
+<br>
 <span class="keyword">let</span>&nbsp;value_to_string&nbsp;=&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;s<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;s&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;s<br>
@@ -91,7 +99,7 @@
 &nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(<span class="constructor">Rfc822</span>.is_ctl&nbsp;chr)<br>
 &nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(<span class="constructor">Rfc822</span>.is_space&nbsp;chr)<br>
 <br>
-<span class="keyword">let</span>&nbsp;p_token&nbsp;state&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_while&nbsp;is_token&nbsp;state<br>
+<span class="keyword">let</span>&nbsp;p_token&nbsp;state&nbsp;=&nbsp;p_while&nbsp;is_token&nbsp;state<br>
 <br>
 <span class="keyword">let</span>&nbsp;p_attribute&nbsp;=&nbsp;p_token<br>
 <br>
@@ -104,13 +112,13 @@
 &nbsp;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Iana_token</span>&nbsp;token)&nbsp;state<br>
 <br>
 <span class="keyword">let</span>&nbsp;p_x_token&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_set&nbsp;[<span class="string">'X'</span>;&nbsp;<span class="string">'x'</span>]&nbsp;state;<br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_chr&nbsp;<span class="string">'-'</span>&nbsp;state;<br>
+&nbsp;&nbsp;p_set&nbsp;[<span class="string">'X'</span>;&nbsp;<span class="string">'x'</span>]&nbsp;state;<br>
+&nbsp;&nbsp;p_chr&nbsp;<span class="string">'-'</span>&nbsp;state;<br>
 <br>
 &nbsp;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;(p_token&nbsp;state))&nbsp;state<br>
 <br>
 <span class="keyword">let</span>&nbsp;p_extension_token&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexer</span>.cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'X'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'x'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_x_token&nbsp;p&nbsp;state<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_ietf_token&nbsp;p&nbsp;state<br>
 <br>
@@ -142,7 +150,7 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"base64"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>&nbsp;state<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;state'&nbsp;=&nbsp;<span class="constructor">Lexer</span>.of_string&nbsp;extension_token&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexer</span>.cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'X'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'x'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_x_token&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)&nbsp;state'<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_ietf_token&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)&nbsp;state'<br>
 <br>
@@ -172,7 +180,7 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;s&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;s<br>
 <br>
 <span class="keyword">let</span>&nbsp;p_subtype&nbsp;ty&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexer</span>.cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'X'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'x'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_extension_token&nbsp;p&nbsp;state<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;token&nbsp;=&nbsp;p_token&nbsp;state&nbsp;<span class="keyword">in</span><br>
@@ -182,7 +190,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;exn&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;token)&nbsp;state<br>
 <br>
 <span class="keyword">let</span>&nbsp;p_value&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule<br>
+&nbsp;&nbsp;p_try_rule<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;data))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;(p_token&nbsp;state))&nbsp;state)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_quoted_string&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))<br>
@@ -191,7 +199,7 @@
 &nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_parameter"</span>);<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;name&nbsp;=&nbsp;p_attribute&nbsp;state&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_chr&nbsp;<span class="string">'='</span>&nbsp;state;<br>
+&nbsp;&nbsp;p_chr&nbsp;<span class="string">'='</span>&nbsp;state;<br>
 &nbsp;&nbsp;p_value&nbsp;(<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(name,&nbsp;value))&nbsp;state<br>
 <br>
 <span class="keyword">let</span>&nbsp;p_content&nbsp;p&nbsp;state&nbsp;=<br>
@@ -201,9 +209,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;acc&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_content/loop"</span>);<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexer</span>.cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.junk_chr&nbsp;state;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_fws<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_parameter<br>
@@ -217,11 +225,11 @@
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_type&nbsp;(<span class="keyword">fun</span>&nbsp;ty&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_chr&nbsp;<span class="string">'/'</span>&nbsp;state;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">'/'</span>&nbsp;state;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_subtype&nbsp;(ty_to_string&nbsp;ty)&nbsp;(<span class="keyword">fun</span>&nbsp;subty&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexer</span>.cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keyword">fun</span>&nbsp;parameters&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(ty,&nbsp;subty,&nbsp;parameters)))&nbsp;state<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(ty,&nbsp;subty,&nbsp;[])&nbsp;state)))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;state))<br>
@@ -229,11 +237,11 @@
 <br>
 <span class="keyword">let</span>&nbsp;p_version&nbsp;p&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a&nbsp;=&nbsp;int_of_string&nbsp;@@&nbsp;<span class="constructor">Lexer</span>.p_while&nbsp;<span class="constructor">Rfc822</span>.is_digit&nbsp;state&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a&nbsp;=&nbsp;int_of_string&nbsp;@@&nbsp;p_while&nbsp;<span class="constructor">Rfc822</span>.is_digit&nbsp;state&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_chr&nbsp;<span class="string">'.'</span>&nbsp;state;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">'.'</span>&nbsp;state;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;int_of_string&nbsp;@@&nbsp;<span class="constructor">Lexer</span>.p_while&nbsp;<span class="constructor">Rfc822</span>.is_digit&nbsp;state&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;int_of_string&nbsp;@@&nbsp;p_while&nbsp;<span class="constructor">Rfc822</span>.is_digit&nbsp;state&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_version&nbsp;(%d.%d)"</span>&nbsp;a&nbsp;b);&nbsp;p&nbsp;(a,&nbsp;b))&nbsp;state)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;state)<br>
@@ -267,7 +275,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in&nbsp;this&nbsp;case,&nbsp;we&nbsp;raise&nbsp;an&nbsp;error.&nbsp;*)</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">String</span>.length&nbsp;field&nbsp;&gt;=&nbsp;8&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;<span class="constructor">String</span>.sub&nbsp;field&nbsp;0&nbsp;8&nbsp;=&nbsp;<span class="string">"content-"</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">let</span>&nbsp;field&nbsp;=&nbsp;<span class="constructor">String</span>.sub&nbsp;field&nbsp;8&nbsp;(<span class="constructor">String</span>.length&nbsp;field&nbsp;-&nbsp;8)&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule&nbsp;p<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_try_rule&nbsp;p<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_text&nbsp;@@&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;(field,&nbsp;value))))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(mime_extend&nbsp;field&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;extend&nbsp;field&nbsp;p<br>
@@ -279,14 +287,14 @@
 &nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_entity_headers'"</span>);<br>
 <br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule<br>
+&nbsp;&nbsp;&nbsp;&nbsp;p_try_rule<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;acc))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;field&nbsp;=&nbsp;<span class="constructor">Rfc822</span>.p_field_name&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Lexer</span>.p_repeat&nbsp;<span class="constructor">Rfc822</span>.is_lwsp&nbsp;state&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;p_repeat&nbsp;<span class="constructor">Rfc822</span>.is_lwsp&nbsp;state&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_chr&nbsp;<span class="string">':'</span>&nbsp;state;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">':'</span>&nbsp;state;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_entity_headers&nbsp;(try&nbsp;with&nbsp;%s)"</span>&nbsp;field);<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_field&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))&nbsp;state)<br>

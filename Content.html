@@ -23,10 +23,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -75,14 +78,32 @@
 <td align="left" valign="top" >
 <code><span id="TYPEELTt.id">id</span>&nbsp;: <code class="type"><a href="MsgID.html#TYPEt">MsgID.t</a> option</code>;</code></td>
 
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.description">description</span>&nbsp;: <code class="type">string option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.content">content</span>&nbsp;: <code class="type">(string * string) list</code>;</code></td>
+
 </tr></table>
 }
 
 
 
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * string<br>       | `ContentDescription of string<br>       | `ContentEncoding of <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a><br>       | `ContentID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ContentType of <a href="ContentType.html#TYPEt">ContentType.t</a> ]</code> </pre>
+
+
+<pre><span id="VALfield_of_lexer"><span class="keyword">val</span> <a href="code_VALContent.field_of_lexer.html">field_of_lexer</a></span> : <code class="type"><a href="Rfc2045.html#TYPEfield">Rfc2045.field</a> -> <a href="Content.html#TYPEfield">field</a></code></pre>
 <pre><span id="VALty"><span class="keyword">val</span> <a href="code_VALContent.ty.html">ty</a></span> : <code class="type"><a href="Content.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEt">ContentType.t</a></code></pre>
 <pre><span id="VALencoding"><span class="keyword">val</span> <a href="code_VALContent.encoding.html">encoding</a></span> : <code class="type"><a href="Content.html#TYPEt">t</a> -> <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a></code></pre>
-<pre><span id="VALmake"><span class="keyword">val</span> <a href="code_VALContent.make.html">make</a></span> : <code class="type">?ty:<a href="ContentType.html#TYPEt">ContentType.t</a> -><br>       ?encoding:<a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a> -><br>       ?version:<a href="MimeVersion.html#TYPEt">MimeVersion.t</a> -> ?id:<a href="MsgID.html#TYPEt">MsgID.t</a> -> unit -> <a href="Content.html#TYPEt">t</a></code></pre>
-<pre><span id="VALof_lexer"><span class="keyword">val</span> <a href="code_VALContent.of_lexer.html">of_lexer</a></span> : <code class="type">([> `ContentEncoding of <a href="Rfc2045.html#TYPEencoding">Rfc2045.encoding</a><br>         | `ContentID of <a href="Rfc5322.html#TYPEmsg_id">Rfc5322.msg_id</a><br>         | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>         | `MimeVersion of <a href="Rfc2045.html#TYPEversion">Rfc2045.version</a> ]<br>        as 'a)<br>       list -> (<a href="Content.html#TYPEt">t</a> -> 'a list -> 'b -> 'c) -> 'b -> 'c</code></pre>
+<pre><span id="VALmake"><span class="keyword">val</span> <a href="code_VALContent.make.html">make</a></span> : <code class="type">?ty:<a href="ContentType.html#TYPEt">ContentType.t</a> -><br>       ?encoding:<a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a> -><br>       ?version:<a href="MimeVersion.html#TYPEt">MimeVersion.t</a> -><br>       ?id:<a href="MsgID.html#TYPEt">MsgID.t</a> -><br>       ?description:string -> ?extension:(string * string) list -> unit -> <a href="Content.html#TYPEt">t</a></code></pre>
+<pre><span id="VALof_lexer"><span class="keyword">val</span> <a href="code_VALContent.of_lexer.html">of_lexer</a></span> : <code class="type">([> `Content of string * string<br>         | `ContentDescription of string<br>         | `ContentEncoding of <a href="Rfc2045.html#TYPEencoding">Rfc2045.encoding</a><br>         | `ContentID of <a href="Rfc5322.html#TYPEmsg_id">Rfc5322.msg_id</a><br>         | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>         | `MimeVersion of int * int ]<br>        as 'a)<br>       list -> (<a href="Content.html#TYPEt">t</a> -> 'a list -> 'b -> 'c) -> 'b -> 'c</code></pre>
 <pre><span id="VALp"><span class="keyword">val</span> <a href="code_VALContent.p.html">p</a></span> : <code class="type">Format.formatter -> ('a, Format.formatter, unit) Pervasives.format -> 'a</code></pre>
 <pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALContent.pp.html">pp</a></span> : <code class="type">Format.formatter -> <a href="Content.html#TYPEt">t</a> -> unit</code></pre></body></html>

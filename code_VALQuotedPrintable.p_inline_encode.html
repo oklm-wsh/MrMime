@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,37 +43,37 @@
   let rec encode state =
     let rec aux = function
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        match Lexer.cur_chr state with
+        match cur_chr state with
         | '\x20' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf '_';
           encode state
         | '\x09' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_string buf "=09";
           encode state
         | '?' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_string buf "=3F";
           encode state
         | '_' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_string buf "=5F";
           encode state
         | '=' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_string buf "=3D";
           encode state
         | chr when is_safe_char chr ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf chr;
           encode state
         | chr ->
-          Lexer.junk_chr state;
+          junk_chr state;
 
           let code = Char.code chr in
           let h    = (code lsr 4) land (16 - 1) in
@@ -81,7 +84,7 @@
           Buffer.add_char buf T._to.[l];
 
           encode state
-    in aux @@ Lexer.safe stop state
+    in aux @@ safe stop state
   in
 
   encode state</code></body></html>

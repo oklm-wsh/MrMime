@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,33 +43,33 @@
   let rec decode state =
     let rec aux = function
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        match Lexer.cur_chr state with
+        match cur_chr state with
          | '=' ->
-           Lexer.p_chr '=' state;
+           p_chr '=' state;
 
-           if Lexer.p_try is_hex_octet state = 2
+           if p_try is_hex_octet state = 2
            then begin
-             let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+             let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
 
              F.add_char buf (F.hex s);
              decode state
            end else begin
-             Lexer.p_chr '\r' state;
-             Lexer.p_chr '\n' state;
+             p_chr '\r' state;
+             p_chr '\n' state;
 
              decode state
            end
          | '\x20' | '\x09' ->
-           let lwsp = Lexer.p_while Rfc822.is_lwsp state in
+           let lwsp = p_while Rfc822.is_lwsp state in
 
-           if Lexer.cur_chr state = '\r'
+           if cur_chr state = '\r'
            then begin
-             Lexer.p_chr '\r' state;
-             Lexer.p_chr '\n' state;
+             p_chr '\r' state;
+             p_chr '\n' state;
 
              F.add_newline buf;
              decode state
@@ -76,12 +79,12 @@
            end
 
          | chr when is_safe_char chr  ->
-           Lexer.junk_chr state;
+           junk_chr state;
            F.add_char buf chr;
            decode state
 
-         | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
-    in aux (Lexer.safe stop state)
+         | chr -> raise (Error.Error (Error.err_unexpected chr state))
+    in aux (safe stop state)
   in
 
   decode state</code></body></html>

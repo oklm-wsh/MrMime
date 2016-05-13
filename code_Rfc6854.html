@@ -18,10 +18,13 @@
 <link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
 <link title="Content" rel="Chapter" href="Content.html">
 <link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="Base" rel="Chapter" href="Base.html">
+<link title="BasePP" rel="Chapter" href="BasePP.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
 <link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -34,7 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc6854</title>
 </head>
 <body>
-<code class="code"><span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;6854&nbsp;§&nbsp;2.1<br>
+<code class="code"><span class="keyword">open</span>&nbsp;<span class="constructor">BaseLexer</span><br>
+<br>
+<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;6854&nbsp;§&nbsp;2.1<br>
 <br>
 &nbsp;&nbsp;&nbsp;from&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"From:"&nbsp;(mailbox-list&nbsp;/&nbsp;address-list)&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;sender&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Sender:"&nbsp;(mailbox&nbsp;/&nbsp;address)&nbsp;CRLF<br>
@@ -42,13 +47,13 @@
 *)</span><br>
 <br>
 <span class="keyword">let</span>&nbsp;p_from&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule&nbsp;p<br>
+&nbsp;&nbsp;p_try_rule&nbsp;p<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_address_list&nbsp;p)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_mailbox_list<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(<span class="constructor">List</span>.map&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Person</span>&nbsp;x)&nbsp;data,&nbsp;state)))<br>
 <br>
 <span class="keyword">let</span>&nbsp;p_sender&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule&nbsp;p<br>
+&nbsp;&nbsp;p_try_rule&nbsp;p<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_address&nbsp;p)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_mailbox&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Person</span>&nbsp;data,&nbsp;state)))<br>
 <br>
@@ -61,13 +66,13 @@
 *)</span><br>
 <br>
 <span class="keyword">let</span>&nbsp;p_resent_from&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule&nbsp;p<br>
+&nbsp;&nbsp;p_try_rule&nbsp;p<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_address_list&nbsp;p)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_mailbox_list<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(<span class="constructor">List</span>.map&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Person</span>&nbsp;x)&nbsp;data,&nbsp;state)))<br>
 <br>
 <span class="keyword">let</span>&nbsp;p_resent_sender&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Lexer</span>.p_try_rule&nbsp;p<br>
+&nbsp;&nbsp;p_try_rule&nbsp;p<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_address&nbsp;p)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_mailbox&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Person</span>&nbsp;data,&nbsp;state)))<br>
 </code></body></html>
