@@ -1,3 +1,4 @@
+open BaseLexer
 open Rfc822
 
 type month =
@@ -72,10 +73,10 @@ type field =
   | trace ]
 
 let cur_chr ?(avoid = []) state =
-  while List.exists ((=) (Lexer.cur_chr state)) avoid
+  while List.exists ((=) (cur_chr state)) avoid
   do state.Lexer.pos <- state.Lexer.pos + 1 done;
 
-  Lexer.cur_chr state
+  cur_chr state
 
 (* See RFC 5234 § Appendix B.1:
 
@@ -183,7 +184,7 @@ let p_phrase p state =
 
     p_cfws (fun has_fws state -> match cur_chr state with
             | '.' ->
-              Lexer.junk_chr state; obs (add_fws has_fws `Dot words) state
+              junk_chr state; obs (add_fws has_fws `Dot words) state
             | chr when is_atext chr || is_dquote chr ->
               Rfc2047.p_try_rule
                 (fun word -> obs (add_fws has_fws word words))
@@ -281,7 +282,7 @@ let p_obs_unstruct ?(acc = []) p state =
       | (`LF | `CR | `WSP | `FWS) :: r1 :: r2, `None ->
         aux ~previous:`None acc (r1 :: r2)
       | [ `CR ], _ ->
-        Lexer.roll_back (fun state -> p (List.rev acc) state) "\r" state
+        roll_back (fun state -> p (List.rev acc) state) "\r" state
       | [ (`LF | `WSP | `FWS) ], _ | [], _ ->
         p (List.rev acc) state
     in
@@ -290,10 +291,10 @@ let p_obs_unstruct ?(acc = []) p state =
   in
 
   let rec data acc =
-    Lexer.p_try_rule
+    p_try_rule
       (fun (charset, encoding, s) state ->
-       let lf = Lexer.p_repeat is_lf state in
-       let cr = Lexer.p_repeat is_cr state in
+       let lf = p_repeat is_lf state in
+       let cr = p_repeat is_cr state in
 
        let acc' =
          match String.length lf, String.length cr with
@@ -307,9 +308,9 @@ let p_obs_unstruct ?(acc = []) p state =
        | chr when is_obs_utext chr -> data acc' state
        | chr -> loop acc' state)
       (fun state ->
-       let ts = Lexer.p_while is_obs_utext state in
-       let lf = Lexer.p_repeat is_lf state in
-       let cr = Lexer.p_repeat is_cr state in
+       let ts = p_while is_obs_utext state in
+       let lf = p_repeat is_lf state in
+       let cr = p_repeat is_cr state in
 
        let acc' =
          match String.length lf, String.length cr with
@@ -326,8 +327,8 @@ let p_obs_unstruct ?(acc = []) p state =
          (fun charset encoding s state -> `Ok ((charset, encoding, s), state)))
 
   and lfcr acc state =
-    let lf = Lexer.p_repeat is_lf state in
-    let cr = Lexer.p_repeat is_cr state in
+    let lf = p_repeat is_lf state in
+    let cr = p_repeat is_cr state in
 
     let acc' = match String.length lf, String.length cr with
       | 0, 0 -> acc
@@ -361,7 +362,7 @@ let p_obs_unstruct ?(acc = []) p state =
 
 let p_unstructured p state =
   let rec loop acc has_wsp has_fws state =
-    match has_wsp, has_fws, Lexer.cur_chr state with
+    match has_wsp, has_fws, cur_chr state with
     | has_wsp, has_fws, chr when is_vchar chr ->
       let adder x =
         if has_fws && has_wsp
@@ -370,11 +371,11 @@ let p_unstructured p state =
         then x :: `WSP :: acc
         else x :: acc
       in
-      Lexer.p_try_rule
+      p_try_rule
         (fun (charset, encoding, s) ->
          p_fws (loop (adder (`Encoded (charset, encoding, s)))))
         (fun state ->
-         let s = Lexer.p_while is_vchar state in
+         let s = p_while is_vchar state in
          p_fws (loop (adder (`Atom s))) state)
         (Rfc2047.p_encoded_word (fun charset encoding s state -> `Ok ((charset, encoding, s), state)))
         state
@@ -391,7 +392,7 @@ let p_unstructured p state =
 let p_cfws_2digit_cfws p state =
   (Logs.debug @@ fun m -> m "state: p_cfws_2digit_cfws");
 
-  p_cfws (fun _ state -> let n = Lexer.p_repeat ~a:2 ~b:2 is_digit state in
+  p_cfws (fun _ state -> let n = p_repeat ~a:2 ~b:2 is_digit state in
                        p_cfws (p (int_of_string n)) state) state
 (* See RFC 5322 § 4.3:
 
@@ -420,8 +421,8 @@ let p_obs_second p state =
 let p_2digit_or_obs p state =
   (Logs.debug @@ fun m -> m "state: p_2digit_or_obs");
 
-  if Lexer.p_try is_digit state = 2
-  then let n = Lexer.p_while is_digit state in
+  if p_try is_digit state = 2
+  then let n = p_while is_digit state in
        p_cfws (p (int_of_string n)) state
        (* XXX: in this case, it's possible to
                be in [obs] version, so we try
@@ -447,7 +448,7 @@ let p_second p state =
 *)
 let p_obs_year p state =
   (* [CFWS] 2*DIGIT [CFWS] *)
-  p_cfws (fun _ state -> let y = Lexer.p_repeat ~a:2 is_digit state in
+  p_cfws (fun _ state -> let y = p_repeat ~a:2 is_digit state in
                          p_cfws (fun _ -> p (int_of_string y)) state) state
 
 let p_year has_already_fws p state =
@@ -455,12 +456,12 @@ let p_year has_already_fws p state =
 
   (* (FWS 4*DIGIT FWS) / obs-year *)
   p_fws (fun has_wsp has_fws state ->
-    if (has_wsp || has_fws || has_already_fws) && Lexer.p_try is_digit state >= 4
-    then let y = Lexer.p_while is_digit state in
+    if (has_wsp || has_fws || has_already_fws) && p_try is_digit state >= 4
+    then let y = p_while is_digit state in
          p_fws (fun has_wsp has_fws state ->
                 if has_wsp || has_fws
                 then p (int_of_string y) state
-                else raise (Lexer.Error (Lexer.err_expected ' ' state))) state
+                else raise (Error.Error (Error.err_expected ' ' state))) state
     else p_obs_year p state)
   state
 
@@ -472,7 +473,7 @@ let p_year has_already_fws p state =
 let p_obs_day p state =
   (Logs.debug @@ fun m -> m "state: p_obs_day");
 
-  p_cfws (fun _ state -> let d = Lexer.p_repeat ~a:1 ~b:2 is_digit state in
+  p_cfws (fun _ state -> let d = p_repeat ~a:1 ~b:2 is_digit state in
                          p_cfws (fun _ -> p (int_of_string d)) state)
     state
 
@@ -481,12 +482,12 @@ let p_day p state =
 
   p_fws (fun _ _ state ->
          if is_digit @@ cur_chr state
-         then let d = Lexer.p_repeat ~a:1 ~b:2 is_digit state in
+         then let d = p_repeat ~a:1 ~b:2 is_digit state in
               p_fws (fun has_wsp has_fws ->
 
                      if has_wsp || has_fws
                      then p (int_of_string d)
-                     else raise (Lexer.Error (Lexer.err_expected ' ' state)))
+                     else raise (Error.Error (Error.err_expected ' ' state)))
                 state
          else p_obs_day p state)
     state
@@ -500,7 +501,7 @@ let p_day p state =
 let p_month p state =
   (Logs.debug @@ fun m -> m "state: p_month");
 
-  let month = Lexer.p_repeat ~a:3 ~b:3 is_alpha state in
+  let month = p_repeat ~a:3 ~b:3 is_alpha state in
 
   let month = match month with
   | "Jan" -> `Jan
@@ -515,7 +516,7 @@ let p_month p state =
   | "Oct" -> `Oct
   | "Nov" -> `Nov
   | "Dec" -> `Dec
-  | str   -> raise (Lexer.Error (Lexer.err_unexpected_str str state)) in
+  | str   -> raise (Error.Error (Error.err_unexpected_str str state)) in
 
   p month state
 
@@ -527,7 +528,7 @@ let p_month p state =
 let p_day_name p state =
   (Logs.debug @@ fun m -> m "state: p_day_name");
 
-  let day = Lexer.p_repeat ~a:3 ~b:3 is_alpha state in
+  let day = p_repeat ~a:3 ~b:3 is_alpha state in
 
   let day = match day with
   | "Mon" -> `Mon
@@ -537,7 +538,7 @@ let p_day_name p state =
   | "Fri" -> `Fri
   | "Sat" -> `Sat
   | "Sun" -> `Sun
-  | str   -> raise (Lexer.Error (Lexer.err_unexpected_str str state)) in
+  | str   -> raise (Error.Error (Error.err_unexpected_str str state)) in
 
   p day state
 
@@ -571,10 +572,10 @@ let p_date p =
 let p_time_of_day p =
   p_hour
   @@ (fun hh state ->
-      Lexer.p_chr ':' state;
+      p_chr ':' state;
       p_minute
       (fun mm has_fws state -> match cur_chr state with
-       | ':' -> Lexer.p_chr ':' state;
+       | ':' -> p_chr ':' state;
                 p_second (fun ss has_fws -> p has_fws (hh, mm, Some ss)) state
        | chr -> p has_fws (hh, mm, None) state)
       state)
@@ -598,11 +599,11 @@ let p_obs_zone p state =
   match cur_chr state with
   | '\065' .. '\073' ->
     let a = cur_chr state in
-    Lexer.junk_chr state;
+    junk_chr state;
 
     if a = 'G' || a = 'E' || a = 'C'
        && (cur_chr state = 'M' || cur_chr state = 'S' || cur_chr state = 'D')
-    then let next = Lexer.p_repeat ~a:2 ~b:2 is_alpha state in
+    then let next = p_repeat ~a:2 ~b:2 is_alpha state in
          match a, next with
          | 'G', "MT" -> k `GMT
          | 'E', "ST" -> k `EST
@@ -611,17 +612,17 @@ let p_obs_zone p state =
          | 'C', "DT" -> k `CDT
          | chr, str ->
            let str = String.make 1 chr ^ str in
-           raise (Lexer.Error (Lexer.err_unexpected_str str state))
+           raise (Error.Error (Error.err_unexpected_str str state))
     else k (`Military_zone a)
   | '\075' .. '\090' ->
     let a = cur_chr state in
-    Lexer.junk_chr state;
+    junk_chr state;
 
     if a = 'U' && (cur_chr state = 'T')
-    then (Lexer.p_chr 'T' state; k `UT)
+    then (p_chr 'T' state; k `UT)
     else if a = 'M' || a = 'P'
             && (cur_chr state = 'S' || cur_chr state = 'D')
-    then let next = Lexer.p_repeat ~a:2 ~b:2 is_alpha state in
+    then let next = p_repeat ~a:2 ~b:2 is_alpha state in
          match a, next with
          | 'M', "ST" -> k `MST (* maladie sexuellement transmissible *)
          | 'M', "DT" -> k `MDT
@@ -629,11 +630,11 @@ let p_obs_zone p state =
          | 'P', "DT" -> k `PDT
          | chr, str ->
            let str = String.make 1 chr ^ str in
-           raise (Lexer.Error (Lexer.err_unexpected_str str state))
+           raise (Error.Error (Error.err_unexpected_str str state))
     else k (`Military_zone a)
-  | '\097' .. '\105' as a -> Lexer.junk_chr state; k (`Military_zone a)
-  | '\107' .. '\122' as a -> Lexer.junk_chr state; k (`Military_zone a)
-  | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+  | '\097' .. '\105' as a -> junk_chr state; k (`Military_zone a)
+  | '\107' .. '\122' as a -> junk_chr state; k (`Military_zone a)
+  | chr -> raise (Error.Error (Error.err_unexpected chr state))
 
 (* See RFC 5322 § 3.3:
 
@@ -645,15 +646,15 @@ let p_zone has_already_fws p state =
   p_fws (fun has_wsp has_fws state ->
          match has_already_fws || has_wsp || has_fws, cur_chr state with
          | true, '+' ->
-           Lexer.p_chr '+' state;
-           let tz = Lexer.p_repeat ~a:4 ~b:4 is_digit state in
+           p_chr '+' state;
+           let tz = p_repeat ~a:4 ~b:4 is_digit state in
            p (`TZ (int_of_string tz)) state
          | true, '-' ->
-           Lexer.p_chr '-' state;
-           let tz = Lexer.p_repeat ~a:4 ~b:4 is_digit state in
+           p_chr '-' state;
+           let tz = p_repeat ~a:4 ~b:4 is_digit state in
            p (`TZ (- (int_of_string tz))) state
          | true, chr when is_digit chr ->
-           let tz = Lexer.p_repeat ~a:4 ~b:4 is_digit state in
+           let tz = p_repeat ~a:4 ~b:4 is_digit state in
            p (`TZ (int_of_string tz)) state
          | _ -> p_obs_zone p state)
     state
@@ -693,7 +694,7 @@ let p_date_time p state =
          if is_alpha @@ cur_chr state
          then p_day_of_week
                 (fun day state ->
-                 Lexer.p_chr ',' state;
+                 p_chr ',' state;
                  aux ~day state) state
          else aux state)
     state
@@ -715,10 +716,10 @@ let p_dtext p state =
     match cur_chr state with
     | '\033' .. '\090'
     | '\094' .. '\126' ->
-      let s = Lexer.p_while is_dtext state in
+      let s = p_while is_dtext state in
       loop (s :: acc) state
     | chr when is_obs_no_ws_ctl chr ->
-      let s = Lexer.p_while is_dtext state in
+      let s = p_while is_dtext state in
       loop (s :: acc) state
     | '\\' ->
       p_quoted_pair
@@ -735,7 +736,7 @@ let p_dtext p state =
 let p_obs_domain p =
   let rec loop acc state =
     match cur_chr state with
-    | '.' -> Lexer.junk_chr state; p_atom (fun o -> loop (`Atom o :: acc)) state
+    | '.' -> junk_chr state; p_atom (fun o -> loop (`Atom o :: acc)) state
     | chr -> p (List.rev acc) state
   in
 
@@ -748,13 +749,13 @@ let p_obs_domain p =
 let p_obs_group_list p state =
   let rec loop state =
     match cur_chr state with
-    | ',' -> Lexer.junk_chr state; p_cfws (fun _ -> loop) state
+    | ',' -> junk_chr state; p_cfws (fun _ -> loop) state
     | chr -> p_cfws (fun _ -> p) state
   in
 
   p_cfws (fun _ state -> match cur_chr state with
-          | ',' -> Lexer.junk_chr state; p_cfws (fun _ -> loop) state
-          | chr -> raise (Lexer.Error (Lexer.err_expected ',' state)))
+          | ',' -> junk_chr state; p_cfws (fun _ -> loop) state
+          | chr -> raise (Error.Error (Error.err_expected ',' state)))
     state
 
 (* See RFC 5322 § 3.4.1:
@@ -765,7 +766,7 @@ let p_domain_literal p =
   let rec loop acc state =
     match cur_chr state with
     | ']' ->
-      Lexer.p_chr ']' state;
+      p_chr ']' state;
       p_cfws (fun _ state ->
               Rfc5321.p_address_literal
                 (fun d state' ->
@@ -775,7 +776,7 @@ let p_domain_literal p =
                  then p d state
                  (* XXX: we need to verify if we consume all data, in another
                          case, it's an error! *)
-                 else raise (Error (err_unexpected_str
+                 else raise (Error.Error (Error.err_unexpected_str
                                       (Bytes.sub state'.buffer
                                                  state'.pos
                                                  (state'.len - state'.pos))
@@ -783,13 +784,13 @@ let p_domain_literal p =
                 (Lexer.of_string @@ String.concat "" @@ List.rev acc)) state
     | chr when is_dtext chr || chr = '\\' ->
       p_dtext (fun s -> p_fws (fun _ _ -> loop (s :: acc))) state
-    | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+    | chr -> raise (Error.Error (Error.err_unexpected chr state))
   in
 
   p_cfws (fun _ state ->
           match cur_chr state with
-          | '[' -> Lexer.p_chr '[' state; p_fws (fun _ _ -> loop []) state
-          | chr -> raise (Lexer.Error (Lexer.err_expected '[' state)))
+          | '[' -> p_chr '[' state; p_fws (fun _ _ -> loop []) state
+          | chr -> raise (Error.Error (Error.err_expected '[' state)))
 
 (* See RFC 5322 § 3.4.1:
 
@@ -800,7 +801,7 @@ let p_domain p =
     let rec loop acc state =
       match cur_chr state with
       | '.' ->
-        Lexer.junk_chr state;
+        junk_chr state;
         p_atom (fun o -> loop (`Atom o :: acc)) state
       | chr -> p (List.rev acc) state
     in
@@ -830,7 +831,7 @@ let p_addr_spec p state =
   (Logs.debug @@ fun m -> m "state: p_addr_spec");
 
   p_local_part (fun local_part state ->
-                Lexer.p_chr '@' state;
+                p_chr '@' state;
                 p_domain (fun domain -> p (local_part, domain)) state)
     state
 
@@ -844,11 +845,11 @@ let p_obs_domain_list p state =
   let rec loop1 acc state =
     match cur_chr state with
     | ',' ->
-      Lexer.junk_chr state;
+      junk_chr state;
       p_cfws
         (fun _ state -> match cur_chr state with
          | '@' ->
-           Lexer.junk_chr state;
+           junk_chr state;
            p_domain (fun domain -> loop1 (domain :: acc)) state
          | chr -> p (List.rev acc) state)
         state
@@ -858,17 +859,17 @@ let p_obs_domain_list p state =
   (* *(CFWS / ",") "@" domain *)
   let rec loop0 state =
     match cur_chr state with
-    | ',' -> Lexer.junk_chr state; p_cfws (fun _ -> loop0) state
-    | '@' -> Lexer.junk_chr state; p_domain (fun domain -> loop1 [domain]) state
+    | ',' -> junk_chr state; p_cfws (fun _ -> loop0) state
+    | '@' -> junk_chr state; p_domain (fun domain -> loop1 [domain]) state
     (* XXX: may be raise an error *)
-    | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+    | chr -> raise (Error.Error (Error.err_unexpected chr state))
   in
 
   p_cfws (fun _ -> loop0) state
 
 let p_obs_route p =
   p_obs_domain_list
-    (fun domains state -> Lexer.p_chr ':' state;
+    (fun domains state -> p_chr ':' state;
                           p domains state)
 
 (* See RFC 5322 § 4.4:
@@ -880,12 +881,12 @@ let p_obs_angle_addr p state =
 
   p_cfws                                                 (* [CFWS] *)
     (fun _ state ->
-      Lexer.p_chr '<' state;                             (* "<" *)
+      p_chr '<' state;                             (* "<" *)
       p_obs_route                                        (* obs-route *)
         (fun domains ->
           p_addr_spec                                    (* addr-spec *)
             (fun (local_part, domain) state ->
-              Lexer.p_chr '>' state;                     (* ">" *)
+              p_chr '>' state;                     (* ">" *)
               p_cfws                                     (* [CFWS] *)
                 (fun _ ->
                   p (local_part, domain :: domains)) state))
@@ -938,16 +939,16 @@ let p_angle_addr p state =
   let first p state =
     p_cfws
     (fun _ state ->
-       Lexer.p_chr '<' state;
+       p_chr '<' state;
        p_addr_spec
        (fun (local_part, domain) state ->
-          Lexer.p_chr '>' state;
+          p_chr '>' state;
           p_cfws (fun _ -> p (local_part, [domain])) state)
        state)
     state
   in
 
-  Lexer.p_try_rule p (p_obs_angle_addr p)
+  p_try_rule p (p_obs_angle_addr p)
     (first (fun data state -> `Ok (data, state)))
     state
 
@@ -983,7 +984,7 @@ let p_name_addr p state =
 let p_mailbox p state =
   (Logs.debug @@ fun m -> m "state: p_mailbox");
 
-  Lexer.p_try_rule p
+  p_try_rule p
     (p_addr_spec (fun (local_part, domain) -> p (None, (local_part, [domain]))))
     (p_name_addr (fun name_addr state -> `Ok (name_addr, state)))
     state
@@ -999,9 +1000,9 @@ let p_obs_mbox_list p state =
   let rec loop1 acc state =
     match cur_chr state with
     | ',' ->
-      Lexer.junk_chr state;
+      junk_chr state;
 
-      Lexer.p_try_rule
+      p_try_rule
         (fun mailbox state -> loop1 (mailbox :: acc) state)
         (fun state -> p_cfws (fun _ -> loop1 acc) state)
         (fun state -> p_mailbox (fun data state -> `Ok (data, state)) state)
@@ -1012,7 +1013,7 @@ let p_obs_mbox_list p state =
   (* *([CFWS] ",") *)
   let rec loop0 state =
     match cur_chr state with
-    | ',' -> Lexer.junk_chr state; p_cfws (fun _ -> loop0) state
+    | ',' -> junk_chr state; p_cfws (fun _ -> loop0) state
     | chr -> p_mailbox (fun mailbox -> loop1 [mailbox]) state (* mailbox *)
   in
 
@@ -1029,9 +1030,9 @@ let p_mailbox_list p state =
   let rec obs acc state =
     match cur_chr state with
     | ',' ->
-      Lexer.junk_chr state;
+      junk_chr state;
 
-      Lexer.p_try_rule
+      p_try_rule
         (fun mailbox -> obs (mailbox :: acc))
         (p_cfws (fun _ -> obs acc))
         (p_mailbox (fun data state -> `Ok (data, state)))
@@ -1043,7 +1044,7 @@ let p_mailbox_list p state =
   let rec loop acc state =
     match cur_chr state with
     | ',' ->
-      Lexer.junk_chr state;
+      junk_chr state;
       p_mailbox (fun mailbox -> loop (mailbox :: acc)) state
     | chr -> p_cfws (fun _ -> obs acc) state
   in
@@ -1063,9 +1064,9 @@ let p_mailbox_list p state =
    group-list      = mailbox-list / CFWS / obs-group-list
 *)
 let p_group_list p state =
-  Lexer.p_try_rule
+  p_try_rule
     (fun data -> p data)
-    (Lexer.p_try_rule
+    (p_try_rule
        (fun () -> p [])
        (p_cfws (fun _ -> p []))
        (p_obs_group_list (fun state -> `Ok ((), state))))
@@ -1081,18 +1082,18 @@ let p_group p state =
 
   p_display_name
     (fun display_name state ->
-      Lexer.p_chr ':' state;
+      p_chr ':' state;
 
       (Logs.debug @@ fun m -> m "state: p_group (consume display name)");
 
       match cur_chr state with
       | ';' ->
-        Lexer.p_chr ';' state;
+        p_chr ';' state;
         p_cfws (fun _ -> p (display_name, [])) state
       | chr ->
         p_group_list (fun group ->
           p_cfws (fun _ state ->
-            Lexer.p_chr ';' state;
+            p_chr ';' state;
             p (display_name, group) state))
         state)
     state
@@ -1104,7 +1105,7 @@ let p_group p state =
 let p_address p state =
   (Logs.debug @@ fun m -> m "state: p_address");
 
-  Lexer.p_try_rule
+  p_try_rule
     (fun group state -> p (`Group group) state)
     (p_mailbox (fun mailbox -> p (`Person mailbox)))
     (p_group (fun data state -> `Ok (data, state)))
@@ -1123,9 +1124,9 @@ let p_obs_addr_list p state =
 
     match cur_chr state with
     | ',' ->
-      Lexer.junk_chr state;
+      junk_chr state;
 
-      Lexer.p_try_rule
+      p_try_rule
         (fun address -> loop1 (address :: acc))
         (p_cfws (fun _ -> loop1 acc))
         (p_address (fun data state -> `Ok (data, state)))
@@ -1138,7 +1139,7 @@ let p_obs_addr_list p state =
     (Logs.debug @@ fun m -> m "state: p_obs_addr/loop0");
 
     match cur_chr state with
-    | ',' -> Lexer.junk_chr state; p_address (fun adress -> loop0) state
+    | ',' -> junk_chr state; p_address (fun adress -> loop0) state
     | chr -> p_address (fun address -> loop1 [address]) state (* address *)
   in
 
@@ -1157,9 +1158,9 @@ let p_address_list p state =
 
     match cur_chr state with
     | ',' ->
-      Lexer.junk_chr state;
+      junk_chr state;
 
-      Lexer.p_try_rule
+      p_try_rule
         (fun address -> obs (address :: acc))
         (p_cfws (fun _ -> obs acc))
         (p_address (fun data state -> `Ok (data, state)))
@@ -1172,8 +1173,8 @@ let p_address_list p state =
     (Logs.debug @@ fun m -> m "state: p_address_list/loop");
 
     match cur_chr state with
-    | ',' -> Lexer.junk_chr state;
-      Lexer.p_try_rule
+    | ',' -> junk_chr state;
+      p_try_rule
         (fun address -> loop (address :: acc))
         (p_cfws (fun _ -> obs acc))
         (p_address (fun address state -> `Ok (address, state)))
@@ -1195,8 +1196,8 @@ let p_address_list p state =
 let p_crlf p state =
   (Logs.debug @@ fun m -> m "state: p_crlf");
 
-  Lexer.p_chr '\r' state;
-  Lexer.p_chr '\n' state;
+  p_chr '\r' state;
+  p_chr '\n' state;
   p state
 
 (* See RFC 5322 § 3.6.8:
@@ -1214,7 +1215,7 @@ let is_ftext = function
 
    field-name      = 1*ftext
 *)
-let p_field_name = Lexer.p_repeat ~a:1 is_ftext
+let p_field_name = p_repeat ~a:1 is_ftext
 
 (* See RFC 5322 § 4.5.3:
 
@@ -1237,7 +1238,7 @@ let p_obs_bcc p state =
       state
   in
 
-  Lexer.p_try_rule p aux
+  p_try_rule p aux
     (p_address_list (fun l state -> `Ok (l, state))) state
 
 (* See RFC 5322 § 3.6.3:
@@ -1247,7 +1248,7 @@ let p_obs_bcc p state =
 let p_bcc p state =
   (Logs.debug @@ fun m -> m "state: p_bcc");
 
-  Lexer.p_try_rule p
+  p_try_rule p
     (p_obs_bcc p)
     (p_address_list (fun l state -> `Ok (l, state))) state
 
@@ -1260,9 +1261,9 @@ let p_bcc p state =
 *)
 let p_phrase_or_msg_id p state =
   let rec loop acc =
-    Lexer.p_try_rule
+    p_try_rule
       (fun x -> loop (`MsgID x :: acc))
-      (Lexer.p_try_rule
+      (p_try_rule
         (fun x -> loop (`Phrase x :: acc))
         (p (List.rev acc))
         (p_phrase (fun data state -> `Ok (data, state))))
@@ -1277,13 +1278,13 @@ let p_phrase_or_msg_id p state =
 *)
 let p_received_token p state =
   let rec loop acc =
-    Lexer.p_try_rule
+    p_try_rule
       (fun data -> loop (`Domain data :: acc))
-      (Lexer.p_try_rule
+      (p_try_rule
         (fun data -> loop (`Mailbox data :: acc))
-        (Lexer.p_try_rule
+        (p_try_rule
           (fun data -> loop (`Mailbox data :: acc))
-          (Lexer.p_try_rule
+          (p_try_rule
             (fun data -> loop (`Word data :: acc))
             (p (List.rev acc))
             (p_word (fun data state -> `Ok (data, state))))
@@ -1304,7 +1305,7 @@ let p_received p state =
   p_received_token
     (fun l state -> match cur_chr state with
      | ';' ->
-       Lexer.p_chr ';' state;
+       p_chr ';' state;
        p_date_time (fun date_time -> p (l, Some date_time)) state
      | chr -> p (l, None) state)
     state
@@ -1314,15 +1315,15 @@ let p_received p state =
    path            = angle-addr / ([CFWS] "<" [CFWS] ">" [CFWS])
 *)
 let p_path p =
-  Lexer.p_try_rule
+  p_try_rule
     (fun addr -> p (Some addr))
     (fun state ->
       p_cfws
         (fun _ state ->
-          Lexer.p_chr '<' state;
+          p_chr '<' state;
           p_cfws
             (fun _ state ->
-              Lexer.p_chr '>' state;
+              p_chr '>' state;
               p_cfws (fun _ -> p None) state)
             state)
         state)
@@ -1334,14 +1335,14 @@ let p_path p =
 *)
 let p_obs_phrase_list p state =
   let rec loop acc state =
-    Lexer.p_try_rule
+    p_try_rule
       (fun s -> loop (s :: acc))
       (p_cfws (fun _ state ->
        match cur_chr state with
-       | ',' -> Lexer.p_chr ',' state; loop acc state
+       | ',' -> p_chr ',' state; loop acc state
        | chr -> p (List.rev acc) state))
       (fun state ->
-       Lexer.p_chr ',' state;
+       p_chr ',' state;
        p_phrase (fun s state -> `Ok (s, state)) state)
       state
   in
@@ -1357,11 +1358,11 @@ let p_keywords p state =
   let rec loop p acc =
     p_phrase (fun s state ->
       match cur_chr state with
-      | ',' -> Lexer.p_chr ',' state; loop p (s :: acc) state
+      | ',' -> p_chr ',' state; loop p (s :: acc) state
       | chr -> p_obs_phrase_list (fun l -> p (List.rev acc @ l)) state)
   in
 
-  Lexer.p_try_rule
+  p_try_rule
     (fun l -> p l)
     (p_obs_phrase_list p)
     (p_phrase (fun s -> loop (fun s state -> `Ok (s, state)) [s]))
@@ -1475,7 +1476,7 @@ let p_field extend field p state =
        obs-optional    = field-name *WSP ":" unstructured CRLF
     *)
     | field ->
-      Lexer.p_try_rule p
+      p_try_rule p
         (p_unstructured @@ (fun value -> p_crlf @@ p (`Field (field, value))))
         (extend field (fun data state -> `Ok (data, state)))
   in
@@ -1484,13 +1485,13 @@ let p_field extend field p state =
 
 let p_header extend p state =
   let rec loop acc state =
-    Lexer.p_try_rule
+    p_try_rule
       (fun field -> loop (field :: acc)) (p (List.rev acc))
       (fun state ->
        let field = p_field_name state in
-       let _     = Lexer.p_repeat is_wsp state in
+       let _     = p_repeat is_wsp state in
 
-       Lexer.p_chr ':' state;
+       p_chr ':' state;
 
        p_field extend field (fun data state -> `Ok (data, state)) state)
       state
@@ -1521,28 +1522,28 @@ let p_body stop p state =
     let rec aux = function
       | `Stop state -> p (Buffer.contents buf) state
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
       | `Continue state ->
-        match Lexer.cur_chr state with
+        match cur_chr state with
         | '\n' when has_cr ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf '\n'; (* XXX: Line-break in UNIX system (may be we
                                        can become more configuration) *)
           body false state
         | '\r' when has_cr ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf '\r';
           body true state
         | '\r' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           body true state
         | chr ->
           if has_cr then Buffer.add_char buf '\r';
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf chr;
           body false state
-    in aux @@ Lexer.safe stop state
+    in aux @@ safe stop state
   in
 
   body false state

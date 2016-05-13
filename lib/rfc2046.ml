@@ -1,3 +1,5 @@
+open BaseLexer
+
 let is_bcharsnospace = function
   | '\'' | '(' | ')' | '+' | '_' | ','
   | '-' | '.' | '/' | ':' | '=' | '?' -> true
@@ -17,15 +19,15 @@ let is_valid_bchars str =
   !i = String.length str
 
 let p_dash_boundary boundary p state =
-  Lexer.p_str "--" state;
-  Lexer.p_str boundary state;
+  p_str "--" state;
+  p_str boundary state;
   p state
 
 let m_dash_boundary boundary =
   "--" ^ boundary
 
 let p_transport_padding p state =
-  let _ = Lexer.p_repeat Rfc822.is_lwsp state in
+  let _ = p_repeat Rfc822.is_lwsp state in
   p state
 
 (* See RFC 2046 § 5.1.1:
@@ -45,12 +47,12 @@ let p_discard_text stop p state =
     let rec aux = function
       | `Stop state -> p has_text state
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err ->  err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err ->  err
       | `Continue state ->
-        match Lexer.cur_chr state with
-        | chr -> Lexer.junk_chr state; text true state
-    in aux @@ Lexer.safe (stop has_text) state
+        match cur_chr state with
+        | chr -> junk_chr state; text true state
+    in aux @@ safe (stop has_text) state
   in
 
   text false state
@@ -76,7 +78,7 @@ let m_delimiter boundary =
   "\r\n" ^ (m_dash_boundary boundary)
 
 let p_close_delimiter boundary p state =
-  p_delimiter boundary (fun state -> Lexer.p_str "--" state; p state) state
+  p_delimiter boundary (fun state -> p_str "--" state; p state) state
 
 let m_close_delimiter boundary =
   (m_delimiter boundary) ^ "--"
@@ -99,18 +101,18 @@ let p_body_part (type data) boundary p_octet p state =
    (let open Lexer in (Bytes.sub state.buffer state.pos (state.len - state.pos))));
 
   let next fields state =
-    Lexer.p_try_rule
+    p_try_rule
       (fun data -> p (Some (data : data)))
       (p None)
       (Rfc822.p_crlf @@ p_octet fields (fun data state -> `Ok ((data : data), state)))
       state
   in
 
-  Lexer.p_try_rule next
+  p_try_rule next
     (next [])
     (Rfc2045.p_mime_part_headers
-       (fun field next state -> raise (Lexer.Error (Lexer.err_invalid_field field state)))
-       (Rfc5322.p_field (fun field -> raise (Lexer.Error (Lexer.err_invalid_field field state))))
+       (fun field next state -> raise (Error.Error (Error.err_invalid_field field state)))
+       (Rfc5322.p_field (fun field -> raise (Error.Error (Error.err_invalid_field field state))))
        (fun fields state -> `Ok (fields, state)))
     state
 
@@ -136,9 +138,9 @@ let p_encapsulation boundary p_octet p state =
 let p_multipart_body boundary parent_boundary p_octet p state =
   let stop_preamble has_text =
     let dash_boundary = m_dash_boundary boundary in
-    Lexer.p_try_rule
+    p_try_rule
       (fun () state ->
-       Lexer.roll_back
+       roll_back
          (fun state -> `Stop state)
          dash_boundary
          state)
@@ -150,26 +152,26 @@ let p_multipart_body boundary parent_boundary p_octet p state =
 
     match parent_boundary with
     | None ->
-      Lexer.p_try_rule
-        (fun () -> Lexer.roll_back (fun state -> `Stop state) "\r\n\r\n")
+      p_try_rule
+        (fun () -> roll_back (fun state -> `Stop state) "\r\n\r\n")
         (fun state -> `Continue state)
         (Rfc822.p_crlf @@ Rfc822.p_crlf @@ (fun state -> `Ok ((), state)))
     | Some boundary ->
       let delimiter = m_delimiter boundary in
       let close_delimiter = m_close_delimiter boundary in
-      Lexer.p_try_rule
-        (fun () -> Lexer.roll_back (fun state -> `Stop state) close_delimiter)
-        (Lexer.p_try_rule
-           (fun () -> Lexer.roll_back (fun state -> `Stop state) delimiter)
+      p_try_rule
+        (fun () -> roll_back (fun state -> `Stop state) close_delimiter)
+        (p_try_rule
+           (fun () -> roll_back (fun state -> `Stop state) delimiter)
            (fun state -> `Continue state)
            (p_delimiter boundary (fun state -> `Ok ((), state))))
         (p_close_delimiter boundary (fun state -> `Ok ((), state)))
   in
   let rec next acc =
-    Lexer.p_try_rule
+    p_try_rule
       (fun data -> next (data :: acc))
       (p_close_delimiter boundary @@ p_transport_padding
-       @@ Lexer.p_try_rule
+       @@ p_try_rule
             (fun () -> p (List.rev acc))
             (p (List.rev acc))
             (Rfc822.p_crlf

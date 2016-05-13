@@ -1,11 +1,16 @@
-open Base
+open BaseLexer
+
+type field =
+  [ Header.field
+  | Content.field
+  | MimeVersion.field ]
 
 (* composition between RFC 5322 and RFC 2045 about the header *)
 let p_header p state =
   Rfc5322.p_header
     (Rfc2045.p_mime_message_headers
-     (fun field p state -> raise (Lexer.Error (Lexer.err_nothing_to_do state)))
-     (fun field p state -> raise (Lexer.Error (Lexer.err_nothing_to_do state))))
+     (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state)))
+     (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state))))
     p state
 
 (* check of the header, eg. {!val:Header.of_lexer} and {!val:Content.of_lexer} *)
@@ -18,8 +23,8 @@ let c_header fields p state =
          (fun content rest state ->
           match rest with
           | [] -> p header content state
-          | _ -> raise (Lexer.Error (Lexer.err_invalid_header state))) state
-     | None -> raise (Lexer.Error (Lexer.err_invalid_header state)))
+          | _ -> raise (Error.Error (Error.err_invalid_header state))) state
+     | None -> raise (Error.Error (Error.err_invalid_header state)))
     state
 
 (* composition betweeen RFC 5322/body, RFC 2045/Base64/body and RFC
@@ -30,18 +35,18 @@ let p_body boundary content p state =
     | Some boundary ->
       let delimiter = Rfc2046.m_delimiter boundary in
       let close_delimiter = Rfc2046.m_close_delimiter boundary in
-      Lexer.p_try_rule
-        (fun () -> Lexer.roll_back (fun state -> `Stop state) close_delimiter)
-        (Lexer.p_try_rule
-           (fun () -> Lexer.roll_back (fun state -> `Stop state) delimiter)
+      p_try_rule
+        (fun () -> roll_back (fun state -> `Stop state) close_delimiter)
+        (p_try_rule
+           (fun () -> roll_back (fun state -> `Stop state) delimiter)
            (fun state -> `Continue state)
            (Rfc2046.p_delimiter boundary (fun state -> `Ok ((), state))))
         (Rfc2046.p_close_delimiter boundary (fun state -> `Ok ((), state)))
     | None ->
       (* TODO: may be it's wrong, I don't see anything about the end of message
                and I don't know if we stop really at [CRLF CRLF]. *)
-      Lexer.p_try_rule
-        (fun () -> Lexer.roll_back (fun state -> `Stop state) "\r\n\r\n")
+      p_try_rule
+        (fun () -> roll_back (fun state -> `Stop state) "\r\n\r\n")
         (fun state -> `Continue state)
         (Rfc822.p_crlf @@ Rfc822.p_crlf (fun state -> `Ok ((), state)))
   in
@@ -53,6 +58,11 @@ let p_body boundary content p state =
   | `Base64                 -> Rfc2045.Base64.p_decode stop p state
   | `QuotedPrintable        -> Rfc2045.QuotedPrintable.p_decode stop p state
 
+let field_of_lexer = function
+  | #Rfc5322.field as x -> (Header.field_of_lexer x :> field)
+  | #Rfc2045.field as x -> (Content.field_of_lexer x :> field)
+  | #Rfc2045.mime_field as x -> (MimeVersion.field_of_lexer x :> field)
+
 (* compute the multipart explained in RFC 2046 § 5 *)
 let rec p_multipart boundary p_body' p state =
   Rfc2046.p_multipart_body boundary None
@@ -62,15 +72,15 @@ let rec p_multipart boundary p_body' p state =
            match ContentType.ty @@ Content.ty content with
            | #Rfc2045.other
            | #Rfc2045.discrete ->
-             p_body' content (fun data -> next (`Discrete ((content, rest), data)))
+             p_body' content (fun data -> next (`Discrete ((content, List.map field_of_lexer rest), data)))
            | #Rfc2045.composite ->
              let parameters = ContentType.parameters @@ Content.ty content in
              try let boundary' = Rfc2045.value_to_string @@ List.assoc "boundary" parameters in
                  Rfc2046.p_multipart_body
                    boundary' (Some boundary)
                    (aux (p_body (Some boundary')))
-                   (fun data -> next (`Composite ((content, rest), data)))
-             with Not_found -> raise (Lexer.Error (Lexer.err_expected_boundary state))
+                   (fun data -> next (`Composite ((content, List.map field_of_lexer rest), data)))
+             with Not_found -> raise (Error.Error (Error.err_expected_boundary state))
        in aux p_body' fields next)
     p state
 
@@ -98,7 +108,7 @@ let rec switch content p_body' p_discrete p_composite state =
           (p_body (Some boundary))
           (fun data -> p_composite data)
           state
-    with Not_found -> raise (Lexer.Error (Lexer.err_expected_boundary state))
+    with Not_found -> raise (Error.Error (Error.err_expected_boundary state))
 
 (* the fucking message ... *)
 let p_message p =
@@ -109,5 +119,5 @@ let p_message p =
             ((switch content (p_body None)
                 (fun data -> p header (`Discrete (content, data)))
                 (fun data -> p header (`Composite (content, data))))
-            :> Lexer.t -> ([> `Error of Lexer.error * string * int * int
+            :> Lexer.t -> ([> `Error of Error.error * string * int * int
                            |  `Read of Bytes.t * int * int * (int -> 'a) ] as 'a))))

@@ -1,3 +1,5 @@
+open BaseLexer
+
 type discrete =
   [ `Application
   | `Audio
@@ -40,6 +42,9 @@ type field =
   | `ContentDescription of string
   | `Content of string * string ]
 
+type mime_field =
+  [ `MimeVersion of int * int ]
+
 let value_to_string = function
   | `String s -> s
   | `Token s  -> s
@@ -55,7 +60,7 @@ let is_token chr =
   && not (Rfc822.is_ctl chr)
   && not (Rfc822.is_space chr)
 
-let p_token state = Lexer.p_while is_token state
+let p_token state = p_while is_token state
 
 let p_attribute = p_token
 
@@ -68,13 +73,13 @@ let p_iana_token p state =
   p (`Iana_token token) state
 
 let p_x_token p state =
-  Lexer.p_set ['X'; 'x'] state;
-  Lexer.p_chr '-' state;
+  p_set ['X'; 'x'] state;
+  p_chr '-' state;
 
   p (`X_token (p_token state)) state
 
 let p_extension_token p state =
-  match Lexer.cur_chr state with
+  match cur_chr state with
   | 'X' | 'x' -> p_x_token p state
   | chr       -> p_ietf_token p state
 
@@ -106,7 +111,7 @@ let p_mechanism p state =
   | "base64" -> p `Base64 state
   | extension_token ->
     let state' = Lexer.of_string extension_token in
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | 'X' | 'x' -> p_x_token (fun t _ -> p t state) state'
     | chr       -> p_ietf_token (fun t _ -> p t state) state'
 
@@ -136,7 +141,7 @@ let ty_to_string = function
   | `X_token s | `Ietf_token s -> s
 
 let p_subtype ty p state =
-  match Lexer.cur_chr state with
+  match cur_chr state with
   | 'X' | 'x' -> p_extension_token p state
   | chr       ->
     let token = p_token state in
@@ -146,7 +151,7 @@ let p_subtype ty p state =
     with exn -> p (`X_token token) state
 
 let p_value p =
-  Lexer.p_try_rule
+  p_try_rule
     (fun data -> p (`String data))
     (fun state -> p (`Token (p_token state)) state)
     (Rfc822.p_quoted_string (fun data state -> `Ok (data, state)))
@@ -155,7 +160,7 @@ let p_parameter p state =
   (Logs.debug @@ fun m -> m "state: p_parameter");
   let name = p_attribute state in
 
-  Lexer.p_chr '=' state;
+  p_chr '=' state;
   p_value (fun value -> p (name, value)) state
 
 let p_content p state =
@@ -165,9 +170,9 @@ let p_content p state =
     let rec aux acc state =
       (Logs.debug @@ fun m -> m "state: p_content/loop");
 
-      match Lexer.cur_chr state with
+      match cur_chr state with
       | ';' ->
-        Lexer.junk_chr state;
+        junk_chr state;
         Rfc822.p_fws
           (fun _ _ ->
            p_parameter
@@ -181,11 +186,11 @@ let p_content p state =
   in
   Rfc822.p_cfws
     (fun _ -> p_type (fun ty state ->
-      Lexer.p_chr '/' state;
+      p_chr '/' state;
       Rfc822.p_cfws (fun _ ->
         p_subtype (ty_to_string ty) (fun subty ->
         Rfc822.p_cfws (fun _ state ->
-          match Lexer.cur_chr state with
+          match cur_chr state with
           | ';' -> loop (fun parameters -> Rfc822.p_cfws (fun _ -> p (ty, subty, parameters))) state
           | chr -> p (ty, subty, []) state)))
     state))
@@ -193,11 +198,11 @@ let p_content p state =
 
 let p_version p state =
   Rfc822.p_cfws (fun _ state ->
-    let a = int_of_string @@ Lexer.p_while Rfc822.is_digit state in
+    let a = int_of_string @@ p_while Rfc822.is_digit state in
     Rfc822.p_cfws (fun _ state ->
-      Lexer.p_chr '.' state;
+      p_chr '.' state;
       Rfc822.p_cfws (fun _ state ->
-        let b = int_of_string @@ Lexer.p_while Rfc822.is_digit state in
+        let b = int_of_string @@ p_while Rfc822.is_digit state in
         Rfc822.p_cfws (fun _ -> (Logs.debug @@ fun m -> m "state: p_version (%d.%d)" a b); p (a, b)) state)
       state)
     state)
@@ -231,7 +236,7 @@ let p_field mime_extend extend field p state =
               in this case, we raise an error. *)
       if String.length field >= 8 && String.sub field 0 8 = "content-"
       then let field = String.sub field 8 (String.length field - 8) in
-           Lexer.p_try_rule p
+           p_try_rule p
              (Rfc822.p_text @@ (fun _ value -> Rfc822.p_crlf @@ p (`Content (field, value))))
              (mime_extend field (fun data state -> `Ok (data, state)))
       else extend field p
@@ -243,14 +248,14 @@ let p_entity_headers extend_mime extend p state =
   (Logs.debug @@ fun m -> m "state: p_entity_headers'");
 
   let rec loop acc state =
-    Lexer.p_try_rule
+    p_try_rule
       (fun field -> loop (field :: acc))
       (p (List.rev acc))
       (fun state ->
         let field = Rfc822.p_field_name state in
-        let _     = Lexer.p_repeat Rfc822.is_lwsp state in
+        let _     = p_repeat Rfc822.is_lwsp state in
 
-        Lexer.p_chr ':' state;
+        p_chr ':' state;
         (Logs.debug @@ fun m -> m "state: p_entity_headers (try with %s)" field);
 
         p_field extend_mime extend field (fun data state -> `Ok (data, state)) state)

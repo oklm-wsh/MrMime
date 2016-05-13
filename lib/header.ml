@@ -1,4 +1,4 @@
-open Base
+open BasePP
 
 type phrase = [ `Phrase of Rfc5322.phrase ]
 
@@ -19,6 +19,48 @@ type t =
   ; comments      : Rfc5322.phrase list
   ; keywords      : Rfc5322.phrase list
   ; others        : (string * Rfc5322.phrase) list }
+
+type field =
+  [ `From            of Address.person list
+  | `Date            of Date.t
+  | `Sender          of Address.person
+  | `ReplyTo         of Address.List.t
+  | `To              of Address.List.t
+  | `Cc              of Address.List.t
+  | `Bcc             of Address.List.t
+  | `Subject         of Rfc5322.phrase
+  | `Comments        of Rfc5322.phrase
+  | `Keywords        of Rfc5322.phrase list
+  | `MessageID       of MsgID.t
+  | `InReplyTo       of [ phrase | `MsgID of MsgID.t ] list
+  | `References      of [ phrase | `MsgID of MsgID.t ] list
+  | `Field           of string * Rfc5322.phrase
+  | Resent.field
+  | Trace.field ]
+
+let field_of_lexer : Rfc5322.field -> field = function
+  | `From l -> `From (List.map Address.person_of_lexer l)
+  | `Date d -> `Date (Date.of_lexer d)
+  | `Sender p -> `Sender (Address.person_of_lexer p)
+  | `ReplyTo l -> `ReplyTo (Address.List.of_lexer l)
+  | `To l -> `To (Address.List.of_lexer l)
+  | `Cc l -> `Cc (Address.List.of_lexer l)
+  | `Bcc l -> `Bcc (Address.List.of_lexer l)
+  | `Subject p -> `Subject p
+  | `Comments c -> `Comments c
+  | `Keywords l -> `Keywords l
+  | `MessageID m -> `MessageID (MsgID.of_lexer m)
+  | `InReplyTo l ->
+    let l = List.map (function `MsgID m -> `MsgID (MsgID.of_lexer m)
+                             | #phrase as x -> x) l
+    in `InReplyTo l
+  | `References l ->
+    let l = List.map (function `MsgID m -> `MsgID (MsgID.of_lexer m)
+                             | #phrase as x -> x) l
+    in `References l
+  | `Field f -> `Field f
+  | #Rfc5322.resent as x -> (Resent.field_of_lexer x :> field)
+  | #Rfc5322.trace as x -> (Trace.field_of_lexer x :> field)
 
 let of_lexer fields p state =
   let from          = ref None in
@@ -95,54 +137,54 @@ let of_lexer fields p state =
         (match !date with
          | None   -> date := Some (Date.of_lexer d);
                      loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Date" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "Date" state)))
       | `From f ->
         (match !from with
          | None   -> from := Some (List.map Address.person_of_lexer f);
                      loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "From" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "From" state)))
       | `Sender c ->
         (match !sender with
          | None   -> sender := Some (Address.person_of_lexer c); loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Sender" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "Sender" state)))
       | `ReplyTo r ->
         (match !reply_to with
          | None   -> reply_to := Some (Address.List.of_lexer r); loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Reply-To" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "Reply-To" state)))
       | `To l ->
         (match !target with
          | None   -> target := Some (Address.List.of_lexer l); loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "To" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "To" state)))
       | `Cc l ->
         (match !cc with
          | None   -> cc := Some (Address.List.of_lexer l); loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Cc" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "Cc" state)))
       | `Bcc l ->
         (match !bcc with
          | None   -> bcc := Some (Address.List.of_lexer l); loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Bcc" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "Bcc" state)))
       | `MessageID m ->
         (match !msg_id with
          | None   -> msg_id := Some (MsgID.of_lexer m); loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Message-ID" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "Message-ID" state)))
       | `InReplyTo l ->
         let f = List.map (function `MsgID m -> `MsgID (MsgID.of_lexer m)
                                  | #phrase as x -> x)
         in
         (match !in_reply_to with
          | None   -> in_reply_to := Some (f l); loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "In-Reply-To" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "In-Reply-To" state)))
       | `References l ->
         let f = List.map (function `MsgID m -> `MsgID (MsgID.of_lexer m)
                                  | #phrase as x -> x)
         in
         (match !references with
          | None   -> references := Some (f l); loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "References" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "References" state)))
       | `Subject s ->
         (match !subject with
          | None   -> subject := Some s; loop garbage rest
-         | Some _ -> raise (Lexer.Error (Lexer.err_unexpected_field "Subject" state)))
+         | Some _ -> raise (Error.Error (Error.err_unexpected_field "Subject" state)))
       | `Comments c ->
         comments := c :: !comments;
         loop garbage rest
@@ -210,7 +252,7 @@ let of_string s =
       let fmt = Format.formatter_of_buffer tmp in
 
       Format.fprintf fmt "%a (buf: %S)%!"
-        Lexer.pp_error exn (Bytes.sub buf off (len - off));
+        Error.pp exn (Bytes.sub buf off (len - off));
 
       raise (Invalid_argument ("Header.of_string: " ^ (Buffer.contents tmp)))
     | `Read (buf, off, len, k) ->
@@ -219,10 +261,10 @@ let of_string s =
   in
 
   let rule = Rfc5322.p_header
-    (fun field p state -> raise (Lexer.Error (Lexer.err_nothing_to_do state)))
+    (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state)))
     (fun fields state -> `Ok (fields, state)) in
 
-  match loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n")) with
+  match loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n")) with
   | Some header -> header
   | None -> raise (Invalid_argument "Header.of_string: incomplete header")
 

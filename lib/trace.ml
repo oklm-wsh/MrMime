@@ -1,6 +1,6 @@
 (* TODO: implement RFC 5321 § 4.4 *)
 
-open Base
+open BasePP
 
 type word = [ `Word of Rfc5322.word ]
 
@@ -12,6 +12,20 @@ type received =
 type t =
   { received : (received list * Date.t option) list
   ; path     : Address.mailbox option }
+
+type field =
+  [ `Received of received list * Date.t option
+  | `ReturnPath of Address.mailbox option ]
+
+let field_of_lexer : Rfc5322.trace -> field = function
+  | `Received (l, d) ->
+    let l = List.map (function
+                      | `Domain d  -> `Domain (Address.domain_of_lexer d)
+                      | `Mailbox a -> `Mailbox (Address.mailbox_of_lexer a)
+                      | #word as x -> x) l in
+    let d = Option.bind Date.of_lexer d in
+    `Received (l, d)
+  | `ReturnPath a -> `ReturnPath (Option.bind Address.mailbox_of_lexer a)
 
 let of_lexer fields p state =
   let received = ref [] in

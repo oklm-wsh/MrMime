@@ -1,4 +1,4 @@
-open Base
+open BasePP
 
 type left  = Rfc5322.left
 type right = Rfc5322.right
@@ -26,7 +26,7 @@ let of_string s =
       let fmt = Format.formatter_of_buffer tmp in
 
       Format.fprintf fmt "%a (buf: %S)%!"
-        Lexer.pp_error exn (Bytes.sub buf off (len - off));
+        Error.pp exn (Bytes.sub buf off (len - off));
 
       raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
     | `Read (buf, off, len, k) ->
@@ -35,7 +35,7 @@ let of_string s =
   in
 
   let rule = Rfc5322.p_msg_id (fun data state -> `Ok data) in
-  loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
+  loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
 let to_string t =
   let tmp = Buffer.create 16 in

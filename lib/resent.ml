@@ -1,4 +1,4 @@
-open Base
+open BasePP
 
 type t =
   { date     : Date.t
@@ -9,6 +9,26 @@ type t =
   ; bcc      : Address.List.t option
   ; msg_id   : MsgID.t option
   ; reply_to : Address.List.t option }
+
+type field =
+  [ `ResentDate of Date.t
+  | `ResentFrom of Address.person list
+  | `ResentSender of Address.person
+  | `ResentTo of Address.List.t
+  | `ResentCc of Address.List.t
+  | `ResentBcc of Address.List.t
+  | `ResentMessageID of MsgID.t
+  | `ResentReplyTo of Address.List.t ]
+
+let field_of_lexer : Rfc5322.resent -> field = function
+  | `ResentDate d -> `ResentDate (Date.of_lexer d)
+  | `ResentFrom l -> `ResentFrom (List.map Address.person_of_lexer l)
+  | `ResentSender p -> `ResentSender (Address.person_of_lexer p)
+  | `ResentTo l -> `ResentTo (Address.List.of_lexer l)
+  | `ResentCc l -> `ResentCc (Address.List.of_lexer l)
+  | `ResentBcc l -> `ResentBcc (Address.List.of_lexer l)
+  | `ResentMessageID m -> `ResentMessageID (MsgID.of_lexer m)
+  | `ResentReplyTo l -> `ResentReplyTo (Address.List.of_lexer l)
 
 let of_lexer fields p state =
   let date     = ref None in

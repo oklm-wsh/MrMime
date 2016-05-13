@@ -1,3 +1,5 @@
+open BaseLexer
+
 module F =
 struct
   let add_newline buf =
@@ -117,9 +119,9 @@ let is_hex_octet = function
   | chr        -> Rfc822.is_digit chr
 
 let p_hex_octet p state =
-  Lexer.p_chr '=' state;
+  p_chr '=' state;
 
-  let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+  let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
   p (F.hex s) state
 
 (* See RFC 2045 § 6.7:
@@ -130,12 +132,12 @@ let p_ptext p state =
   let buf = Buffer.create 16 in
 
   let rec loop state =
-    match Lexer.cur_chr state with
+    match cur_chr state with
     | '=' -> p_hex_octet (fun chr state -> Buffer.add_char buf chr; loop state) state
     | chr when is_safe_char chr ->
       Buffer.add_char buf chr;
       loop state
-    | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
+    | chr -> raise (Error.Error (Error.err_unexpected chr state))
   in
 
   loop state
@@ -146,11 +148,11 @@ let p_ptext p state =
 *)
 let p_qp_section p state =
   let rec loop acc =
-    Lexer.p_try_rule (fun data -> loop (data :: acc))
+    p_try_rule (fun data -> loop (data :: acc))
       (fun state ->
-       match Lexer.cur_chr state with
+       match cur_chr state with
        | '\x20' | '\x09' ->
-         Lexer.junk_chr state;
+         junk_chr state;
          loop acc state
        | chr -> p (String.concat " " @@ List.rev acc) state)
       (p_ptext (fun data state -> `Ok (data, state)) state)
@@ -166,8 +168,8 @@ let p_qp_section p state =
 let p_qp_segment p state =
   p_qp_section
     (fun s state ->
-     let _ = Lexer.p_repeat (function '\x20' | '\x09' -> true | _ -> false) in
-     Lexer.p_chr '=' state;
+     let _ = p_repeat (function '\x20' | '\x09' -> true | _ -> false) in
+     p_chr '=' state;
      p s state)
     state
 
@@ -189,7 +191,7 @@ let p_qp_part = p_qp_section
 
 *)
 let p_transport_padding p state =
-  let _ = Lexer.p_repeat Rfc822.is_lwsp state in
+  let _ = p_repeat Rfc822.is_lwsp state in
   p state
 
 (* See RFC 2045 § 6.7:
@@ -199,15 +201,15 @@ let p_transport_padding p state =
 *)
 let p_qp_line p state =
   let rec loop acc =
-    Lexer.p_try_rule
+    p_try_rule
       (fun seg -> loop (seg :: acc))
       (p_qp_part (fun seg -> p_transport_padding (p (List.rev @@ seg :: acc))))
       (p_qp_segment
        (fun seg ->
         p_transport_padding
           (fun state ->
-           Lexer.p_chr '\r' state;
-           Lexer.p_chr '\n' state;
+           p_chr '\r' state;
+           p_chr '\n' state;
            `Ok (seg, state))))
   in
 
@@ -219,12 +221,12 @@ let p_qp_line p state =
 *)
 let p_quoted_printable p state =
   let rec loop acc =
-    Lexer.p_try_rule
+    p_try_rule
       (fun line -> loop (line :: acc))
       (p (List.rev acc))
       (fun state ->
-       Lexer.p_chr '\r' state;
-       Lexer.p_chr '\n' state;
+       p_chr '\r' state;
+       p_chr '\n' state;
 
        p_qp_line (fun line state -> `Ok (line, state)) state)
   in
@@ -263,27 +265,27 @@ let p_inline_decode stop p state =
   let rec decode state =
     let rec aux = function
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        match Lexer.cur_chr state with
+        match cur_chr state with
         | '=' ->
-          Lexer.junk_chr state;
-          let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+          junk_chr state;
+          let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
           F.add_char buf (F.hex s);
           decode state
         | '_' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf ' ';
           decode state
         | '?' ->
-          raise (Lexer.Error (Lexer.err_unexpected '?' state))
+          raise (Error.Error (Error.err_unexpected '?' state))
         | chr ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf chr;
           decode state
-    in aux @@ Lexer.safe stop state
+    in aux @@ safe stop state
   in
 
   decode state
@@ -384,33 +386,33 @@ let p_decode stop p state =
   let rec decode state =
     let rec aux = function
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        match Lexer.cur_chr state with
+        match cur_chr state with
          | '=' ->
-           Lexer.p_chr '=' state;
+           p_chr '=' state;
 
-           if Lexer.p_try is_hex_octet state = 2
+           if p_try is_hex_octet state = 2
            then begin
-             let s = Lexer.p_repeat ~a:2 ~b:2 is_hex_octet state in
+             let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
 
              F.add_char buf (F.hex s);
              decode state
            end else begin
-             Lexer.p_chr '\r' state;
-             Lexer.p_chr '\n' state;
+             p_chr '\r' state;
+             p_chr '\n' state;
 
              decode state
            end
          | '\x20' | '\x09' ->
-           let lwsp = Lexer.p_while Rfc822.is_lwsp state in
+           let lwsp = p_while Rfc822.is_lwsp state in
 
-           if Lexer.cur_chr state = '\r'
+           if cur_chr state = '\r'
            then begin
-             Lexer.p_chr '\r' state;
-             Lexer.p_chr '\n' state;
+             p_chr '\r' state;
+             p_chr '\n' state;
 
              F.add_newline buf;
              decode state
@@ -420,12 +422,12 @@ let p_decode stop p state =
            end
 
          | chr when is_safe_char chr  ->
-           Lexer.junk_chr state;
+           junk_chr state;
            F.add_char buf chr;
            decode state
 
-         | chr -> raise (Lexer.Error (Lexer.err_unexpected chr state))
-    in aux (Lexer.safe stop state)
+         | chr -> raise (Error.Error (Error.err_unexpected chr state))
+    in aux (safe stop state)
   in
 
   decode state
@@ -436,37 +438,37 @@ let p_inline_encode stop p state =
   let rec encode state =
     let rec aux = function
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        match Lexer.cur_chr state with
+        match cur_chr state with
         | '\x20' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf '_';
           encode state
         | '\x09' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_string buf "=09";
           encode state
         | '?' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_string buf "=3F";
           encode state
         | '_' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_string buf "=5F";
           encode state
         | '=' ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_string buf "=3D";
           encode state
         | chr when is_safe_char chr ->
-          Lexer.junk_chr state;
+          junk_chr state;
           Buffer.add_char buf chr;
           encode state
         | chr ->
-          Lexer.junk_chr state;
+          junk_chr state;
 
           let code = Char.code chr in
           let h    = (code lsr 4) land (16 - 1) in
@@ -477,7 +479,7 @@ let p_inline_encode stop p state =
           Buffer.add_char buf T._to.[l];
 
           encode state
-    in aux @@ Lexer.safe stop state
+    in aux @@ safe stop state
   in
 
   encode state
@@ -489,14 +491,14 @@ let p_encode stop p state =
     let rec aux = function
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        (match Lexer.cur_chr state with
+        (match cur_chr state with
          | '\x20' | '\x09' as chr ->
-           Lexer.junk_chr state;
+           junk_chr state;
 
-           if Lexer.cur_chr state = '\n'
+           if cur_chr state = '\n'
            then begin
              T.add_newline buf qp (Some chr);
-             Lexer.junk_chr state;
+             junk_chr state;
              encode qp state
            end else begin
              T.add_wsp buf qp chr;
@@ -504,15 +506,15 @@ let p_encode stop p state =
            end
          | chr when is_safe_char chr ->
            T.add_char buf qp chr;
-           Lexer.junk_chr state;
+           junk_chr state;
            encode qp state
          | chr ->
            T.add_quoted_char buf qp chr;
-           Lexer.junk_chr state;
+           junk_chr state;
            encode qp state)
-      | #Lexer.err as r -> r
+      | #Error.err as r -> r
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
     in aux (stop state)
   in
 

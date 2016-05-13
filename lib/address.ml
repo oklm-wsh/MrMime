@@ -1,4 +1,4 @@
-open Base
+open BasePP
 
 type atom     = Rfc5322.atom
 type domain   = [ `Domain of atom list | `Literal of string | LiteralDomain.t ]
@@ -97,7 +97,7 @@ let of_string s =
       let fmt = Format.formatter_of_buffer tmp in
 
       Format.fprintf fmt "%a (buf: %S)%!"
-        Lexer.pp_error exn (Bytes.sub buf off (len - off));
+        Error.pp exn (Bytes.sub buf off (len - off));
 
       raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
     | `Read (buf, off, len, k) ->
@@ -107,7 +107,7 @@ let of_string s =
 
   let rule = Rfc5322.p_address
     (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
-  loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
+  loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
 let to_string t =
   let tmp = Buffer.create 16 in
@@ -131,7 +131,7 @@ struct
         let fmt = Format.formatter_of_buffer tmp in
 
         Format.fprintf fmt "%a (buf: %S)%!"
-          Lexer.pp_error exn (Bytes.sub buf off (len - off));
+          Error.pp exn (Bytes.sub buf off (len - off));
 
         raise (Invalid_argument ("Address.List.of_string: "
                                  ^ (Buffer.contents tmp)))
@@ -142,7 +142,7 @@ struct
 
     let rule = Rfc5322.p_address_list
       (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
-    loop @@ Lexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
+    loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
   let pp fmt =
     p fmt "%a" (pp_list ~sep:", " pp)

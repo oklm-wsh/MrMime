@@ -1,3 +1,5 @@
+open BaseLexer
+
 module T =
 struct
   let _to =
@@ -170,30 +172,30 @@ let p_decode stop p state =
     let rec aux = function
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        (match Lexer.cur_chr state with
+        (match cur_chr state with
          | 'A' .. 'Z'
          | 'a' .. 'z'
          | '0' .. '9'
          | '+' | '/' as chr ->
            if padding = 0
            then begin
-             Lexer.junk_chr state;
+             junk_chr state;
              decode (F.add base64 chr buf) padding state
            end else begin
              F.flush base64 buf;
-             raise (Lexer.Error (Lexer.err_unexpected chr state))
+             raise (Error.Error (Error.err_unexpected chr state))
            end
          | '=' ->
-           Lexer.junk_chr state;
+           junk_chr state;
            decode base64 (padding + 1) state
          | chr ->
            F.flush base64 buf;
            if F.padding base64 padding
            then p (Buffer.contents buf) state
-           else raise (Lexer.Error (Lexer.err_wrong_padding state)))
+           else raise (Error.Error (Error.err_wrong_padding state)))
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
     in aux (stop state)
   in
 
@@ -208,12 +210,12 @@ let p_encode stop p state =
         T.flush base64 buf;
         p (Buffer.contents buf) state
       | `Continue state ->
-        let chr = Lexer.cur_chr state in
-        Lexer.junk_chr state;
+        let chr = cur_chr state in
+        junk_chr state;
         encode (T.add base64 chr buf) state
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
     in aux (stop state)
   in
 
@@ -228,12 +230,12 @@ let p_encode' ?(wrap = true) stop p state =
         T.flush base64 buf;
         p (Buffer.contents buf) state
       | `Continue state ->
-        let chr = Lexer.cur_chr state in
-        Lexer.junk_chr state;
+        let chr = cur_chr state in
+        junk_chr state;
         encode (T.add base64 chr buf) state
       | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ Lexer.safe k i))
-      | #Lexer.err as err -> err
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
     in aux (stop state)
   in
 
