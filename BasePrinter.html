@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Option.html">
+<link rel="next" href="Iana.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
+<link title="Lexer" rel="Chapter" href="Lexer.html">
+<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>BasePrinter</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Option.html" title="Option">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Iana.html" title="Iana">Next</a>
+</div>
+<h1>Module <a href="type_BasePrinter.html">BasePrinter</a> (<a href="code_BasePrinter.html">.ml</a>)</h1>
+
+<pre><span class="keyword">module</span> BasePrinter: <code class="code"><span class="keyword">sig</span></code> <a href="BasePrinter.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="VALp"><span class="keyword">val</span> <a href="code_VALBasePrinter.p.html">p</a></span> : <code class="type">Format.formatter -> ('a, Format.formatter, unit) Pervasives.format -> 'a</code></pre>
+<pre><span id="VALpp_list"><span class="keyword">val</span> <a href="code_VALBasePrinter.pp_list.html">pp_list</a></span> : <code class="type">?sep:string -><br>       (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a list -> unit</code></pre>
+<pre><span id="VALpp_string"><span class="keyword">val</span> <a href="code_VALBasePrinter.pp_string.html">pp_string</a></span> : <code class="type">?in_qs:bool -> ?in_dm:bool -> Format.formatter -> string -> unit</code></pre>
+<pre><span id="VALpp_atom"><span class="keyword">val</span> <a href="code_VALBasePrinter.pp_atom.html">pp_atom</a></span> : <code class="type">Format.formatter -> [< `Atom of string ] -> unit</code></pre>
+<pre><span id="VALpp_word"><span class="keyword">val</span> <a href="code_VALBasePrinter.pp_word.html">pp_word</a></span> : <code class="type">Format.formatter -><br>       [< `Atom of string | `Encoded of 'a * 'b * string | `String of string ] -><br>       unit</code></pre>
+<pre><span id="VALpp_phrase"><span class="keyword">val</span> <a href="code_VALBasePrinter.pp_phrase.html">pp_phrase</a></span> : <code class="type">Format.formatter -><br>       [< `Atom of string<br>        | `Dot<br>        | `Encoded of string * <a href="Rfc2047.html#TYPEencoding">Rfc2047.encoding</a> * string<br>        | `String of string<br>        | `WSP<br>        > `Atom `Encoded ]<br>       list -> unit</code></pre></body></html>
