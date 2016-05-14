@@ -1,4 +1,4 @@
-open BasePP
+open BasePrinter
 
 type ty    = Rfc2045.ty
 type subty = Rfc2045.subty

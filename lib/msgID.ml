@@ -1,4 +1,4 @@
-open BasePP
+open BasePrinter
 
 type left  = Rfc5322.left
 type right = Rfc5322.right

@@ -1,6 +1,6 @@
 (* TODO: implement RFC 5321 § 4.4 *)
 
-open BasePP
+open BasePrinter
 
 type word = [ `Word of Rfc5322.word ]
 

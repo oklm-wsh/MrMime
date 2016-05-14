@@ -1,4 +1,4 @@
-open BasePP
+open BasePrinter
 
 type phrase = [ `Phrase of Rfc5322.phrase ]
 

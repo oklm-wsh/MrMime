@@ -1,4 +1,4 @@
-open BasePP
+open BasePrinter
 
 type atom     = Rfc5322.atom
 type domain   = [ `Domain of atom list | `Literal of string | LiteralDomain.t ]

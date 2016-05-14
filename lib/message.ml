@@ -1,4 +1,4 @@
-open BasePP
+open BasePrinter
 
 type field = Grammar.field
 
