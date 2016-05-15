@@ -96,5 +96,5 @@ let pp fmt { ty; encoding; version; id; } =
 
   p fmt "MIME-Version: %a\r\n" MimeVersion.pp version;
   p fmt "Content-Type: %a\r\n" ContentType.pp ty;
-  p fmt "Content-Encoding: %a\r\n" ContentEncoding.pp encoding;
+  p fmt "Content-Transfer-Encoding: %a\r\n" ContentEncoding.pp encoding;
   pp_field_opt fmt "Content-ID" MsgID.pp id;
