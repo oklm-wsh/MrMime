@@ -97,6 +97,14 @@ Executable test_header
   MainIs:               header_test.ml
   BuildDepends:         mrmime, alcotest
 
+Executable test_message
+  Path:                 lib_test
+  Build$:               flag(tests)
+  Install:              false
+  CompiledObject:       best
+  MainIs:               message_test.ml
+  BuildDepends:         mrmime, alcotest, re.str
+
 Test test_address
   Run$:                 flag(tests)
   TestTools:            test_address
@@ -113,4 +121,10 @@ Test test_header
   Run$:                 flag(tests)
   TestTools:            test_header
   Command:              $test_header
+  WorkingDirectory:     .
+
+Test test_message
+  Run$:                 flag(tests)
+  TestTools:            test_message
+  Command:              $test_message
   WorkingDirectory:     .
