@@ -163,8 +163,6 @@ let p_msg_id = p_msg_id
    obs-phrase      = word *(word / "." / CFWS)
 *)
 let p_phrase p state =
-  (Logs.debug @@ fun m -> m "state: p_phrase");
-
   let add_fws has_fws element words =
     if has_fws
     then element :: `WSP :: words
@@ -180,8 +178,6 @@ let p_phrase p state =
   in
 
   let rec obs words state =
-    (Logs.debug @@ fun m -> m "state: p_phrase/obs");
-
     p_cfws (fun has_fws state -> match cur_chr state with
             | '.' ->
               junk_chr state; obs (add_fws has_fws `Dot words) state
@@ -197,8 +193,6 @@ let p_phrase p state =
   in
 
   let rec loop words state =
-    (Logs.debug @@ fun m -> m "state: p_phrase/loop");
-
     (* XXX: we catch [p_word] (with its [CFWS] in [p_atom]/[p_quoted_string])
             to determine if we need to switch to [obs] (if we have a '.'),
             or to continue [p_word] *)
@@ -390,8 +384,6 @@ let p_unstructured p state =
 
 (* [CFWS] 2DIGIT [CFWS] *)
 let p_cfws_2digit_cfws p state =
-  (Logs.debug @@ fun m -> m "state: p_cfws_2digit_cfws");
-
   p_cfws (fun _ state -> let n = p_repeat ~a:2 ~b:2 is_digit state in
                        p_cfws (p (int_of_string n)) state) state
 (* See RFC 5322 § 4.3:
@@ -401,15 +393,12 @@ let p_cfws_2digit_cfws p state =
    obs-second      = [CFWS] 2DIGIT [CFWS]
 *)
 let p_obs_hour p state =
-  (Logs.debug @@ fun m -> m "state: p_obs_hour");
   p_cfws_2digit_cfws (fun n _ -> p n) state
 
 let p_obs_minute p state =
-  (Logs.debug @@ fun m -> m "state: p_obs_minute");
   p_cfws_2digit_cfws (fun n _ -> p n) state
 
 let p_obs_second p state =
-  (Logs.debug @@ fun m -> m "state: p_obs_second");
   p_cfws_2digit_cfws p state
 
 (* See RFC 5322 § 3.3:
@@ -419,8 +408,6 @@ let p_obs_second p state =
    second          = 2DIGIT / obs-second
 *)
 let p_2digit_or_obs p state =
-  (Logs.debug @@ fun m -> m "state: p_2digit_or_obs");
-
   if p_try is_digit state = 2
   then let n = p_while is_digit state in
        p_cfws (p (int_of_string n)) state
@@ -430,15 +417,12 @@ let p_2digit_or_obs p state =
   else p_cfws_2digit_cfws p state
 
 let p_hour p state =
-  (Logs.debug @@ fun m -> m "state: p_hour");
   p_2digit_or_obs (fun n _ -> p n) state
 
 let p_minute p state =
-  (Logs.debug @@ fun m -> m "state: p_minute");
   p_2digit_or_obs p state
 
 let p_second p state =
-  (Logs.debug @@ fun m -> m "state: p_second");
   p_2digit_or_obs p state
 
 (* See RFC 5322 § 3.3 & 4.3:
@@ -452,8 +436,6 @@ let p_obs_year p state =
                          p_cfws (fun _ -> p (int_of_string y)) state) state
 
 let p_year has_already_fws p state =
-  (Logs.debug @@ fun m -> m "state: p_year");
-
   (* (FWS 4*DIGIT FWS) / obs-year *)
   p_fws (fun has_wsp has_fws state ->
     if (has_wsp || has_fws || has_already_fws) && p_try is_digit state >= 4
@@ -471,15 +453,11 @@ let p_year has_already_fws p state =
    obs-day         = [CFWS] 1*2DIGIT [CFWS]
 *)
 let p_obs_day p state =
-  (Logs.debug @@ fun m -> m "state: p_obs_day");
-
   p_cfws (fun _ state -> let d = p_repeat ~a:1 ~b:2 is_digit state in
                          p_cfws (fun _ -> p (int_of_string d)) state)
     state
 
 let p_day p state =
-  (Logs.debug @@ fun m -> m "state: p_day");
-
   p_fws (fun _ _ state ->
          if is_digit @@ cur_chr state
          then let d = p_repeat ~a:1 ~b:2 is_digit state in
@@ -499,8 +477,6 @@ let p_day p state =
                      "Sep" / "Oct" / "Nov" / "Dec"
 *)
 let p_month p state =
-  (Logs.debug @@ fun m -> m "state: p_month");
-
   let month = p_repeat ~a:3 ~b:3 is_alpha state in
 
   let month = match month with
@@ -526,8 +502,6 @@ let p_month p state =
                      "Fri" / "Sat" / "Sun"
 *)
 let p_day_name p state =
-  (Logs.debug @@ fun m -> m "state: p_day_name");
-
   let day = p_repeat ~a:3 ~b:3 is_alpha state in
 
   let day = match day with
@@ -548,8 +522,6 @@ let p_day_name p state =
    obs-day-of-week = [CFWS] day-name [CFWS]
 *)
 let p_day_of_week p =
-  (Logs.debug @@ fun m -> m "state: p_day_of_week");
-
   p_fws
   @@ fun _ _ state ->
      if is_alpha (cur_chr state) then p_day_name p state
@@ -561,8 +533,6 @@ let p_day_of_week p =
    date            = day month year
 *)
 let p_date p =
-  (Logs.debug @@ fun m -> m "state: p_date");
-
   p_day (fun d -> p_month (fun m -> p_year false (fun y -> p (d, m, y))))
 
 (* See RFC 5322 § 3.3:
@@ -641,8 +611,6 @@ let p_obs_zone p state =
    zone            = (FWS ( "+" / "-" ) 4DIGIT) / obs-zone
 *)
 let p_zone has_already_fws p state =
-  (Logs.debug @@ fun m -> m "state: p_zone %b" has_already_fws);
-
   p_fws (fun has_wsp has_fws state ->
          match has_already_fws || has_wsp || has_fws, cur_chr state with
          | true, '+' ->
@@ -664,8 +632,6 @@ let p_zone has_already_fws p state =
    time            = time-of-day zone
 *)
 let p_time p state =
-  (Logs.debug @@ fun m -> m "state: p_time");
-
   p_time_of_day
     (fun has_fws (hh, mm, dd) ->
      p_zone has_fws (fun tz -> p ((hh, mm, dd), tz)))
@@ -676,17 +642,11 @@ let p_time p state =
    date-time       = [ day-of-week "," ] date time [CFWS]
 *)
 let p_date_time p state =
-  (Logs.debug @@ fun m -> m "state: p_date_time");
-
   let aux ?day state =
-    (Logs.debug @@ fun m -> m "state: p_date_time/aux");
-
     p_date
       (fun (d, m, y) ->
        p_time (fun ((hh, mm, ss), tz) ->
-               p_cfws (fun _ ->
-                       (Logs.debug @@ fun m -> m "state: p_date_time/end");
-                       p (day, (d, m, y), (hh, mm, ss), tz))))
+               p_cfws (fun _ -> p (day, (d, m, y), (hh, mm, ss), tz))))
     state
   in
 
@@ -828,8 +788,6 @@ let p_domain p =
    addr-spec       = local-part "@" domain
 *)
 let p_addr_spec p state =
-  (Logs.debug @@ fun m -> m "state: p_addr_spec");
-
   p_local_part (fun local_part state ->
                 p_chr '@' state;
                 p_domain (fun domain -> p (local_part, domain)) state)
@@ -877,16 +835,14 @@ let p_obs_route p =
    obs-angle-addr  = [CFWS] "<" obs-route addr-spec ">" [CFWS]
 *)
 let p_obs_angle_addr p state =
-  (Logs.debug @@ fun m -> m "state: p_obs_angle_addr");
-
   p_cfws                                                 (* [CFWS] *)
     (fun _ state ->
-      p_chr '<' state;                             (* "<" *)
+      p_chr '<' state;                                   (* "<" *)
       p_obs_route                                        (* obs-route *)
         (fun domains ->
           p_addr_spec                                    (* addr-spec *)
             (fun (local_part, domain) state ->
-              p_chr '>' state;                     (* ">" *)
+              p_chr '>' state;                           (* ">" *)
               p_cfws                                     (* [CFWS] *)
                 (fun _ ->
                   p (local_part, domain :: domains)) state))
@@ -934,8 +890,6 @@ let p_obs_angle_addr p state =
 *)
 
 let p_angle_addr p state =
-  (Logs.debug @@ fun m -> m "state: p_angle_addr");
-
   let first p state =
     p_cfws
     (fun _ state ->
@@ -959,7 +913,6 @@ let p_angle_addr p state =
    XXX: Updated by RFC 2047
 *)
 let p_display_name p state =
-  (Logs.debug @@ fun m -> m "state: p_display_name");
   p_phrase p state
 
 (* See RFC 5322 § 3.4:
@@ -967,8 +920,6 @@ let p_display_name p state =
    name-addr       = [display-name] angle-addr
 *)
 let p_name_addr p state =
-  (Logs.debug @@ fun m -> m "state: p_name_addr");
-
   p_cfws (fun _ state -> match cur_chr state with
     | '<' -> p_angle_addr (fun addr -> p (None, addr)) state
     | chr ->
@@ -982,8 +933,6 @@ let p_name_addr p state =
    mailbox         = name-addr / addr-spec
 *)
 let p_mailbox p state =
-  (Logs.debug @@ fun m -> m "state: p_mailbox");
-
   p_try_rule p
     (p_addr_spec (fun (local_part, domain) -> p (None, (local_part, [domain]))))
     (p_name_addr (fun name_addr state -> `Ok (name_addr, state)))
@@ -994,8 +943,6 @@ let p_mailbox p state =
    obs-mbox-list   = *([CFWS] ",") mailbox *("," [mailbox / CFWS])
 *)
 let p_obs_mbox_list p state =
-  (Logs.debug @@ fun m -> m "state: p_obs_mbox_list");
-
   (* *("," [mailbox / CFWS]) *)
   let rec loop1 acc state =
     match cur_chr state with
@@ -1024,8 +971,6 @@ let p_obs_mbox_list p state =
    mailbox-list    = (mailbox *("," mailbox)) / obs-mbox-list
 *)
 let p_mailbox_list p state =
-  (Logs.debug @@ fun m -> m "state: p_mailbox_list");
-
   (* *("," [mailbox / CFWS]) *)
   let rec obs acc state =
     match cur_chr state with
@@ -1078,13 +1023,9 @@ let p_group_list p state =
    group           = display-name ":" [group-list] ";" [CFWS]
 *)
 let p_group p state =
-  (Logs.debug @@ fun m -> m "state: p_group");
-
   p_display_name
     (fun display_name state ->
       p_chr ':' state;
-
-      (Logs.debug @@ fun m -> m "state: p_group (consume display name)");
 
       match cur_chr state with
       | ';' ->
@@ -1103,8 +1044,6 @@ let p_group p state =
    address         = mailbox / group
 *)
 let p_address p state =
-  (Logs.debug @@ fun m -> m "state: p_address");
-
   p_try_rule
     (fun group state -> p (`Group group) state)
     (p_mailbox (fun mailbox -> p (`Person mailbox)))
@@ -1116,12 +1055,8 @@ let p_address p state =
    obs-addr-list   = *([CFWS] ",") address *("," [address / CFWS])
 *)
 let p_obs_addr_list p state =
-  (Logs.debug @@ fun m -> m "state: p_obs_addr");
-
   (* *("," [address / CFWS]) *)
   let rec loop1 acc state =
-    (Logs.debug @@ fun m -> m "state: p_obs_addr/loop1");
-
     match cur_chr state with
     | ',' ->
       junk_chr state;
@@ -1136,8 +1071,6 @@ let p_obs_addr_list p state =
 
   (* *([CFWS] ",") *)
   let rec loop0 state =
-    (Logs.debug @@ fun m -> m "state: p_obs_addr/loop0");
-
     match cur_chr state with
     | ',' -> junk_chr state; p_address (fun adress -> loop0) state
     | chr -> p_address (fun address -> loop1 [address]) state (* address *)
@@ -1150,12 +1083,8 @@ let p_obs_addr_list p state =
    address-list    = (address *("," address)) / obs-addr-list
 *)
 let p_address_list p state =
-  (Logs.debug @@ fun m -> m "state: p_address_list");
-
   (* *("," [address / CFWS]) *)
   let rec obs acc state =
-    (Logs.debug @@ fun m -> m "state: p_address_list/obs");
-
     match cur_chr state with
     | ',' ->
       junk_chr state;
@@ -1170,8 +1099,6 @@ let p_address_list p state =
 
   (* *("," address) *)
   let rec loop acc state =
-    (Logs.debug @@ fun m -> m "state: p_address_list/loop");
-
     match cur_chr state with
     | ',' -> junk_chr state;
       p_try_rule
@@ -1194,8 +1121,6 @@ let p_address_list p state =
     state
 
 let p_crlf p state =
-  (Logs.debug @@ fun m -> m "state: p_crlf");
-
   p_chr '\r' state;
   p_chr '\n' state;
   p state
@@ -1223,15 +1148,8 @@ let p_field_name = p_repeat ~a:1 is_ftext
                      (address-list / ( *([CFWS] ",") [CFWS])) CRLF
 *)
 let p_obs_bcc p state =
-  (Logs.debug @@ fun m -> m "state: p_obs_bcc");
-
-
   let rec aux state =
     p_cfws (fun _ state ->
-      (Logs.debug @@ fun m -> m "state: p_obs_bcc/aux [%S]"
-       (Bytes.sub state.Lexer.buffer state.Lexer.pos (state.Lexer.len -
-       state.Lexer.pos)));
-
       match cur_chr state with
       | ',' -> aux state
       | chr -> p [] state)
@@ -1246,8 +1164,6 @@ let p_obs_bcc p state =
    bcc             = "Bcc:" [address-list / CFWS] CRLF
 *)
 let p_bcc p state =
-  (Logs.debug @@ fun m -> m "state: p_bcc");
-
   p_try_rule p
     (p_obs_bcc p)
     (p_address_list (fun l state -> `Ok (l, state))) state
@@ -1529,9 +1445,6 @@ let p_header extend p state =
 *)
 let p_body stop p state =
   let buf = Buffer.create 16 in
-
-  (Logs.debug @@ fun m -> m "state: p_body (RFC 5322) [%S]"
-   (let open Lexer in Bytes.sub state.buffer state.pos (state.len - state.pos)));
 
   let rec body has_cr state =
     let rec aux = function

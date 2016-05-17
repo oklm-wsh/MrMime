@@ -37,15 +37,11 @@ let p_charset  = p_token
 let p_encoding = p_token
 
 let p_encoded_word p state =
-  (Logs.debug @@ fun m -> m "state: p_encoded_word");
-
   p_str "=?" state;
   let charset = p_charset state in
   p_chr '?' state;
   let encoding = p_encoding state in
   p_chr '?' state;
-
-  (Logs.debug @@ fun m -> m "state: p_encoded_word (charset: %s)" charset);
 
   match String.uppercase encoding with
   | "Q" ->
@@ -99,8 +95,6 @@ let p_decoded_word charset encoding p state =
       state
 
 let p_try_rule p rule =
-  (Logs.debug @@ fun m -> m "state: p_try (RFC 2047)");
-
   p_try_rule
     (fun encoded -> p (`Encoded encoded))
     (rule p)

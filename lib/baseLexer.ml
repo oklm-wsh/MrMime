@@ -30,8 +30,6 @@ let has_line buff off len =
   loop false off
 
 let rec roll_back k data state =
-  (Logs.debug @@ fun m -> m "state: p_roll_back");
-
   let len = Bytes.length data in
   if state.pos > len
   then begin
@@ -48,8 +46,6 @@ let rec roll_back k data state =
     let new_buffer = Bytes.create new_len in
     Bytes.blit data 0 new_buffer 0 len;
     Bytes.blit state.buffer state.pos new_buffer len (state.len - state.pos);
-
-    (Logs.debug @@ fun m -> m "state: p_roll_back (new buffer %S)" new_buffer);
 
     state.pos <- 0;
     state.len <- new_len;
@@ -107,11 +103,8 @@ let junk_chr state =
   else raise (Error.Error (Error.err_unexpected_eoi state))
 
 let p_chr chr state =
-  (Logs.debug @@ fun m -> m "state: p_chr [%S]" (String.make 1 chr));
-
   match peek_chr state with
   | Some c when chr = c ->
-    (Logs.debug @@ fun m -> m "state: p_chr [%S]" (String.make 1 c));
     junk_chr state
   | Some _ ->
     raise (Error.Error (Error.err_expected chr state))
@@ -119,8 +112,6 @@ let p_chr chr state =
     raise (Error.Error (Error.err_unexpected_eoi state))
 
 let p_set l state =
-  (Logs.debug @@ fun m -> m "state: p_lst");
-
   match peek_chr state with
   | Some c when List.exists ((=) c) l ->
     junk_chr state
@@ -148,8 +139,6 @@ let p_try_rule success fail rule state =
 
   let rec loop = function
     | `Error (err, buf, off, len) ->
-      (Logs.debug @@ fun m -> m "state: p_try_rule/fail (err: %a)"
-       Error.pp err);
       safe fail (of_string (Buffer.contents tmp))
     | `Read (buf, off, len, k) ->
       `Read (buf, off, len,

@@ -135,8 +135,6 @@ let of_escaped_character = function
    quoted-pair =  "\" CHAR                     ; may quote any char"
 *)
 let p_quoted_pair p state =
-  (Logs.debug @@ fun m -> m "state: p_quoted_pair");
-
   p_chr '\\' state;
 
   let chr = cur_chr state in
@@ -209,19 +207,13 @@ let rec p_fws p state =
   let rec end_of_line has_wsp has_fws success fail state =
     match has_line state with
     | Some tmp ->
-      (Logs.debug @@ fun m -> m "state: p_fws/tmp %S" tmp);
-
       state.Lexer.pos <- state.Lexer.pos + String.length tmp;
 
       read_line
         (fun state ->
-         (Logs.debug @@ fun m -> m "state: p_fws/read_line");
-
          match cur_chr state with
          (* … 1*(CRLF 1*WSP) *)
          | '\x20' | '\x09' ->
-           (Logs.debug @@ fun m -> m "state: p_fws … 1*(CRLF 1*WSP)");
-
            (* drop 1*WSP *)
            let _ = p_while is_wsp state in
            success true true state
@@ -239,8 +231,6 @@ let rec p_fws p state =
     (* WSP / CR *)
     | '\x20' | '\x09' | '\r' as chr ->
       let success has_wsp has_fws state =
-        (Logs.debug @@ fun m -> m "state: p_fws/loop/success");
-
         match chr with
         (* 1*WSP *(CRLF 1*WSP), so it's obs-fws *)
         | '\x20' | '\x09' ->
@@ -254,8 +244,6 @@ let rec p_fws p state =
         | chr -> p true true state
       in
       let fail has_wsp has_fws state =
-        (Logs.debug @@ fun m -> m "state: p_fws/loop/fail");
-
         (* WSP / CR *)
         match chr with
         | '\r' -> (* CR XXX: don't drop '\r', may be it's \r\n *)
@@ -270,7 +258,6 @@ let rec p_fws p state =
     | chr -> p false false state
   in
 
-  (Logs.debug @@ fun m -> m "state: p_fws");
   loop state
 
 (* See RFC 5322 § 3.2.2:
@@ -305,24 +292,18 @@ let rec p_ctext = p_while is_ctext
    comment     =  "(" *(ctext / quoted-pair / comment) ")"
 *)
 let rec p_ccontent p state =
-  (Logs.debug @@ fun m -> m "state: p_ccontent");
-
   match cur_chr state with
   | '\\' -> p_quoted_pair (fun chr -> p) state
   | '(' -> p_comment p state
   | chr -> let s = p_ctext state in
-    (Logs.debug @@ fun m -> m "state: p_ccontent: %s" s);
     p state
 
 and p_comment p state =
-  (Logs.debug @@ fun m -> m "state: p_comment");
-
   p_chr '(' state;
 
   let rec loop state =
     match cur_chr state with
     | ')' ->
-      (Logs.debug @@ fun m -> m "state: p_comment/end");
       junk_chr state;
       p state
     | chr ->
@@ -342,15 +323,11 @@ and p_comment p state =
    See RFC 822 § 3.4.3: LOL
 *)
 let p_cfws p state =
-  (Logs.debug @@ fun m -> m "state: p_cfws");
-
   let rec loop has_fws has_comment state =
     (* [FWS] *)
     match cur_chr state with
     (* 1*([FWS] comment) *)
     | '(' ->
-      (Logs.debug @@ fun m -> m "state: p_cfws 1*([FWS] comment)");
-
       p_comment
         (p_fws (fun has_wsp' has_fws' ->
                 loop (has_fws || has_wsp' || has_fws') true))
@@ -395,18 +372,13 @@ let is_qtext = function
 let is_dquote = (=) '"'
 
 let p_qtext state =
-  (Logs.debug @@ fun m -> m "state: p_qtext");
-  let s = p_while is_qtext state in
-  (Logs.debug @@ fun m -> m "state: p_qtext: %S" s);
-  s
+  p_while is_qtext state
 
 (* See RFC 5322 § 3.2.4:
 
    qcontent        = qtext / quoted-pair
 *)
 let p_qcontent p state =
-  (Logs.debug @@ fun m -> m "state: p_qcontent");
-
   match cur_chr state with
   | '\\' -> p_quoted_pair (fun chr -> p (String.make 1 chr)) state
   | chr when is_qtext chr -> p (p_qtext state) state
@@ -424,8 +396,6 @@ let p_qcontent p state =
                                                ;   quoted chars.
 *)
 let p_quoted_string p state =
-  (Logs.debug @@ fun m -> m "state: p_quoted_string");
-
   let rec loop acc state =
     match cur_chr state with
     | '"' ->
@@ -435,7 +405,6 @@ let p_quoted_string p state =
       p_qcontent
         (fun str ->
          p_fws (fun has_wsp has_fws ->
-                (Logs.debug @@ fun m -> m "has_wsp: %b" has_wsp);
                 loop (if has_wsp then " " :: str :: acc else str :: acc)))
         state
   in
@@ -494,11 +463,7 @@ let is_atext = function
   | '~' -> true
   | chr -> is_digit chr || is_alpha chr
 
-let p_atext state =
-  (Logs.debug @@ fun m -> m "state: p_atext");
-  let s = p_while is_atext state in
-  (Logs.debug @@ fun m -> m "state: p_atext %S" s);
-  s
+let p_atext state = p_while is_atext state
 
 (* See RFC 5322 § 3.2.3:
 
@@ -509,8 +474,6 @@ let p_atext state =
    atom        =  1*<any CHAR except specials, SPACE and CTLs>
 *)
 let p_atom p =
-  (Logs.debug @@ fun m -> m "state: p_atom");
-
   p_cfws
   @@ fun _ state -> let atext = p_atext state in
                     p_cfws (fun _ -> p atext) state
@@ -524,8 +487,6 @@ let p_atom p =
    word        =  atom / quoted-string
 *)
 let p_word p state =
-  (Logs.debug @@ fun m -> m "state: p_word");
-
   let loop has_fws state =
     match cur_chr state with
     | '"' -> p_quoted_string (fun s -> p (`String s)) state
@@ -557,11 +518,7 @@ let p_obs_local_part p =
    dot-atom-text   = 1*atext *("." 1*atext)
 *)
 let p_dot_atom_text p state =
-  (Logs.debug @@ fun m -> m "state: p_dot_atom_text");
-
   let rec next acc state =
-    (Logs.debug @@ fun m -> m "state: p_dot_atom_text/next");
-
     match cur_chr state with
     | '.' -> junk_chr state; next (`Atom (p_atext state) :: acc) state
     | chr -> p (List.rev acc) state
@@ -574,8 +531,6 @@ let p_dot_atom_text p state =
    dot-atom        = [CFWS] dot-atom-text [CFWS]
 *)
 let p_dot_atom p =
-  (Logs.debug @@ fun m -> m "state: p_dot_atom");
-
   p_cfws @@ (fun _ -> p_dot_atom_text (fun lst -> p_cfws (fun _ -> p lst)))
 
 (* See RFC 5322 § 3.4.1:
@@ -590,11 +545,7 @@ let p_dot_atom p =
                                                ; case-preserved
 *)
 let p_local_part p =
-  (Logs.debug @@ fun m -> m "state: p_local_part");
-
   let p_obs_local_part' acc =
-    (Logs.debug @@ fun m -> m "state: p_local_part/obs");
-
     let rec loop acc state =
       match cur_chr state with
       | '.' -> junk_chr state; p_word (fun o -> loop (o :: acc)) state

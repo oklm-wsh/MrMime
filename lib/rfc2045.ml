@@ -157,19 +157,14 @@ let p_value p =
     (Rfc822.p_quoted_string (fun data state -> `Ok (data, state)))
 
 let p_parameter p state =
-  (Logs.debug @@ fun m -> m "state: p_parameter");
   let name = p_attribute state in
 
   p_chr '=' state;
   p_value (fun value -> p (name, value)) state
 
 let p_content p state =
-  (Logs.debug @@ fun m -> m "state: p_content");
-
   let rec loop p state =
     let rec aux acc state =
-      (Logs.debug @@ fun m -> m "state: p_content/loop");
-
       match cur_chr state with
       | ';' ->
         junk_chr state;
@@ -203,7 +198,7 @@ let p_version p state =
       p_chr '.' state;
       Rfc822.p_cfws (fun _ state ->
         let b = int_of_string @@ p_while Rfc822.is_digit state in
-        Rfc822.p_cfws (fun _ -> (Logs.debug @@ fun m -> m "state: p_version (%d.%d)" a b); p (a, b)) state)
+        Rfc822.p_cfws (fun _ -> p (a, b)) state)
       state)
     state)
   state
@@ -247,8 +242,6 @@ let p_field mime_extend extend field p state =
   rule state
 
 let p_entity_headers extend_mime extend p state =
-  (Logs.debug @@ fun m -> m "state: p_entity_headers'");
-
   let rec loop acc state =
     p_try_rule
       (fun field -> loop (field :: acc))
@@ -258,7 +251,6 @@ let p_entity_headers extend_mime extend p state =
         let _     = p_repeat Rfc822.is_lwsp state in
 
         p_chr ':' state;
-        (Logs.debug @@ fun m -> m "state: p_entity_headers (try with %s)" field);
 
         p_field extend_mime extend field (fun data state -> `Ok (data, state)) state)
       state

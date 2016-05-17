@@ -97,9 +97,6 @@ let m_close_delimiter boundary =
    XXX: [p_octet] must be stop to the boundary
 *)
 let p_body_part (type data) boundary p_octet p state =
-  (Logs.debug @@ fun m -> m "state: p_body_part [%S]"
-   (let open Lexer in (Bytes.sub state.buffer state.pos (state.len - state.pos))));
-
   let next fields state =
     p_try_rule
       (fun data -> p (Some (data : data)))
@@ -148,8 +145,6 @@ let p_multipart_body boundary parent_boundary p_octet p state =
       (p_dash_boundary boundary (fun state-> `Ok ((), state)))
   in
   let stop_epilogue state =
-    (Logs.debug @@ fun m -> m "state: p_multipart'/stop");
-
     match parent_boundary with
     | None ->
       p_try_rule
@@ -178,9 +173,6 @@ let p_multipart_body boundary parent_boundary p_octet p state =
              @@ p_epilogue stop_epilogue (fun _ state -> `Ok ((), state))))
       (p_encapsulation boundary p_octet (fun data state -> `Ok (data, state)))
   in
-
-  (Logs.debug @@ fun m -> m "state: p_multipart_body [%S]"
-   (let open Lexer in Bytes.sub state.buffer state.pos (state.len - state.pos)));
 
   p_preamble stop_preamble
     (fun has_preamble ->

@@ -6,8 +6,6 @@ type literal_domain =
   | `General of (string * string) ]
 
 let p_ipv4_address_literal p state =
-  (Logs.debug @@ fun m -> m "state: p_ipv4_address_literal");
-
   let pos = ref state.Lexer.pos in
 
   try let ip = Ipaddr.V4.of_string_raw state.Lexer.buffer pos in
@@ -17,8 +15,6 @@ let p_ipv4_address_literal p state =
   with exn -> raise (Error.Error (Error.err_invalid_ipv4 state))
 
 let p_ipv6_addr p state =
-  (Logs.debug @@ fun m -> m "state: p_ipv6_addr");
-
   let pos = ref state.Lexer.pos in
 
   try
@@ -49,8 +45,6 @@ let is_dcontent = function
   | _ -> false
 
 let p_general_address_literal p state =
-  (Logs.debug @@ fun m -> m "state: p_general_address_literal");
-
   p_ldh_str (fun tag state ->
              p_chr ':' state;
              let content = p_while is_dcontent state in
