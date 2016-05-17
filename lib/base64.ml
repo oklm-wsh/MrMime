@@ -188,6 +188,14 @@ let p_decode stop p state =
          | '=' ->
            junk_chr state;
            decode base64 (padding + 1) state
+         | '\x20' | '\x09' ->
+           junk_chr state;
+           decode base64 padding state
+         | '\r' ->
+           p_chr '\r' state;
+           p_chr '\n' state;
+
+           decode base64 padding state
          | chr ->
            F.flush base64 buf;
            if F.padding base64 padding
