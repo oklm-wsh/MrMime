@@ -392,9 +392,9 @@ let p_decode stop p state =
       | `Continue state ->
         match cur_chr state with
          | '=' ->
-           p_chr '=' state;
+           junk_chr state;
 
-           if p_try is_hex_octet state = 2
+           if p_try is_hex_octet state >= 2
            then begin
              let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
 
@@ -421,9 +421,16 @@ let p_decode stop p state =
              decode state
            end
 
+         | '\r' ->
+           p_chr '\r' state;
+           p_chr '\n' state;
+           F.add_newline buf;
+
+           decode state
+
          | chr when is_safe_char chr  ->
-           junk_chr state;
            F.add_char buf chr;
+           junk_chr state;
            decode state
 
          | chr -> raise (Error.Error (Error.err_unexpected chr state))
