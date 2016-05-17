@@ -225,8 +225,10 @@ let p_id p =
   Rfc822.p_cfws (fun _ -> Rfc822.p_msg_id (fun m -> Rfc822.p_cfws (fun _ -> p m)))
 
 let p_field mime_extend extend field p state =
+  let field = String.lowercase field in
+
   let rule =
-    match String.lowercase field with
+    match field with
     | "content-type" -> p_content (fun c -> Rfc822.p_crlf @@ p (`ContentType c))
     | "content-transfer-encoding" -> p_encoding (fun e -> Rfc822.p_crlf @@ p (`ContentEncoding e))
     | "content-id" -> p_id (fun i -> Rfc822.p_crlf @@ p (`ContentID i))
