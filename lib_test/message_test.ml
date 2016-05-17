@@ -20,8 +20,8 @@ let walk directory pattern =
   in
   aux [] [directory]
 
-let make_compute_test s =
-  Printf.sprintf "message",
+let make_compute_test (filename, s) =
+  Printf.sprintf "%s" filename,
   `Slow,
   (fun () -> let _ = Message.of_string s in ())
 
@@ -31,9 +31,9 @@ let from_file filename =
   let s = Bytes.create n in
   really_input ic s 0 n;
   close_in ic;
-  Bytes.to_string s
+  filename, Bytes.to_string s
 
-let tests = List.map from_file (walk "messages" ".*")
+let tests = List.map from_file (walk "messages" "[^\.].*")
 
 let () =
   Alcotest.run "Message test"
