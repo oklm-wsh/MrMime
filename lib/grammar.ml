@@ -29,7 +29,7 @@ let c_header fields p state =
 
 (* composition betweeen RFC 5322/body, RFC 2045/Base64/body and RFC
    2045/QuotedPrintable/body with the [boundary] *)
-let p_body boundary content p state =
+let p_body boundary content =
   let stop =
     match boundary with
     | Some boundary ->
@@ -54,9 +54,9 @@ let p_body boundary content p state =
   match Content.encoding content with
   | `Ietf_token _
   | `X_token _
-  | `Binary | `Bit8 | `Bit7 -> Rfc5322.p_body stop p state
-  | `Base64                 -> Rfc2045.Base64.p_decode stop p state
-  | `QuotedPrintable        -> Rfc2045.QuotedPrintable.p_decode stop p state
+  | `Binary | `Bit8 | `Bit7 -> Rfc5322.p_body stop
+  | `Base64                 -> Rfc2045.Base64.p_decode stop
+  | `QuotedPrintable        -> Rfc2045.QuotedPrintable.p_decode stop
 
 let field_of_lexer = function
   | #Rfc5322.field as x -> (Header.field_of_lexer x :> field)

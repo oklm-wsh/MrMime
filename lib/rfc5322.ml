@@ -1209,12 +1209,12 @@ let p_received_token p state =
              p_cfws (fun _ -> p (List.rev acc)) state)
             (p_word (fun data state -> `Ok (data, state)))
             state)
-      (p_domain (fun data state -> `Ok (data, state)))
+          (p_domain (fun data state -> `Ok (data, state)))
           state)
         (p_angle_addr (fun data state -> `Ok (data, state)))
         state)
-          (p_addr_spec (fun (local, domain) state ->
-                        `Ok ((local, [domain]), state)))
+        (p_addr_spec (fun (local, domain) state ->
+                      `Ok ((local, [domain]), state)))
   in
 
   loop [] state

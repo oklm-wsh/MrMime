@@ -50,7 +50,7 @@ let p_general_address_literal p state =
              let content = p_while is_dcontent state in
              (* XXX:  we already try to parse IPv6 tag, so if we are in this
                       case, we have an invalid IPv6 data.
-                TODO: mey be it's useful to associate a lexer with the tag
+                TODO: may be it's useful to associate a lexer with the tag
                       and try this. I have no time for that.
              *)
              if Iana.Set.exists ((=) tag) Iana.tag && tag <> "IPv6"
