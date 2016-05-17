@@ -1279,19 +1279,26 @@ let p_phrase_or_msg_id p state =
 let p_received_token p state =
   let rec loop acc =
     p_try_rule
-      (fun data -> loop (`Domain data :: acc))
-      (p_try_rule
+      (fun data -> loop (`Mailbox data :: acc))
+      (fun state ->
+        p_try_rule
         (fun data -> loop (`Mailbox data :: acc))
-        (p_try_rule
-          (fun data -> loop (`Mailbox data :: acc))
-          (p_try_rule
+        (fun state ->
+          p_try_rule
+          (fun data -> loop (`Domain data :: acc))
+          (fun state ->
+            p_try_rule
             (fun data -> loop (`Word data :: acc))
-            (p (List.rev acc))
-            (p_word (fun data state -> `Ok (data, state))))
-          (p_addr_spec (fun (local, domain) state ->
-                        `Ok ((local, [domain]), state))))
-        (p_angle_addr (fun data state -> `Ok (data, state))))
+            (fun state ->
+             p_cfws (fun _ -> p (List.rev acc)) state)
+            (p_word (fun data state -> `Ok (data, state)))
+            state)
       (p_domain (fun data state -> `Ok (data, state)))
+          state)
+        (p_angle_addr (fun data state -> `Ok (data, state)))
+        state)
+          (p_addr_spec (fun (local, domain) state ->
+                        `Ok ((local, [domain]), state)))
   in
 
   loop [] state
@@ -1315,19 +1322,27 @@ let p_received p state =
    path            = angle-addr / ([CFWS] "<" [CFWS] ">" [CFWS])
 *)
 let p_path p =
+  let common =
+    p_try_rule
+      (fun addr -> p (Some addr))
+      (fun state ->
+        p_cfws
+          (fun _ state ->
+            p_chr '<' state;
+            p_cfws
+              (fun _ state ->
+                p_chr '>' state;
+                p_cfws (fun _ -> p None) state)
+              state)
+          state)
+      (p_angle_addr (fun data state -> `Ok (data, state)))
+  in
+
+  (* XXX: this is hack! in real-world we can have an email without '<' and '>' *)
   p_try_rule
-    (fun addr -> p (Some addr))
-    (fun state ->
-      p_cfws
-        (fun _ state ->
-          p_chr '<' state;
-          p_cfws
-            (fun _ state ->
-              p_chr '>' state;
-              p_cfws (fun _ -> p None) state)
-            state)
-        state)
-    (p_angle_addr (fun data state -> `Ok (data, state)))
+    (fun (local, domain) -> p (Some (local, [domain])))
+    common
+    (p_addr_spec (fun data state -> `Ok (data, state)))
 
 (* See RFC 5322 § 4.1:
 
