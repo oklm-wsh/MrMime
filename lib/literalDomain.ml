@@ -21,7 +21,7 @@ let of_string s =
   in
 
   let rule = Rfc5321.p_address_literal
-    (fun data -> Rfc5322.p_crlf (fun _ -> `Ok data)) in
+    (fun data -> Rfc822.p_crlf (fun _ -> `Ok data)) in
   loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
 
 let p = Format.fprintf

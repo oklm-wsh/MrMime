@@ -103,7 +103,7 @@ Executable test_message
   Install:              false
   CompiledObject:       best
   MainIs:               message_test.ml
-  BuildDepends:         mrmime, alcotest, re.str
+  BuildDepends:         jackson, lwt, tls.lwt, mrmime, alcotest, re.str
 
 Test test_address
   Run$:                 flag(tests)

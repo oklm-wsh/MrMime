@@ -170,40 +170,42 @@ let p_decode stop p state =
 
   let rec decode base64 padding state =
     let rec aux = function
-      | `Stop state -> p (Buffer.contents buf) state
-      | `Continue state ->
-        (match cur_chr state with
-         | 'A' .. 'Z'
-         | 'a' .. 'z'
-         | '0' .. '9'
-         | '+' | '/' as chr ->
-           if padding = 0
-           then begin
-             junk_chr state;
-             decode (F.add base64 chr buf) padding state
-           end else begin
-             F.flush base64 buf;
-             raise (Error.Error (Error.err_unexpected chr state))
-           end
-         | '=' ->
-           junk_chr state;
-           decode base64 (padding + 1) state
-         | '\x20' | '\x09' ->
-           junk_chr state;
-           decode base64 padding state
-         | '\r' ->
-           p_chr '\r' state;
-           p_chr '\n' state;
-
-           decode base64 padding state
-         | chr ->
-           F.flush base64 buf;
-           if F.padding base64 padding
-           then p (Buffer.contents buf) state
-           else raise (Error.Error (Error.err_wrong_padding state)))
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ safe k i))
       | #Error.err as err -> err
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        (cur_chr
+         @ function
+           | 'A' .. 'Z'
+           | 'a' .. 'z'
+           | '0' .. '9'
+           | '+' | '/' as chr ->
+             if padding = 0
+             then begin
+               junk_chr
+               @ decode (F.add base64 chr buf) padding
+             end else begin
+               fun state ->
+                 F.flush base64 buf;
+                 raise (Error.Error (Error.err_unexpected chr state))
+             end
+           | '=' ->
+             junk_chr
+             @ decode base64 (padding + 1)
+           | '\x20' | '\x09' ->
+             junk_chr
+             @ decode base64 padding
+           | '\r' ->
+             p_chr '\r'
+             @ p_chr '\n'
+             @ decode base64 padding
+           | chr ->
+             F.flush base64 buf;
+             if F.padding base64 padding
+             then p (Buffer.contents buf)
+             else fun state -> raise (Error.Error (Error.err_wrong_padding state)))
+        state
     in aux (stop state)
   in
 
@@ -214,16 +216,17 @@ let p_encode stop p state =
 
   let rec encode base64 state =
     let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
       | `Stop state ->
         T.flush base64 buf;
         p (Buffer.contents buf) state
       | `Continue state ->
-        let chr = cur_chr state in
-        junk_chr state;
-        encode (T.add base64 chr buf) state
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
+        (cur_chr
+         @ fun chr -> junk_chr
+         @ encode (T.add base64 chr buf))
+        state
     in aux (stop state)
   in
 
@@ -234,16 +237,17 @@ let p_encode' ?(wrap = true) stop p state =
 
   let rec encode base64 state =
     let rec aux = function
+      | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | #Error.err as err -> err
       | `Stop state ->
         T.flush base64 buf;
         p (Buffer.contents buf) state
       | `Continue state ->
-        let chr = cur_chr state in
-        junk_chr state;
-        encode (T.add base64 chr buf) state
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
+        (cur_chr
+         @ fun chr -> junk_chr
+         @ encode (T.add base64 chr buf))
+        state
     in aux (stop state)
   in
 
