@@ -148,7 +148,9 @@ let of_lexer fields p state =
       | `Sender c ->
         (match !sender with
          | None   -> sender := Some (Address.person_of_lexer c); loop garbage rest
-         | Some _ -> raise (Error.Error (Error.err_unexpected_field "Sender" state)))
+         | Some _ -> loop garbage rest)
+         (* XXX: some email can have multiple sender, it's illegal but fuck the
+                 world! *)
       | `ReplyTo r ->
         (match !reply_to with
          | None   -> reply_to := Some (Address.List.of_lexer r); loop garbage rest
