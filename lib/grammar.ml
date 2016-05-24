@@ -21,9 +21,7 @@ let c_header fields p state =
      | Some header ->
        Content.of_lexer rest
          (fun content rest state ->
-          match rest with
-          | [] -> p header content state
-          | _ -> raise (Error.Error (Error.err_invalid_header state))) state
+          p header content state) state
      | None -> raise (Error.Error (Error.err_invalid_header state)))
     state
 
