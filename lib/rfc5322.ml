@@ -70,7 +70,8 @@ type field =
   | `References      of [`Phrase of phrase | `MsgID of msg_id] list
   | `Field           of string * phrase
   | resent
-  | trace ]
+  | trace
+  | `Unsafe          of string * phrase ]
 
 (* See RFC 5234 § Appendix B.1:
 
@@ -1254,14 +1255,14 @@ let p_keywords p =
    optional-field  = field-name ":" unstructured CRLF
    obs-optional    = field-name *WSP ":" unstructured CRLF
 *)
-let p_field extend field p state =
+let p_field extend field p =
   let rule = match String.lowercase field with
     (* See RFC 5322 § 3.6.1 & 4.5.1:
 
        orig-date       = "Date:" date-time CRLF
        obs-orig-date   = "Date" *WSP ":" date-time CRLF
     *)
-    | "date" -> p_date_time @ fun d -> p_crlf @ p (`Date d)
+    | "date" -> p_date_time @ fun d -> p_crlf @ ok (`Date d)
     (* See RFC 5322 § 3.6.2 & 4.5.2:
 
        from            = "From:" mailbox-list CRLF
@@ -1271,9 +1272,9 @@ let p_field extend field p state =
        reply-to        = "Reply-To:" address-list CRLF
        obs-reply-to    = "Reply-To" *WSP ":" address-list CRLF
     *)
-    | "from" -> p_mailbox_list @ fun l -> p_crlf @ p (`From l)
-    | "sender" -> p_mailbox @ fun m -> p_crlf @ p (`Sender m)
-    | "reply-to" -> p_address_list @ fun l -> p_crlf @ p (`ReplyTo l)
+    | "from" -> p_mailbox_list @ fun l -> p_crlf @ ok (`From l)
+    | "sender" -> p_mailbox @ fun m -> p_crlf @ ok (`Sender m)
+    | "reply-to" -> p_address_list @ fun l -> p_crlf @ ok (`ReplyTo l)
     (* See RFC 5322 § 3.6.3 & 4.5.3:
 
        to              = "To:" address-list CRLF
@@ -1284,9 +1285,9 @@ let p_field extend field p state =
        obs-bcc         = "Bcc" *WSP ":"
                             (address-list / ( *([CFWS] ",") [CFWS])) CRLF
     *)
-    | "to" -> p_address_list @ fun l -> p_crlf @ p (`To l)
-    | "cc" -> p_address_list @ fun l -> p_crlf @ p (`Cc l)
-    | "bcc" -> p_bcc @ fun l -> p_crlf @ p (`Bcc l)
+    | "to" -> p_address_list @ fun l -> p_crlf @ ok (`To l)
+    | "cc" -> p_address_list @ fun l -> p_crlf @ ok (`Cc l)
+    | "bcc" -> p_bcc @ fun l -> p_crlf @ ok (`Bcc l)
     (* See RFC 5322 § 3.6.4 & 4.5.4:
 
        message-id      = "Message-ID:" msg-id CRLF
@@ -1296,9 +1297,9 @@ let p_field extend field p state =
        references      = "References:" 1*msg-id CRLF
        obs-references  = "References" *WSP ":" *(phrase / msg-id) CRLF
     *)
-    | "message-id" -> p_msg_id @ fun m -> p_crlf @ p (`MessageID m)
-    | "in-reply-to" -> p_phrase_or_msg_id @ fun l -> p_crlf @ p (`InReplyTo l)
-    | "references" -> p_phrase_or_msg_id @ fun l -> p_crlf @ p (`References l)
+    | "message-id" -> p_msg_id @ fun m -> p_crlf @ ok (`MessageID m)
+    | "in-reply-to" -> p_phrase_or_msg_id @ fun l -> p_crlf @ ok (`InReplyTo l)
+    | "references" -> p_phrase_or_msg_id @ fun l -> p_crlf @ ok (`References l)
 
     (* See RFC 5322 § 3.6.5 & 4.5.5:
 
@@ -1309,9 +1310,9 @@ let p_field extend field p state =
        keywords        = "Keywords:" phrase *("," phrase) CRLF
        obs-keywords    = "Keywords" *WSP ":" obs-phrase-list CRLF
     *)
-    | "subject" -> p_unstructured @ fun s -> p_crlf @ p (`Subject s)
-    | "comments" -> p_unstructured @ fun s -> p_crlf @ p (`Comments s)
-    | "keywords" -> p_keywords @ fun l -> p_crlf @ p (`Keywords l)
+    | "subject" -> p_unstructured @ fun s -> p_crlf @ ok (`Subject s)
+    | "comments" -> p_unstructured @ fun s -> p_crlf @ ok (`Comments s)
+    | "keywords" -> p_keywords @ fun l -> p_crlf @ ok (`Keywords l)
 
     (* See RFC 5322 § 3.6.6 & 4.5.6:
 
@@ -1332,14 +1333,14 @@ let p_field extend field p state =
        obs-resent-mid  = "Resent-Message-ID" *WSP ":" msg-id CRLF
        obs-resent-rply = "Resent-Reply-To" *WSP ":" address-list CRLF
     *)
-    | "resent-date" -> p_date_time @ fun d -> p_crlf @ p (`ResentDate d)
-    | "resent-from" -> p_mailbox_list @ fun l -> p_crlf @ p (`ResentFrom l)
-    | "resent-sender" -> p_mailbox @ fun m -> p_crlf @ p (`ResentSender m)
-    | "resent-to" -> p_address_list @ fun l -> p_crlf @ p (`ResentTo l)
-    | "resent-cc" -> p_address_list @ fun l -> p_crlf @ p (`ResentCc l)
-    | "resent-bcc" -> p_bcc @ fun l -> p_crlf @ p (`ResentBcc l)
-    | "resent-message-id" -> p_msg_id @ fun m -> p_crlf @ p (`ResentMessageID m)
-    | "resent-reply-to" -> p_address_list @ fun l -> p_crlf @ p (`ResentReplyTo l)
+    | "resent-date" -> p_date_time @ fun d -> p_crlf @ ok (`ResentDate d)
+    | "resent-from" -> p_mailbox_list @ fun l -> p_crlf @ ok (`ResentFrom l)
+    | "resent-sender" -> p_mailbox @ fun m -> p_crlf @ ok (`ResentSender m)
+    | "resent-to" -> p_address_list @ fun l -> p_crlf @ ok (`ResentTo l)
+    | "resent-cc" -> p_address_list @ fun l -> p_crlf @ ok (`ResentCc l)
+    | "resent-bcc" -> p_bcc @ fun l -> p_crlf @ ok (`ResentBcc l)
+    | "resent-message-id" -> p_msg_id @ fun m -> p_crlf @ ok (`ResentMessageID m)
+    | "resent-reply-to" -> p_address_list @ fun l -> p_crlf @ ok (`ResentReplyTo l)
     (* See RFC 5322 § 3.6.7 & 4.5.7:
 
        trace           = [return]
@@ -1349,8 +1350,8 @@ let p_field extend field p state =
        obs-return      = "Return-Path" *WSP ":" path CRLF
        obs-received    = "Received" *WSP ":" *received-token CRLF
     *)
-    | "received" -> p_received @ fun r -> p_crlf @ p (`Received r)
-    | "return-path" -> p_path @ fun a -> p_crlf @ p (`ReturnPath a)
+    | "received" -> p_received @ fun r -> p_crlf @ ok (`Received r)
+    | "return-path" -> p_path @ fun a -> p_crlf @ ok (`ReturnPath a)
     (* See RFC 5322 § 3.6.8 & 4.5.8:
 
        optional-field  = field-name ":" unstructured CRLF
@@ -1359,10 +1360,14 @@ let p_field extend field p state =
     | field ->
       p_try_rule p
         (p_unstructured @ fun value -> p_crlf @ p (`Field (field, value)))
-        (extend field @ fun data state -> `Ok (data, state))
+        (extend field @ ok)
   in
 
-  rule state
+  rule
+  / (p_unstructured
+     @ fun l -> p_crlf
+     @ p (`Unsafe (field, l)))
+  @ p
 
 let p_header extend p =
   let rec loop acc =

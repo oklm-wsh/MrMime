@@ -36,7 +36,8 @@ type field =
   | `References      of [ phrase | `MsgID of MsgID.t ] list
   | `Field           of string * Rfc5322.phrase
   | Resent.field
-  | Trace.field ]
+  | Trace.field
+  | `Unsafe          of string * Rfc5322.phrase ]
 
 let field_of_lexer : Rfc5322.field -> field = function
   | `From l -> `From (List.map Address.person_of_lexer l)
@@ -61,6 +62,7 @@ let field_of_lexer : Rfc5322.field -> field = function
   | `Field f -> `Field f
   | #Rfc5322.resent as x -> (Resent.field_of_lexer x :> field)
   | #Rfc5322.trace as x -> (Trace.field_of_lexer x :> field)
+  | `Unsafe (field, p) -> `Unsafe (field, p)
 
 let of_lexer fields p state =
   let from          = ref None in

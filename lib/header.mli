@@ -18,7 +18,8 @@ type field =
   | `References      of [ phrase | `MsgID of MsgID.t ] list
   | `Field           of string * Rfc5322.phrase
   | Resent.field
-  | Trace.field ]
+  | Trace.field
+  | `Unsafe          of string * Rfc5322.phrase ]
 
 val field_of_lexer : Rfc5322.field -> field
 
