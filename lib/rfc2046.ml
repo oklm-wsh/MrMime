@@ -147,7 +147,9 @@ let p_multipart_body boundary parent_boundary p_octet p =
   let stop_epilogue state =
     match parent_boundary with
     | None ->
-      (Rfc822.p_crlf @ Rfc822.p_crlf @ (fun state -> `Ok ((), state)))
+      (fun state -> match peek_chr state with
+       | None -> `Ok ((), state)
+       | Some chr -> raise (Error.Error (Error.err_unexpected chr state)))
       / (fun state -> `Continue state)
       @ (fun () -> roll_back (fun state -> `Stop state) "\r\n\r\n")
     | Some boundary ->
@@ -165,7 +167,7 @@ let p_multipart_body boundary parent_boundary p_octet p =
     (p_encapsulation boundary p_octet @ fun data state -> `Ok (data, state))
     / (p_close_delimiter boundary
        @ p_transport_padding
-       @ ((Rfc822.p_crlf
+       @ ((Rfc822.u_crlf
            @ p_epilogue stop_epilogue
            @ fun _ state -> `Ok ((), state)))
           / (p (List.rev acc))

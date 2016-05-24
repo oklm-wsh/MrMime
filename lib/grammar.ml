@@ -44,9 +44,11 @@ let p_body boundary content =
       (* TODO: may be it's wrong, I don't see anything about the end of message
                and I don't know if we stop really at [CRLF CRLF]. *)
       p_try_rule
-        (fun () -> roll_back (fun state -> `Stop state) "\r\n\r\n")
+        (fun () state -> `Stop state)
         (fun state -> `Continue state)
-        (Rfc822.p_crlf @@ Rfc822.p_crlf (fun state -> `Ok ((), state)))
+        (fun state -> match peek_chr state with
+                      | None -> `Ok ((), state)
+                      | Some chr -> raise (Error.Error (Error.err_unexpected chr state)))
   in
 
   match Content.encoding content with
