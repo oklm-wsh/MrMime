@@ -111,6 +111,13 @@ let rec p_chr chr p state =
   | None ->
     read_line (p_chr chr p) state
 
+let rec u_chr chr p state =
+  match peek_chr state with
+  | Some c when chr = c ->
+    junk_chr state; p state
+  | Some _ -> raise (Error.Error (Error.err_expected chr state))
+  | None   -> raise (Error.Error (Error.err_unexpected_eoi state))
+
 let rec p_set l p state =
   match peek_chr state with
   | Some c when List.exists ((=) c) l ->
