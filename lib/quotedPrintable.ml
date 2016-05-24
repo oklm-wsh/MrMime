@@ -394,7 +394,7 @@ let p_decode stop p state =
                   @ fun s ->
                       F.add_char buf (F.hex s);
                       decode
-             else p_chr '\r'
+             else p_chr '\r' (* soft line-breaks *)
                   @ p_chr '\n'
                   @ decode
          | '\x20' | '\x09' ->
@@ -406,14 +406,14 @@ let p_decode stop p state =
                         @ fun state -> F.add_newline buf; decode state
               | chr -> F.add_string buf lwsp; decode)
          | '\r' ->
-           p_chr '\r'
+           p_chr '\r' (* line-breaks *)
            @ p_chr '\n'
            @ fun state ->
              F.add_newline buf;
              decode state
          | chr when is_safe_char chr  ->
            F.add_char buf chr; junk_chr @ decode
-         | chr -> fun state -> raise (Error.Error (Error.err_unexpected chr state)))
+         | chr -> junk_chr @ decode)
         state
     in aux (safe stop state)
   in
