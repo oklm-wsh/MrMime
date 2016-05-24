@@ -103,7 +103,7 @@ Executable test_message
   Install:              false
   CompiledObject:       best
   MainIs:               message_test.ml
-  BuildDepends:         jackson, lwt, tls.lwt, mrmime, alcotest, re.str
+  BuildDepends:         cmdliner, jackson, lwt, tls.lwt, mrmime, alcotest, re.str
 
 Test test_address
   Run$:                 flag(tests)
@@ -121,10 +121,4 @@ Test test_header
   Run$:                 flag(tests)
   TestTools:            test_header
   Command:              $test_header
-  WorkingDirectory:     .
-
-Test test_message
-  Run$:                 flag(tests)
-  TestTools:            test_message
-  Command:              $test_message
   WorkingDirectory:     .
