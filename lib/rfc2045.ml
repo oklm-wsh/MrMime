@@ -40,7 +40,8 @@ type field =
   | `ContentEncoding of encoding
   | `ContentID of id
   | `ContentDescription of string
-  | `Content of string * string ]
+  | `Content of string * string
+  | `Unsafe of string * Rfc5322.phrase ]
 
 type mime_field =
   [ `MimeVersion of int * int ]
@@ -233,15 +234,15 @@ let p_id p =
   @ fun m -> Rfc822.p_cfws
   @ fun _ -> p m
 
-let p_field mime_extend extend field p state =
+let p_field mime_extend extend field p =
   let field = String.lowercase field in
 
   let rule =
     match field with
-    | "content-type" -> p_content @ fun c -> Rfc822.p_crlf @ p (`ContentType c)
-    | "content-transfer-encoding" -> p_encoding @ fun e -> Rfc822.p_crlf @ p (`ContentEncoding e)
+    | "content-type" -> p_content @ fun c -> Rfc822.p_crlf @ ok (`ContentType c)
+    | "content-transfer-encoding" -> p_encoding @ fun e -> Rfc822.p_crlf @ ok (`ContentEncoding e)
     | "content-id" -> p_id @ fun i -> Rfc822.p_crlf @ p (`ContentID i)
-    | "content-description" -> Rfc822.p_text @ fun _ s -> Rfc822.p_crlf @ p (`ContentDescription s)
+    | "content-description" -> Rfc822.p_text @ fun _ s -> Rfc822.p_crlf @ ok (`ContentDescription s)
     | field ->
       (* XXX: the optionnal-field [fields] is handle by RFC 822 or RFC 5322.
               in this case, we raise an error. *)
@@ -249,11 +250,15 @@ let p_field mime_extend extend field p state =
       then let field = String.sub field 8 (String.length field - 8) in
            p_try_rule p
              (Rfc822.p_text @ fun _ value -> Rfc822.p_crlf @ p (`Content (field, value)))
-             (mime_extend field @ fun data state -> `Ok (data, state))
+             (mime_extend field @ ok)
       else extend field p
   in
 
-  rule state
+  rule
+  / (Rfc5322.p_unstructured
+     @ fun l -> Rfc822.p_crlf
+     @ p (`Unsafe (field, l)))
+  @ p
 
 let p_entity_headers extend_mime extend p state =
   let rec loop acc =

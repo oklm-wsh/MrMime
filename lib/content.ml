@@ -11,7 +11,8 @@ type field =
   | `ContentEncoding of ContentEncoding.t
   | `ContentID of MsgID.t
   | `ContentDescription of string
-  | `Content of (string * string) ]
+  | `Content of string * string
+  | `Unsafe of string * Rfc5322.phrase ]
 
 let field_of_lexer : Rfc2045.field -> field = function
   | `Content p -> `Content p
@@ -19,6 +20,7 @@ let field_of_lexer : Rfc2045.field -> field = function
   | `ContentType t -> `ContentType (ContentType.of_lexer t)
   | `ContentEncoding e -> `ContentEncoding (ContentEncoding.of_lexer e)
   | `ContentID i -> `ContentID (MsgID.of_lexer i)
+  | `Unsafe (field, value) -> `Unsafe (field, value)
 
 let ty { ty; _ } = ty
 let encoding { encoding; _ } = encoding
