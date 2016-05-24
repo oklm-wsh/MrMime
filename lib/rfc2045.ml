@@ -279,7 +279,6 @@ let p_mime_message_headers extend_mime extend field p =
   | field -> p_field extend_mime extend field p
 
 let p_mime_part_headers = p_entity_headers
-let p_mime_part_headers' = p_entity_headers
 
 module Base64 = Base64
 module QuotedPrintable = QuotedPrintable
