@@ -63,8 +63,8 @@ let p_discard_text stop p =
    preamble := discard-text
    epilogue := discard-text
 *)
-let p_preamble = p_discard_text
-let p_epilogue = p_discard_text
+let p_preamble p state = p_discard_text p state
+let p_epilogue p state = p_discard_text p state
 
 (* See RFC 2046 § 5.1.1:
 
@@ -80,7 +80,8 @@ let m_delimiter boundary =
 
 let p_close_delimiter boundary p =
   p_delimiter boundary
-  @ p_str "--" @ p
+  @ p_str "--"
+  @ p
 
 let m_close_delimiter boundary =
   (m_delimiter boundary) ^ "--"

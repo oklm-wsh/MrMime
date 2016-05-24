@@ -9,8 +9,8 @@ type field =
 let p_header p state =
   Rfc5322.p_header
     (Rfc2045.p_mime_message_headers
-     (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state)))
-     (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state))))
+      (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state)))
+      (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state))))
     p state
 
 (* check of the header, eg. {!val:Header.of_lexer} and {!val:Content.of_lexer} *)
