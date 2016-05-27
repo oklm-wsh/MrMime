@@ -87,6 +87,7 @@ Document "mrmime"
 
 Executable maildir
   Path:                 bin
+  Build$:               flag(tests)
   Install:              false
   CompiledObject:       best
   MainIs:               maildir.ml
@@ -116,13 +117,13 @@ Executable test_header
   MainIs:               header_test.ml
   BuildDepends:         mrmime, alcotest
 
-Executable test_message
-  Path:                 lib_test
-  Build$:               flag(tests)
-  Install:              false
-  CompiledObject:       best
-  MainIs:               message_test.ml
-  BuildDepends:         cmdliner, jackson, lwt, tls.lwt, mrmime, alcotest, re.str
+# Executable test_message
+#   Path:                 lib_test
+#   Build$:               flag(tests)
+#   Install:              false
+#   CompiledObject:       best
+#   MainIs:               message_test.ml
+#   BuildDepends:         cmdliner, jackson, lwt, tls.lwt, mrmime, alcotest, re.str
 
 Test test_address
   Run$:                 flag(tests)

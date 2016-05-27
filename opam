@@ -47,8 +47,9 @@ depends: [
   "uri"               {build}
   "cohttp"            {build}
   "alcotest"          {test}
-  "fmt"
-  "logs"
+  "fmt"               {test}
+  "astring"           {test}
+  "re"                {test}
   "ipaddr"
 ]
 
