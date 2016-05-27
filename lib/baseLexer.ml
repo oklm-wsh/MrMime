@@ -87,6 +87,37 @@ let read_line k state =
     loop state.len
   end
 
+let to_end_of_file k state =
+  [%debug Printf.printf "state: to_end_of_file\n%!"];
+
+  if state.pos > 0
+  then begin
+    Bytes.blit state.buffer state.pos state.buffer 0 (state.len - state.pos);
+    state.len <- state.len - state.pos;
+    state.pos <- 0
+  end;
+
+  let rec loop off = function
+    | 0 -> state.len <- off; safe k state
+    | n ->
+      [%debug Printf.printf "state: to_end_of_file/continue [%d]\n%!" (off + n)];
+
+      if off + n >= Bytes.length state.buffer
+      then begin
+        let new_buffer = Bytes.create (2 * Bytes.length state.buffer + 1) in
+        Bytes.blit state.buffer 0 new_buffer 0 (Bytes.length state.buffer);
+        state.buffer <- new_buffer;
+      end;
+
+      `Read (state.buffer, off + n,
+             Bytes.length state.buffer - (off + n),
+             loop (off + n))
+  in
+
+  `Read (state.buffer, state.len,
+         Bytes.length state.buffer - state.len,
+         loop state.len)
+
 let rec cur_chr state =
   if state.pos < state.len
   then Bytes.get state.buffer state.pos

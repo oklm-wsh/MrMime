@@ -48,9 +48,10 @@ let p_body boundary content =
       p_try_rule
         (fun () state -> `Stop state)
         (fun state -> `Continue state)
-        (fun state -> match peek_chr state with
-                      | None -> `Ok ((), state)
-                      | Some chr -> raise (Error.Error (Error.err_unexpected chr state)))
+        (to_end_of_file
+         (fun state -> match peek_chr state with
+                       | None -> `Ok ((), state)
+                       | Some chr -> raise (Error.Error (Error.err_unexpected chr state))))
   in
 
   match Content.encoding content with
