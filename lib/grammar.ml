@@ -7,6 +7,8 @@ type field =
 
 (* composition between RFC 5322 and RFC 2045 about the header *)
 let p_header p state =
+  [%debug Printf.printf "state: p_header\n%!"];
+
   Rfc5322.p_header
     (Rfc2045.p_mime_message_headers
       (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state)))
@@ -65,9 +67,13 @@ let field_of_lexer = function
 
 (* compute the multipart explained in RFC 2046 § 5 *)
 let rec p_multipart boundary p_body' p state =
+  [%debug Printf.printf "state: p_multipart\n%!"];
+
   Rfc2046.p_multipart_body boundary None
     (fun fields next ->
        let rec aux p_body' fields next =
+         [%debug Printf.printf "state: p_multipart/aux\n%!"];
+
          Content.of_lexer fields @@ fun content rest ->
            match ContentType.ty @@ Content.ty content with
            | #Rfc2045.other
@@ -86,6 +92,8 @@ let rec p_multipart boundary p_body' p state =
 
 (* top-level of the multipart compute *)
 let rec switch content p_body' p_discrete p_composite state =
+  [%debug Printf.printf "state: switch\n%!"];
+
   match ContentType.ty @@ Content.ty content with
   (* unknow case, so TODO! *)
   | #Rfc2045.other
@@ -112,6 +120,8 @@ let rec switch content p_body' p_discrete p_composite state =
 
 (* the fucking message ... *)
 let p_message p =
+  [%debug Printf.printf "state: p_message\n%!"];
+
   p_header
     (fun fields ->
        c_header fields

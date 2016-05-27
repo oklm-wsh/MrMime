@@ -166,6 +166,8 @@ struct
 end
 
 let p_decode stop p state =
+  [%debug Printf.printf "state: p_decode (Base64)\n%!"];
+
   let buf = Buffer.create 16 in
 
   let rec decode base64 padding state =

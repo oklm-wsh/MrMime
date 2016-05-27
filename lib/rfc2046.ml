@@ -100,6 +100,8 @@ let m_close_delimiter boundary =
    XXX: [p_octet] must be stop to the boundary
 *)
 let p_body_part (type data) boundary p_octet p =
+  [%debug Printf.printf "state: p_body_part\n%!"];
+
   let next fields =
     (Rfc822.p_crlf
      @ p_octet fields
@@ -134,6 +136,8 @@ let p_encapsulation boundary p_octet p =
                      [CRLF epilogue]
 *)
 let p_multipart_body boundary parent_boundary p_octet p =
+  [%debug Printf.printf "state: p_multipart\n%!"];
+
   let stop_preamble has_text =
     let dash_boundary = m_dash_boundary boundary in
     p_try_rule

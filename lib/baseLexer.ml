@@ -112,6 +112,8 @@ let rec p_chr chr p state =
     read_line (p_chr chr p) state
 
 let rec u_chr chr p state =
+  [%debug Printf.printf "state: u_chr\n%!"];
+
   match peek_chr state with
   | Some c when chr = c ->
     junk_chr state; p state

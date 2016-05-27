@@ -235,6 +235,8 @@ let p_id p =
   @ fun _ -> p m
 
 let p_field mime_extend extend field p =
+  [%debug Printf.printf "state: p_field (RFC 2045) %s\n%!" field];
+
   let field = String.lowercase field in
 
   let rule =
@@ -261,6 +263,8 @@ let p_field mime_extend extend field p =
   @ p
 
 let p_entity_headers extend_mime extend p state =
+  [%debug Printf.printf "state: p_entity_header\n%!"];
+
   let rec loop acc =
     (Rfc822.p_field_name
      @ fun field -> (0 * 0) Rfc822.is_lwsp
@@ -274,6 +278,8 @@ let p_entity_headers extend_mime extend p state =
   loop [] state
 
 let p_mime_message_headers extend_mime extend field p =
+  [%debug Printf.printf "state: p_mime_message_header\n%!"];
+
   match field with
   | "mime-version" -> p_version @ fun v -> Rfc822.p_crlf @ p (`MimeVersion v)
   | field -> p_field extend_mime extend field p

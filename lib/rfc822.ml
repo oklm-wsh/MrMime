@@ -494,6 +494,8 @@ let p_atom p =
    word        =  atom / quoted-string
 *)
 let p_word p =
+  [%debug Printf.printf "state: p_word\n%!"];
+
   let loop has_fws =
     cur_chr
     @ function
@@ -563,8 +565,12 @@ let p_dot_atom p =
    local-part  =  word *("." word)             ; uninterpreted
                                                ; case-preserved
 *)
-let p_local_part p =
-  let p_obs_local_part' acc =
+let p_local_part p state =
+  [%debug Printf.printf "state: p_local_part\n%!"];
+
+  let p_obs_local_part' acc state =
+    [%debug Printf.printf "state: p_obs_local_part'\n%!"];
+
     let rec loop acc =
       cur_chr
       @ function
@@ -689,6 +695,8 @@ let p_domain_literal p =
    sub-domain  =  domain-ref / domain-literal
 *)
 let p_domain p =
+  [%debug Printf.printf "state: p_domain\n%!"];
+
   let p_obs_domain' p =
     let rec loop acc =
       cur_chr

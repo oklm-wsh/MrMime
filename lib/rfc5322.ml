@@ -789,6 +789,8 @@ let p_domain p =
    addr-spec       = local-part "@" domain
 *)
 let p_addr_spec p =
+  [%debug Printf.printf "state: p_addr_spec\n%!"];
+
   p_local_part
   @ fun local_part -> p_chr '@'
   @ p_domain
@@ -837,6 +839,8 @@ let p_obs_route p =
    obs-angle-addr  = [CFWS] "<" obs-route addr-spec ">" [CFWS]
 *)
 let p_obs_angle_addr p =
+  [%debug Printf.printf "state: p_obs_angle_addr\n%!"];
+
   p_cfws                                       (* [CFWS] *)
   @ fun _ -> p_chr '<'                         (* "<" *)
   @ p_obs_route                                (* obs-route *)
@@ -886,6 +890,8 @@ let p_obs_angle_addr p =
 *)
 
 let p_angle_addr p =
+  [%debug Printf.printf "state: p_angle_addr\n%!"];
+
   let first p =
     p_cfws
     @ fun _ -> p_chr '<'
@@ -912,6 +918,8 @@ let p_display_name p state = p_phrase p state
    name-addr       = [display-name] angle-addr
 *)
 let p_name_addr p =
+  [%debug Printf.printf "state: p_name_addr\n%!"];
+
   p_cfws
   @ fun _ -> cur_chr
   @ function
@@ -926,6 +934,8 @@ let p_name_addr p =
    mailbox         = name-addr / addr-spec
 *)
 let p_mailbox p =
+  [%debug Printf.printf "state: p_mailbox\n%!"];
+
   (p_name_addr @ fun name_addr state -> `Ok (name_addr, state))
   / (p_addr_spec @ fun (local_part, domain) -> p (None, (local_part, [domain])))
   @ p
@@ -960,6 +970,8 @@ let p_obs_mbox_list p =
    mailbox-list    = (mailbox *("," mailbox)) / obs-mbox-list
 *)
 let p_mailbox_list p =
+  [%debug Printf.printf "state: p_mailbox_list\n%!"];
+
   (* *("," [mailbox / CFWS]) *)
   let rec obs acc =
     cur_chr @ function
@@ -996,6 +1008,8 @@ let p_mailbox_list p =
    group-list      = mailbox-list / CFWS / obs-group-list
 *)
 let p_group_list p =
+  [%debug Printf.printf "state: p_group_list\n%!"];
+
   (p_mailbox_list (fun data state -> `Ok (data, state)))
   / ((p_obs_group_list @ fun state -> `Ok ((), state))
      / (p_cfws @ fun _ -> p [])
@@ -1007,6 +1021,8 @@ let p_group_list p =
    group           = display-name ":" [group-list] ";" [CFWS]
 *)
 let p_group p =
+  [%debug Printf.printf "state: p_group\n%!"];
+
   p_display_name
   @ fun display_name -> p_chr ':'
   @ cur_chr
@@ -1026,6 +1042,8 @@ let p_group p =
    address         = mailbox / group
 *)
 let p_address p =
+  [%debug Printf.printf "state: p_address\n%!"];
+
   (p_group (fun data state -> `Ok (data, state)))
   / (p_mailbox (fun mailbox -> p (`Person mailbox)))
   @ (fun group state -> p (`Group group) state)
@@ -1060,6 +1078,8 @@ let p_obs_addr_list p =
    address-list    = (address *("," address)) / obs-addr-list
 *)
 let p_address_list p =
+  [%debug Printf.printf "state: p_address_list\n%!"];
+
   (* *("," [address / CFWS]) *)
   let rec obs acc =
     cur_chr @ function
@@ -1109,7 +1129,10 @@ let is_ftext = function
 
    field-name      = 1*ftext
 *)
-let p_field_name p state = (1 * 0) is_ftext p state
+let p_field_name p state =
+  [%debug Printf.printf "state: p_field_name\n%!"];
+
+  (1 * 0) is_ftext p state
 
 (* See RFC 5322 § 4.5.3:
 
@@ -1257,6 +1280,8 @@ let p_keywords p =
 *)
 let p_field extend field p =
   let rule = match String.lowercase field with
+  [%debug Printf.printf "state: p_field (RFC 5322) %s\n%!" field];
+
     (* See RFC 5322 § 3.6.1 & 4.5.1:
 
        orig-date       = "Date:" date-time CRLF
@@ -1370,6 +1395,8 @@ let p_field extend field p =
   @ p
 
 let p_header extend p =
+  [%debug Printf.printf "state: p_header (RFC 5322)\n%!"];
+
   let rec loop acc =
     (p_field_name
      @ fun field -> (0 * 0) is_wsp
@@ -1396,6 +1423,8 @@ let p_header extend p =
         avoid only CRLF rule.
 *)
 let p_body stop p state =
+  [%debug Printf.printf "state: p_body (RFC 5322)\n%!"];
+
   let buf = Buffer.create 16 in
 
   let rec body has_cr state =

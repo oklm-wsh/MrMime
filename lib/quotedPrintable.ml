@@ -375,6 +375,8 @@ let p_inline_decode stop p state =
           line break in the encoded text.
 *)
 let p_decode stop p state =
+  [%debug Printf.printf "state: p_decode (QuotedPrintable)\n%!"];
+
   let buf = Buffer.create 16 in
 
   let rec decode state =
@@ -382,10 +384,15 @@ let p_decode stop p state =
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ safe k i))
       | #Error.err as err -> err
-      | `Stop state -> p (Buffer.contents buf) state
+      | `Stop state ->
+        [%debug Printf.printf "state: p_decode (QuotedPrintable) end\n%!"];
+
+        p (Buffer.contents buf) state
       | `Continue state ->
         (cur_chr @ function
          | '=' ->
+           [%debug Printf.printf "state: p_decode (QuotedPrintable) =\n%!"];
+
            junk_chr
            @ p_try is_hex_octet
            @ fun n ->
@@ -398,6 +405,8 @@ let p_decode stop p state =
                   @ p_chr '\n'
                   @ decode
          | '\x20' | '\x09' ->
+           [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
+
            p_while Rfc822.is_lwsp
            @ fun lwsp -> cur_chr
            @ (function
