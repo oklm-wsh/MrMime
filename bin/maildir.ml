@@ -117,19 +117,21 @@ let read_into channel buf off len =
 
     if remaining = 0 then Lwt.return len
     else Lwt.catch
-         (fun () -> Lwt_io.read_char channel >>= function
-          | '\n' when not has_cr && remaining >= 2 ->
-            Bytes.blit "\r\n" 0 buf (last - remaining) 2;
-            read_char false (remaining - 2)
-          | '\n' when not has_cr && remaining = 1 ->
-            let pos = Lwt_io.position channel in
-            Lwt_io.set_position channel (Int64.pred pos) >>= fun () ->
-            Lwt.return (len - remaining)
-          | '\r' ->
-            Bytes.set buf (last - remaining) '\r'; read_char true  (pred remaining)
-          | chr  ->
-            Bytes.set buf (last - remaining) chr;  read_char false (pred remaining))
-         (fun exn -> Lwt.return (len - remaining))
+           (fun () -> Lwt_io.read_char channel >>= fun chr -> Lwt.return (Some chr))
+           (fun exn -> Lwt.return None)
+         >>= function
+         | Some '\n' when not has_cr && remaining >= 2 ->
+           Bytes.blit "\r\n" 0 buf (last - remaining) 2;
+           read_char false (remaining - 2)
+         | Some '\n' when not has_cr && remaining = 1 ->
+           let pos = Lwt_io.position channel in
+           Lwt_io.set_position channel (Int64.pred pos) >>= fun () ->
+           Lwt.return (len - remaining)
+         | Some '\r' ->
+           Bytes.set buf (last - remaining) '\r'; read_char true  (pred remaining)
+         | Some chr  ->
+           Bytes.set buf (last - remaining) chr;  read_char false (pred remaining)
+         | None -> Lwt.return (len - remaining)
   in
 
   read_char false len
