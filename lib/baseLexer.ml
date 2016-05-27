@@ -111,12 +111,12 @@ let rec p_chr chr p state =
   | None ->
     read_line (p_chr chr p) state
 
-let rec u_chr chr p state =
+let rec u_chr chr state =
   [%debug Printf.printf "state: u_chr\n%!"];
 
   match peek_chr state with
   | Some c when chr = c ->
-    junk_chr state; p state
+    junk_chr state
   | Some _ -> raise (Error.Error (Error.err_expected chr state))
   | None   -> raise (Error.Error (Error.err_unexpected_eoi state))
 
