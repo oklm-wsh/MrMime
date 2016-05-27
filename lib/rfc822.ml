@@ -565,7 +565,7 @@ let p_dot_atom p =
    local-part  =  word *("." word)             ; uninterpreted
                                                ; case-preserved
 *)
-let p_local_part p state =
+let p_local_part p =
   [%debug Printf.printf "state: p_local_part\n%!"];
 
   let p_obs_local_part' acc state =
@@ -581,7 +581,7 @@ let p_local_part p state =
       | chr -> p (List.rev acc)
     in
 
-    p_cfws @ fun _ -> loop acc
+    p_cfws (fun _ -> loop acc) state
   in
 
   p_cfws
