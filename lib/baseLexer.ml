@@ -268,12 +268,17 @@ let ( * ) a b f e =
   p_repeat ?a ?b f e
 
 let p_try f p state =
-  let i0 = state.pos in
-  while state.pos < state.len
-     && f (Bytes.get state.buffer state.pos)
-  do state.pos <- state.pos + 1 done;
+  let buf = Buffer.create 16 in
 
-  let n = state.pos - i0 in
-  state.pos <- i0; p n state
+  let rec loop n state =
+    match peek_chr state with
+    | Some chr when f chr ->
+      Buffer.add_char buf chr;
+      junk_chr (loop (n + 1)) state
+    | Some chr -> roll_back (p n) (Buffer.contents buf) state
+    | None -> read_line (loop n) state
+  in
+
+  loop 0 state
 
 let ( $ ) x y k e = x (y k) e
