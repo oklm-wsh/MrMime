@@ -231,6 +231,32 @@ let p_repeat ?a ?b f p state =
   then p (Bytes.sub state.buffer i0 (state.pos - i0)) state
   else raise (Error.Error (Error.err_unexpected (cur_chr state) state))
 
+let p_repeat ?a ?b f p state =
+  let most pos = match b with
+    | Some most -> pos <= most
+    | None -> true
+  in
+  let least pos = match a with
+    | Some least -> pos >= least
+    | None -> true
+  in
+
+  let buf = Buffer.create (match b with Some x -> x | None -> 16) in
+
+  let rec loop n state =
+    match peek_chr state with
+    | Some chr when f chr && most n ->
+      Buffer.add_char buf chr;
+      junk_chr (loop (n + 1)) state
+    | Some chr ->
+      if least n
+      then p (Buffer.contents buf) state
+      else raise (Error.Error (Error.err_unexpected chr state))
+    | None -> read_line (loop n) state
+  in
+
+  loop 0 state
+
 let rec cur_chr p state =
   if state.pos < state.len
   then p (Bytes.get state.buffer state.pos) state
