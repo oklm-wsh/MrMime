@@ -2,7 +2,7 @@ S lib/
 
 B _build/lib/
 
-FLAG -ppx './_build/ppx/ppx_iana.byte --file iana.xml'
+FLG -ppx './_build/ppx/ppx_debug.byte -debug'
 FLAG -safe-string
 
 PKG alcotest logs logs.cli logs.fmt ipaddr

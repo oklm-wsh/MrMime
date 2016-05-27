@@ -85,6 +85,13 @@ Document "mrmime"
   XOCamlbuildExtraArgs:
     "-docflags '-colorize-code -keep-code -charset utf-8'"
 
+Executable maildir
+  Path:                 bin
+  Install:              false
+  CompiledObject:       best
+  MainIs:               maildir.ml
+  BuildDepends:         mrmime, lwt, lwt.unix, astring, fmt, cmdliner, re.str
+
 Executable test_address
   Path:                 lib_test
   Build$:               flag(tests)
