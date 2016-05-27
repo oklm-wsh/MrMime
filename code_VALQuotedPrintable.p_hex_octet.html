@@ -37,8 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.p_hex_octet</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_hex_octet&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;p_chr&nbsp;<span class="string">'='</span>&nbsp;state;<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;s&nbsp;=&nbsp;p_repeat&nbsp;~a:2&nbsp;~b:2&nbsp;is_hex_octet&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;p&nbsp;(<span class="constructor">F</span>.hex&nbsp;s)&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_hex_octet&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_chr&nbsp;<span class="string">'='</span><br>
+&nbsp;&nbsp;@&nbsp;(2&nbsp;*&nbsp;2)&nbsp;is_hex_octet<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">F</span>.hex&nbsp;s)</code></body></html>

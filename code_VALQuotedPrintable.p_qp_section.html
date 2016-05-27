@@ -39,14 +39,11 @@
 <body>
 <code class="code">let p_qp_section p state =
   let rec loop acc =
-    p_try_rule (fun data -> loop (data :: acc))
-      (fun state ->
-       match cur_chr state with
-       | '\x20' | '\x09' ->
-         junk_chr state;
-         loop acc state
-       | chr -> p (String.concat " " @@ List.rev acc) state)
-      (p_ptext (fun data state -> `Ok (data, state)) state)
+    (p_ptext (fun data state -> `Ok (data, state)))
+    / (cur_chr @ function
+       | '\x20' | '\x09' -> junk_chr @ loop acc
+       | chr -> p (String.concat " " @@ List.rev acc))
+    @ (fun data -> loop (data :: acc))
   in
 
   loop [] state</code></body></html>

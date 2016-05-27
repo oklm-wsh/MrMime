@@ -38,10 +38,13 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_obs_local_part&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;state;&nbsp;p_word&nbsp;(<span class="keyword">fun</span>&nbsp;o&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(o&nbsp;::&nbsp;acc))&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)&nbsp;state<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_word<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;o&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(o&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;p_word&nbsp;(<span class="keyword">fun</span>&nbsp;first&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;[first])</code></body></html>
+&nbsp;&nbsp;p_word&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;first&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;[first]</code></body></html>

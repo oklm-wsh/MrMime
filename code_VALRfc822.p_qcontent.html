@@ -37,10 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_qcontent</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_qcontent&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_qcontent"</span>);<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\\'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_quoted_pair&nbsp;(<span class="keyword">fun</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">String</span>.make&nbsp;1&nbsp;chr))&nbsp;state<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_qtext&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(p_qtext&nbsp;state)&nbsp;state<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_qcontent&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\\'</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_quoted_pair&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">String</span>.make&nbsp;1&nbsp;chr)<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_qtext&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_qtext&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;text&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;text<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))</code></body></html>

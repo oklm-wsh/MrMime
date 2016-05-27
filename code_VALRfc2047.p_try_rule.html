@@ -38,10 +38,7 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_try_rule&nbsp;p&nbsp;rule&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_try&nbsp;(RFC&nbsp;2047)"</span>);<br>
-<br>
-&nbsp;&nbsp;p_try_rule<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;encoded&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;encoded))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(rule&nbsp;p)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(p_encoded_word&nbsp;(<span class="keyword">fun</span>&nbsp;charset&nbsp;encoding&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((charset,&nbsp;encoding,&nbsp;data),&nbsp;state)))</code></body></html>
+&nbsp;&nbsp;(p_encoded_word<br>
+&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;charset&nbsp;encoding&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((charset,&nbsp;encoding,&nbsp;data),&nbsp;state))<br>
+&nbsp;&nbsp;/&nbsp;(rule&nbsp;p)<br>
+&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;encoded&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;encoded))</code></body></html>

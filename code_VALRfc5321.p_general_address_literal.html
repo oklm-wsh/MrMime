@@ -37,20 +37,18 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5321.p_general_address_literal</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_general_address_literal&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_general_address_literal"</span>);<br>
-<br>
-&nbsp;&nbsp;p_ldh_str&nbsp;(<span class="keyword">fun</span>&nbsp;tag&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">':'</span>&nbsp;state;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;content&nbsp;=&nbsp;p_while&nbsp;is_dcontent&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;&nbsp;we&nbsp;already&nbsp;try&nbsp;to&nbsp;parse&nbsp;IPv6&nbsp;tag,&nbsp;so&nbsp;if&nbsp;we&nbsp;are&nbsp;in&nbsp;this<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case,&nbsp;we&nbsp;have&nbsp;an&nbsp;invalid&nbsp;IPv6&nbsp;data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO:&nbsp;mey&nbsp;be&nbsp;it's&nbsp;useful&nbsp;to&nbsp;associate&nbsp;a&nbsp;lexer&nbsp;with&nbsp;the&nbsp;tag<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;try&nbsp;this.&nbsp;I&nbsp;have&nbsp;no&nbsp;time&nbsp;for&nbsp;that.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Iana</span>.<span class="constructor">Set</span>.exists&nbsp;((=)&nbsp;tag)&nbsp;<span class="constructor">Iana</span>.tag&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;tag&nbsp;&lt;&gt;&nbsp;<span class="string">"IPv6"</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(tag,&nbsp;content)&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">if</span>&nbsp;tag&nbsp;=&nbsp;<span class="string">"IPv6"</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_ipv6&nbsp;state))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_tag&nbsp;tag&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_general_address_literal&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_ldh_str<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;tag&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">':'</span><br>
+&nbsp;&nbsp;@&nbsp;p_while&nbsp;is_dcontent<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;content&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;&nbsp;we&nbsp;already&nbsp;try&nbsp;to&nbsp;parse&nbsp;IPv6&nbsp;tag,&nbsp;so&nbsp;if&nbsp;we&nbsp;are&nbsp;in&nbsp;this<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case,&nbsp;we&nbsp;have&nbsp;an&nbsp;invalid&nbsp;IPv6&nbsp;data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO:&nbsp;may&nbsp;be&nbsp;it's&nbsp;useful&nbsp;to&nbsp;associate&nbsp;a&nbsp;lexer&nbsp;with&nbsp;the&nbsp;tag<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;try&nbsp;this.&nbsp;I&nbsp;have&nbsp;no&nbsp;time&nbsp;for&nbsp;that.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Iana</span>.<span class="constructor">Set</span>.exists&nbsp;((=)&nbsp;tag)&nbsp;<span class="constructor">Iana</span>.tag&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;tag&nbsp;&lt;&gt;&nbsp;<span class="string">"IPv6"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(tag,&nbsp;content)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">if</span>&nbsp;tag&nbsp;=&nbsp;<span class="string">"IPv6"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_ipv6&nbsp;state))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_tag&nbsp;tag&nbsp;state))</code></body></html>

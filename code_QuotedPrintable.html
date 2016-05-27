@@ -37,9 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable</title>
 </head>
 <body>
-<code class="code">open BaseLexer
-
-module F =
+<code class="code">module F =
 struct
   let add_newline buf =
     Buffer.add_char buf '\n'
@@ -133,6 +131,8 @@ struct
     commit_word buf t
 end
 
+open BaseLexer
+
 (* See RFC 2045 § 6.7:
 
    safe-char       := <any octet with decimal value of 33 through
@@ -157,11 +157,10 @@ let is_hex_octet = function
   | 'A' .. 'F' -> true
   | chr        -> Rfc822.is_digit chr
 
-let p_hex_octet p state =
-  p_chr '=' state;
-
-  let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
-  p (F.hex s) state
+let p_hex_octet p =
+  p_chr '='
+  @ (2 * 2) is_hex_octet
+  @ fun s -> p (F.hex s)
 
 (* See RFC 2045 § 6.7:
 
@@ -170,16 +169,18 @@ let p_hex_octet p state =
 let p_ptext p state =
   let buf = Buffer.create 16 in
 
-  let rec loop state =
-    match cur_chr state with
-    | '=' -> p_hex_octet (fun chr state -> Buffer.add_char buf chr; loop state) state
-    | chr when is_safe_char chr ->
-      Buffer.add_char buf chr;
-      loop state
-    | chr -> raise (Error.Error (Error.err_unexpected chr state))
+  let rec loop () =
+    cur_chr
+    @ function
+      | '=' ->
+        p_hex_octet
+        @ fun chr -> Buffer.add_char buf chr; loop ()
+      | chr when is_safe_char chr ->
+        fun state -> Buffer.add_char buf chr; loop () state
+      | chr -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
   in
 
-  loop state
+  loop () state
 
 (* See RFC 2045 § 6.7:
 
@@ -187,14 +188,11 @@ let p_ptext p state =
 *)
 let p_qp_section p state =
   let rec loop acc =
-    p_try_rule (fun data -> loop (data :: acc))
-      (fun state ->
-       match cur_chr state with
-       | '\x20' | '\x09' ->
-         junk_chr state;
-         loop acc state
-       | chr -> p (String.concat " " @@ List.rev acc) state)
-      (p_ptext (fun data state -> `Ok (data, state)) state)
+    (p_ptext (fun data state -> `Ok (data, state)))
+    / (cur_chr @ function
+       | '\x20' | '\x09' -> junk_chr @ loop acc
+       | chr -> p (String.concat " " @@ List.rev acc))
+    @ (fun data -> loop (data :: acc))
   in
 
   loop [] state
@@ -204,13 +202,11 @@ let p_qp_section p state =
    qp-segment      := qp-section *(SPACE / TAB) "="
                         ; Maximum length of 76 characters
 *)
-let p_qp_segment p state =
+let p_qp_segment p =
   p_qp_section
-    (fun s state ->
-     let _ = p_repeat (function '\x20' | '\x09' -> true | _ -> false) in
-     p_chr '=' state;
-     p s state)
-    state
+  @ fun s -> (0 * 0) (function '\x20' | '\x09' -> true | _ -> false)
+  @ fun _ -> p_chr '='
+  @ p s
 
 (* See RFC 2045 § 6.7:
 
@@ -229,9 +225,9 @@ let p_qp_part = p_qp_section
                           ; added by message transports.
 
 *)
-let p_transport_padding p state =
-  let _ = p_repeat Rfc822.is_lwsp state in
-  p state
+let p_transport_padding p =
+  (0 * 0) Rfc822.is_lwsp
+  @ fun _ -> p
 
 (* See RFC 2045 § 6.7:
 
@@ -240,16 +236,15 @@ let p_transport_padding p state =
 *)
 let p_qp_line p state =
   let rec loop acc =
-    p_try_rule
-      (fun seg -> loop (seg :: acc))
-      (p_qp_part (fun seg -> p_transport_padding (p (List.rev @@ seg :: acc))))
-      (p_qp_segment
-       (fun seg ->
-        p_transport_padding
-          (fun state ->
-           p_chr '\r' state;
-           p_chr '\n' state;
-           `Ok (seg, state))))
+    (p_qp_segment
+     @ fun seg -> p_transport_padding
+     @ p_chr '\r'
+     @ p_chr '\n'
+     @ fun state -> `Ok (seg, state))
+    / (p_qp_part
+       @ fun seg -> p_transport_padding
+       @ p (List.rev @@ seg :: acc))
+    @ (fun seg -> loop (seg :: acc))
   in
 
   loop [] state
@@ -258,19 +253,17 @@ let p_qp_line p state =
 
    quoted-printable := qp-line *(CRLF qp-line)
 *)
-let p_quoted_printable p state =
+let p_quoted_printable p =
   let rec loop acc =
-    p_try_rule
-      (fun line -> loop (line :: acc))
-      (p (List.rev acc))
-      (fun state ->
-       p_chr '\r' state;
-       p_chr '\n' state;
-
-       p_qp_line (fun line state -> `Ok (line, state)) state)
+    (p_chr '\r'
+     @ p_chr '\n'
+     @ p_qp_line
+     @ fun line state -> `Ok (line, state))
+    / (p (List.rev acc))
+    @ (fun line -> loop (line :: acc))
   in
 
-  p_qp_line (fun line -> loop [line]) state
+  p_qp_line @ fun line -> loop [line]
 
 (* See RFC 2047 § 4.2:
 
@@ -308,22 +301,23 @@ let p_inline_decode stop p state =
       | #Error.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        match cur_chr state with
-        | '=' ->
-          junk_chr state;
-          let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
-          F.add_char buf (F.hex s);
-          decode state
-        | '_' ->
-          junk_chr state;
-          Buffer.add_char buf ' ';
-          decode state
-        | '?' ->
-          raise (Error.Error (Error.err_unexpected '?' state))
-        | chr ->
-          junk_chr state;
-          Buffer.add_char buf chr;
-          decode state
+        (cur_chr
+         @ function
+         | '=' ->
+           junk_chr
+           @ (2 * 2) is_hex_octet
+           @ fun s ->
+             F.add_char buf (F.hex s);
+             decode
+         | '_' ->
+           junk_chr
+           @ fun state -> Buffer.add_char buf ' '; decode state
+         | '?' ->
+           fun state -> raise (Error.Error (Error.err_unexpected '?' state))
+         | chr ->
+           junk_chr
+           @ fun state -> Buffer.add_char buf chr; decode state)
+        state
     in aux @@ safe stop state
   in
 
@@ -420,6 +414,8 @@ let p_inline_decode stop p state =
           line break in the encoded text.
 *)
 let p_decode stop p state =
+  [%debug Printf.printf "state: p_decode (QuotedPrintable)\n%!"];
+
   let buf = Buffer.create 16 in
 
   let rec decode state =
@@ -427,45 +423,46 @@ let p_decode stop p state =
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ safe k i))
       | #Error.err as err -> err
-      | `Stop state -> p (Buffer.contents buf) state
+      | `Stop state ->
+        [%debug Printf.printf "state: p_decode (QuotedPrintable) end\n%!"];
+
+        p (Buffer.contents buf) state
       | `Continue state ->
-        match cur_chr state with
+        (cur_chr @ function
          | '=' ->
-           p_chr '=' state;
+           [%debug Printf.printf "state: p_decode (QuotedPrintable) =\n%!"];
 
-           if p_try is_hex_octet state = 2
-           then begin
-             let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
-
-             F.add_char buf (F.hex s);
-             decode state
-           end else begin
-             p_chr '\r' state;
-             p_chr '\n' state;
-
-             decode state
-           end
+           junk_chr
+           @ p_try is_hex_octet
+           @ fun n ->
+             if n >= 2
+             then (2 * 2) is_hex_octet
+                  @ fun s ->
+                      F.add_char buf (F.hex s);
+                      decode
+             else p_chr '\r' (* soft line-breaks *)
+                  @ p_chr '\n'
+                  @ decode
          | '\x20' | '\x09' ->
-           let lwsp = p_while Rfc822.is_lwsp state in
+           [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
 
-           if cur_chr state = '\r'
-           then begin
-             p_chr '\r' state;
-             p_chr '\n' state;
-
+           p_while Rfc822.is_lwsp
+           @ fun lwsp -> cur_chr
+           @ (function
+              | '\r' -> p_chr '\r'
+                        @ p_chr '\n'
+                        @ fun state -> F.add_newline buf; decode state
+              | chr -> F.add_string buf lwsp; decode)
+         | '\r' ->
+           p_chr '\r' (* line-breaks *)
+           @ p_chr '\n'
+           @ fun state ->
              F.add_newline buf;
              decode state
-           end else begin
-             F.add_string buf lwsp;
-             decode state
-           end
-
          | chr when is_safe_char chr  ->
-           junk_chr state;
-           F.add_char buf chr;
-           decode state
-
-         | chr -> raise (Error.Error (Error.err_unexpected chr state))
+           F.add_char buf chr; junk_chr @ decode
+         | chr -> junk_chr @ decode)
+        state
     in aux (safe stop state)
   in
 
@@ -481,43 +478,38 @@ let p_inline_encode stop p state =
       | #Error.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        match cur_chr state with
-        | '\x20' ->
-          junk_chr state;
-          Buffer.add_char buf '_';
-          encode state
-        | '\x09' ->
-          junk_chr state;
-          Buffer.add_string buf "=09";
-          encode state
-        | '?' ->
-          junk_chr state;
-          Buffer.add_string buf "=3F";
-          encode state
-        | '_' ->
-          junk_chr state;
-          Buffer.add_string buf "=5F";
-          encode state
-        | '=' ->
-          junk_chr state;
-          Buffer.add_string buf "=3D";
-          encode state
-        | chr when is_safe_char chr ->
-          junk_chr state;
-          Buffer.add_char buf chr;
-          encode state
-        | chr ->
-          junk_chr state;
+        (cur_chr @ function
+         | '\x20' ->
+           junk_chr
+           @ fun state -> Buffer.add_char buf '_'; encode state
+         | '\x09' ->
+           junk_chr
+           @ fun state -> Buffer.add_string buf "=09"; encode state
+         | '?' ->
+           junk_chr
+           @ fun state -> Buffer.add_string buf "=3F"; encode state
+         | '_' ->
+           junk_chr
+           @ fun state -> Buffer.add_string buf "=5F"; encode state
+         | '=' ->
+           junk_chr
+           @ fun state -> Buffer.add_string buf "=3D"; encode state
+         | chr when is_safe_char chr ->
+           junk_chr
+           @ fun state -> Buffer.add_char buf chr; encode state
+         | chr ->
+           junk_chr
+           @ fun state ->
+             let code = Char.code chr in
+             let h    = (code lsr 4) land (16 - 1) in
+             let l    =  code        land (16 - 1) in
 
-          let code = Char.code chr in
-          let h    = (code lsr 4) land (16 - 1) in
-          let l    =  code        land (16 - 1) in
+             Buffer.add_char buf '=';
+             Buffer.add_char buf T._to.[h];
+             Buffer.add_char buf T._to.[l];
 
-          Buffer.add_char buf '=';
-          Buffer.add_char buf T._to.[h];
-          Buffer.add_char buf T._to.[l];
-
-          encode state
+             encode state)
+        state
     in aux @@ safe stop state
   in
 
@@ -528,32 +520,29 @@ let p_encode stop p state =
 
   let rec encode qp state =
     let rec aux = function
-      | `Stop state -> p (Buffer.contents buf) state
-      | `Continue state ->
-        (match cur_chr state with
-         | '\x20' | '\x09' as chr ->
-           junk_chr state;
-
-           if cur_chr state = '\n'
-           then begin
-             T.add_newline buf qp (Some chr);
-             junk_chr state;
-             encode qp state
-           end else begin
-             T.add_wsp buf qp chr;
-             encode qp state
-           end
-         | chr when is_safe_char chr ->
-           T.add_char buf qp chr;
-           junk_chr state;
-           encode qp state
-         | chr ->
-           T.add_quoted_char buf qp chr;
-           junk_chr state;
-           encode qp state)
       | #Error.err as r -> r
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        (cur_chr @ function
+         | '\x20' | '\x09' as chr ->
+           junk_chr
+           @ cur_chr
+           @ (function
+              | '\n' ->
+                T.add_newline buf qp (Some chr);
+                junk_chr @ encode qp
+              | chr ->
+                T.add_wsp buf qp chr;
+                encode qp)
+         | chr when is_safe_char chr ->
+           T.add_char buf qp chr;
+           junk_chr @ encode qp
+         | chr ->
+           T.add_quoted_char buf qp chr;
+           junk_chr @ encode qp)
+        state
     in aux (stop state)
   in
 

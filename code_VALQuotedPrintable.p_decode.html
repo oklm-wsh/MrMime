@@ -38,6 +38,8 @@
 </head>
 <body>
 <code class="code">let p_decode stop p state =
+  [%debug Printf.printf "state: p_decode (QuotedPrintable)\n%!"];
+
   let buf = Buffer.create 16 in
 
   let rec decode state =
@@ -45,45 +47,46 @@
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ safe k i))
       | #Error.err as err -> err
-      | `Stop state -> p (Buffer.contents buf) state
+      | `Stop state ->
+        [%debug Printf.printf "state: p_decode (QuotedPrintable) end\n%!"];
+
+        p (Buffer.contents buf) state
       | `Continue state ->
-        match cur_chr state with
+        (cur_chr @ function
          | '=' ->
-           p_chr '=' state;
+           [%debug Printf.printf "state: p_decode (QuotedPrintable) =\n%!"];
 
-           if p_try is_hex_octet state = 2
-           then begin
-             let s = p_repeat ~a:2 ~b:2 is_hex_octet state in
-
-             F.add_char buf (F.hex s);
-             decode state
-           end else begin
-             p_chr '\r' state;
-             p_chr '\n' state;
-
-             decode state
-           end
+           junk_chr
+           @ p_try is_hex_octet
+           @ fun n ->
+             if n >= 2
+             then (2 * 2) is_hex_octet
+                  @ fun s ->
+                      F.add_char buf (F.hex s);
+                      decode
+             else p_chr '\r' (* soft line-breaks *)
+                  @ p_chr '\n'
+                  @ decode
          | '\x20' | '\x09' ->
-           let lwsp = p_while Rfc822.is_lwsp state in
+           [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
 
-           if cur_chr state = '\r'
-           then begin
-             p_chr '\r' state;
-             p_chr '\n' state;
-
+           p_while Rfc822.is_lwsp
+           @ fun lwsp -> cur_chr
+           @ (function
+              | '\r' -> p_chr '\r'
+                        @ p_chr '\n'
+                        @ fun state -> F.add_newline buf; decode state
+              | chr -> F.add_string buf lwsp; decode)
+         | '\r' ->
+           p_chr '\r' (* line-breaks *)
+           @ p_chr '\n'
+           @ fun state ->
              F.add_newline buf;
              decode state
-           end else begin
-             F.add_string buf lwsp;
-             decode state
-           end
-
          | chr when is_safe_char chr  ->
-           junk_chr state;
-           F.add_char buf chr;
-           decode state
-
-         | chr -> raise (Error.Error (Error.err_unexpected chr state))
+           F.add_char buf chr; junk_chr @ decode
+         | chr -> junk_chr @ decode)
+        state
     in aux (safe stop state)
   in
 

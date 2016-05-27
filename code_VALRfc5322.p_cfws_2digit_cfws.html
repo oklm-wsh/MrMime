@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_cfws_2digit_cfws</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_cfws_2digit_cfws&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_cfws_2digit_cfws"</span>);<br>
-<br>
-&nbsp;&nbsp;p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">let</span>&nbsp;n&nbsp;=&nbsp;p_repeat&nbsp;~a:2&nbsp;~b:2&nbsp;is_digit&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_cfws&nbsp;(p&nbsp;(int_of_string&nbsp;n))&nbsp;state)&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_cfws_2digit_cfws&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_cfws<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(2&nbsp;*&nbsp;2)&nbsp;is_digit<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws<br>
+&nbsp;&nbsp;@&nbsp;p&nbsp;(int_of_string&nbsp;n)</code></body></html>

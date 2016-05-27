@@ -37,29 +37,30 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_obs_domain_list</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_obs_domain_list&nbsp;p&nbsp;state&nbsp;=<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_obs_domain_list&nbsp;p&nbsp;=<br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;*(","&nbsp;[CFWS]&nbsp;["@"&nbsp;domain])&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop1&nbsp;acc&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop1&nbsp;acc&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_cfws<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(junk_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_cfws<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'@'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_domain&nbsp;(<span class="keyword">fun</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;(domain&nbsp;::&nbsp;acc))&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)&nbsp;state)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_domain<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;(domain&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;*(CFWS&nbsp;/&nbsp;",")&nbsp;"@"&nbsp;domain&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop0&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;state;&nbsp;p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0)&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'@'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;state;&nbsp;p_domain&nbsp;(<span class="keyword">fun</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;[domain])&nbsp;state<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop0&nbsp;()&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;@&nbsp;p_cfws&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0&nbsp;()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'@'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;@&nbsp;p_domain&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;[domain]<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;may&nbsp;be&nbsp;raise&nbsp;an&nbsp;error&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0)&nbsp;state</code></body></html>
+&nbsp;&nbsp;p_cfws&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0&nbsp;()</code></body></html>

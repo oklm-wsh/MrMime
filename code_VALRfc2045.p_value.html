@@ -38,7 +38,6 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_value&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_try_rule<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;data))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;(p_token&nbsp;state))&nbsp;state)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_quoted_string&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))</code></body></html>
+&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_quoted_string&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))<br>
+&nbsp;&nbsp;/&nbsp;(p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;token))<br>
+&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;data))</code></body></html>

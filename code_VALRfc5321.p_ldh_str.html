@@ -37,12 +37,10 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5321.p_ldh_str</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_ldh_str&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;s&nbsp;=&nbsp;p_while<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_ldh_str&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_while<br>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">function</span>&nbsp;<span class="string">'a'</span>&nbsp;..&nbsp;<span class="string">'z'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>&nbsp;..&nbsp;<span class="string">'Z'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'-'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;(<span class="constructor">String</span>.length&nbsp;s&nbsp;-&nbsp;1)&nbsp;=&nbsp;<span class="string">'-'</span><br>
-&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;<span class="string">'-'</span>&nbsp;state))<br>
-&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;p&nbsp;s&nbsp;state</code></body></html>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">String</span>.get&nbsp;s&nbsp;(<span class="constructor">String</span>.length&nbsp;s&nbsp;-&nbsp;1)&nbsp;=&nbsp;<span class="string">'-'</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;<span class="string">'-'</span>&nbsp;state))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;p&nbsp;s</code></body></html>

@@ -37,13 +37,14 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_name_addr</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_name_addr&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_name_addr"</span>);<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_name_addr&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_name_addr\n%!"</span>];<br>
 <br>
-&nbsp;&nbsp;p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&lt;'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_angle_addr&nbsp;(<span class="keyword">fun</span>&nbsp;addr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">None</span>,&nbsp;addr))&nbsp;state<br>
+&nbsp;&nbsp;p_cfws<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&lt;'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_angle_addr&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;addr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">None</span>,&nbsp;addr)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_display_name<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;name&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_angle_addr&nbsp;(<span class="keyword">fun</span>&nbsp;addr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;name,&nbsp;addr)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;name&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_angle_addr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;addr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;name,&nbsp;addr)</code></body></html>

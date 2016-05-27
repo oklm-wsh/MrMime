@@ -37,28 +37,24 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_cfws</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_cfws&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_cfws"</span>);<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;has_fws&nbsp;has_comment&nbsp;state&nbsp;=<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_cfws&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;has_fws&nbsp;has_comment&nbsp;=<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;[FWS]&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;1*([FWS]&nbsp;comment)&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_cfws&nbsp;1*([FWS]&nbsp;comment)"</span>);<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_comment<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_fws&nbsp;(<span class="keyword">fun</span>&nbsp;has_wsp'&nbsp;has_fws'&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;(has_fws&nbsp;<span class="keywordsign">||</span>&nbsp;has_wsp'&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws')&nbsp;<span class="keyword">true</span>))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;1*([FWS]&nbsp;comment)&nbsp;[FWS],&nbsp;we&nbsp;ignore&nbsp;if&nbsp;we&nbsp;passed&nbsp;a&nbsp;fws&nbsp;entity.&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;has_comment,&nbsp;has_fws&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;&nbsp;<span class="keyword">true</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keyword">true</span>&nbsp;state&nbsp;<span class="comment">(*&nbsp;comment)&nbsp;[FWS]&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">true</span>&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keyword">true</span>&nbsp;state&nbsp;<span class="comment">(*&nbsp;/&nbsp;FWS&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keyword">false</span>&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;[FWS]&nbsp;e,&nbsp;we&nbsp;ignore&nbsp;if&nbsp;we&nbsp;passed&nbsp;a&nbsp;fws&nbsp;entity.&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_comment<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_fws<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp'&nbsp;has_fws'&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(has_fws&nbsp;<span class="keywordsign">||</span>&nbsp;has_wsp'&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws')&nbsp;<span class="keyword">true</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;1*([FWS]&nbsp;comment)&nbsp;[FWS],&nbsp;we&nbsp;ignore&nbsp;if&nbsp;we&nbsp;passed&nbsp;a&nbsp;fws&nbsp;entity.&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;has_comment,&nbsp;has_fws&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;&nbsp;<span class="keyword">true</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keyword">true</span>&nbsp;<span class="comment">(*&nbsp;comment)&nbsp;[FWS]&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">true</span>&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keyword">true</span>&nbsp;<span class="comment">(*&nbsp;/&nbsp;FWS&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keyword">false</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;[FWS]&nbsp;e,&nbsp;we&nbsp;ignore&nbsp;if&nbsp;we&nbsp;passed&nbsp;a&nbsp;fws&nbsp;entity.&nbsp;*)</span><br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;p_fws&nbsp;(<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws)&nbsp;<span class="keyword">false</span>)&nbsp;state</code></body></html>
+&nbsp;&nbsp;p_fws&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws)&nbsp;<span class="keyword">false</span></code></body></html>

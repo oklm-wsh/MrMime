@@ -37,10 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.p_qp_segment</title>
 </head>
 <body>
-<code class="code">let p_qp_segment p state =
+<code class="code">let p_qp_segment p =
   p_qp_section
-    (fun s state ->
-     let _ = p_repeat (function '\x20' | '\x09' -> true | _ -> false) in
-     p_chr '=' state;
-     p s state)
-    state</code></body></html>
+  @ fun s -> (0 * 0) (function '\x20' | '\x09' -> true | _ -> false)
+  @ fun _ -> p_chr '='
+  @ p s</code></body></html>

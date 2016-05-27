@@ -37,10 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_id_right</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_id_right&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;p_try_rule&nbsp;p<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(p_try_rule&nbsp;p<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_obs_id_right&nbsp;p)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_no_fold_literal&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(p_dot_atom_text&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;data,&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_id_right&nbsp;p&nbsp;=<br>
+&nbsp;(p_dot_atom_text&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;data,&nbsp;state)))<br>
+&nbsp;/&nbsp;((p_no_fold_literal&nbsp;ok)&nbsp;/&nbsp;(p_obs_id_right&nbsp;p)&nbsp;@&nbsp;p)<br>
+&nbsp;@&nbsp;p</code></body></html>

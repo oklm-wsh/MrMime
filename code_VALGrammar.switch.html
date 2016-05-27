@@ -38,6 +38,8 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;switch&nbsp;content&nbsp;p_body'&nbsp;p_discrete&nbsp;p_composite&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;switch\n%!"</span>];<br>
+<br>
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">ContentType</span>.ty&nbsp;@@&nbsp;<span class="constructor">Content</span>.ty&nbsp;content&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;unknow&nbsp;case,&nbsp;so&nbsp;TODO!&nbsp;*)</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.other<br>

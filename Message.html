@@ -53,10 +53,12 @@
 <pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type"><a href="Grammar.html#TYPEfield">Grammar.field</a></code> </pre>
 
 
-<pre><span id="TYPEtop"><span class="keyword">type</span> <code class="type"></code>top</span> = <code class="type"><a href="Header.html#TYPEt">Header.t</a> *<br>       [ `Composite of <a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEnest">nest</a> option list<br>       | `Discrete of <a href="Content.html#TYPEt">Content.t</a> * string ]</code> </pre>
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type"><a href="Header.html#TYPEt">Header.t</a> *<br>       [ `Composite of <a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEnest">nest</a> option list<br>       | `Discrete of <a href="Content.html#TYPEt">Content.t</a> * string ]</code> </pre>
 
 
 <pre><span id="TYPEnest"><span class="keyword">type</span> <code class="type"></code>nest</span> = <code class="type">[ `Composite of (<a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield">field</a> list) * 'a option list<br>       | `Discrete of (<a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield">field</a> list) * string ] as 'a</code> </pre>
 
 
-<pre><span id="VALof_string"><span class="keyword">val</span> <a href="code_VALMessage.of_string.html">of_string</a></span> : <code class="type">string -> <a href="Message.html#TYPEtop">top</a></code></pre></body></html>
+<pre><span id="VALof_string"><span class="keyword">val</span> <a href="code_VALMessage.of_string.html">of_string</a></span> : <code class="type">string -> <a href="Message.html#TYPEt">t</a></code></pre>
+<pre><span id="VALequal"><span class="keyword">val</span> <a href="code_VALMessage.equal.html">equal</a></span> : <code class="type">'a -> 'a -> bool</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALMessage.pp.html">pp</a></span> : <code class="type">Format.formatter -> <a href="Message.html#TYPEt">t</a> -> unit</code></pre></body></html>

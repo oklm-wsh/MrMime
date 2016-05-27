@@ -37,21 +37,19 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_zone</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_zone&nbsp;has_already_fws&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_zone&nbsp;%b"</span>&nbsp;has_already_fws);<br>
-<br>
-&nbsp;&nbsp;p_fws&nbsp;(<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;has_already_fws&nbsp;<span class="keywordsign">||</span>&nbsp;has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws,&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="string">'+'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">'+'</span>&nbsp;state;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tz&nbsp;=&nbsp;p_repeat&nbsp;~a:4&nbsp;~b:4&nbsp;is_digit&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">TZ</span>&nbsp;(int_of_string&nbsp;tz))&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="string">'-'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">'-'</span>&nbsp;state;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tz&nbsp;=&nbsp;p_repeat&nbsp;~a:4&nbsp;~b:4&nbsp;is_digit&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">TZ</span>&nbsp;(-&nbsp;(int_of_string&nbsp;tz)))&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_digit&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tz&nbsp;=&nbsp;p_repeat&nbsp;~a:4&nbsp;~b:4&nbsp;is_digit&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">TZ</span>&nbsp;(int_of_string&nbsp;tz))&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_zone&nbsp;p&nbsp;state)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_zone&nbsp;has_already_fws&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_fws<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;has_already_fws&nbsp;<span class="keywordsign">||</span>&nbsp;has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws,&nbsp;chr&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="string">'+'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">'+'</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(4&nbsp;*&nbsp;4)&nbsp;is_digit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;tz&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">TZ</span>&nbsp;(int_of_string&nbsp;tz))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="string">'-'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">'-'</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(4&nbsp;*&nbsp;4)&nbsp;is_digit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;tz&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">TZ</span>&nbsp;(-&nbsp;(int_of_string&nbsp;tz)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_digit&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(4&nbsp;*&nbsp;4)&nbsp;is_digit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;tz&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">TZ</span>&nbsp;(int_of_string&nbsp;tz))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_zone&nbsp;p</code></body></html>

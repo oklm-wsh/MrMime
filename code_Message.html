@@ -41,14 +41,14 @@
 <br>
 <span class="keyword">type</span>&nbsp;field&nbsp;=&nbsp;<span class="constructor">Grammar</span>.field<br>
 <br>
-<span class="keyword">type</span>&nbsp;top&nbsp;=&nbsp;<span class="constructor">Header</span>.t&nbsp;*<br>
+<span class="keyword">type</span>&nbsp;t&nbsp;=&nbsp;<span class="constructor">Header</span>.t&nbsp;*<br>
 &nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Composite</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Content</span>.t&nbsp;*&nbsp;nest&nbsp;option&nbsp;list<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Discrete</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Content</span>.t&nbsp;*&nbsp;string&nbsp;]<br>
 <span class="keyword">and</span>&nbsp;nest&nbsp;=<br>
 &nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Composite</span>&nbsp;<span class="keyword">of</span>&nbsp;(<span class="constructor">Content</span>.t&nbsp;*&nbsp;field&nbsp;list)&nbsp;*&nbsp;<span class="keywordsign">'</span>a&nbsp;option&nbsp;list<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Discrete</span>&nbsp;<span class="keyword">of</span>&nbsp;(<span class="constructor">Content</span>.t&nbsp;*&nbsp;field&nbsp;list)&nbsp;*&nbsp;string&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a<br>
 <br>
-<span class="keyword">let</span>&nbsp;of_string&nbsp;s&nbsp;:&nbsp;top&nbsp;=<br>
+<span class="keyword">let</span>&nbsp;of_string&nbsp;s&nbsp;:&nbsp;t&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;=&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)))<br>
@@ -59,4 +59,8 @@
 <br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;=&nbsp;<span class="constructor">Grammar</span>.p_message&nbsp;(<span class="keyword">fun</span>&nbsp;header&nbsp;message&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(header,&nbsp;message))&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;loop&nbsp;@@&nbsp;<span class="constructor">BaseLexer</span>.safe&nbsp;rule&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;s)<br>
+<br>
+<span class="keyword">let</span>&nbsp;equal&nbsp;=&nbsp;(=)<br>
+<br>
+<span class="keyword">let</span>&nbsp;pp&nbsp;fmt&nbsp;(_&nbsp;:&nbsp;t)&nbsp;=&nbsp;p&nbsp;fmt&nbsp;<span class="string">"#message"</span><br>
 </code></body></html>

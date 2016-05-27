@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Message.of_string</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;of_string&nbsp;s&nbsp;:&nbsp;top&nbsp;=<br>
+<code class="code"><span class="keyword">let</span>&nbsp;of_string&nbsp;s&nbsp;:&nbsp;t&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;=&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)))<br>

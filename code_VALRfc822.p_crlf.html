@@ -37,8 +37,4 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_crlf</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_crlf&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;p_chr&nbsp;<span class="string">'\r'</span>&nbsp;state;<br>
-&nbsp;&nbsp;p_chr&nbsp;<span class="string">'\n'</span>&nbsp;state;<br>
-<br>
-&nbsp;&nbsp;p&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_crlf&nbsp;p&nbsp;=&nbsp;p_chr&nbsp;<span class="string">'\r'</span>&nbsp;@&nbsp;p_chr&nbsp;<span class="string">'\n'</span>&nbsp;@&nbsp;p</code></body></html>

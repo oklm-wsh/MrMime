@@ -38,10 +38,12 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_day_of_week&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_day_of_week"</span>);<br>
-<br>
 &nbsp;&nbsp;p_fws<br>
-&nbsp;&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;is_alpha&nbsp;(cur_chr&nbsp;state)&nbsp;<span class="keyword">then</span>&nbsp;p_day_name&nbsp;p&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_day_name&nbsp;(<span class="keyword">fun</span>&nbsp;day&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;day)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state</code></body></html>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_alpha&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_day_name&nbsp;p<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_cfws<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_day_name<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;day&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;day</code></body></html>

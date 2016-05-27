@@ -38,4 +38,7 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_id&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_msg_id&nbsp;(<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;m)))</code></body></html>
+&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_msg_id<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;m</code></body></html>

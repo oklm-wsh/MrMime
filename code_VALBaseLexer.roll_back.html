@@ -38,8 +38,6 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;roll_back&nbsp;k&nbsp;data&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_roll_back"</span>);<br>
-<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;len&nbsp;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;data&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&gt;&nbsp;len<br>
 &nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
@@ -56,8 +54,6 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;new_len&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;data&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;len;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;new_buffer&nbsp;len&nbsp;(state.len&nbsp;-&nbsp;state.pos);<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_roll_back&nbsp;(new&nbsp;buffer&nbsp;%S)"</span>&nbsp;new_buffer);<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;new_len;<br>

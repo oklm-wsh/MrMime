@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseLexer.cur_chr</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;cur_chr&nbsp;state&nbsp;=<br>
+<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;cur_chr&nbsp;p&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len<br>
-&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos<br>
-&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected_eoi&nbsp;state))</code></body></html>
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos)&nbsp;state<br>
+&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;read_line&nbsp;(cur_chr&nbsp;p)&nbsp;state</code></body></html>

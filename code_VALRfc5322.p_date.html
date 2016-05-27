@@ -38,6 +38,7 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_date&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_date"</span>);<br>
-<br>
-&nbsp;&nbsp;p_day&nbsp;(<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_month&nbsp;(<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_year&nbsp;<span class="keyword">false</span>&nbsp;(<span class="keyword">fun</span>&nbsp;y&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(d,&nbsp;m,&nbsp;y))))</code></body></html>
+&nbsp;&nbsp;p_day<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_month<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_year&nbsp;<span class="keyword">false</span><br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;y&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(d,&nbsp;m,&nbsp;y)</code></body></html>

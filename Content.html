@@ -97,7 +97,7 @@
 
 
 
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * string<br>       | `ContentDescription of string<br>       | `ContentEncoding of <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a><br>       | `ContentID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ContentType of <a href="ContentType.html#TYPEt">ContentType.t</a> ]</code> </pre>
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * string<br>       | `ContentDescription of string<br>       | `ContentEncoding of <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a><br>       | `ContentID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ContentType of <a href="ContentType.html#TYPEt">ContentType.t</a><br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
 
 
 <pre><span id="VALfield_of_lexer"><span class="keyword">val</span> <a href="code_VALContent.field_of_lexer.html">field_of_lexer</a></span> : <code class="type"><a href="Rfc2045.html#TYPEfield">Rfc2045.field</a> -> <a href="Content.html#TYPEfield">field</a></code></pre>

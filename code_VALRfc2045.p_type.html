@@ -37,17 +37,20 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.p_type</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_type&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase&nbsp;@@&nbsp;p_token&nbsp;state&nbsp;<span class="keyword">with</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_type&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;discrete-type&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"text"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span>&nbsp;state<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"image"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span>&nbsp;state<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"audio"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span>&nbsp;state<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"video"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span>&nbsp;state<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"application"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>&nbsp;state<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"text"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"image"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"audio"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"video"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"application"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span><br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;composite-type&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"message"</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span>&nbsp;state<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"multipart"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>&nbsp;state<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"message"</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"multipart"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span><br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;extension-type&nbsp;*)</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;extension_token)</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_extension_token<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;extension_token)</code></body></html>

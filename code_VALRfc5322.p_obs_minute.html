@@ -37,6 +37,6 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_obs_minute</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_obs_minute&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_obs_minute"</span>);<br>
-&nbsp;&nbsp;p_cfws_2digit_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;n&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;n)&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_obs_minute&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_cfws_2digit_cfws<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;n</code></body></html>

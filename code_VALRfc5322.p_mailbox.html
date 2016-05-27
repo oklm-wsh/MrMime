@@ -37,10 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_mailbox</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_mailbox&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_mailbox"</span>);<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_mailbox&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mailbox\n%!"</span>];<br>
 <br>
-&nbsp;&nbsp;p_try_rule&nbsp;p<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(p_addr_spec&nbsp;(<span class="keyword">fun</span>&nbsp;(local_part,&nbsp;domain)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">None</span>,&nbsp;(local_part,&nbsp;[domain]))))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(p_name_addr&nbsp;(<span class="keyword">fun</span>&nbsp;name_addr&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(name_addr,&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state</code></body></html>
+&nbsp;&nbsp;(p_name_addr&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;name_addr&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(name_addr,&nbsp;state))<br>
+&nbsp;&nbsp;/&nbsp;(p_addr_spec&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;(local_part,&nbsp;domain)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">None</span>,&nbsp;(local_part,&nbsp;[domain])))<br>
+&nbsp;&nbsp;@&nbsp;p</code></body></html>

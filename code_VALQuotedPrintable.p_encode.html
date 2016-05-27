@@ -42,32 +42,29 @@
 
   let rec encode qp state =
     let rec aux = function
-      | `Stop state -> p (Buffer.contents buf) state
-      | `Continue state ->
-        (match cur_chr state with
-         | '\x20' | '\x09' as chr ->
-           junk_chr state;
-
-           if cur_chr state = '\n'
-           then begin
-             T.add_newline buf qp (Some chr);
-             junk_chr state;
-             encode qp state
-           end else begin
-             T.add_wsp buf qp chr;
-             encode qp state
-           end
-         | chr when is_safe_char chr ->
-           T.add_char buf qp chr;
-           junk_chr state;
-           encode qp state
-         | chr ->
-           T.add_quoted_char buf qp chr;
-           junk_chr state;
-           encode qp state)
       | #Error.err as r -> r
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ safe k i))
+      | `Stop state -> p (Buffer.contents buf) state
+      | `Continue state ->
+        (cur_chr @ function
+         | '\x20' | '\x09' as chr ->
+           junk_chr
+           @ cur_chr
+           @ (function
+              | '\n' ->
+                T.add_newline buf qp (Some chr);
+                junk_chr @ encode qp
+              | chr ->
+                T.add_wsp buf qp chr;
+                encode qp)
+         | chr when is_safe_char chr ->
+           T.add_char buf qp chr;
+           junk_chr @ encode qp
+         | chr ->
+           T.add_quoted_char buf qp chr;
+           junk_chr @ encode qp)
+        state
     in aux (stop state)
   in
 

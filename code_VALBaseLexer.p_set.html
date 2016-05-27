@@ -37,13 +37,11 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseLexer.p_set</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_set&nbsp;l&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_lst"</span>);<br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;p_set&nbsp;l&nbsp;p&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;c&nbsp;<span class="keyword">when</span>&nbsp;<span class="constructor">List</span>.exists&nbsp;((=)&nbsp;c)&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;&nbsp;p&nbsp;state<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_expected_set&nbsp;l&nbsp;state))<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected_eoi&nbsp;state))</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;read_line&nbsp;(p_set&nbsp;l&nbsp;p)&nbsp;state</code></body></html>

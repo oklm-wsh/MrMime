@@ -37,8 +37,4 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_atext</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_atext&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_atext"</span>);<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;s&nbsp;=&nbsp;p_while&nbsp;is_atext&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_atext&nbsp;%S"</span>&nbsp;s);<br>
-&nbsp;&nbsp;s</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_atext&nbsp;p&nbsp;state&nbsp;=&nbsp;p_while&nbsp;is_atext&nbsp;p&nbsp;state</code></body></html>

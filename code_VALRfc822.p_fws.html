@@ -77,38 +77,31 @@
   let rec end_of_line has_wsp has_fws success fail state =
     match has_line state with
     | Some tmp ->
-      (Logs.debug @@ fun m -> m "state: p_fws/tmp %S" tmp);
-
       state.Lexer.pos <- state.Lexer.pos + String.length tmp;
 
-      read_line
-        (fun state ->
-         (Logs.debug @@ fun m -> m "state: p_fws/read_line");
-
-         match cur_chr state with
+      (read_line
+       @ cur_chr
+       @ function
          (* … 1*(CRLF 1*WSP) *)
          | '\x20' | '\x09' ->
-           (Logs.debug @@ fun m -> m "state: p_fws … 1*(CRLF 1*WSP)");
-
            (* drop 1*WSP *)
-           let _ = p_while is_wsp state in
-           success true true state
+           p_while is_wsp
+           @ fun _ -> success true true
          (* … *(CRLF 1*WSP) CRLF e *)
          | chr ->
            let has_wsp, tmp = trim tmp in
-           roll_back (p has_wsp has_fws) tmp state)
-        state
+           roll_back (p has_wsp has_fws) tmp)
+      state
     (* … e *)
     | None -> fail has_wsp has_fws state
   in
 
-  let rec loop state =
-    match cur_chr state with
+  let loop =
+    cur_chr
+    @ function
     (* WSP / CR *)
     | '\x20' | '\x09' | '\r' as chr ->
       let success has_wsp has_fws state =
-        (Logs.debug @@ fun m -> m "state: p_fws/loop/success");
-
         match chr with
         (* 1*WSP *(CRLF 1*WSP), so it's obs-fws *)
         | '\x20' | '\x09' ->
@@ -121,22 +114,20 @@
         (* 1*(CRLF 1*WSP) *)
         | chr -> p true true state
       in
-      let fail has_wsp has_fws state =
-        (Logs.debug @@ fun m -> m "state: p_fws/loop/fail");
-
+      let fail has_wsp has_fws =
         (* WSP / CR *)
         match chr with
         | '\r' -> (* CR XXX: don't drop '\r', may be it's \r\n *)
-          p has_wsp has_fws state
+          p has_wsp has_fws
         | chr  -> (* we have 1*WSP, so we drop 1*WSP *)
-          let _ = p_while is_wsp state in p true has_fws state
+          p_while is_wsp
+          @ fun _ -> p true has_fws
       in
 
       (* state (WSP / CR) and try [*WSP CRLF] 1*WSP *)
-      end_of_line false false success fail state
+      end_of_line false false success fail
     (* no fws *)
-    | chr -> p false false state
+    | chr -> p false false
   in
 
-  (Logs.debug @@ fun m -> m "state: p_fws");
   loop state</code></body></html>

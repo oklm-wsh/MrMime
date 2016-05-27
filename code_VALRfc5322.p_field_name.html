@@ -37,4 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_field_name</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_field_name&nbsp;=&nbsp;p_repeat&nbsp;~a:1&nbsp;is_ftext</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_field_name&nbsp;p&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_field_name\n%!"</span>];<br>
+<br>
+&nbsp;&nbsp;(1&nbsp;*&nbsp;0)&nbsp;is_ftext&nbsp;p&nbsp;state</code></body></html>

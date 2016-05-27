@@ -40,14 +40,19 @@
 <code class="code"><span class="keyword">let</span>&nbsp;p_try_rule&nbsp;success&nbsp;fail&nbsp;rule&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tmp&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_bytes&nbsp;tmp<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Bytes</span>.sub&nbsp;state.buffer&nbsp;state.pos&nbsp;(state.len&nbsp;-&nbsp;state.pos));<br>
+&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_bytes&nbsp;tmp&nbsp;(<span class="constructor">Bytes</span>.sub&nbsp;state.buffer&nbsp;state.pos&nbsp;(state.len&nbsp;-&nbsp;state.pos));<br>
 <br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;=&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_try_rule/fail&nbsp;(err:&nbsp;%a)"</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Error</span>.pp&nbsp;err);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;fail&nbsp;(of_string&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;tmp))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;<span class="constructor">Buffer</span>.length&nbsp;tmp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;tmp&nbsp;&gt;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;state.buffer&nbsp;&lt;-&nbsp;<span class="constructor">Buffer</span>.contents&nbsp;tmp<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit_string&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;tmp)&nbsp;0&nbsp;state.buffer&nbsp;0&nbsp;(<span class="constructor">Buffer</span>.length&nbsp;tmp);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fail&nbsp;state<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,&nbsp;k)&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;writing&nbsp;<span class="keywordsign">-&gt;</span><br>

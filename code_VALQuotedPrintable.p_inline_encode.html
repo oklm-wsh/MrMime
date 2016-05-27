@@ -47,43 +47,38 @@
       | #Error.err as err -> err
       | `Stop state -> p (Buffer.contents buf) state
       | `Continue state ->
-        match cur_chr state with
-        | '\x20' ->
-          junk_chr state;
-          Buffer.add_char buf '_';
-          encode state
-        | '\x09' ->
-          junk_chr state;
-          Buffer.add_string buf "=09";
-          encode state
-        | '?' ->
-          junk_chr state;
-          Buffer.add_string buf "=3F";
-          encode state
-        | '_' ->
-          junk_chr state;
-          Buffer.add_string buf "=5F";
-          encode state
-        | '=' ->
-          junk_chr state;
-          Buffer.add_string buf "=3D";
-          encode state
-        | chr when is_safe_char chr ->
-          junk_chr state;
-          Buffer.add_char buf chr;
-          encode state
-        | chr ->
-          junk_chr state;
+        (cur_chr @ function
+         | '\x20' ->
+           junk_chr
+           @ fun state -> Buffer.add_char buf '_'; encode state
+         | '\x09' ->
+           junk_chr
+           @ fun state -> Buffer.add_string buf "=09"; encode state
+         | '?' ->
+           junk_chr
+           @ fun state -> Buffer.add_string buf "=3F"; encode state
+         | '_' ->
+           junk_chr
+           @ fun state -> Buffer.add_string buf "=5F"; encode state
+         | '=' ->
+           junk_chr
+           @ fun state -> Buffer.add_string buf "=3D"; encode state
+         | chr when is_safe_char chr ->
+           junk_chr
+           @ fun state -> Buffer.add_char buf chr; encode state
+         | chr ->
+           junk_chr
+           @ fun state ->
+             let code = Char.code chr in
+             let h    = (code lsr 4) land (16 - 1) in
+             let l    =  code        land (16 - 1) in
 
-          let code = Char.code chr in
-          let h    = (code lsr 4) land (16 - 1) in
-          let l    =  code        land (16 - 1) in
+             Buffer.add_char buf '=';
+             Buffer.add_char buf T._to.[h];
+             Buffer.add_char buf T._to.[l];
 
-          Buffer.add_char buf '=';
-          Buffer.add_char buf T._to.[h];
-          Buffer.add_char buf T._to.[l];
-
-          encode state
+             encode state)
+        state
     in aux @@ safe stop state
   in
 

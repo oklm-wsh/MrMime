@@ -37,14 +37,16 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_field</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_field&nbsp;extend&nbsp;field&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase&nbsp;field&nbsp;<span class="keyword">with</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_field&nbsp;extend&nbsp;field&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_field&nbsp;(RFC&nbsp;5322)&nbsp;%s\n%!"</span>&nbsp;field];<br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;p&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase&nbsp;field&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.1&nbsp;&amp;&nbsp;4.5.1:<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orig-date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Date:"&nbsp;date-time&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-orig-date&nbsp;&nbsp;&nbsp;=&nbsp;"Date"&nbsp;*WSP&nbsp;":"&nbsp;date-time&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"date"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_date_time&nbsp;(<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Date</span>&nbsp;d))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"date"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_date_time&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Date</span>&nbsp;d)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.2&nbsp;&amp;&nbsp;4.5.2:<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"From:"&nbsp;mailbox-list&nbsp;CRLF<br>
@@ -54,9 +56,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reply-to&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Reply-To:"&nbsp;address-list&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-reply-to&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Reply-To"&nbsp;*WSP&nbsp;":"&nbsp;address-list&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"from"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mailbox_list&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">From</span>&nbsp;l))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"sender"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mailbox&nbsp;(<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Sender</span>&nbsp;m))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"reply-to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReplyTo</span>&nbsp;l))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"from"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mailbox_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">From</span>&nbsp;l)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"sender"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mailbox&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Sender</span>&nbsp;m)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"reply-to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReplyTo</span>&nbsp;l)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.3&nbsp;&amp;&nbsp;4.5.3:<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"To:"&nbsp;address-list&nbsp;CRLF<br>
@@ -67,9 +69,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-bcc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Bcc"&nbsp;*WSP&nbsp;":"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(address-list&nbsp;/&nbsp;(&nbsp;*([CFWS]&nbsp;",")&nbsp;[CFWS]))&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">To</span>&nbsp;l))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"cc"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Cc</span>&nbsp;l))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"bcc"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_bcc&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Bcc</span>&nbsp;l))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">To</span>&nbsp;l)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"cc"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Cc</span>&nbsp;l)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"bcc"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_bcc&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Bcc</span>&nbsp;l)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.4&nbsp;&amp;&nbsp;4.5.4:<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message-id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Message-ID:"&nbsp;msg-id&nbsp;CRLF<br>
@@ -79,9 +81,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;references&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"References:"&nbsp;1*msg-id&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-references&nbsp;&nbsp;=&nbsp;"References"&nbsp;*WSP&nbsp;":"&nbsp;*(phrase&nbsp;/&nbsp;msg-id)&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"message-id"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_msg_id&nbsp;(<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">MessageID</span>&nbsp;m))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"in-reply-to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_phrase_or_msg_id&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">InReplyTo</span>&nbsp;l))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"references"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_phrase_or_msg_id&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">References</span>&nbsp;l))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"message-id"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_msg_id&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">MessageID</span>&nbsp;m)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"in-reply-to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_phrase_or_msg_id&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">InReplyTo</span>&nbsp;l)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"references"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_phrase_or_msg_id&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">References</span>&nbsp;l)<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.5&nbsp;&amp;&nbsp;4.5.5:<br>
 <br>
@@ -92,9 +94,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keywords&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Keywords:"&nbsp;phrase&nbsp;*(","&nbsp;phrase)&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-keywords&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Keywords"&nbsp;*WSP&nbsp;":"&nbsp;obs-phrase-list&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"subject"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_unstructured&nbsp;(<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Subject</span>&nbsp;s))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"comments"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_unstructured&nbsp;(<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Comments</span>&nbsp;s))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"keywords"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_keywords&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Keywords</span>&nbsp;l))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"subject"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Subject</span>&nbsp;s)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"comments"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Comments</span>&nbsp;s)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"keywords"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_keywords&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Keywords</span>&nbsp;l)<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.6&nbsp;&amp;&nbsp;4.5.6:<br>
 <br>
@@ -115,14 +117,14 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-resent-mid&nbsp;&nbsp;=&nbsp;"Resent-Message-ID"&nbsp;*WSP&nbsp;":"&nbsp;msg-id&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-resent-rply&nbsp;=&nbsp;"Resent-Reply-To"&nbsp;*WSP&nbsp;":"&nbsp;address-list&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-date"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_date_time&nbsp;(<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentDate</span>&nbsp;d))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-from"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mailbox_list&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentFrom</span>&nbsp;l))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-sender"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mailbox&nbsp;(<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentSender</span>&nbsp;m))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentTo</span>&nbsp;l))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-cc"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentCc</span>&nbsp;l))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-bcc"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_bcc&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentBcc</span>&nbsp;l))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-message-id"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_msg_id&nbsp;(<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentMessageID</span>&nbsp;m))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-reply-to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;(<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentReplyTo</span>&nbsp;l))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-date"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_date_time&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentDate</span>&nbsp;d)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-from"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mailbox_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentFrom</span>&nbsp;l)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-sender"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mailbox&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentSender</span>&nbsp;m)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentTo</span>&nbsp;l)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-cc"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentCc</span>&nbsp;l)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-bcc"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_bcc&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentBcc</span>&nbsp;l)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-message-id"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_msg_id&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentMessageID</span>&nbsp;m)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"resent-reply-to"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentReplyTo</span>&nbsp;l)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.7&nbsp;&amp;&nbsp;4.5.7:<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trace&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[return]<br>
@@ -132,8 +134,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-return&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Return-Path"&nbsp;*WSP&nbsp;":"&nbsp;path&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-received&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;"Received"&nbsp;*WSP&nbsp;":"&nbsp;*received-token&nbsp;CRLF<br>
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"received"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_received&nbsp;(<span class="keyword">fun</span>&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;r))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"return-path"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_path&nbsp;(<span class="keyword">fun</span>&nbsp;a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;a))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"received"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_received&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;r)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"return-path"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_path&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;a)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5322&nbsp;§&nbsp;3.6.8&nbsp;&amp;&nbsp;4.5.8:<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional-field&nbsp;&nbsp;=&nbsp;field-name&nbsp;":"&nbsp;unstructured&nbsp;CRLF<br>
@@ -141,8 +143,16 @@
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_try_rule&nbsp;p<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_unstructured&nbsp;@@&nbsp;(<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Field</span>&nbsp;(field,&nbsp;value))))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(extend&nbsp;field&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Field</span>&nbsp;(field,&nbsp;value)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(extend&nbsp;field&nbsp;@&nbsp;p)<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;rule&nbsp;state</code></body></html>
+&nbsp;&nbsp;<span class="comment">(*<br>
+&nbsp;&nbsp;(rule&nbsp;@&nbsp;fun&nbsp;field&nbsp;state&nbsp;-&gt;&nbsp;`Ok&nbsp;(field,&nbsp;state))<br>
+&nbsp;&nbsp;/&nbsp;(p_unstructured<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;fun&nbsp;l&nbsp;-&gt;&nbsp;p_crlf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;fun&nbsp;state&nbsp;-&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;Printf.printf&nbsp;"state:&nbsp;p_field&nbsp;(RFC&nbsp;5322)&nbsp;fail&nbsp;with&nbsp;%s\n%!"&nbsp;field];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(`Unsafe&nbsp;(field,&nbsp;l))&nbsp;state)<br>
+&nbsp;&nbsp;@&nbsp;p<br>
+&nbsp;&nbsp;*)</span>&nbsp;rule&nbsp;p</code></body></html>

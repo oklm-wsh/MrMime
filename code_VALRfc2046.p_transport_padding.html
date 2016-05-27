@@ -37,6 +37,6 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.p_transport_padding</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_transport_padding&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;=&nbsp;p_repeat&nbsp;<span class="constructor">Rfc822</span>.is_lwsp&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;p&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_transport_padding&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;(0&nbsp;*&nbsp;0)&nbsp;<span class="constructor">Rfc822</span>.is_lwsp<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p</code></body></html>

@@ -37,15 +37,16 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_dot_atom_text</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_dot_atom_text&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_dot_atom_text"</span>);<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;next&nbsp;acc&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_dot_atom_text/next"</span>);<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;state;&nbsp;next&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;(p_atext&nbsp;state)&nbsp;::&nbsp;acc)&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)&nbsp;state<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_dot_atom_text&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;next&nbsp;acc&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_atext<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;atext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;atext&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;next&nbsp;[<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;(p_atext&nbsp;state)]&nbsp;state</code></body></html>
+&nbsp;&nbsp;p_atext<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;atext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;[<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;atext]</code></body></html>

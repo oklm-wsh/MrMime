@@ -37,5 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.p_close_delimiter</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_close_delimiter&nbsp;boundary&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;p_delimiter&nbsp;boundary&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_str&nbsp;<span class="string">"--"</span>&nbsp;state;&nbsp;p&nbsp;state)&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_close_delimiter&nbsp;boundary&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_delimiter&nbsp;boundary<br>
+&nbsp;&nbsp;@&nbsp;p_str&nbsp;<span class="string">"--"</span><br>
+&nbsp;&nbsp;@&nbsp;p</code></body></html>

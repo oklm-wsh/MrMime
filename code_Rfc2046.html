@@ -57,17 +57,17 @@
 <br>
 &nbsp;&nbsp;!i&nbsp;=&nbsp;<span class="constructor">String</span>.length&nbsp;str<br>
 <br>
-<span class="keyword">let</span>&nbsp;p_dash_boundary&nbsp;boundary&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;p_str&nbsp;<span class="string">"--"</span>&nbsp;state;<br>
-&nbsp;&nbsp;p_str&nbsp;boundary&nbsp;state;<br>
-&nbsp;&nbsp;p&nbsp;state<br>
+<span class="keyword">let</span>&nbsp;p_dash_boundary&nbsp;boundary&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_str&nbsp;<span class="string">"--"</span><br>
+&nbsp;&nbsp;@&nbsp;p_str&nbsp;boundary<br>
+&nbsp;&nbsp;@&nbsp;p<br>
 <br>
 <span class="keyword">let</span>&nbsp;m_dash_boundary&nbsp;boundary&nbsp;=<br>
 &nbsp;&nbsp;<span class="string">"--"</span>&nbsp;^&nbsp;boundary<br>
 <br>
-<span class="keyword">let</span>&nbsp;p_transport_padding&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;=&nbsp;p_repeat&nbsp;<span class="constructor">Rfc822</span>.is_lwsp&nbsp;state&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;p&nbsp;state<br>
+<span class="keyword">let</span>&nbsp;p_transport_padding&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;(0&nbsp;*&nbsp;0)&nbsp;<span class="constructor">Rfc822</span>.is_lwsp<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p<br>
 <br>
 <span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:<br>
 <br>
@@ -81,7 +81,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;including&nbsp;CRLF&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;quoted-strings&nbsp;are<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;NOT&nbsp;recognized.<br>
 *)</span><br>
-<span class="keyword">let</span>&nbsp;p_discard_text&nbsp;stop&nbsp;p&nbsp;state&nbsp;=<br>
+<span class="keyword">let</span>&nbsp;p_discard_text&nbsp;stop&nbsp;p&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;text&nbsp;has_text&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;=&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Stop</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;has_text&nbsp;state<br>
@@ -89,20 +89,21 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,&nbsp;(<span class="keyword">fun</span>&nbsp;i&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;aux&nbsp;@@&nbsp;safe&nbsp;k&nbsp;i))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Error</span>.err&nbsp;<span class="keyword">as</span>&nbsp;err&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;&nbsp;err<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Continue</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;state;&nbsp;text&nbsp;<span class="keyword">true</span>&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(cur_chr&nbsp;@&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;@&nbsp;text&nbsp;<span class="keyword">true</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;aux&nbsp;@@&nbsp;safe&nbsp;(stop&nbsp;has_text)&nbsp;state<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;text&nbsp;<span class="keyword">false</span>&nbsp;state<br>
+&nbsp;&nbsp;text&nbsp;<span class="keyword">false</span><br>
 <br>
 <span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:<br>
 <br>
 &nbsp;&nbsp;&nbsp;preamble&nbsp;:=&nbsp;discard-text<br>
 &nbsp;&nbsp;&nbsp;epilogue&nbsp;:=&nbsp;discard-text<br>
 *)</span><br>
-<span class="keyword">let</span>&nbsp;p_preamble&nbsp;=&nbsp;p_discard_text<br>
-<span class="keyword">let</span>&nbsp;p_epilogue&nbsp;=&nbsp;p_discard_text<br>
+<span class="keyword">let</span>&nbsp;p_preamble&nbsp;p&nbsp;state&nbsp;=&nbsp;p_discard_text&nbsp;p&nbsp;state<br>
+<span class="keyword">let</span>&nbsp;p_epilogue&nbsp;p&nbsp;state&nbsp;=&nbsp;p_discard_text&nbsp;p&nbsp;state<br>
 <br>
 <span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:<br>
 <br>
@@ -110,14 +111,16 @@
 <br>
 &nbsp;&nbsp;&nbsp;XXX:&nbsp;need&nbsp;to&nbsp;be&nbsp;compose&nbsp;with&nbsp;[dash-boundary]<br>
 *)</span><br>
-<span class="keyword">let</span>&nbsp;p_delimiter&nbsp;boundary&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;(p_dash_boundary&nbsp;boundary&nbsp;p)&nbsp;state<br>
+<span class="keyword">let</span>&nbsp;p_delimiter&nbsp;boundary&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p_dash_boundary&nbsp;boundary&nbsp;p<br>
 <br>
 <span class="keyword">let</span>&nbsp;m_delimiter&nbsp;boundary&nbsp;=<br>
 &nbsp;&nbsp;<span class="string">"\r\n"</span>&nbsp;^&nbsp;(m_dash_boundary&nbsp;boundary)<br>
 <br>
-<span class="keyword">let</span>&nbsp;p_close_delimiter&nbsp;boundary&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;p_delimiter&nbsp;boundary&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_str&nbsp;<span class="string">"--"</span>&nbsp;state;&nbsp;p&nbsp;state)&nbsp;state<br>
+<span class="keyword">let</span>&nbsp;p_close_delimiter&nbsp;boundary&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_delimiter&nbsp;boundary<br>
+&nbsp;&nbsp;@&nbsp;p_str&nbsp;<span class="string">"--"</span><br>
+&nbsp;&nbsp;@&nbsp;p<br>
 <br>
 <span class="keyword">let</span>&nbsp;m_close_delimiter&nbsp;boundary&nbsp;=<br>
 &nbsp;&nbsp;(m_delimiter&nbsp;boundary)&nbsp;^&nbsp;<span class="string">"--"</span><br>
@@ -135,35 +138,32 @@
 <br>
 &nbsp;&nbsp;&nbsp;XXX:&nbsp;[p_octet]&nbsp;must&nbsp;be&nbsp;stop&nbsp;to&nbsp;the&nbsp;boundary<br>
 *)</span><br>
-<span class="keyword">let</span>&nbsp;p_body_part&nbsp;(<span class="keyword">type</span>&nbsp;data)&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_body_part&nbsp;[%S]"</span><br>
-&nbsp;&nbsp;&nbsp;(<span class="keyword">let</span>&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Lexer</span>&nbsp;<span class="keyword">in</span>&nbsp;(<span class="constructor">Bytes</span>.sub&nbsp;state.buffer&nbsp;state.pos&nbsp;(state.len&nbsp;-&nbsp;state.pos))));<br>
+<span class="keyword">let</span>&nbsp;p_body_part&nbsp;(<span class="keyword">type</span>&nbsp;data)&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_body_part\n%!"</span>];<br>
 <br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;next&nbsp;fields&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;p_try_rule<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;(data&nbsp;:&nbsp;data)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p&nbsp;<span class="constructor">None</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p_octet&nbsp;fields&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((data&nbsp;:&nbsp;data),&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;next&nbsp;fields&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_octet&nbsp;fields<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((data&nbsp;:&nbsp;data),&nbsp;state))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;<span class="constructor">None</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;(data&nbsp;:&nbsp;data)))<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;p_try_rule&nbsp;next<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(next&nbsp;[])<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc2045</span>.p_mime_part_headers<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;next&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_field&nbsp;field&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_field&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_field&nbsp;field&nbsp;state))))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;fields&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(fields,&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state<br>
+&nbsp;&nbsp;(<span class="constructor">Rfc2045</span>.p_mime_part_headers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;next&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_field&nbsp;field&nbsp;state)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_field&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_field&nbsp;field&nbsp;state)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;fields&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(fields,&nbsp;state)))<br>
+&nbsp;&nbsp;/&nbsp;(next&nbsp;[])<br>
+&nbsp;&nbsp;@&nbsp;next<br>
 <br>
 <span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:<br>
 <br>
 &nbsp;&nbsp;&nbsp;encapsulation&nbsp;:=&nbsp;delimiter&nbsp;transport-padding<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CRLF&nbsp;body-part<br>
 *)</span><br>
-<span class="keyword">let</span>&nbsp;p_encapsulation&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=<br>
+<span class="keyword">let</span>&nbsp;p_encapsulation&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;=<br>
 &nbsp;&nbsp;p_delimiter&nbsp;boundary<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(p_transport_padding&nbsp;@@&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;p_body_part&nbsp;boundary&nbsp;p_octet&nbsp;p)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state<br>
+&nbsp;&nbsp;@&nbsp;p_transport_padding&nbsp;@&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p_body_part&nbsp;boundary&nbsp;p_octet&nbsp;p<br>
 <br>
 <span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:<br>
 <br>
@@ -174,7 +174,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transport-padding<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[CRLF&nbsp;epilogue]<br>
 *)</span><br>
-<span class="keyword">let</span>&nbsp;p_multipart_body&nbsp;boundary&nbsp;parent_boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=<br>
+<span class="keyword">let</span>&nbsp;p_multipart_body&nbsp;boundary&nbsp;parent_boundary&nbsp;p_octet&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_multipart\n%!"</span>];<br>
+<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;stop_preamble&nbsp;has_text&nbsp;=<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;dash_boundary&nbsp;=&nbsp;m_dash_boundary&nbsp;boundary&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;p_try_rule<br>
@@ -187,14 +189,14 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_dash_boundary&nbsp;boundary&nbsp;(<span class="keyword">fun</span>&nbsp;state<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((),&nbsp;state)))<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;stop_epilogue&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_multipart'/stop"</span>);<br>
-<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;parent_boundary&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_try_rule<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;()&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;roll_back&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Stop</span>&nbsp;state)&nbsp;<span class="string">"\r\n\r\n"</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Continue</span>&nbsp;state)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@@&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((),&nbsp;state)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to_end_of_file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((),&nbsp;state)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Continue</span>&nbsp;state)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;()&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Stop</span>&nbsp;state))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;boundary&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;delimiter&nbsp;=&nbsp;m_delimiter&nbsp;boundary&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;close_delimiter&nbsp;=&nbsp;m_close_delimiter&nbsp;boundary&nbsp;<span class="keyword">in</span><br>
@@ -207,25 +209,22 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_close_delimiter&nbsp;boundary&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((),&nbsp;state)))<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;next&nbsp;acc&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;p_try_rule<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;(data&nbsp;::&nbsp;acc))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_close_delimiter&nbsp;boundary&nbsp;@@&nbsp;p_transport_padding<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@@&nbsp;p_try_rule<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;()&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@@&nbsp;p_epilogue&nbsp;stop_epilogue&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((),&nbsp;state))))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_encapsulation&nbsp;boundary&nbsp;p_octet&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(p_encapsulation&nbsp;boundary&nbsp;p_octet&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_close_delimiter&nbsp;boundary<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_transport_padding<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(to_end_of_file&nbsp;((<span class="constructor">Rfc822</span>.u_crlf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_epilogue&nbsp;stop_epilogue<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((),&nbsp;state)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;()&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;(data&nbsp;::&nbsp;acc)<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;(<span class="constructor">Logs</span>.debug&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;m&nbsp;<span class="string">"state:&nbsp;p_multipart_body&nbsp;[%S]"</span><br>
-&nbsp;&nbsp;&nbsp;(<span class="keyword">let</span>&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Lexer</span>&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Bytes</span>.sub&nbsp;state.buffer&nbsp;state.pos&nbsp;(state.len&nbsp;-&nbsp;state.pos)));<br>
-<br>
 &nbsp;&nbsp;p_preamble&nbsp;stop_preamble<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;has_preamble&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_dash_boundary&nbsp;boundary<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@@&nbsp;p_transport_padding<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@@&nbsp;<span class="constructor">Rfc822</span>.p_crlf<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@@&nbsp;p_body_part&nbsp;boundary&nbsp;p_octet<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;[data])&nbsp;state<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_preamble&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;p_dash_boundary&nbsp;boundary<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_transport_padding<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="constructor">Rfc822</span>.p_crlf<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_body_part&nbsp;boundary&nbsp;p_octet<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;[data]<br>
 </code></body></html>

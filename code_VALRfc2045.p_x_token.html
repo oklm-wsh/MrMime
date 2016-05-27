@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.p_x_token</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_x_token&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;p_set&nbsp;[<span class="string">'X'</span>;&nbsp;<span class="string">'x'</span>]&nbsp;state;<br>
-&nbsp;&nbsp;p_chr&nbsp;<span class="string">'-'</span>&nbsp;state;<br>
-<br>
-&nbsp;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;(p_token&nbsp;state))&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_x_token&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;p_set&nbsp;[<span class="string">'X'</span>;&nbsp;<span class="string">'x'</span>]<br>
+&nbsp;&nbsp;@&nbsp;p_chr&nbsp;<span class="string">'-'</span><br>
+&nbsp;&nbsp;@&nbsp;p_token<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;token)</code></body></html>

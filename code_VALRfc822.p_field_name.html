@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_field_name</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_field_name&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;p_repeat&nbsp;~a:1<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">function</span>&nbsp;<span class="string">':'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;not&nbsp;(is_ctl&nbsp;chr)&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(is_space&nbsp;chr))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;p_field_name&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;(1&nbsp;*&nbsp;0)<br>
+&nbsp;&nbsp;(<span class="keyword">function</span>&nbsp;<span class="string">':'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;not&nbsp;(is_ctl&nbsp;chr)&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(is_space&nbsp;chr))<br>
+&nbsp;&nbsp;@&nbsp;p</code></body></html>

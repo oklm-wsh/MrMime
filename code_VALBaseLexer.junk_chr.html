@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseLexer.junk_chr</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;junk_chr&nbsp;state&nbsp;=<br>
+<code class="code"><span class="keyword">let</span>&nbsp;junk_chr&nbsp;p&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len<br>
-&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;+&nbsp;1<br>
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;(state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;+&nbsp;1;&nbsp;p&nbsp;state)<br>
 &nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected_eoi&nbsp;state))</code></body></html>

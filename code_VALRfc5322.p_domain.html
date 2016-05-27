@@ -39,27 +39,29 @@
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_domain&nbsp;p&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;p_obs_domain'&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_atom&nbsp;(<span class="keyword">fun</span>&nbsp;o&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;o&nbsp;::&nbsp;acc))&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_atom<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;o&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;o&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;[])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;p_cfws&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;[]<br>
 &nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;dot-atom,&nbsp;domain-literal&nbsp;or&nbsp;obs-domain&nbsp;start&nbsp;with&nbsp;[CFWS]&nbsp;*)</span><br>
-&nbsp;&nbsp;p_cfws&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;cur_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;p_cfws<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;it's&nbsp;domain-literal&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'['</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_domain_literal&nbsp;(<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;d)&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'['</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_domain_literal&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;d<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;it's&nbsp;dot-atom&nbsp;or&nbsp;obs-domain&nbsp;*)</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_dot_atom&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;may&nbsp;be&nbsp;we&nbsp;are&nbsp;[CFWS]&nbsp;allowed&nbsp;by&nbsp;obs-domain&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;if&nbsp;we&nbsp;have&nbsp;an&nbsp;empty&nbsp;list,&nbsp;we&nbsp;need&nbsp;at&nbsp;least&nbsp;one&nbsp;atom&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_domain&nbsp;(<span class="keyword">fun</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;domain))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;in&nbsp;other&nbsp;case,&nbsp;we&nbsp;have&nbsp;at&nbsp;least&nbsp;one&nbsp;atom&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;l1&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_domain'&nbsp;(<span class="keyword">fun</span>&nbsp;l2&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;(l1&nbsp;@&nbsp;l2))))&nbsp;state)</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;if&nbsp;we&nbsp;have&nbsp;an&nbsp;empty&nbsp;list,&nbsp;we&nbsp;need&nbsp;at&nbsp;least&nbsp;one&nbsp;atom&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_domain&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;domain)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;in&nbsp;other&nbsp;case,&nbsp;we&nbsp;have&nbsp;at&nbsp;least&nbsp;one&nbsp;atom&nbsp;*)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;l1&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_domain'&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l2&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;(<span class="constructor">List</span>.concat&nbsp;[l1;&nbsp;l2]))</code></body></html>

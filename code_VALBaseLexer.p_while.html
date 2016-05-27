@@ -37,10 +37,24 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseLexer.p_while</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_while&nbsp;f&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;i0&nbsp;=&nbsp;state.pos&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;<span class="keyword">while</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;f&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos)<br>
-&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;+&nbsp;1&nbsp;<span class="keyword">done</span>;<br>
-&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;i0&nbsp;&lt;&nbsp;state.pos<br>
-&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">Bytes</span>.sub&nbsp;state.buffer&nbsp;i0&nbsp;(state.pos&nbsp;-&nbsp;i0)<br>
-&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;(cur_chr&nbsp;state)&nbsp;state))</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;p_while&nbsp;f&nbsp;p&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;buf&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;buf)&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;read_line&nbsp;loop&nbsp;state<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;state<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;read_line&nbsp;(p_while&nbsp;f&nbsp;p)&nbsp;state</code></body></html>

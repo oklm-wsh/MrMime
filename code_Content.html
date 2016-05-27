@@ -50,7 +50,8 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">ContentEncoding</span>.t<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MsgID</span>.t<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;<span class="keyword">of</span>&nbsp;(string&nbsp;*&nbsp;string)&nbsp;]<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;string<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;]<br>
 <br>
 <span class="keyword">let</span>&nbsp;field_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc2045</span>.field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;field&nbsp;=&nbsp;<span class="keyword">function</span><br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;p&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;p<br>
@@ -58,6 +59,7 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;(<span class="constructor">ContentType</span>.of_lexer&nbsp;t)<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;(<span class="constructor">ContentEncoding</span>.of_lexer&nbsp;e)<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;i&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;(<span class="constructor">MsgID</span>.of_lexer&nbsp;i)<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;value)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;value)<br>
 <br>
 <span class="keyword">let</span>&nbsp;ty&nbsp;{&nbsp;ty;&nbsp;_&nbsp;}&nbsp;=&nbsp;ty<br>
 <span class="keyword">let</span>&nbsp;encoding&nbsp;{&nbsp;encoding;&nbsp;_&nbsp;}&nbsp;=&nbsp;encoding<br>
@@ -135,6 +137,6 @@
 <br>
 &nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"MIME-Version:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">MimeVersion</span>.pp&nbsp;version;<br>
 &nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Type:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentType</span>.pp&nbsp;ty;<br>
-&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Encoding:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentEncoding</span>.pp&nbsp;encoding;<br>
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Transfer-Encoding:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentEncoding</span>.pp&nbsp;encoding;<br>
 &nbsp;&nbsp;pp_field_opt&nbsp;fmt&nbsp;<span class="string">"Content-ID"</span>&nbsp;<span class="constructor">MsgID</span>.pp&nbsp;id;<br>
 </code></body></html>
