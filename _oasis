@@ -24,11 +24,15 @@ Flag update
   Description:          Get Media types and Address Literal Tags IANA Database
   Default:              true
 
+Flag trace
+  Description:          Trace all compute of decompress
+  Default:              false
+
 Library mrmime
   Path:                 lib
   Modules:              MrMime, Date, LiteralDomain, Address, MsgID, Resent, Trace, MimeVersion, ContentType, ContentEncoding, Content, Header, Message,
                         Option, BasePrinter, Iana, Error, Lexer, BaseLexer, Rfc822, Rfc5321, Rfc5322, Rfc6854, Rfc2045, Base64, QuotedPrintable, Rfc2046, Rfc2047, Grammar
-  BuildDepends:         logs, logs.cli, logs.fmt, ipaddr
+  BuildDepends:         ipaddr
 
 SourceRepository master
   Type:                 git
@@ -47,6 +51,14 @@ Executable ppx_tag
   Install:              false
   MainIs:               ppx_tag.ml
   BuildDepends:         compiler-libs.common, cmdliner, xmlm, ppx_tools, ppx_tools.metaquot
+  CompiledObject:       byte
+
+Executable ppx_debug
+  Path:                 ppx
+  Install:              false
+  Build$:               flag(trace)
+  MainIs:               ppx_debug.ml
+  BuildDepends:         compiler-libs.common
   CompiledObject:       byte
 
 Executable get_mtype
