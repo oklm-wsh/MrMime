@@ -67,6 +67,7 @@ let () = dispatch
 
      flag [ "ocaml"; "ocamldep"; "ppx_debug" ] (S [ A "-ppx"; A (cmd_debug trace) ]);
      flag [ "ocaml"; "compile";  "ppx_debug" ] (S [ A "-ppx"; A (cmd_debug trace) ]);
+     flag [ "ocaml"; "doc";      "ppx_debug" ] (S [ A "-ppx"; A (cmd_debug trace) ]);
 
      dispatch_default After_hygiene
    | x -> dispatch_default x)
