@@ -2,7 +2,7 @@ type atom     = [ `Atom of string ]
 type domain   = [ `Domain of atom list | `Literal of string | LiteralDomain.t ]
 and  local    = [ atom | `String of string ] list
 and  encoding = Rfc2047.encoding = QuotedPrintable | Base64
-and  phrase   = [ atom | `Dot | `Encoded of (string * encoding * string) | `String of string | `WSP ] list
+and  phrase   = [ atom | `Dot | `Encoded of (string * encoding * string) | `String of string | `WSP | `FWS | `CR of int | `LF of int ] list
 and  mailbox  =
   { local   : local
   ; domain  : domain * domain list }
