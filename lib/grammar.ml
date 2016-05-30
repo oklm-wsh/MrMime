@@ -79,8 +79,12 @@ let rec p_multipart boundary p_body' p state =
            match ContentType.ty @@ Content.ty content with
            | #Rfc2045.other
            | #Rfc2045.discrete ->
+             [%debug Printf.printf "state: p_multipart/aux (discrete)\n%!"];
+
              p_body' content (fun data -> next (`Discrete ((content, List.map field_of_lexer rest), data)))
            | #Rfc2045.composite ->
+             [%debug Printf.printf "state: p_multipart/aux (composite)\n%!"];
+
              let parameters = ContentType.parameters @@ Content.ty content in
              try let boundary' = Rfc2045.value_to_string @@ List.assoc "boundary" parameters in
                  Rfc2046.p_multipart_body

@@ -27,8 +27,10 @@ let m_dash_boundary boundary =
   "--" ^ boundary
 
 let p_transport_padding p =
+  [%debug Printf.printf "state: p_transport_padding\n%!"];
+
   (0 * 0) Rfc822.is_lwsp
-  @ fun _ -> p
+  @ fun _ state -> [%debug Printf.printf "state: p_transport_padding end\n%!"]; p state
 
 (* See RFC 2046 § 5.1.1:
 
@@ -78,10 +80,13 @@ let p_delimiter boundary p =
 let m_delimiter boundary =
   "\r\n" ^ (m_dash_boundary boundary)
 
-let p_close_delimiter boundary p =
-  p_delimiter boundary
-  @ p_str "--"
-  @ p
+let p_close_delimiter boundary p state =
+  [%debug Printf.printf "state: p_close_delimiter %s\n%!" boundary];
+
+  (p_delimiter boundary
+   @ p_str "--"
+   @ (fun state -> [%debug "state: p_close_delimiter match\n%!"]; p state))
+  state
 
 let m_close_delimiter boundary =
   (m_delimiter boundary) ^ "--"
@@ -122,9 +127,12 @@ let p_body_part (type data) boundary p_octet p =
    encapsulation := delimiter transport-padding
                     CRLF body-part
 *)
-let p_encapsulation boundary p_octet p =
-  p_delimiter boundary
-  @ p_transport_padding @ Rfc822.p_crlf @ p_body_part boundary p_octet p
+let p_encapsulation boundary p_octet p state =
+  [%debug Printf.printf "state: p_encapsulation\n%!"];
+
+  (p_delimiter boundary
+   @ p_transport_padding @ Rfc822.p_crlf @ p_body_part boundary p_octet p)
+  state
 
 (* See RFC 2046 § 5.1.1:
 
@@ -136,7 +144,9 @@ let p_encapsulation boundary p_octet p =
                      [CRLF epilogue]
 *)
 let p_multipart_body boundary parent_boundary p_octet p =
-  [%debug Printf.printf "state: p_multipart\n%!"];
+  [%debug Printf.printf "state: p_multipart [boundary: %s and parent boundary: %s]\n%!"
+   boundary
+   (match parent_boundary with Some x -> x | None -> "<none>")];
 
   let stop_preamble has_text =
     let dash_boundary = m_dash_boundary boundary in
@@ -150,8 +160,12 @@ let p_multipart_body boundary parent_boundary p_octet p =
       (p_dash_boundary boundary (fun state-> `Ok ((), state)))
   in
   let stop_epilogue state =
+    [%debug Printf.printf "state: p_multipart (stop epilogue)\n%!"];
+
     match parent_boundary with
     | None ->
+      [%debug Printf.printf "state: p_multipart (stop epilogue) to end\n%!"];
+
       to_end_of_file
       ((fun state -> match peek_chr state with
        | None -> `Ok ((), state)
@@ -167,9 +181,11 @@ let p_multipart_body boundary parent_boundary p_octet p =
            (fun () -> roll_back (fun state -> `Stop state) delimiter)
            (fun state -> `Continue state)
            (p_delimiter boundary (fun state -> `Ok ((), state))))
-        (p_close_delimiter boundary (fun state -> `Ok ((), state)))
+        (p_close_delimiter boundary (fun state -> [%debug Printf.printf "state: p_multipart (stop epilogue) close delimiter\n%!"]; `Ok ((), state)))
   in
   let rec next acc =
+    [%debug Printf.printf "state: p_multipart/next\n%!"];
+
     (p_encapsulation boundary p_octet @ fun data state -> `Ok (data, state))
     / (p_close_delimiter boundary
        @ p_transport_padding

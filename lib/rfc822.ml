@@ -168,6 +168,8 @@ let p_quoted_pair p =
                                               ; CRLF => folding
 *)
 let rec p_fws p state =
+  [%debug Printf.printf "state: p_fws\n%!"];
+
   (* verify if we have *WSP CRLF, if it's true,
      we return a [tmp] buffer containing *WSP CRLF data.
 
@@ -779,6 +781,7 @@ let p_msg_id p =
 let p_crlf p = p_chr '\r' @ p_chr '\n' @ p
 let u_crlf p state =
   [%debug Printf.printf "state: u_crlf\n%!"];
+
   u_chr '\r' state;
   u_chr '\n' state;
   p state

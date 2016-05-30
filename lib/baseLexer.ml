@@ -55,6 +55,8 @@ let rec roll_back k data state =
   end
 
 let read_line k state =
+  [%debug Printf.printf "state: read_line\n%!"];
+
   if has_line state.buffer state.pos state.len
   then k state
   else begin
@@ -66,8 +68,12 @@ let read_line k state =
     end;
 
     let rec loop off =
+      [%debug Printf.printf "state: read_line loop\n%!"];
+
       if has_line state.buffer state.pos off
       then begin
+        [%debug Printf.printf "state: read_line end\n%!"];
+
         state.len <- off;
         safe k state
       end else begin
@@ -289,6 +295,8 @@ let p_repeat ?a ?b f p state =
   loop 0 state
 
 let rec cur_chr p state =
+  [%debug Printf.printf "state: cur_chr\n%!"];
+
   if state.pos < state.len
   then p (Bytes.get state.buffer state.pos) state
   else read_line (cur_chr p) state

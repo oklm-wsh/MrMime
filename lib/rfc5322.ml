@@ -1433,7 +1433,10 @@ let p_body stop p state =
 
   let rec body has_cr state =
     let rec aux = function
-      | `Stop state -> p (Buffer.contents buf) state
+      | `Stop state ->
+        [%debug Printf.printf "state: p_body (RFC 5322) stop\n%!"];
+
+        p (Buffer.contents buf) state
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ safe k i))
       | #Error.err as err -> err

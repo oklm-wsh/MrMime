@@ -34,6 +34,8 @@ let make
   { ty; encoding; version; id; description; content = extension; }
 
 let of_lexer fields p state =
+  [%debug Printf.printf "state: of_lexer (content)\n%!"];
+
   let ty          = ref None in
   let encoding    = ref None in
   let version     = ref None in
