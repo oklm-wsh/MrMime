@@ -170,45 +170,52 @@ let p_decode stop p state =
 
   let buf = Buffer.create 16 in
 
+  let rec to_stop = function
+    | `Read (buf, off, len, k) ->
+        `Read (buf, off, len, (fun i -> (to_stop[@tailcall]) @@ safe k i))
+    | #Error.err as err -> err
+    | `Stop state -> p (Buffer.contents buf) state
+    | `Continue state -> (junk_chr @ (fun state -> (to_stop[@tailcall]) (stop state))) state
+  in
+
   let rec decode base64 padding state =
-    let rec aux = function
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
-      | `Stop state -> p (Buffer.contents buf) state
-      | `Continue state ->
-        (cur_chr
-         @ function
-           | 'A' .. 'Z'
-           | 'a' .. 'z'
-           | '0' .. '9'
-           | '+' | '/' as chr ->
-             if padding = 0
-             then begin
-               junk_chr
-               @ decode (F.add base64 chr buf) padding
-             end else begin
-               fun state ->
-                 F.flush base64 buf;
-                 raise (Error.Error (Error.err_unexpected chr state))
-             end
-           | '=' ->
-             junk_chr
-             @ decode base64 (padding + 1)
-           | '\x20' | '\x09' ->
-             junk_chr
-             @ decode base64 padding
-           | '\r' ->
-             p_chr '\r'
-             @ p_chr '\n'
-             @ decode base64 padding
-           | chr ->
-             F.flush base64 buf;
-             if F.padding base64 padding
-             then p (Buffer.contents buf)
-             else fun state -> raise (Error.Error (Error.err_wrong_padding state)))
-        state
-    in aux (stop state)
+    match peek_chr state with
+    | Some (('A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '+' | '/') as chr) ->
+      [%debug Printf.printf "state: p_decode (Base64) data\n%!"];
+
+      if padding = 0 then begin
+        state.Lexer.pos <- state.Lexer.pos + 1;
+        decode (F.add base64 chr buf) padding state;
+      end else begin
+        F.flush base64 buf;
+        raise (Error.Error (Error.err_unexpected chr state))
+      end
+    | Some '=' ->
+      [%debug Printf.printf "state: p_decode (Base64) =\n%!"];
+
+      state.Lexer.pos <- state.Lexer.pos + 1;
+      decode base64 (padding + 1) state
+    | Some ('\x20' | '\x09') ->
+      [%debug Printf.printf "state: p_decode (Base64) space\n%!"];
+
+      state.Lexer.pos <- state.Lexer.pos + 1;
+      decode base64 padding state
+    | Some '\r' ->
+      [%debug Printf.printf "state: p_decode (Base64) CLRF\n%!"];
+
+      (p_chr '\r' @ p_chr '\n' @ decode base64 padding) state
+    | Some chr ->
+      [%debug Printf.printf "state: p_decode (Base64) stop\n%!"];
+
+      F.flush base64 buf;
+      if F.padding base64 padding
+      then roll_back (fun state -> to_stop (stop state)) "\r\n" state
+           (* XXX: this decoder consume all CRLF needed by {close_}delimiter. *)
+      else raise (Error.Error (Error.err_wrong_padding state))
+    | None ->
+      to_end_of_file (fun state -> match peek_chr state with
+      | None -> p (Buffer.contents buf) state
+      | Some chr -> decode base64 padding state) state
   in
 
   decode F.default 0 state
