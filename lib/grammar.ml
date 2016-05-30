@@ -131,8 +131,6 @@ let p_message p =
     (fun fields ->
        c_header fields
          (fun header content ->
-            ((switch content (p_body None)
+            (switch content (p_body None)
                 (fun data -> p header (`Discrete (content, data)))
-                (fun data -> p header (`Composite (content, data))))
-            :> Lexer.t -> ([> `Error of Error.error * string * int * int
-                           |  `Read of Bytes.t * int * int * (int -> 'a) ] as 'a))))
+                (fun data -> p header (`Composite (content, data))))))
