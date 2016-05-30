@@ -40,7 +40,7 @@ type field =
   | `ContentEncoding of encoding
   | `ContentID of id
   | `ContentDescription of string
-  | `Content of string * string
+  | `Content of string * Rfc5322.phrase
   | `Unsafe of string * Rfc5322.phrase ]
 
 type mime_field =
@@ -251,7 +251,8 @@ let p_field mime_extend extend field p =
       if String.length field >= 8 && String.sub field 0 8 = "content-"
       then let field = String.sub field 8 (String.length field - 8) in
            p_try_rule p
-             (Rfc822.p_text @ fun _ value -> Rfc822.p_crlf @ p (`Content (field, value)))
+             (Rfc5322.p_unstructured @ fun value ->
+              Rfc822.p_crlf @ p (`Content (field, value)))
              (mime_extend field @ ok)
       else extend field p
   in

@@ -4,14 +4,14 @@ type t =
   ; version     : MimeVersion.t
   ; id          : MsgID.t option
   ; description : string option
-  ; content     : (string * string) list }
+  ; content     : (string * Rfc5322.phrase) list }
 
 type field =
   [ `ContentType of ContentType.t
   | `ContentEncoding of ContentEncoding.t
   | `ContentID of MsgID.t
   | `ContentDescription of string
-  | `Content of string * string
+  | `Content of string * Rfc5322.phrase
   | `Unsafe of string * Rfc5322.phrase ]
 
 let field_of_lexer : Rfc2045.field -> field = function
