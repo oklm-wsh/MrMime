@@ -65,8 +65,8 @@ let p_discard_text stop p =
    preamble := discard-text
    epilogue := discard-text
 *)
-let p_preamble p state = p_discard_text p state
-let p_epilogue p state = p_discard_text p state
+let p_preamble stop p state = p_discard_text stop p state
+let p_epilogue stop p state = p_discard_text stop p state
 
 (* See RFC 2046 § 5.1.1:
 
