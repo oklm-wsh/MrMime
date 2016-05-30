@@ -62,7 +62,7 @@ type date_time = day option * date * time * tz
 
 type atom    = Rfc822.atom
 type word    = Rfc822.word
-type phrase  = [ word | `Dot | `WSP | Rfc2047.encoded ] list
+type phrase  = [ word | `Dot | `FWS | `WSP | `CR of int | `LF of int | Rfc2047.encoded ] list
 
 type domain  = [ Rfc822.domain | Rfc5321.literal_domain ]
 type local   = Rfc822.local
@@ -257,170 +257,80 @@ let is_obs_utext = function
   | '\000' -> true
   | chr -> is_obs_no_ws_ctl chr || is_vchar chr
 
-(* XXX: bon là, j'écris en français parce que c'est vraiment de la merde. En
-        gros le [obs-unstruct] ou le [unstructured], c'est de la grosse merde
-        pour 3 points:
-
-        * le premier, c'est que depuis la RFC 2047, on peut mettre DES
-          [encoded-word] dans un [obs-unstruct] ou un [unstructured]. Il faut
-          donc decoder ces fragments premièrement. MAIS il faut bien comprendre
-          qu'un (ou plusieurs) espace entre 2 [encoded-word] n'a aucune
-          signication - en gros avec: '=utf-8?Q?a=    =utf-8?Q?b=', on obtient
-          'ab'. SAUF que dans le cas d'un [encoded-word 1*FWS 1*obs-utext]
-          l'espace est significatif et ça moment là, tu te dis WTF! Bien
-          entendu, les espaces entre deux [1*obs-utext] est tout autant
-          signicatif. DONC OUI C'EST DE LA MERDE.
-
-        * MAIS C'EST PAS FINI! Si on regarde bien la règle, cette pute, elle se
-          termine pas. OUAIS OUAIS! En vrai, elle se termine après avoir essayer
-          le token [FWS], après avoir essayer [*LF] et [*CR], qu'il y est au
-          moins un des deux derniers token existant (donc soit 1*LF ou 1*CR) et
-          qu'après avoir essayer à nouveau un [FWS] si on a pas de [obs-utext],
-          on regarde si on a bien eu un token [FWS] (d'où la nécessité d'avoir
-          [has_wsp] et [has_fws] dans la fonction [p_fws]). DONC (OUAIS C'EST LA
-          MERDE), si on a bien un token [FWS], on recommence, SINON on termine.
-
-        * ENFIN LE PIRE HEIN PARCE QUE ENCORE C'EST GENTIL! Comme on ESSAYE
-          d'avoir un CR* à la fin, IL PEUT ARRIVER (j'ai bien dit il peut mais
-          en vrai ça arrive tout le temps) qu'on consomme le CR du token CRLF
-          OBLIGATOIRE à chaque ligne. DONC la fonction compile si tu termines
-          par un CR ET SI C'EST LE CAS ON ROLLBACK pour récupérer le CR
-          OBLIGATOIRE à la fin de ligne.
-
-        DONC CETTE REGLE, C'EST CARREMENT DE LA MERDE ET VOILA POURQUOI CETTE
-        FONCTION EST AUSSI COMPLEXE. Merci de votre attention.
-*)
-let p_obs_unstruct ?(acc = []) p state =
-  let compile rlst state =
-    let rec aux ?(previous = `None) acc l = match l, previous with
-      | (`Encoded _ as enc) :: r, `LWSP ->
-        aux ~previous:`Enc (enc :: `WSP :: acc) r
-      | (`Encoded _ as enc) :: r, (`ELWSP | `None) ->
-        aux ~previous:`Enc (enc :: acc) r
-      | `Encoded _ :: r, (`Atom | `Enc)
-      | `Atom _ :: r, `Enc ->
-        assert false (* XXX: raise error *)
-      | (`Atom _ as txt) :: r, (`LWSP | `ELWSP) ->
-        aux ~previous:`Atom (txt :: `WSP :: acc) r
-      | (`Atom s as txt) :: r, (`None | `Atom) ->
-        aux ~previous:`Atom (txt :: acc) r
-      | (`LF | `CR | `WSP | `FWS) :: r1 :: r2, (`ELWSP | `Enc) ->
-        aux ~previous:`ELWSP acc (r1 :: r2)
-      | (`LF | `CR | `WSP | `FWS) :: r1 :: r2, (`LWSP | `Atom) ->
-        aux ~previous:`LWSP acc (r1 :: r2)
-      | (`LF | `CR | `WSP | `FWS) :: r1 :: r2, `None ->
-        aux ~previous:`None acc (r1 :: r2)
-      | [ `CR ], _ ->
-        roll_back (fun state -> p (List.rev acc) state) "\r" state
-      | [ (`LF | `WSP | `FWS) ], _ | [], _ ->
-        p (List.rev acc) state
-    in
-
-    aux [] (List.rev rlst)
-  in
-
-  let rec data acc =
-      (Rfc2047.p_encoded_word
-       @ fun charset encoding s state -> `Ok ((charset, encoding, s), state))
-      / (p_while is_obs_utext
-         @ fun ts -> (0 * 0) is_lf
-         @ fun lf -> (0 * 0) is_cr
-         @ fun cr ->
-
-         let acc' =
-           match String.length lf, String.length cr with
-           | 0, 0 -> `Atom ts :: acc
-           | n, 0 -> `Atom ts :: `LF :: acc
-           | 0, n -> `Atom ts :: `CR :: acc
-           | _    -> `Atom ts :: `CR :: `LF :: acc
-         in
-
-         cur_chr @ function
-         | chr when is_obs_utext chr -> data acc'
-         | chr -> loop acc')
-      @ (fun (charset, encoding, s) ->
-         (0 * 0) is_lf
-         @ fun lf -> (0 * 0) is_cr
-         @ fun cr ->
-
-         let acc' =
-           match String.length lf, String.length cr with
-           | 0, 0 -> `Encoded (charset, encoding, s) :: acc
-           | n, 0 -> `Encoded (charset, encoding, s) :: `LF :: acc
-           | 0, n -> `Encoded (charset, encoding, s) :: `CR :: acc
-           | _    -> `Encoded (charset, encoding, s) :: `CR :: `LF :: acc
-         in
-
-         cur_chr @ function
-         | chr when is_obs_utext chr -> data acc'
-         | chr -> loop acc')
-
-  and lfcr acc =
+let p_obs_unstruct ?(acc = []) p =
+  let rec loop3 acc =
     (0 * 0) is_lf
     @ fun lf -> (0 * 0) is_cr
-    @ fun cr ->
+    @ fun cr -> cur_chr
+    @ fun chr -> match String.length lf, String.length cr, chr with
+      | 0, n, chr when is_obs_utext chr -> loop2 (`CR n :: acc)
+      | n, 0, chr when is_obs_utext chr -> loop2 (`LF n :: acc)
+      | 0, 0, chr when is_obs_utext chr -> loop2 acc
+      | a, b, chr when is_obs_utext chr -> loop2 (`CR b :: `LF a :: acc)
+      | _, 1, '\n' -> roll_back (loop0 (List.rev acc)) "\r"
+      | _, n, '\n' -> roll_back (loop0 (List.rev (`CR (n - 1) :: acc))) "\r"
+      | _ -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
 
-    let acc' = match String.length lf, String.length cr with
-      | 0, 0 -> acc
-      | n, 0 -> `LF :: acc
-      | 0, n -> `CR :: acc
-      | _    -> `CR :: `LF :: acc
-    in
+  and loop2 acc =
+    (Rfc2047.p_encoded_word
+     @ fun charset encoding data -> ok (charset, encoding, data))
+    / (p_while is_obs_utext
+       @ fun value -> loop3 (`Atom value :: acc))
+    @ fun word -> loop3 (`Encoded word :: acc)
 
-    cur_chr @ function
-    | chr when is_obs_utext chr -> data acc
-    | chr when String.length lf > 0 || String.length cr > 0 ->
-      p_fws
-      @ (fun has_wsp has_fws ->
-         match has_wsp, has_fws with
-         | true, true   -> lfcr (`FWS :: acc')
-         | true, false  -> lfcr (`WSP :: acc')
-         | false, false -> compile acc'
-         | _            -> assert false)
-    | _ -> compile acc'
+  and loop1 acc =
+    (0 * 0) is_lf
+    @ fun lf -> (0 * 0) is_cr
+    @ fun cr -> cur_chr
+    @ fun chr -> match String.length lf, String.length cr, chr with
+      | 0, n, chr when is_obs_utext chr -> loop2 (`CR n :: acc)
+      | n, 0, chr when is_obs_utext chr -> loop2 (`LF n :: acc)
+      | 0, 0, chr when is_obs_utext chr -> loop2 acc
+      | a, b, chr when is_obs_utext chr -> loop2 (`CR b :: `LF a :: acc)
+      | _, 1, '\n' -> roll_back (p (List.rev acc)) "\r"
+      | _, n, '\n' -> roll_back (p (List.rev (`CR (n - 1) :: acc))) "\r"
+      | _ -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
 
-  and loop acc =
-    p_fws
-    @ fun has_wsp has_fws ->
-      match has_wsp, has_fws with
-      | true, true   -> loop (`FWS :: acc)
-      | true, false  -> loop (`WSP :: acc)
-      | false, false -> lfcr acc
-      | false, true  -> assert false
+  and loop0 acc =
+    p_fws (fun has_wsp has_fws -> match has_wsp, has_fws with
+    | true, true   -> loop0 (`FWS :: `WSP :: acc)
+    | true, false  -> loop1 (`WSP :: acc)
+    | false, false -> loop1 acc
+    | _            -> assert false)
   in
 
-  loop acc state
+  loop0 acc
 
-let p_unstructured p state =
-  let rec loop acc has_wsp has_fws =
-    cur_chr
+let p_unstructured p =
+  let p_word p =
+    (Rfc2047.p_encoded_word
+     @ fun charset encoding data -> ok (charset, encoding, data))
+    / (p_while is_vchar @ fun atom -> p (`Atom atom))
+    @ fun word -> p (`Encoded word)
+  in
+  let rec loop0 acc =
+    p_fws
+    @ fun has_wsp has_fws -> cur_chr
     @ fun chr -> match has_wsp, has_fws, chr with
-      | has_wsp, has_fws, chr when is_vchar chr ->
-        let adder x =
-          if has_fws && has_wsp
-          then x :: `FWS :: acc
-          else if has_wsp
-          then x :: `WSP :: acc
-          else x :: acc
-        in
-        (Rfc2047.p_encoded_word
-         @ fun charset encoding s state -> `Ok ((charset, encoding, s), state))
-        / (p_while is_vchar
-           @ fun s -> p_fws
-           @ loop
-           @ adder (`Atom s))
-        @ (fun (charset, encoding, s) ->
-           p_fws
-           @ loop
-           @ adder (`Encoded (charset, encoding, s)))
-      | true, true, _   -> p_obs_unstruct ~acc:(`FWS :: acc) p
+      | true, true, chr when is_vchar chr ->
+        p_word
+        @ fun value -> loop0 (value :: `FWS :: `WSP :: acc)
+      | true, false, chr when is_vchar chr ->
+        p_word
+        @ fun value -> loop0 (value :: `WSP :: acc)
+      | false, false, chr when is_vchar chr ->
+        p_word
+        @ fun value -> loop0 (value :: acc)
+      | false, false, chr when is_wsp chr ->
+        p_while is_wsp
+        @ fun _ -> p (List.rev (`WSP :: acc))
+      | true, true, _   -> p_obs_unstruct ~acc:(`FWS :: `WSP :: acc) p
       | true, false, _  -> p_obs_unstruct ~acc:(`WSP :: acc) p
       | false, false, _ -> p_obs_unstruct ~acc p
-      | false, true, _  -> assert false
-    in
+      | _               -> assert false
+  in
 
-  p_fws (loop []) state
-
+  loop0 []
 
 (* [CFWS] 2DIGIT [CFWS] *)
 let p_cfws_2digit_cfws p =
@@ -1472,7 +1382,10 @@ let p_body stop p state =
 
   let rec body has_cr state =
     let rec aux = function
-      | `Stop state -> p (Buffer.contents buf) state
+      | `Stop state ->
+        [%debug Printf.printf "state: p_body (RFC 5322) stop\n%!"];
+
+        p (Buffer.contents buf) state
       | `Read (buf, off, len, k) ->
         `Read (buf, off, len, (fun i -> aux @@ safe k i))
       | #Error.err as err -> err

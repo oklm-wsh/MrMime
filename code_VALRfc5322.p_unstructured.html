@@ -37,32 +37,33 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_unstructured</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_unstructured&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;has_wsp&nbsp;has_fws&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;cur_chr<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_unstructured&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;p_word&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc2047</span>.p_encoded_word<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;charset&nbsp;encoding&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;ok&nbsp;(charset,&nbsp;encoding,&nbsp;data))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_while&nbsp;is_vchar&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;atom&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;atom))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;word)<br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop0&nbsp;acc&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;p_fws<br>
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
 &nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;has_wsp,&nbsp;has_fws,&nbsp;chr&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;has_wsp,&nbsp;has_fws,&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_vchar&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;adder&nbsp;x&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_fws&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;has_wsp<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;x&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">FWS</span>&nbsp;::&nbsp;acc<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">if</span>&nbsp;has_wsp<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;x&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;x&nbsp;::&nbsp;acc<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc2047</span>.p_encoded_word<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;charset&nbsp;encoding&nbsp;s&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((charset,&nbsp;encoding,&nbsp;s),&nbsp;state))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_while&nbsp;is_vchar<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_fws<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;loop<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;adder&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;s))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;(charset,&nbsp;encoding,&nbsp;s)&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_fws<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;loop<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;adder&nbsp;(<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;(charset,&nbsp;encoding,&nbsp;s)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">true</span>,&nbsp;_&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_unstruct&nbsp;~acc:(<span class="keywordsign">`</span><span class="constructor">FWS</span>&nbsp;::&nbsp;acc)&nbsp;p<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">true</span>,&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_vchar&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_word<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0&nbsp;(value&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">FWS</span>&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">false</span>,&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_vchar&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_word<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0&nbsp;(value&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">false</span>,&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_vchar&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_word<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0&nbsp;(value&nbsp;::&nbsp;acc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">false</span>,&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_wsp&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_while&nbsp;is_wsp<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;(<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">true</span>,&nbsp;_&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_unstruct&nbsp;~acc:(<span class="keywordsign">`</span><span class="constructor">FWS</span>&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc)&nbsp;p<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">true</span>,&nbsp;<span class="keyword">false</span>,&nbsp;_&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_unstruct&nbsp;~acc:(<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;acc)&nbsp;p<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">false</span>,&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_unstruct&nbsp;~acc&nbsp;p<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keyword">false</span>,&nbsp;<span class="keyword">true</span>,&nbsp;_&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span><br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
 <br>
-&nbsp;&nbsp;p_fws&nbsp;(loop&nbsp;[])&nbsp;state</code></body></html>
+&nbsp;&nbsp;loop0&nbsp;[]</code></body></html>

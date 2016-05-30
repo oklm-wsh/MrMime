@@ -43,14 +43,14 @@
 &nbsp;&nbsp;;&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">MimeVersion</span>.t<br>
 &nbsp;&nbsp;;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">MsgID</span>.t&nbsp;option<br>
 &nbsp;&nbsp;;&nbsp;description&nbsp;:&nbsp;string&nbsp;option<br>
-&nbsp;&nbsp;;&nbsp;content&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;(string&nbsp;*&nbsp;string)&nbsp;list&nbsp;}<br>
+&nbsp;&nbsp;;&nbsp;content&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;(string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase)&nbsp;list&nbsp;}<br>
 <br>
 <span class="keyword">type</span>&nbsp;field&nbsp;=<br>
 &nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">ContentType</span>.t<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">ContentEncoding</span>.t<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MsgID</span>.t<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;string<br>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase<br>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;]<br>
 <br>
 <span class="keyword">let</span>&nbsp;field_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc2045</span>.field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;field&nbsp;=&nbsp;<span class="keyword">function</span><br>
@@ -73,6 +73,8 @@
 &nbsp;&nbsp;{&nbsp;ty;&nbsp;encoding;&nbsp;version;&nbsp;id;&nbsp;description;&nbsp;content&nbsp;=&nbsp;extension;&nbsp;}<br>
 <br>
 <span class="keyword">let</span>&nbsp;of_lexer&nbsp;fields&nbsp;p&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;of_lexer&nbsp;(content)\n%!"</span>];<br>
+<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;encoding&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>

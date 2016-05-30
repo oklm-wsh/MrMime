@@ -84,6 +84,9 @@ let pp_phrase =
   in
   let pp_elt fmt = function
     | `WSP -> p fmt " "
+    | `FWS -> p fmt "\r\n\t"
+    | `CR n -> p fmt "%s" (String.make n '\r')
+    | `LF n -> p fmt "%s" (String.make n '\n')
     | `Dot -> p fmt "."
     | #Rfc5322.word as elt -> pp_word fmt elt
     | `Encoded (charset, encoding, data) ->

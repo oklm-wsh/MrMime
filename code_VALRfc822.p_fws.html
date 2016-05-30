@@ -38,6 +38,8 @@
 </head>
 <body>
 <code class="code">let rec p_fws p state =
+  [%debug Printf.printf "state: p_fws\n%!"];
+
   (* verify if we have *WSP CRLF, if it's true,
      we return a [tmp] buffer containing *WSP CRLF data.
 
@@ -79,8 +81,7 @@
     | Some tmp ->
       state.Lexer.pos <- state.Lexer.pos + String.length tmp;
 
-      (read_line
-       @ cur_chr
+      (cur_chr
        @ function
          (* … 1*(CRLF 1*WSP) *)
          | '\x20' | '\x09' ->

@@ -77,7 +77,7 @@
 
 
 
-<pre><span id="TYPEphrase"><span class="keyword">type</span> <code class="type"></code>phrase</span> = <code class="type">[ `Atom of string<br>       | `Dot<br>       | `Encoded of string * <a href="Address.html#TYPEencoding">encoding</a> * string<br>       | `String of string<br>       | `WSP ] list</code> </pre>
+<pre><span id="TYPEphrase"><span class="keyword">type</span> <code class="type"></code>phrase</span> = <code class="type">[ `Atom of string<br>       | `CR of int<br>       | `Dot<br>       | `Encoded of string * <a href="Address.html#TYPEencoding">encoding</a> * string<br>       | `FWS<br>       | `LF of int<br>       | `String of string<br>       | `WSP ] list</code> </pre>
 
 
 <pre><code><span id="TYPEmailbox"><span class="keyword">type</span> <code class="type"></code>mailbox</span> = {</code></pre><table class="typetable">

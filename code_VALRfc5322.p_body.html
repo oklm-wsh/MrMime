@@ -44,7 +44,10 @@
 <br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;body&nbsp;has_cr&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Stop</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;buf)&nbsp;state<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Stop</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_body&nbsp;(RFC&nbsp;5322)&nbsp;stop\n%!"</span>];<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;buf)&nbsp;state<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,&nbsp;k)&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,&nbsp;(<span class="keyword">fun</span>&nbsp;i&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;aux&nbsp;@@&nbsp;safe&nbsp;k&nbsp;i))<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Error</span>.err&nbsp;<span class="keyword">as</span>&nbsp;err&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;err<br>

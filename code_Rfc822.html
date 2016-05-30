@@ -207,6 +207,8 @@ let p_quoted_pair p =
                                               ; CRLF => folding
 *)
 let rec p_fws p state =
+  [%debug Printf.printf "state: p_fws\n%!"];
+
   (* verify if we have *WSP CRLF, if it's true,
      we return a [tmp] buffer containing *WSP CRLF data.
 
@@ -248,8 +250,7 @@ let rec p_fws p state =
     | Some tmp ->
       state.Lexer.pos <- state.Lexer.pos + String.length tmp;
 
-      (read_line
-       @ cur_chr
+      (cur_chr
        @ function
          (* … 1*(CRLF 1*WSP) *)
          | '\x20' | '\x09' ->
@@ -818,6 +819,7 @@ let p_msg_id p =
 let p_crlf p = p_chr '\r' @ p_chr '\n' @ p
 let u_crlf p state =
   [%debug Printf.printf "state: u_crlf\n%!"];
+
   u_chr '\r' state;
   u_chr '\n' state;
   p state

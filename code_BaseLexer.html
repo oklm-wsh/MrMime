@@ -94,6 +94,8 @@
 &nbsp;&nbsp;<span class="keyword">end</span><br>
 <br>
 <span class="keyword">let</span>&nbsp;read_line&nbsp;k&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;read_line\n%!"</span>];<br>
+<br>
 &nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_line&nbsp;state.buffer&nbsp;state.pos&nbsp;state.len<br>
 &nbsp;&nbsp;<span class="keyword">then</span>&nbsp;k&nbsp;state<br>
 &nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span><br>
@@ -105,12 +107,16 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;off&nbsp;=<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;read_line&nbsp;loop\n%!"</span>];<br>
+<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_line&nbsp;state.buffer&nbsp;state.pos&nbsp;off<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;read_line&nbsp;end\n%!"</span>];<br>
+<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;off;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;k&nbsp;state<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;off&nbsp;&gt;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;off&nbsp;&gt;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;2<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;(2&nbsp;*&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;+&nbsp;1)&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;(<span class="constructor">Bytes</span>.length&nbsp;state.buffer);<br>
@@ -283,7 +289,7 @@
 &nbsp;&nbsp;&nbsp;including&nbsp;&nbsp;zero;&nbsp;&nbsp;1*&lt;element&gt;&nbsp;&nbsp;requires&nbsp;&nbsp;at&nbsp;&nbsp;least&nbsp;&nbsp;one;&nbsp;&nbsp;3*3&lt;element&gt;&nbsp;allows<br>
 &nbsp;&nbsp;&nbsp;exactly&nbsp;3;&nbsp;and&nbsp;1*2&lt;element&gt;&nbsp;allows&nbsp;one&nbsp;or&nbsp;two.<br>
 *)</span><br>
-<span class="keyword">let</span>&nbsp;p_repeat&nbsp;?a&nbsp;?b&nbsp;f&nbsp;p&nbsp;state&nbsp;=<br>
+<span class="keyword">let</span>&nbsp;u_repeat&nbsp;?a&nbsp;?b&nbsp;f&nbsp;p&nbsp;state&nbsp;=<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;i0&nbsp;=&nbsp;state.pos&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;most&nbsp;pos&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;b&nbsp;<span class="keyword">with</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;most&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(pos&nbsp;-&nbsp;i0)&nbsp;&lt;=&nbsp;most<br>
@@ -328,6 +334,8 @@
 &nbsp;&nbsp;loop&nbsp;0&nbsp;state<br>
 <br>
 <span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;cur_chr&nbsp;p&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;cur_chr\n%!"</span>];<br>
+<br>
 &nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len<br>
 &nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos)&nbsp;state<br>
 &nbsp;&nbsp;<span class="keyword">else</span>&nbsp;read_line&nbsp;(cur_chr&nbsp;p)&nbsp;state<br>

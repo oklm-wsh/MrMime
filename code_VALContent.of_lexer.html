@@ -38,6 +38,8 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;of_lexer&nbsp;fields&nbsp;p&nbsp;state&nbsp;=<br>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;of_lexer&nbsp;(content)\n%!"</span>];<br>
+<br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;encoding&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
