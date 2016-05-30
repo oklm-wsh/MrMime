@@ -211,8 +211,7 @@ let rec p_fws p state =
     | Some tmp ->
       state.Lexer.pos <- state.Lexer.pos + String.length tmp;
 
-      (read_line
-       @ cur_chr
+      (cur_chr
        @ function
          (* … 1*(CRLF 1*WSP) *)
          | '\x20' | '\x09' ->
