@@ -77,7 +77,7 @@ let read_line k state =
         state.len <- off;
         safe k state
       end else begin
-        if off >= Bytes.length state.buffer
+        if off >= Bytes.length state.buffer - 2
         then begin
           let new_buffer = Bytes.create (2 * Bytes.length state.buffer + 1) in
           Bytes.blit state.buffer 0 new_buffer 0 (Bytes.length state.buffer);
