@@ -72,7 +72,7 @@ let rec p_multipart boundary p_body' p state =
 
   Rfc2046.p_multipart_body boundary None
     (fun fields next ->
-       let rec aux p_body' fields next =
+       let rec aux p_body' boundary fields next =
          [%debug Printf.printf "state: p_multipart/aux\n%!"];
 
          Content.of_lexer fields @@ fun content rest ->
@@ -89,10 +89,10 @@ let rec p_multipart boundary p_body' p state =
              try let boundary' = Rfc2045.value_to_string @@ List.assoc "boundary" parameters in
                  Rfc2046.p_multipart_body
                    boundary' (Some boundary)
-                   (aux (p_body (Some boundary')))
+                   (aux (p_body (Some boundary')) boundary')
                    (fun data -> next (`Composite ((content, List.map field_of_lexer rest), data)))
              with Not_found -> raise (Error.Error (Error.err_expected_boundary state))
-       in aux p_body' fields next)
+       in aux p_body' boundary fields next)
     p state
 
 (* top-level of the multipart compute *)
