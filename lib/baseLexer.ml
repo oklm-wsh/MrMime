@@ -250,7 +250,7 @@ let ( @ ) = ( @@ )
    including  zero;  1*<element>  requires  at  least  one;  3*3<element> allows
    exactly 3; and 1*2<element> allows one or two.
 *)
-let p_repeat ?a ?b f p state =
+let u_repeat ?a ?b f p state =
   let i0 = state.pos in
   let most pos = match b with
     | Some most -> (pos - i0) <= most

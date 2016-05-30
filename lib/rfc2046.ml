@@ -187,13 +187,21 @@ let p_multipart_body boundary parent_boundary p_octet p =
     [%debug Printf.printf "state: p_multipart/next\n%!"];
 
     (p_encapsulation boundary p_octet @ fun data state -> `Ok (data, state))
-    / (p_close_delimiter boundary
-       @ p_transport_padding
-       @ (to_end_of_file ((Rfc822.u_crlf
-           @ p_epilogue stop_epilogue
-           @ fun _ state -> `Ok ((), state)))
-          / (p (List.rev acc))
-          @ fun () -> p (List.rev acc)))
+    / (fun state ->
+       [%debug Printf.printf "state: p_multipart/next to end\n%!"];
+
+       to_end_of_file
+       (p_close_delimiter boundary
+        @ (u_repeat Rfc822.is_lwsp)
+        @ (fun _ -> (fun state ->
+            [%debug Printf.printf "state: p_multipart/next try epilogue\n%!"];
+
+            (Rfc822.u_crlf
+             @ p_epilogue stop_epilogue
+             @ fun _ state -> `Ok ((), state)) state)
+           / (fun state -> [%debug Printf.printf "state: p_multipart/next end\n%!"]; p (List.rev acc) state)
+           @ fun () -> p (List.rev acc)))
+       state)
     @ fun data -> next (data :: acc)
   in
 
