@@ -41,7 +41,7 @@ let p_encoded_word p =
   @ fun charset -> p_chr '?'
   @ p_encoding
   @ fun encoding -> p_chr '?'
-  @ match String.uppercase encoding with
+  @ match String.uppercase_ascii encoding with
     | "Q" ->
       QuotedPrintable.p_inline_decode
         ((p_str "?=" @ fun state -> `Ok ((), state))

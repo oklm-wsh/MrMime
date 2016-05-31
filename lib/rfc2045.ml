@@ -63,7 +63,7 @@ let is_token chr =
 
 let p_token p state = p_while is_token p state
 
-let p_attribute p state = p_token p state
+let p_attribute p state = p_token (fun token -> p (String.lowercase_ascii token)) state
 
 let p_ietf_token p =
   p_token
@@ -110,7 +110,7 @@ let p_discrete_type p =
 let p_msg_id = Rfc822.p_msg_id
 
 let p_mechanism p =
-  p_token @ function
+  p_token @ fun token -> match String.lowercase_ascii token with
   | "7bit" -> p `Bit7
   | "8bit" -> p `Bit8
   | "binary" -> p `Binary
@@ -124,7 +124,7 @@ let p_mechanism p =
       (Lexer.of_string extension_token)
 
 let p_type p =
-  p_token @ function
+  p_token @ fun token -> match String.lowercase_ascii token with
   (* discrete-type *)
   | "text" -> p `Text
   | "image" -> p `Image
@@ -210,7 +210,7 @@ let p_version p =
   @ fun _ -> p (a, b)
 
 let p_mechanism p =
-  p_token @ function
+  p_token @ fun token -> match String.lowercase_ascii token with
   | "7bit" -> p `Bit7
   | "8bit" -> p `Bit8
   | "binary" -> p `Binary
@@ -237,7 +237,7 @@ let p_id p =
 let p_field mime_extend extend field p =
   [%debug Printf.printf "state: p_field (RFC 2045) %s\n%!" field];
 
-  let field = String.lowercase field in
+  let field = String.lowercase_ascii field in
 
   let rule =
     match field with

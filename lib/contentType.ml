@@ -37,7 +37,7 @@ let make ?(parameters = []) ty subty =
      for message/External-body is not case-sensitive.)
   *)
   let parameters =
-    List.map (fun (k, v) -> (String.lowercase k, v)) parameters in
+    List.map (fun (k, v) -> (String.lowercase_ascii k, v)) parameters in
   { ty; subty; parameters; }
 
 (* See RFC 2045 § 5.2 *)
