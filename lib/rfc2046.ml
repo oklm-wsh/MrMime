@@ -166,12 +166,11 @@ let p_multipart_body boundary parent_boundary p_octet p =
     | None ->
       [%debug Printf.printf "state: p_multipart (stop epilogue) to end\n%!"];
 
-      to_end_of_file
-      ((fun state -> match peek_chr state with
+      (fun state -> match peek_chr state with
        | None -> `Ok ((), state)
        | Some chr -> raise (Error.Error (Error.err_unexpected chr state)))
-       / (fun state -> `Continue state)
-       @ (fun () state -> `Stop state))
+      / (fun state -> `Continue state)
+      @ (fun () state -> `Stop state)
     | Some boundary ->
       let delimiter = m_delimiter boundary in
       let close_delimiter = m_close_delimiter boundary in

@@ -212,10 +212,7 @@ let p_decode stop p state =
       then roll_back (fun state -> to_stop (stop state)) "\r\n" state
            (* XXX: this decoder consume all CRLF needed by {close_}delimiter. *)
       else raise (Error.Error (Error.err_wrong_padding state))
-    | None ->
-      to_end_of_file (fun state -> match peek_chr state with
-      | None -> p (Buffer.contents buf) state
-      | Some chr -> decode base64 padding state) state
+    | None -> p (Buffer.contents buf) state
   in
 
   decode F.default 0 state

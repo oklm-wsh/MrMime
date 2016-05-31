@@ -42,10 +42,9 @@ let p_body boundary content =
       p_try_rule
         (fun () state -> `Stop state)
         (fun state -> `Continue state)
-        (to_end_of_file
-         (fun state -> match peek_chr state with
-                       | None -> `Ok ((), state)
-                       | Some chr -> raise (Error.Error (Error.err_unexpected chr state))))
+        (fun state -> match peek_chr state with
+                      | None -> `Ok ((), state)
+                      | Some chr -> raise (Error.Error (Error.err_unexpected chr state)))
   in
 
   match Content.encoding content with
@@ -125,6 +124,7 @@ let p_message p =
     (fun fields ->
        c_header fields
          (fun header content ->
+            to_end_of_file
             (switch content (p_body None)
                 (fun data -> p header (`Discrete (content, data)))
                 (fun data -> p header (`Composite (content, data))))))
