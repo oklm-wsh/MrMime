@@ -3,6 +3,11 @@ open Astring
 
 let () = Fmt.set_style_renderer Fmt.stdout `Ansi_tty
 
+type newline =
+  | CRLF
+  | CR
+  | LF
+
 let with_process_in cmd f =
   let ic = Unix.open_process_in cmd in
   try
@@ -55,56 +60,7 @@ let yellow_s fmt = color `Yellow fmt
 let bold_s fmt = color `Bold fmt
 let cyan_s fmt = color `Cyan fmt
 
-let to_crlf input =
-  let tmp      = Bytes.create (Lwt_io.buffer_size input) in
-  let real_off = ref 0 in
-  let off      = ref 0 in
-  let len      = Lwt_io.buffer_size input in
-  fun buf off' len' ->
-    let consume rest next =
-      let i = ref 0 in
-      let j = ref 0 in
-
-      while !i < rest + next && !j < len' && !off + !i < len
-      do
-        if Bytes.get tmp (!off + !i) = '\n' && !j + 1 < len'
-        then begin
-          Bytes.blit "\r\n" 0 buf (off' + !j) 2;
-          j := !j + 2;
-        end else begin
-          Bytes.set buf (off' + !j) (Bytes.get tmp (!off + !i));
-          incr j;
-        end;
-
-        incr i;
-      done;
-
-      off      := !off + !i;
-      real_off := !real_off + next;
-
-      Lwt.return !j
-    in
-
-    match !real_off = len, !off = !real_off with
-    | true, false  ->
-      consume (!real_off - !off) 0 >>= fun n ->
-      Lwt.return n
-    | false, false ->
-      let a = (!real_off - !off) in
-      Lwt_io.read_into input tmp !real_off (len - !real_off) >>= fun n ->
-      consume a n
-    | false, true  ->
-      real_off := 0;
-      off      := 0;
-      Lwt_io.read_into input tmp !real_off (len - !real_off) >>= fun n ->
-      consume 0 n
-    | true, true ->
-      real_off := 0;
-      off      := 0;
-      Lwt_io.read_into input tmp !real_off (len - !real_off) >>= fun n ->
-      consume 0 n
-
-let read_into channel buf off len =
+let read_into ?(newline = LF) channel buf off len =
   if len + off > Bytes.length buf
      || off < 0
      || len < 0
@@ -112,34 +68,60 @@ let read_into channel buf off len =
 
   let last = len + off in
 
-  let rec read_char has_cr remaining =
-    assert (remaining >= 0);
+  match newline with
+  | CRLF -> Lwt_io.read_into channel buf off len
+  | CR ->
+    let rec read_char has_cr remaining =
+      assert (remaining >= 0);
 
-    if remaining = 0 then Lwt.return len
-    else Lwt.catch
-           (fun () -> Lwt_io.read_char channel >>= fun chr -> Lwt.return (Some chr))
-           (fun exn -> Lwt.return None)
-         >>= function
-         | Some '\n' when not has_cr && remaining >= 2 ->
-           Bytes.blit "\r\n" 0 buf (last - remaining) 2;
-           read_char false (remaining - 2)
-         | Some '\n' when not has_cr && remaining = 1 ->
-           let pos = Lwt_io.position channel in
-           Lwt_io.set_position channel (Int64.pred pos) >>= fun () ->
-           Lwt.return (len - remaining)
-         | Some '\r' ->
-           Bytes.set buf (last - remaining) '\r'; read_char true  (pred remaining)
-         | Some chr  ->
-           Bytes.set buf (last - remaining) chr;  read_char false (pred remaining)
-         | None -> Lwt.return (len - remaining)
-  in
+      if remaining = 0 then Lwt.return len
+      else Lwt.catch
+             (fun () -> Lwt_io.read_char channel >>= fun chr -> Lwt.return (Some chr))
+             (fun exn -> Lwt.return None)
+           >>= function
+           | Some '\n' when has_cr ->
+             read_char false remaining
+           | Some '\r' ->
+             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
+             read_char true  (remaining - 2)
+           | Some chr  ->
+             Bytes.set buf (last - remaining) chr;
+             read_char false (pred remaining)
+           | None -> Lwt.return (len - remaining)
+    in
 
-  read_char false len
+    read_char false len
+  | LF ->
+    let rec read_char has_cr remaining =
+      assert (remaining >= 0);
 
-let rec of_flow (ch, decoder) =
+      if remaining = 0 then Lwt.return len
+      else Lwt.catch
+             (fun () -> Lwt_io.read_char channel >>= fun chr -> Lwt.return (Some chr))
+             (fun exn -> Lwt.return None)
+           >>= function
+           | Some '\n' when not has_cr && remaining >= 2 ->
+             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
+             read_char false (remaining - 2)
+           | Some '\n' when not has_cr && remaining = 1 ->
+             let pos = Lwt_io.position channel in
+             Lwt_io.set_position channel (Int64.pred pos) >>= fun () ->
+             Lwt.return (len - remaining)
+           | Some '\r' ->
+             Bytes.set buf (last - remaining) '\r';
+             read_char true  (pred remaining)
+           | Some chr  ->
+             Bytes.set buf (last - remaining) chr;
+             read_char false (pred remaining)
+           | None -> Lwt.return (len - remaining)
+    in
+
+    read_char false len
+
+let rec of_flow (ch, decoder) newline =
   let rec aux = function
     | `Read (buff, off, len, k) ->
-      read_into ch buff off len >>= fun n ->
+      read_into ~newline ch buff off len >>= fun n ->
       aux (k n)
     | `Error (err, buff, off, len) ->
       Lwt.fail (Error.Error (`Error (err, buff, off, len)))
@@ -150,13 +132,13 @@ let rec of_flow (ch, decoder) =
 
 let of_filename filename = Lwt_io.open_file ~mode:Lwt_io.Input filename
 
-let message filename input =
+let message filename newline input =
   Fmt.pf Fmt.stdout "%a%a%!" (left left_c yellow_s) "..." cyan_s filename;
 
   let state = Lexer.make () in
   Lwt.catch
     (fun () ->
-     of_flow (input, state)
+     of_flow (input, state) newline
        (Grammar.p_message
        (fun header message _ -> `Ok (header, message)) state)
      >>= fun _ ->
@@ -179,6 +161,7 @@ let message filename input =
                 cyan_s filename
                 yellow_s (Printexc.to_string exn);
               Lwt.return ())
+  >>= fun () -> Lwt_io.close input
 
 let convert input =
   let buffer = Bytes.create 1024 in
@@ -216,21 +199,40 @@ let walk directory pattern =
   in
   aux [] [directory]
 
-let do_cmd path =
+let do_cmd path newline =
   let files = walk path ".+" in
   Lwt_main.run
-    (Lwt_list.map_s (fun x -> of_filename x >>= message x) files)
+    (Lwt_list.map_s (fun x -> of_filename x >>= message x newline) files)
 
 let path =
   let doc = "Path of mail directory." in
   Arg.(required & opt (some string) None & info ["p"; "path"] ~doc)
+
+let newline =
+  let parse s =
+    match Bytes.uppercase_ascii s with
+    | "CRLF" -> `Ok CRLF
+    | "CR" -> `Ok CR
+    | "LF" -> `Ok LF
+    | _ -> `Error "Invalid newline."
+  in
+  let pp fmt = function
+    | CRLF -> Format.fprintf fmt "CRLF"
+    | CR -> Format.fprintf fmt "CR"
+    | LF -> Format.fprintf fmt "LF"
+  in
+  parse, pp
+
+let newline =
+  let doc = "Specify a specific newline." in
+  Arg.(value & opt newline CRLF & info ["n"; "newline"] ~doc)
 
 let cmd =
   let doc = "Scan mail directory and try to parse emails." in
   let man =
     [ `S "Description"
     ; `P "$(tname) is test tool." ] in
-  Term.(pure do_cmd $ path),
+  Term.(pure do_cmd $ path $ newline),
   Term.info "maildir" ~doc ~man
 
 let () = match Term.eval cmd with
