@@ -846,8 +846,8 @@ let p_name_addr p =
 let p_mailbox p =
   [%debug Printf.printf "state: p_mailbox\n%!"];
 
-  (p_name_addr @ fun name_addr state -> `Ok (name_addr, state))
-  / (p_addr_spec @ fun (local_part, domain) -> p (None, (local_part, [domain])))
+  (p_addr_spec @ fun (local_part, domain) state -> `Ok ((None, (local_part, [domain])), state))
+  / (p_name_addr @ p)
   @ p
 
 (* See RFC 5322 § 4.4:
