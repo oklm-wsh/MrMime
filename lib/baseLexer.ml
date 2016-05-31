@@ -77,6 +77,11 @@ let read_line k state =
         state.len <- off;
         safe k state
       end else begin
+        (* XXX: the (-2) operation is according to the translation between Unix
+                file and CRLF (window) file. we need at least 2 free bytes in
+                the buffer to add CRLF characters instead CR (apple)
+                or LF (unix).
+        *)
         if off >= Bytes.length state.buffer - 2
         then begin
           let new_buffer = Bytes.create (2 * Bytes.length state.buffer + 1) in
