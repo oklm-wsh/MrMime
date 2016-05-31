@@ -16,16 +16,10 @@ let p_header p state =
     p state
 
 (* check of the header, eg. {!val:Header.of_lexer} and {!val:Content.of_lexer} *)
-let c_header fields p state =
-  Header.of_lexer fields
-    (fun header rest state ->
-     match header with
-     | Some header ->
-       Content.of_lexer rest
-         (fun content rest state ->
-          p header content state) state
-     | None -> raise (Error.Error (Error.err_invalid_header state)))
-    state
+let c_header fields p =
+  Header.of_lexer Header.Relax.unstrict fields
+  @ fun header rest -> Content.of_lexer rest
+  @ fun content rest -> p header content
 
 (* composition betweeen RFC 5322/body, RFC 2045/Base64/body and RFC
    2045/QuotedPrintable/body with the [boundary] *)

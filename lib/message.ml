@@ -2,7 +2,7 @@ open BasePrinter
 
 type field = Grammar.field
 
-type t = Header.t *
+type t = Header.unstrict *
   [ `Composite of Content.t * nest option list
   | `Discrete of Content.t * string ]
 and nest =

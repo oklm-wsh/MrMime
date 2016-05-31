@@ -1,4 +1,12 @@
-let header = (module Header : Alcotest.TESTABLE with type t = Header.t)
+module StrictHeader =
+struct
+  type t = Header.strict
+
+  let pp = Header.pp
+  let equal : t -> t -> bool = Header.equal
+end
+
+let header = (module StrictHeader : Alcotest.TESTABLE with type t = StrictHeader.t)
 
 let make_compute_test s =
   Printf.sprintf "header",

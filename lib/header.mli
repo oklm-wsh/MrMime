@@ -1,6 +1,19 @@
-type t
+type ('date, 'from) t
 
-type phrase = [ `Phrase of Rfc5322.phrase ]
+type strict   = (Date.t, Address.person list) t
+type unstrict = (Date.t option, Address.person list option) t
+type phrase   = [ `Phrase of Rfc5322.phrase ]
+
+module Relax :
+sig
+  type ('date, 'from) t
+
+  exception Expected_date
+  exception Expected_from
+
+  val strict   : (Date.t, Address.person list) t
+  val unstrict : (Date.t option, Address.person list option) t
+end
 
 type field =
   [ `From            of Address.person list
@@ -23,9 +36,14 @@ type field =
 
 val field_of_lexer : Rfc5322.field -> field
 
-val of_string : string -> t
-val to_string : t -> string
-val of_lexer  : ([> Rfc5322.field ] as 'field) list -> (t option -> 'field list -> Lexer.t -> 'a) -> Lexer.t -> 'a
+val of_string      : string -> strict
+val to_string      : strict -> string
 
-val equal     : t -> t -> bool
-val pp        : Format.formatter -> t -> unit
+val of_lexer       :
+  ('date, 'from) Relax.t ->
+  ([> Rfc5322.field ] as 'field) list ->
+  (('date, 'from) t -> 'field list -> Lexer.t -> 'a) ->
+  Lexer.t -> 'a
+
+val equal          : ('date, 'from) t -> ('date, 'from) t -> bool
+val pp             : Format.formatter -> strict -> unit
