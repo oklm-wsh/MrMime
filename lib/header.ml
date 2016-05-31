@@ -126,8 +126,8 @@ let of_lexer relax fields p state =
        ; traces      = !traces
        ; comments    = !comments
        ; keywords    = !keywords
-       ; others      = !others
-       ; unsafe      = !unsafe })
+       ; others      = List.rev !others
+       ; unsafe      = List.rev !unsafe })
       fields state
   in
 
