@@ -172,10 +172,10 @@ let p_decode stop p state =
 
   let rec to_stop = function
     | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> (to_stop[@tailcall]) @@ safe k i))
+        `Read (buf, off, len, (fun i -> to_stop @@ safe k i))
     | #Error.err as err -> err
     | `Stop state -> p (Buffer.contents buf) state
-    | `Continue state -> (junk_chr @ (fun state -> (to_stop[@tailcall]) (stop state))) state
+    | `Continue state -> (junk_chr @ (fun state -> to_stop (stop state))) state
   in
 
   let rec decode base64 padding state =
@@ -185,7 +185,7 @@ let p_decode stop p state =
 
       if padding = 0 then begin
         state.Lexer.pos <- state.Lexer.pos + 1;
-        decode (F.add base64 chr buf) padding state;
+        (decode[@tailcall]) (F.add base64 chr buf) padding state;
       end else begin
         F.flush base64 buf;
         raise (Error.Error (Error.err_unexpected chr state))
@@ -194,12 +194,12 @@ let p_decode stop p state =
       [%debug Printf.printf "state: p_decode (Base64) =\n%!"];
 
       state.Lexer.pos <- state.Lexer.pos + 1;
-      decode base64 (padding + 1) state
+      (decode[@tailcall]) base64 (padding + 1) state
     | Some ('\x20' | '\x09') ->
       [%debug Printf.printf "state: p_decode (Base64) space\n%!"];
 
       state.Lexer.pos <- state.Lexer.pos + 1;
-      decode base64 padding state
+      (decode[@tailcall]) base64 padding state
     | Some '\r' ->
       [%debug Printf.printf "state: p_decode (Base64) CLRF\n%!"];
 
