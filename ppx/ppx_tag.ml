@@ -79,7 +79,7 @@ let ppx =
       begin match pstr with
       | PStr [{ pstr_desc =
                 Pstr_eval ({ pexp_loc = loc;
-                             pexp_desc = Pexp_apply (database, ["", { pexp_desc = Pexp_constant (Const_string (filename, _)) } ]) }, _) }]
+                             pexp_desc = Pexp_apply (database, [Nolabel, { pexp_desc = Pexp_constant (Pconst_string (filename, _)) } ]) }, _) }]
         ->
         let db = compute filename in
         make_expr database db
