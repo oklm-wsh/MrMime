@@ -218,7 +218,10 @@ let p_try_rule success fail rule state =
   Buffer.add_bytes tmp (Bytes.sub state.buffer state.pos (state.len - state.pos));
 
   let rec loop = function
-    | `Error (err, buf, off, len) ->
+    | `Error (err, buf, off, len) as error ->
+      [%debug Printf.printf "state: p_try_rule fail with %s\n%!"
+       (Printexc.to_string (Error.Error error))];
+
       state.pos <- 0;
       state.len <- Buffer.length tmp;
       if Buffer.length tmp > Bytes.length state.buffer
@@ -300,7 +303,8 @@ let p_repeat ?a ?b f p state =
   loop 0 state
 
 let rec cur_chr p state =
-  [%debug Printf.printf "state: cur_chr\n%!"];
+  [%debug if state.pos < state.len
+          then Printf.printf "state: cur_chr [%S]\n%!" (String.make 1 (Bytes.get state.buffer state.pos))];
 
   if state.pos < state.len
   then p (Bytes.get state.buffer state.pos) state
