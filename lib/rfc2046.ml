@@ -80,13 +80,12 @@ let p_delimiter boundary p =
 let m_delimiter boundary =
   "\r\n" ^ (m_dash_boundary boundary)
 
-let p_close_delimiter boundary p state =
+let p_close_delimiter boundary p =
   [%debug Printf.printf "state: p_close_delimiter %s\n%!" boundary];
 
-  (p_delimiter boundary
-   @ p_str "--"
-   @ (fun state -> [%debug "state: p_close_delimiter match\n%!"]; p state))
-  state
+  p_delimiter boundary
+  @ p_str "--"
+  @ (fun state -> [%debug "state: p_close_delimiter match\n%!"]; p state)
 
 let m_close_delimiter boundary =
   (m_delimiter boundary) ^ "--"
