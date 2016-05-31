@@ -185,22 +185,26 @@ let p_multipart_body boundary parent_boundary p_octet p =
   let rec next acc =
     [%debug Printf.printf "state: p_multipart/next\n%!"];
 
+    (* XXX: according to RFC 2046, we have a CRLF rule just before epilogue.
+            but we can have a parent boundary just after the current boundary
+            like that:
+
+            CRLF
+            --foo--CRLF
+            --barCRLF
+
+            so if we force the CRLF just before epilogue, we consume the CRLF
+            needed by the parent delimiter and we consider [--bar] as the
+            epilogue. It's false, so we don't check the required CRLF of
+            epilogue and nobody cares about the epilogue. *)
     (p_encapsulation boundary p_octet @ fun data state -> `Ok (data, state))
-    / (fun state ->
-       [%debug Printf.printf "state: p_multipart/next to end\n%!"];
-
-       to_end_of_file
-       (p_close_delimiter boundary
-        @ (u_repeat Rfc822.is_lwsp)
-        @ (fun _ -> (fun state ->
-            [%debug Printf.printf "state: p_multipart/next try epilogue\n%!"];
-
-            (Rfc822.u_crlf
-             @ p_epilogue stop_epilogue
-             @ fun _ state -> `Ok ((), state)) state)
-           / (fun state -> [%debug Printf.printf "state: p_multipart/next end\n%!"]; p (List.rev acc) state)
-           @ fun () -> p (List.rev acc)))
-       state)
+    / (p_close_delimiter boundary
+       @ (u_repeat Rfc822.is_lwsp)
+       @ fun _ ->
+         (p_epilogue stop_epilogue
+          @ fun _ -> ok ())
+         / (p (List.rev acc))
+         @ fun () -> p (List.rev acc))
     @ fun data -> next (data :: acc)
   in
 
