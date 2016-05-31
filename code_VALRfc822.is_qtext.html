@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.is_qtext</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;is_qtext&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\033'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\035'</span>&nbsp;..&nbsp;<span class="string">'\091'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\093'</span>&nbsp;..&nbsp;<span class="string">'\126'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;is_qtext&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\033'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\035'</span>&nbsp;..&nbsp;<span class="string">'\091'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\093'</span>&nbsp;..&nbsp;<span class="string">'\126'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;is_obs_no_ws_ctl&nbsp;chr</code></body></html>

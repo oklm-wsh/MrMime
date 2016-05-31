@@ -37,108 +37,108 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Content</title>
 </head>
 <body>
-<code class="code"><span class="keyword">type</span>&nbsp;t&nbsp;=<br>
-&nbsp;&nbsp;{&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t<br>
-&nbsp;&nbsp;;&nbsp;encoding&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">ContentEncoding</span>.t<br>
-&nbsp;&nbsp;;&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">MimeVersion</span>.t<br>
-&nbsp;&nbsp;;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">MsgID</span>.t&nbsp;option<br>
-&nbsp;&nbsp;;&nbsp;description&nbsp;:&nbsp;string&nbsp;option<br>
-&nbsp;&nbsp;;&nbsp;content&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;(string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase)&nbsp;list&nbsp;}<br>
-<br>
-<span class="keyword">type</span>&nbsp;field&nbsp;=<br>
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">ContentType</span>.t<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">ContentEncoding</span>.t<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MsgID</span>.t<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;<span class="keyword">of</span>&nbsp;string<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;]<br>
-<br>
-<span class="keyword">let</span>&nbsp;field_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc2045</span>.field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;field&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;p&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;p<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;(<span class="constructor">ContentType</span>.of_lexer&nbsp;t)<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;(<span class="constructor">ContentEncoding</span>.of_lexer&nbsp;e)<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;i&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;(<span class="constructor">MsgID</span>.of_lexer&nbsp;i)<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;value)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;value)<br>
-<br>
-<span class="keyword">let</span>&nbsp;ty&nbsp;{&nbsp;ty;&nbsp;_&nbsp;}&nbsp;=&nbsp;ty<br>
-<span class="keyword">let</span>&nbsp;encoding&nbsp;{&nbsp;encoding;&nbsp;_&nbsp;}&nbsp;=&nbsp;encoding<br>
-<br>
-<span class="keyword">let</span>&nbsp;make<br>
-&nbsp;&nbsp;?(ty&nbsp;=&nbsp;<span class="constructor">ContentType</span>.default)<br>
-&nbsp;&nbsp;?(encoding&nbsp;=&nbsp;<span class="constructor">ContentEncoding</span>.default)<br>
-&nbsp;&nbsp;?(version&nbsp;=&nbsp;<span class="constructor">MimeVersion</span>.default)<br>
-&nbsp;&nbsp;?id&nbsp;?description<br>
-&nbsp;&nbsp;?(extension&nbsp;=&nbsp;[])&nbsp;()&nbsp;=<br>
-&nbsp;&nbsp;{&nbsp;ty;&nbsp;encoding;&nbsp;version;&nbsp;id;&nbsp;description;&nbsp;content&nbsp;=&nbsp;extension;&nbsp;}<br>
-<br>
-<span class="keyword">let</span>&nbsp;of_lexer&nbsp;fields&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;of_lexer&nbsp;(content)\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;encoding&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;description&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;content&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;[]&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;sanitize&nbsp;fields&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;({&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">ContentType</span>.default&nbsp;!ty<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;encoding&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">ContentEncoding</span>.default&nbsp;!encoding<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">MimeVersion</span>.default&nbsp;!version<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;!id<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;description&nbsp;=&nbsp;!description<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;content&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;!content&nbsp;})&nbsp;fields&nbsp;state<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;garbage&nbsp;fields&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;fields&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;sanitize&nbsp;(<span class="constructor">List</span>.rev&nbsp;garbage)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;::&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;c&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!ty&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;ty&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">ContentType</span>.of_lexer&nbsp;c);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!encoding&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;encoding&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">ContentEncoding</span>.of_lexer&nbsp;e);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!id&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;id&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">MsgID</span>.of_lexer&nbsp;e);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!description&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;description&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;s;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;(field,&nbsp;value)&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content&nbsp;:=&nbsp;(field,&nbsp;value)&nbsp;::&nbsp;!content;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.mime_field&nbsp;<span class="keyword">as</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!version&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;version&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">MimeVersion</span>.of_lexer&nbsp;v);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;loop&nbsp;[]&nbsp;fields<br>
-<br>
-<span class="keyword">let</span>&nbsp;p&nbsp;=&nbsp;<span class="constructor">Format</span>.fprintf<br>
-<br>
-<span class="keyword">let</span>&nbsp;pp&nbsp;fmt&nbsp;{&nbsp;ty;&nbsp;encoding;&nbsp;version;&nbsp;id;&nbsp;}&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pp_field_opt&nbsp;fmt&nbsp;field_name&nbsp;pp_field&nbsp;field_opt&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field_opt&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"%s:&nbsp;%a\r\n"</span>&nbsp;field_name&nbsp;pp_field&nbsp;field<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"MIME-Version:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">MimeVersion</span>.pp&nbsp;version;<br>
-&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Type:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentType</span>.pp&nbsp;ty;<br>
-&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Transfer-Encoding:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentEncoding</span>.pp&nbsp;encoding;<br>
-&nbsp;&nbsp;pp_field_opt&nbsp;fmt&nbsp;<span class="string">"Content-ID"</span>&nbsp;<span class="constructor">MsgID</span>.pp&nbsp;id;<br>
+<code class="code"><span class="keyword">type</span>&nbsp;t&nbsp;=
+&nbsp;&nbsp;{&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t
+&nbsp;&nbsp;;&nbsp;encoding&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">ContentEncoding</span>.t
+&nbsp;&nbsp;;&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">MimeVersion</span>.t
+&nbsp;&nbsp;;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">MsgID</span>.t&nbsp;option
+&nbsp;&nbsp;;&nbsp;description&nbsp;:&nbsp;string&nbsp;option
+&nbsp;&nbsp;;&nbsp;content&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;(string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase)&nbsp;list&nbsp;}
+
+<span class="keyword">type</span>&nbsp;field&nbsp;=
+&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">ContentType</span>.t
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">ContentEncoding</span>.t
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MsgID</span>.t
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;]
+
+<span class="keyword">let</span>&nbsp;field_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc2045</span>.field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;field&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;p&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;p
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;(<span class="constructor">ContentType</span>.of_lexer&nbsp;t)
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;(<span class="constructor">ContentEncoding</span>.of_lexer&nbsp;e)
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;i&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;(<span class="constructor">MsgID</span>.of_lexer&nbsp;i)
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;value)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;value)
+
+<span class="keyword">let</span>&nbsp;ty&nbsp;{&nbsp;ty;&nbsp;_&nbsp;}&nbsp;=&nbsp;ty
+<span class="keyword">let</span>&nbsp;encoding&nbsp;{&nbsp;encoding;&nbsp;_&nbsp;}&nbsp;=&nbsp;encoding
+
+<span class="keyword">let</span>&nbsp;make
+&nbsp;&nbsp;?(ty&nbsp;=&nbsp;<span class="constructor">ContentType</span>.default)
+&nbsp;&nbsp;?(encoding&nbsp;=&nbsp;<span class="constructor">ContentEncoding</span>.default)
+&nbsp;&nbsp;?(version&nbsp;=&nbsp;<span class="constructor">MimeVersion</span>.default)
+&nbsp;&nbsp;?id&nbsp;?description
+&nbsp;&nbsp;?(extension&nbsp;=&nbsp;[])&nbsp;()&nbsp;=
+&nbsp;&nbsp;{&nbsp;ty;&nbsp;encoding;&nbsp;version;&nbsp;id;&nbsp;description;&nbsp;content&nbsp;=&nbsp;extension;&nbsp;}
+
+<span class="keyword">let</span>&nbsp;of_lexer&nbsp;fields&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;of_lexer&nbsp;(content)\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;encoding&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;description&nbsp;=&nbsp;ref&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;content&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;ref&nbsp;[]&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;sanitize&nbsp;fields&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;({&nbsp;ty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">ContentType</span>.default&nbsp;!ty
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;encoding&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">ContentEncoding</span>.default&nbsp;!encoding
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Option</span>.value&nbsp;~default:<span class="constructor">MimeVersion</span>.default&nbsp;!version
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;!id
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;description&nbsp;=&nbsp;!description
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;content&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;!content&nbsp;})&nbsp;fields&nbsp;state
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;garbage&nbsp;fields&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;fields&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;sanitize&nbsp;(<span class="constructor">List</span>.rev&nbsp;garbage)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;::&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;c&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!ty&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;ty&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">ContentType</span>.of_lexer&nbsp;c);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!encoding&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;encoding&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">ContentEncoding</span>.of_lexer&nbsp;e);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!id&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;id&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">MsgID</span>.of_lexer&nbsp;e);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!description&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;description&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;s;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;(field,&nbsp;value)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content&nbsp;:=&nbsp;(field,&nbsp;value)&nbsp;::&nbsp;!content;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.mime_field&nbsp;<span class="keyword">as</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;!version&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;version&nbsp;:=&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">MimeVersion</span>.of_lexer&nbsp;v);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;garbage&nbsp;rest
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;rest
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;loop&nbsp;[]&nbsp;fields
+
+<span class="keyword">let</span>&nbsp;p&nbsp;=&nbsp;<span class="constructor">Format</span>.fprintf
+
+<span class="keyword">let</span>&nbsp;pp&nbsp;fmt&nbsp;{&nbsp;ty;&nbsp;encoding;&nbsp;version;&nbsp;id;&nbsp;}&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pp_field_opt&nbsp;fmt&nbsp;field_name&nbsp;pp_field&nbsp;field_opt&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field_opt&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"%s:&nbsp;%a\r\n"</span>&nbsp;field_name&nbsp;pp_field&nbsp;field
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"MIME-Version:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">MimeVersion</span>.pp&nbsp;version;
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Type:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentType</span>.pp&nbsp;ty;
+&nbsp;&nbsp;p&nbsp;fmt&nbsp;<span class="string">"Content-Transfer-Encoding:&nbsp;%a\r\n"</span>&nbsp;<span class="constructor">ContentEncoding</span>.pp&nbsp;encoding;
+&nbsp;&nbsp;pp_field_opt&nbsp;fmt&nbsp;<span class="string">"Content-ID"</span>&nbsp;<span class="constructor">MsgID</span>.pp&nbsp;id;
 </code></body></html>

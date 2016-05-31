@@ -37,10 +37,10 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Header.Relax</title>
 </head>
 <body>
-<code class="code"><span class="keyword">sig</span><br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;t<br>
-&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Expected_date</span><br>
-&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Expected_from</span><br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;strict&nbsp;:&nbsp;(<span class="constructor">Date</span>.t,&nbsp;<span class="constructor">Address</span>.person&nbsp;list)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unstrict&nbsp;:&nbsp;(<span class="constructor">Date</span>.t&nbsp;option,&nbsp;<span class="constructor">Address</span>.person&nbsp;list&nbsp;option)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t<br>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;t
+&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Expected_date</span>
+&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Expected_from</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;strict&nbsp;:&nbsp;(<span class="constructor">Date</span>.t,&nbsp;<span class="constructor">Address</span>.person&nbsp;list)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unstrict&nbsp;:&nbsp;(<span class="constructor">Date</span>.t&nbsp;option,&nbsp;<span class="constructor">Address</span>.person&nbsp;list&nbsp;option)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t
 <span class="keyword">end</span></code></body></html>

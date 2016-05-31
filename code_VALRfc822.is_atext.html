@@ -37,15 +37,15 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.is_atext</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;is_atext&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'!'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'#'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'$'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'%'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&amp;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\''</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'*'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'+'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'-'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'/'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'?'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'^'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'_'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'`'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'{'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'|'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'}'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'~'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;is_atext&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'!'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'#'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'$'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'%'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&amp;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\''</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'*'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'+'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'-'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'/'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'?'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'^'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'_'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'`'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'{'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'|'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'}'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'~'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;is_digit&nbsp;chr&nbsp;<span class="keywordsign">||</span>&nbsp;is_alpha&nbsp;chr</code></body></html>

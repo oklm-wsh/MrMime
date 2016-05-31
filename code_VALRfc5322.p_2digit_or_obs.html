@@ -37,14 +37,14 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_2digit_or_obs</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_2digit_or_obs&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_try&nbsp;is_digit<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;n&nbsp;=&nbsp;2<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p_while&nbsp;is_digit<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p&nbsp;(int_of_string&nbsp;n)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;in&nbsp;this&nbsp;case,&nbsp;it's&nbsp;possible&nbsp;to<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;be&nbsp;in&nbsp;[obs]&nbsp;version,&nbsp;so&nbsp;we&nbsp;try<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[CFWS]&nbsp;*)</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_2digit_or_obs&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_try&nbsp;is_digit
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;n&nbsp;=&nbsp;2
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p_while&nbsp;is_digit
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p&nbsp;(int_of_string&nbsp;n)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;in&nbsp;this&nbsp;case,&nbsp;it's&nbsp;possible&nbsp;to
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;be&nbsp;in&nbsp;[obs]&nbsp;version,&nbsp;so&nbsp;we&nbsp;try
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[CFWS]&nbsp;*)</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;p_cfws_2digit_cfws&nbsp;p</code></body></html>

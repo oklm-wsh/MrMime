@@ -37,17 +37,17 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.p_qp_line</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_qp_line&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(p_qp_segment<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;seg&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_transport_padding<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_chr&nbsp;<span class="string">'\r'</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_chr&nbsp;<span class="string">'\n'</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(seg,&nbsp;state))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_qp_part<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;seg&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_transport_padding<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;@@&nbsp;seg&nbsp;::&nbsp;acc))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;seg&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(seg&nbsp;::&nbsp;acc))<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_qp_line&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;(p_qp_segment
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;seg&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_transport_padding
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_chr&nbsp;<span class="string">'\r'</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_chr&nbsp;<span class="string">'\n'</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(seg,&nbsp;state))
+&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_qp_part
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;seg&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_transport_padding
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;@@&nbsp;seg&nbsp;::&nbsp;acc))
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;seg&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(seg&nbsp;::&nbsp;acc))
+&nbsp;&nbsp;<span class="keyword">in</span>
+
 &nbsp;&nbsp;loop&nbsp;[]&nbsp;state</code></body></html>

@@ -37,23 +37,23 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_obs_addr_list</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_obs_addr_list&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;*(","&nbsp;[address&nbsp;/&nbsp;CFWS])&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop1&nbsp;acc&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;((p_address&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_cfws&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;acc)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;address&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;(address&nbsp;::&nbsp;acc)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;*([CFWS]&nbsp;",")&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop0&nbsp;()&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;@&nbsp;p_address&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;adress&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0&nbsp;()<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;address&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;[address]&nbsp;<span class="comment">(*&nbsp;address&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_obs_addr_list&nbsp;p&nbsp;=
+&nbsp;&nbsp;<span class="comment">(*&nbsp;*(","&nbsp;[address&nbsp;/&nbsp;CFWS])&nbsp;*)</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop1&nbsp;acc&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;((p_address&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_cfws&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;acc)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;address&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;(address&nbsp;::&nbsp;acc)))
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="comment">(*&nbsp;*([CFWS]&nbsp;",")&nbsp;*)</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop0&nbsp;()&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;junk_chr&nbsp;@&nbsp;p_address&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;adress&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0&nbsp;()
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_address&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;address&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop1&nbsp;[address]&nbsp;<span class="comment">(*&nbsp;address&nbsp;*)</span>
+&nbsp;&nbsp;<span class="keyword">in</span>
+
 &nbsp;&nbsp;p_cfws&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop0&nbsp;()</code></body></html>

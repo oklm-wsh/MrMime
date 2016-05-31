@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc6854.p_from</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_from&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_try_rule&nbsp;p<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_address_list&nbsp;p)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_mailbox_list<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_from&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_try_rule&nbsp;p
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_address_list&nbsp;p)
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_mailbox_list
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(<span class="constructor">List</span>.map&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Person</span>&nbsp;x)&nbsp;data,&nbsp;state)))</code></body></html>

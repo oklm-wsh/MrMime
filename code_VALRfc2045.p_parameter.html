@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.p_parameter</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_parameter&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_attribute<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;name&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'='</span><br>
-&nbsp;&nbsp;@&nbsp;p_value<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_parameter&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_attribute
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;name&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'='</span>
+&nbsp;&nbsp;@&nbsp;p_value
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(name,&nbsp;value)</code></body></html>

@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Base64.T.wrap</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;wrap&nbsp;t&nbsp;buf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;t.cnum&nbsp;&lt;-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.cnum&nbsp;+&nbsp;4&nbsp;&gt;&nbsp;76<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;(<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;&nbsp;0)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;wrap&nbsp;t&nbsp;buf&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;t.cnum&nbsp;&lt;-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.cnum&nbsp;+&nbsp;4&nbsp;&gt;&nbsp;76
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;(<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;&nbsp;0)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;t.cnum&nbsp;+&nbsp;4</code></body></html>

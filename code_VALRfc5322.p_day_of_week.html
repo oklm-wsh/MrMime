@@ -37,13 +37,13 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_day_of_week</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_day_of_week&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_fws<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_alpha&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_day_name&nbsp;p<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_cfws<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_day_name<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;day&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_day_of_week&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_fws
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
+&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_alpha&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_day_name&nbsp;p
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_cfws
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_day_name
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;day&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;day</code></body></html>

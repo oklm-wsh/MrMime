@@ -37,16 +37,16 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_year</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_year&nbsp;has_already_fws&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;(FWS&nbsp;4*DIGIT&nbsp;FWS)&nbsp;/&nbsp;obs-year&nbsp;*)</span><br>
-&nbsp;&nbsp;p_fws<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_try&nbsp;is_digit<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;(has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws&nbsp;<span class="keywordsign">||</span>&nbsp;has_already_fws)&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;n&nbsp;&gt;=&nbsp;4<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p_while&nbsp;is_digit&nbsp;<span class="comment">(*&nbsp;TODO:&nbsp;(4&nbsp;*&nbsp;0)&nbsp;is_digit&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;y&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_fws<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(int_of_string&nbsp;y)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_expected&nbsp;<span class="string">'&nbsp;'</span>&nbsp;state))<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_year&nbsp;has_already_fws&nbsp;p&nbsp;=
+&nbsp;&nbsp;<span class="comment">(*&nbsp;(FWS&nbsp;4*DIGIT&nbsp;FWS)&nbsp;/&nbsp;obs-year&nbsp;*)</span>
+&nbsp;&nbsp;p_fws
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_try&nbsp;is_digit
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;(has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws&nbsp;<span class="keywordsign">||</span>&nbsp;has_already_fws)&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;n&nbsp;&gt;=&nbsp;4
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p_while&nbsp;is_digit&nbsp;<span class="comment">(*&nbsp;TODO:&nbsp;(4&nbsp;*&nbsp;0)&nbsp;is_digit&nbsp;*)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;y&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_fws
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(int_of_string&nbsp;y)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_expected&nbsp;<span class="string">'&nbsp;'</span>&nbsp;state))
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;p_obs_year&nbsp;p</code></body></html>

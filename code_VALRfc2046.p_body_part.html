@@ -37,20 +37,20 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.p_body_part</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_body_part&nbsp;(<span class="keyword">type</span>&nbsp;data)&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_body_part\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;next&nbsp;fields&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_octet&nbsp;fields<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((data&nbsp;:&nbsp;data),&nbsp;state))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;<span class="constructor">None</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;(data&nbsp;:&nbsp;data)))<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;(<span class="constructor">Rfc2045</span>.p_mime_part_headers<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;next&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_field&nbsp;field&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_field&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_field&nbsp;field&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;fields&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(fields,&nbsp;state)))<br>
-&nbsp;&nbsp;/&nbsp;(next&nbsp;[])<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_body_part&nbsp;(<span class="keyword">type</span>&nbsp;data)&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_body_part\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;next&nbsp;fields&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_octet&nbsp;fields
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((data&nbsp;:&nbsp;data),&nbsp;state))
+&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;<span class="constructor">None</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">Some</span>&nbsp;(data&nbsp;:&nbsp;data)))
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;(<span class="constructor">Rfc2045</span>.p_mime_part_headers
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;next&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_field&nbsp;field&nbsp;state)))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_field&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_field&nbsp;field&nbsp;state)))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;fields&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(fields,&nbsp;state)))
+&nbsp;&nbsp;/&nbsp;(next&nbsp;[])
 &nbsp;&nbsp;@&nbsp;next</code></body></html>

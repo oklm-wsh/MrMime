@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_atom</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_atom&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_cfws<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_atext<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;atext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_atom&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_cfws
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_atext
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;atext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;atext</code></body></html>

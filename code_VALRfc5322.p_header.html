@@ -37,17 +37,17 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_header</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_header&nbsp;extend&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_header&nbsp;(RFC&nbsp;5322)\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(p_field_name<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(0&nbsp;*&nbsp;0)&nbsp;is_wsp<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">':'</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_field&nbsp;extend&nbsp;field<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;acc))<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_header&nbsp;extend&nbsp;p&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_header&nbsp;(RFC&nbsp;5322)\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;(p_field_name
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(0&nbsp;*&nbsp;0)&nbsp;is_wsp
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">':'</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_field&nbsp;extend&nbsp;field
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))
+&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;acc))
+&nbsp;&nbsp;<span class="keyword">in</span>
+
 &nbsp;&nbsp;loop&nbsp;[]</code></body></html>

@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_time</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_time&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_time_of_day<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_fws&nbsp;(hh,&nbsp;mm,&nbsp;dd)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_zone&nbsp;has_fws<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_time&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_time_of_day
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_fws&nbsp;(hh,&nbsp;mm,&nbsp;dd)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_zone&nbsp;has_fws
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;tz&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;((hh,&nbsp;mm,&nbsp;dd),&nbsp;tz)</code></body></html>

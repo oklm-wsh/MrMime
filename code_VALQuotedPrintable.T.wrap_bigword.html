@@ -37,9 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T.wrap_bigword</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;wrap_bigword&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;length&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;<br>
+<code class="code"><span class="keyword">let</span>&nbsp;wrap_bigword&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;length&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;
+&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word</code></body></html>

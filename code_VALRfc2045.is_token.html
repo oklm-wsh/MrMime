@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.is_token</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;is_token&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;not&nbsp;(is_tspecials&nbsp;chr)<br>
-&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(<span class="constructor">Rfc822</span>.is_ctl&nbsp;chr)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;is_token&nbsp;chr&nbsp;=
+&nbsp;&nbsp;not&nbsp;(is_tspecials&nbsp;chr)
+&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(<span class="constructor">Rfc822</span>.is_ctl&nbsp;chr)
 &nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(<span class="constructor">Rfc822</span>.is_space&nbsp;chr)</code></body></html>

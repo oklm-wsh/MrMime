@@ -37,27 +37,27 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseLexer.roll_back</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;roll_back&nbsp;k&nbsp;data&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;len&nbsp;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;data&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&gt;&nbsp;len<br>
-&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span>&nbsp;i&nbsp;=&nbsp;0&nbsp;<span class="keyword">to</span>&nbsp;len&nbsp;-&nbsp;1<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;<span class="constructor">Bytes</span>.set&nbsp;state.buffer<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(state.pos&nbsp;-&nbsp;1&nbsp;-&nbsp;i)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;data&nbsp;(len&nbsp;-&nbsp;1&nbsp;-&nbsp;i))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">done</span>;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;-&nbsp;len;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;k&nbsp;state<br>
-&nbsp;&nbsp;<span class="keyword">end</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_len&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;state.len&nbsp;-&nbsp;state.pos&nbsp;+&nbsp;len&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;new_len&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;data&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;len;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;new_buffer&nbsp;len&nbsp;(state.len&nbsp;-&nbsp;state.pos);<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;new_len;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state.buffer&nbsp;&lt;-&nbsp;new_buffer;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;k&nbsp;state<br>
+<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;roll_back&nbsp;k&nbsp;data&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;len&nbsp;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;data&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&gt;&nbsp;len
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span>&nbsp;i&nbsp;=&nbsp;0&nbsp;<span class="keyword">to</span>&nbsp;len&nbsp;-&nbsp;1
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;<span class="constructor">Bytes</span>.set&nbsp;state.buffer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(state.pos&nbsp;-&nbsp;1&nbsp;-&nbsp;i)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;data&nbsp;(len&nbsp;-&nbsp;1&nbsp;-&nbsp;i))
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">done</span>;
+&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;-&nbsp;len;
+
+&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;k&nbsp;state
+&nbsp;&nbsp;<span class="keyword">end</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_len&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;state.len&nbsp;-&nbsp;state.pos&nbsp;+&nbsp;len&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;new_len&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;data&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;len;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;new_buffer&nbsp;len&nbsp;(state.len&nbsp;-&nbsp;state.pos);
+
+&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0;
+&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;new_len;
+&nbsp;&nbsp;&nbsp;&nbsp;state.buffer&nbsp;&lt;-&nbsp;new_buffer;
+
+&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;k&nbsp;state
 &nbsp;&nbsp;<span class="keyword">end</span></code></body></html>

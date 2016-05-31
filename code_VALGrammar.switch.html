@@ -37,29 +37,29 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Grammar.switch</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;switch&nbsp;content&nbsp;p_body'&nbsp;p_discrete&nbsp;p_composite&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;switch\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">ContentType</span>.ty&nbsp;@@&nbsp;<span class="constructor">Content</span>.ty&nbsp;content&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;unknow&nbsp;case,&nbsp;so&nbsp;TODO!&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.other<br>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;discrete&nbsp;top-level&nbsp;media&nbsp;types&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.discrete&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_body'&nbsp;content&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_discrete&nbsp;data)&nbsp;state<br>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;composite&nbsp;top-level&nbsp;media&nbsp;types&nbsp;*)</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.composite&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;&nbsp;Content-Type&nbsp;field&nbsp;&nbsp;for&nbsp;multipart&nbsp;&nbsp;entities&nbsp;requires&nbsp;&nbsp;one&nbsp;parameter,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"boundary".&nbsp;&nbsp;The&nbsp;&nbsp;boundary&nbsp;&nbsp;delimiter&nbsp;line&nbsp;&nbsp;is&nbsp;&nbsp;then&nbsp;&nbsp;defined&nbsp;&nbsp;as&nbsp;&nbsp;a&nbsp;line<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;consisting&nbsp;&nbsp;entirely&nbsp;of&nbsp;&nbsp;two&nbsp;hyphen&nbsp;&nbsp;characters&nbsp;("-",&nbsp;&nbsp;decimal&nbsp;&nbsp;value&nbsp;45)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;followed&nbsp;by&nbsp;&nbsp;the&nbsp;boundary&nbsp;&nbsp;parameter&nbsp;value&nbsp;&nbsp;from&nbsp;the&nbsp;&nbsp;Content-Type&nbsp;header<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;field,&nbsp;optional&nbsp;linear&nbsp;whitespace,&nbsp;and&nbsp;a&nbsp;terminating&nbsp;CRLF.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;*)</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;parameters&nbsp;=&nbsp;<span class="constructor">ContentType</span>.parameters&nbsp;@@&nbsp;<span class="constructor">Content</span>.ty&nbsp;content&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;<span class="keyword">let</span>&nbsp;boundary&nbsp;=&nbsp;(<span class="constructor">Rfc2045</span>.value_to_string&nbsp;@@&nbsp;<span class="constructor">List</span>.assoc&nbsp;<span class="string">"boundary"</span>&nbsp;parameters)&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_multipart<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boundary<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_body&nbsp;(<span class="constructor">Some</span>&nbsp;boundary))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_composite&nbsp;data)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state<br>
+<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;switch&nbsp;content&nbsp;p_body'&nbsp;p_discrete&nbsp;p_composite&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;switch\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">ContentType</span>.ty&nbsp;@@&nbsp;<span class="constructor">Content</span>.ty&nbsp;content&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="comment">(*&nbsp;unknow&nbsp;case,&nbsp;so&nbsp;TODO!&nbsp;*)</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.other
+&nbsp;&nbsp;<span class="comment">(*&nbsp;discrete&nbsp;top-level&nbsp;media&nbsp;types&nbsp;*)</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.discrete&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_body'&nbsp;content&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_discrete&nbsp;data)&nbsp;state
+&nbsp;&nbsp;<span class="comment">(*&nbsp;composite&nbsp;top-level&nbsp;media&nbsp;types&nbsp;*)</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.composite&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5.1.1:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;&nbsp;Content-Type&nbsp;field&nbsp;&nbsp;for&nbsp;multipart&nbsp;&nbsp;entities&nbsp;requires&nbsp;&nbsp;one&nbsp;parameter,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"boundary".&nbsp;&nbsp;The&nbsp;&nbsp;boundary&nbsp;&nbsp;delimiter&nbsp;line&nbsp;&nbsp;is&nbsp;&nbsp;then&nbsp;&nbsp;defined&nbsp;&nbsp;as&nbsp;&nbsp;a&nbsp;line
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;consisting&nbsp;&nbsp;entirely&nbsp;of&nbsp;&nbsp;two&nbsp;hyphen&nbsp;&nbsp;characters&nbsp;("-",&nbsp;&nbsp;decimal&nbsp;&nbsp;value&nbsp;45)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;followed&nbsp;by&nbsp;&nbsp;the&nbsp;boundary&nbsp;&nbsp;parameter&nbsp;value&nbsp;&nbsp;from&nbsp;the&nbsp;&nbsp;Content-Type&nbsp;header
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;field,&nbsp;optional&nbsp;linear&nbsp;whitespace,&nbsp;and&nbsp;a&nbsp;terminating&nbsp;CRLF.
+&nbsp;&nbsp;&nbsp;&nbsp;*)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;parameters&nbsp;=&nbsp;<span class="constructor">ContentType</span>.parameters&nbsp;@@&nbsp;<span class="constructor">Content</span>.ty&nbsp;content&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;<span class="keyword">let</span>&nbsp;boundary&nbsp;=&nbsp;(<span class="constructor">Rfc2045</span>.value_to_string&nbsp;@@&nbsp;<span class="constructor">List</span>.assoc&nbsp;<span class="string">"boundary"</span>&nbsp;parameters)&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_multipart
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;boundary
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_body&nbsp;(<span class="constructor">Some</span>&nbsp;boundary))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_composite&nbsp;data)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Not_found</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_expected_boundary&nbsp;state))</code></body></html>

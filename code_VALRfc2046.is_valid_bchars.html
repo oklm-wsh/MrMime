@@ -37,11 +37,11 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.is_valid_bchars</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;is_valid_bchars&nbsp;str&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;i&nbsp;=&nbsp;ref&nbsp;0&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">while</span>&nbsp;!i&nbsp;&lt;&nbsp;<span class="constructor">String</span>.length&nbsp;str<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;is_bchars&nbsp;(<span class="constructor">String</span>.get&nbsp;str&nbsp;!i)<br>
-&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;incr&nbsp;i&nbsp;<span class="keyword">done</span>;<br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;is_valid_bchars&nbsp;str&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;i&nbsp;=&nbsp;ref&nbsp;0&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">while</span>&nbsp;!i&nbsp;&lt;&nbsp;<span class="constructor">String</span>.length&nbsp;str
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;is_bchars&nbsp;(<span class="constructor">String</span>.get&nbsp;str&nbsp;!i)
+&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;incr&nbsp;i&nbsp;<span class="keyword">done</span>;
+
 &nbsp;&nbsp;!i&nbsp;=&nbsp;<span class="constructor">String</span>.length&nbsp;str</code></body></html>

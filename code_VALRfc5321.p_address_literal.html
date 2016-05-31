@@ -37,10 +37,10 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5321.p_address_literal</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_address_literal&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;(p_ipv4_address_literal&nbsp;(<span class="keyword">fun</span>&nbsp;v4&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(v4,&nbsp;state)))<br>
-&nbsp;&nbsp;/&nbsp;((p_ipv6_address_literal&nbsp;(<span class="keyword">fun</span>&nbsp;v6&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(v6,&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_general_address_literal<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;(tag,&nbsp;content)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">General</span>&nbsp;(tag,&nbsp;content)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;ipv6&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">IPv6</span>&nbsp;ipv6)))<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_address_literal&nbsp;p&nbsp;=
+&nbsp;&nbsp;(p_ipv4_address_literal&nbsp;(<span class="keyword">fun</span>&nbsp;v4&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(v4,&nbsp;state)))
+&nbsp;&nbsp;/&nbsp;((p_ipv6_address_literal&nbsp;(<span class="keyword">fun</span>&nbsp;v6&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(v6,&nbsp;state)))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_general_address_literal
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;(tag,&nbsp;content)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">General</span>&nbsp;(tag,&nbsp;content)))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;ipv6&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">IPv6</span>&nbsp;ipv6)))
 &nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;ipv4&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">IPv4</span>&nbsp;ipv4))</code></body></html>

@@ -37,9 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.p_mime_message_headers</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_mime_message_headers&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mime_message_header\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"mime-version"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_version&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">MimeVersion</span>&nbsp;v)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_mime_message_headers&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mime_message_header\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"mime-version"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_version&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">MimeVersion</span>&nbsp;v)
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_field&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p</code></body></html>

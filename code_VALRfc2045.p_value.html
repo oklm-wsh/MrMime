@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.p_value</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_value&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_quoted_string&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))<br>
-&nbsp;&nbsp;/&nbsp;(p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;token))<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_value&nbsp;p&nbsp;=
+&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_quoted_string&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))
+&nbsp;&nbsp;/&nbsp;(p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;token))
 &nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;data))</code></body></html>

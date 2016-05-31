@@ -37,14 +37,14 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_obs_domain</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_obs_domain&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;cur_chr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_atom&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;o&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;o&nbsp;::&nbsp;acc)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_obs_domain&nbsp;p&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_atom&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;o&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;o&nbsp;::&nbsp;acc)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)
+&nbsp;&nbsp;<span class="keyword">in</span>
+
 &nbsp;&nbsp;p_atom&nbsp;(<span class="keyword">fun</span>&nbsp;first&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;[<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;first])</code></body></html>

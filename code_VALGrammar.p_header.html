@@ -37,11 +37,11 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Grammar.p_header</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_header&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_header\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;<span class="constructor">Rfc5322</span>.p_header<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc2045</span>.p_mime_message_headers<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;p&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_nothing_to_do&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;p&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_nothing_to_do&nbsp;state))))<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_header&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_header\n%!"</span>];
+
+&nbsp;&nbsp;<span class="constructor">Rfc5322</span>.p_header
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc2045</span>.p_mime_message_headers
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;p&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_nothing_to_do&nbsp;state)))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;p&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_nothing_to_do&nbsp;state))))
 &nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;state</code></body></html>

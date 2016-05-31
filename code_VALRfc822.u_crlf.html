@@ -37,9 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.u_crlf</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;u_crlf&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;u_crlf\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;u_chr&nbsp;<span class="string">'\r'</span>&nbsp;state;<br>
-&nbsp;&nbsp;u_chr&nbsp;<span class="string">'\n'</span>&nbsp;state;<br>
+<code class="code"><span class="keyword">let</span>&nbsp;u_crlf&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;u_crlf\n%!"</span>];
+
+&nbsp;&nbsp;u_chr&nbsp;<span class="string">'\r'</span>&nbsp;state;
+&nbsp;&nbsp;u_chr&nbsp;<span class="string">'\n'</span>&nbsp;state;
 &nbsp;&nbsp;p&nbsp;state</code></body></html>

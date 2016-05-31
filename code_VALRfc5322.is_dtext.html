@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.is_dtext</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;is_dtext&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\033'</span>&nbsp;..&nbsp;<span class="string">'\090'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\094'</span>&nbsp;..&nbsp;<span class="string">'\126'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;is_dtext&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\033'</span>&nbsp;..&nbsp;<span class="string">'\090'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\094'</span>&nbsp;..&nbsp;<span class="string">'\126'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;is_obs_no_ws_ctl&nbsp;chr</code></body></html>

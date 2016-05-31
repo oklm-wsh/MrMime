@@ -37,10 +37,10 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Base64.F.padding</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;padding&nbsp;(quantum,&nbsp;size)&nbsp;padding&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;size,&nbsp;padding&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0,&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1,&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2,&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3,&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;padding&nbsp;(quantum,&nbsp;size)&nbsp;padding&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;size,&nbsp;padding&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0,&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1,&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2,&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3,&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span></code></body></html>

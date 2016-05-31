@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BasePrinter.pp_word</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;pp_word&nbsp;fmt&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp_string&nbsp;fmt&nbsp;s<br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"\"%a\""</span>&nbsp;(pp_string&nbsp;~in_qs:<span class="keyword">true</span>&nbsp;~in_dm:<span class="keyword">false</span>)&nbsp;s<br>
+<code class="code"><span class="keyword">let</span>&nbsp;pp_word&nbsp;fmt&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp_string&nbsp;fmt&nbsp;s
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"\"%a\""</span>&nbsp;(pp_string&nbsp;~in_qs:<span class="keyword">true</span>&nbsp;~in_dm:<span class="keyword">false</span>)&nbsp;s
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;(charset,&nbsp;encoding,&nbsp;s)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp_string&nbsp;fmt&nbsp;s</code></body></html>

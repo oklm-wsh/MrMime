@@ -37,11 +37,11 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BasePrinter.pp_list</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;pp_list&nbsp;?(sep&nbsp;=&nbsp;<span class="string">""</span>)&nbsp;pp_data&nbsp;fmt&nbsp;lst&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[&nbsp;x&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp_data&nbsp;fmt&nbsp;x<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;x&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"%a%s"</span>&nbsp;pp_data&nbsp;x&nbsp;sep;&nbsp;aux&nbsp;r<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;pp_list&nbsp;?(sep&nbsp;=&nbsp;<span class="string">""</span>)&nbsp;pp_data&nbsp;fmt&nbsp;lst&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[&nbsp;x&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp_data&nbsp;fmt&nbsp;x
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;x&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"%a%s"</span>&nbsp;pp_data&nbsp;x&nbsp;sep;&nbsp;aux&nbsp;r
+&nbsp;&nbsp;<span class="keyword">in</span>
+
 &nbsp;&nbsp;aux&nbsp;lst</code></body></html>

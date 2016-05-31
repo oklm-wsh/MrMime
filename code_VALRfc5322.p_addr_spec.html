@@ -37,10 +37,10 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_addr_spec</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_addr_spec&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_addr_spec\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;p_local_part<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;local_part&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'@'</span><br>
-&nbsp;&nbsp;@&nbsp;p_domain<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_addr_spec&nbsp;p&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_addr_spec\n%!"</span>];
+
+&nbsp;&nbsp;p_local_part
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;local_part&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'@'</span>
+&nbsp;&nbsp;@&nbsp;p_domain
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(local_part,&nbsp;domain)</code></body></html>

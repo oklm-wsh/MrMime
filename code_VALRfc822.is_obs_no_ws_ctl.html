@@ -37,10 +37,10 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.is_obs_no_ws_ctl</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;is_obs_no_ws_ctl&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\001'</span>&nbsp;..&nbsp;<span class="string">'\008'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\011'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\012'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\014'</span>&nbsp;..&nbsp;<span class="string">'\031'</span><br>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\127'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;is_obs_no_ws_ctl&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\001'</span>&nbsp;..&nbsp;<span class="string">'\008'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\011'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\012'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\014'</span>&nbsp;..&nbsp;<span class="string">'\031'</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\127'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span></code></body></html>

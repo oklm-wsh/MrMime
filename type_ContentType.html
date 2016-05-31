@@ -37,19 +37,19 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>ContentType</title>
 </head>
 <body>
-<code class="code"><span class="keyword">sig</span><br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;ty&nbsp;=&nbsp;<span class="constructor">Rfc2045</span>.ty<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;subty&nbsp;=&nbsp;<span class="constructor">Rfc2045</span>.subty<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;value&nbsp;=&nbsp;<span class="constructor">Rfc2045</span>.value<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;ty&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.ty<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;subty&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.subty<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;parameters&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(string&nbsp;*&nbsp;<span class="constructor">Rfc2045</span>.value)&nbsp;list<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;make&nbsp;:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;?parameters:(string&nbsp;*&nbsp;<span class="constructor">ContentType</span>.value)&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">ContentType</span>.ty&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.subty&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;default&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc2045</span>.content&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;ty&nbsp;=&nbsp;<span class="constructor">Rfc2045</span>.ty
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;subty&nbsp;=&nbsp;<span class="constructor">Rfc2045</span>.subty
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;value&nbsp;=&nbsp;<span class="constructor">Rfc2045</span>.value
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;ty&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.ty
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;subty&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.subty
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;parameters&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(string&nbsp;*&nbsp;<span class="constructor">Rfc2045</span>.value)&nbsp;list
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;make&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;?parameters:(string&nbsp;*&nbsp;<span class="constructor">ContentType</span>.value)&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">ContentType</span>.ty&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.subty&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;default&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc2045</span>.content&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool
 <span class="keyword">end</span></code></body></html>

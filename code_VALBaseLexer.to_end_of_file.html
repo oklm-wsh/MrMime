@@ -37,33 +37,33 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseLexer.to_end_of_file</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;to_end_of_file&nbsp;k&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;to_end_of_file\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&gt;&nbsp;0<br>
-&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;state.buffer&nbsp;0&nbsp;(state.len&nbsp;-&nbsp;state.pos);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;state.len&nbsp;-&nbsp;state.pos;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0<br>
-&nbsp;&nbsp;<span class="keyword">end</span>;<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;off&nbsp;=&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;state.len&nbsp;&lt;-&nbsp;off;&nbsp;safe&nbsp;k&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;to_end_of_file/continue&nbsp;[%d]\n%!"</span>&nbsp;(off&nbsp;+&nbsp;n)];<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;off&nbsp;+&nbsp;n&nbsp;&gt;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;(2&nbsp;*&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;+&nbsp;1)&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;(<span class="constructor">Bytes</span>.length&nbsp;state.buffer);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.buffer&nbsp;&lt;-&nbsp;new_buffer;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(state.buffer,&nbsp;off&nbsp;+&nbsp;n,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;(off&nbsp;+&nbsp;n),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;(off&nbsp;+&nbsp;n))<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(state.buffer,&nbsp;state.len,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;state.len,<br>
+<code class="code"><span class="keyword">let</span>&nbsp;to_end_of_file&nbsp;k&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;to_end_of_file\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&gt;&nbsp;0
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;state.buffer&nbsp;0&nbsp;(state.len&nbsp;-&nbsp;state.pos);
+&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;state.len&nbsp;-&nbsp;state.pos;
+&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0
+&nbsp;&nbsp;<span class="keyword">end</span>;
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;off&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;state.len&nbsp;&lt;-&nbsp;off;&nbsp;safe&nbsp;k&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;to_end_of_file/continue&nbsp;[%d]\n%!"</span>&nbsp;(off&nbsp;+&nbsp;n)];
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;off&nbsp;+&nbsp;n&nbsp;&gt;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;(2&nbsp;*&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;+&nbsp;1)&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;(<span class="constructor">Bytes</span>.length&nbsp;state.buffer);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.buffer&nbsp;&lt;-&nbsp;new_buffer;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(state.buffer,&nbsp;off&nbsp;+&nbsp;n,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;(off&nbsp;+&nbsp;n),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;(off&nbsp;+&nbsp;n))
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(state.buffer,&nbsp;state.len,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;state.len,
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;state.len)</code></body></html>

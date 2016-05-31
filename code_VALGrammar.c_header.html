@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Grammar.c_header</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;c_header&nbsp;fields&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Header</span>.of_lexer&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.unstrict&nbsp;fields<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;header&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Content</span>.of_lexer&nbsp;rest<br>
+<code class="code"><span class="keyword">let</span>&nbsp;c_header&nbsp;fields&nbsp;p&nbsp;=
+&nbsp;&nbsp;<span class="constructor">Header</span>.of_lexer&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.unstrict&nbsp;fields
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;header&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Content</span>.of_lexer&nbsp;rest
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;content&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;header&nbsp;content</code></body></html>

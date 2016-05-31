@@ -37,14 +37,14 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseLexer.has_line</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;has_line&nbsp;buff&nbsp;off&nbsp;len&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;cr_read&nbsp;j&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;j&nbsp;&gt;=&nbsp;len&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">false</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Bytes</span>.get&nbsp;buff&nbsp;j&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\n'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;cr_read&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">true</span>&nbsp;<span class="keyword">else</span>&nbsp;loop&nbsp;<span class="keyword">false</span>&nbsp;(j&nbsp;+&nbsp;1)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\r'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;<span class="keyword">true</span>&nbsp;(j&nbsp;+&nbsp;1)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;<span class="keyword">false</span>&nbsp;(j&nbsp;+&nbsp;1)<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;has_line&nbsp;buff&nbsp;off&nbsp;len&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;cr_read&nbsp;j&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;j&nbsp;&gt;=&nbsp;len&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">false</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Bytes</span>.get&nbsp;buff&nbsp;j&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\n'</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;cr_read&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">true</span>&nbsp;<span class="keyword">else</span>&nbsp;loop&nbsp;<span class="keyword">false</span>&nbsp;(j&nbsp;+&nbsp;1)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\r'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;<span class="keyword">true</span>&nbsp;(j&nbsp;+&nbsp;1)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;<span class="keyword">false</span>&nbsp;(j&nbsp;+&nbsp;1)
+&nbsp;&nbsp;<span class="keyword">in</span>
 &nbsp;&nbsp;loop&nbsp;<span class="keyword">false</span>&nbsp;off</code></body></html>

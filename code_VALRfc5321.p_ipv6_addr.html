@@ -37,12 +37,12 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5321.p_ipv6_addr</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_ipv6_addr&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pos&nbsp;=&nbsp;ref&nbsp;state.<span class="constructor">Lexer</span>.pos&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">try</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ip&nbsp;&nbsp;=&nbsp;<span class="constructor">Ipaddr</span>.<span class="constructor">V6</span>.of_string_raw&nbsp;state.<span class="constructor">Lexer</span>.buffer&nbsp;pos&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state.<span class="constructor">Lexer</span>.pos&nbsp;&lt;-&nbsp;!pos;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;ip&nbsp;state<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_ipv6_addr&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pos&nbsp;=&nbsp;ref&nbsp;state.<span class="constructor">Lexer</span>.pos&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">try</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ip&nbsp;&nbsp;=&nbsp;<span class="constructor">Ipaddr</span>.<span class="constructor">V6</span>.of_string_raw&nbsp;state.<span class="constructor">Lexer</span>.buffer&nbsp;pos&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;state.<span class="constructor">Lexer</span>.pos&nbsp;&lt;-&nbsp;!pos;
+&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;ip&nbsp;state
 &nbsp;&nbsp;<span class="keyword">with</span>&nbsp;exn&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_ipv6&nbsp;state))</code></body></html>

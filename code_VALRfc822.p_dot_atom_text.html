@@ -37,16 +37,16 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_dot_atom_text</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_dot_atom_text&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;next&nbsp;acc&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;cur_chr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_atext<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;atext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;atext&nbsp;::&nbsp;acc)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;p_atext<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_dot_atom_text&nbsp;p&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;next&nbsp;acc&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;cur_chr
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_atext
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;atext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;(<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;atext&nbsp;::&nbsp;acc)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;p_atext
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;atext&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;next&nbsp;[<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;atext]</code></body></html>

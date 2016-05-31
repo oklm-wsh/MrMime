@@ -1230,7 +1230,7 @@ let p_keywords p =
 let p_field extend field p =
   [%debug Printf.printf "state: p_field (RFC 5322) %s\n%!" field];
 
-  let rule p = match String.lowercase field with
+  let rule p = match String.lowercase_ascii field with
     (* See RFC 5322 § 3.6.1 & 4.5.1:
 
        orig-date       = "Date:" date-time CRLF

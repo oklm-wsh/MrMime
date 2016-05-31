@@ -37,19 +37,19 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_date_time</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_date_time&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;aux&nbsp;day&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;p_date<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;(d,&nbsp;m,&nbsp;y)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_time<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;((hh,&nbsp;mm,&nbsp;ss),&nbsp;tz)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(day,&nbsp;(d,&nbsp;m,&nbsp;y),&nbsp;(hh,&nbsp;mm,&nbsp;ss),&nbsp;tz)<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;p_fws<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_alpha&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_day_of_week<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;day&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">','</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;aux&nbsp;(<span class="constructor">Some</span>&nbsp;day)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_date_time&nbsp;p&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;aux&nbsp;day&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;p_date
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;(d,&nbsp;m,&nbsp;y)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_time
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;((hh,&nbsp;mm,&nbsp;ss),&nbsp;tz)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(day,&nbsp;(d,&nbsp;m,&nbsp;y),&nbsp;(hh,&nbsp;mm,&nbsp;ss),&nbsp;tz)
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;p_fws
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
+&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_alpha&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_day_of_week
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;day&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">','</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;aux&nbsp;(<span class="constructor">Some</span>&nbsp;day)
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;aux&nbsp;<span class="constructor">None</span></code></body></html>

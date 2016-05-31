@@ -37,10 +37,10 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T.add_newline</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;t&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;chr&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;t&nbsp;chr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;());<br>
-&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;<br>
+<code class="code"><span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;t&nbsp;chr&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;chr&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;t&nbsp;chr
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;());
+&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;
 &nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;0</code></body></html>

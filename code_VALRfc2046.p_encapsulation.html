@@ -37,9 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.p_encapsulation</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_encapsulation&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_encapsulation\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;(p_delimiter&nbsp;boundary<br>
-&nbsp;&nbsp;&nbsp;@&nbsp;p_transport_padding&nbsp;@&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p_body_part&nbsp;boundary&nbsp;p_octet&nbsp;p)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_encapsulation&nbsp;boundary&nbsp;p_octet&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_encapsulation\n%!"</span>];
+
+&nbsp;&nbsp;(p_delimiter&nbsp;boundary
+&nbsp;&nbsp;&nbsp;@&nbsp;p_transport_padding&nbsp;@&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p_body_part&nbsp;boundary&nbsp;p_octet&nbsp;p)
 &nbsp;&nbsp;state</code></body></html>

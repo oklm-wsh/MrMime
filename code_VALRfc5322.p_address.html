@@ -37,9 +37,9 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_address</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_address&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_address\n%!"</span>];<br>
-<br>
-&nbsp;&nbsp;(p_group&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))<br>
-&nbsp;&nbsp;/&nbsp;(p_mailbox&nbsp;(<span class="keyword">fun</span>&nbsp;mailbox&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Person</span>&nbsp;mailbox)))<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_address&nbsp;p&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_address\n%!"</span>];
+
+&nbsp;&nbsp;(p_group&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))
+&nbsp;&nbsp;/&nbsp;(p_mailbox&nbsp;(<span class="keyword">fun</span>&nbsp;mailbox&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Person</span>&nbsp;mailbox)))
 &nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;group&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Group</span>&nbsp;group)&nbsp;state)</code></body></html>

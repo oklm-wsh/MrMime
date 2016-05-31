@@ -37,15 +37,15 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_keywords</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_keywords&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;p&nbsp;acc&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;p_phrase<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">','</span>&nbsp;@&nbsp;loop&nbsp;p&nbsp;(s&nbsp;::&nbsp;acc)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_phrase_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;(<span class="constructor">List</span>.concat&nbsp;[acc;&nbsp;l]))<br>
-&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;(p_phrase&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keyword">fun</span>&nbsp;s&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(s,&nbsp;state))&nbsp;[s])<br>
-&nbsp;&nbsp;/&nbsp;(p_obs_phrase_list&nbsp;p)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_keywords&nbsp;p&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;p&nbsp;acc&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;p_phrase
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
+&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">','</span>&nbsp;@&nbsp;loop&nbsp;p&nbsp;(s&nbsp;::&nbsp;acc)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_obs_phrase_list&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;(<span class="constructor">List</span>.concat&nbsp;[acc;&nbsp;l]))
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;(p_phrase&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(<span class="keyword">fun</span>&nbsp;s&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(s,&nbsp;state))&nbsp;[s])
+&nbsp;&nbsp;/&nbsp;(p_obs_phrase_list&nbsp;p)
 &nbsp;&nbsp;@&nbsp;p</code></body></html>

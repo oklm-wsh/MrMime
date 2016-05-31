@@ -37,10 +37,10 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T.commit_word</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;commit_word&nbsp;buf&nbsp;({&nbsp;position;&nbsp;word;&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;<br>
+<code class="code"><span class="keyword">let</span>&nbsp;commit_word&nbsp;buf&nbsp;({&nbsp;position;&nbsp;word;&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;add_break&nbsp;buf&nbsp;t;
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_buffer&nbsp;buf&nbsp;word;
+&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;t.position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word;
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word</code></body></html>

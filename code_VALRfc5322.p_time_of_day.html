@@ -37,14 +37,14 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_time_of_day</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_time_of_day&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_hour<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;hh&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">':'</span><br>
-&nbsp;&nbsp;@&nbsp;p_minute<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;mm&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">':'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">':'</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_second<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;ss&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;has_fws&nbsp;(hh,&nbsp;mm,&nbsp;<span class="constructor">Some</span>&nbsp;ss)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_time_of_day&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_hour
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;hh&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">':'</span>
+&nbsp;&nbsp;@&nbsp;p_minute
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;mm&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
+&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">':'</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">':'</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_second
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;ss&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;has_fws&nbsp;(hh,&nbsp;mm,&nbsp;<span class="constructor">Some</span>&nbsp;ss)
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;has_fws&nbsp;(hh,&nbsp;mm,&nbsp;<span class="constructor">None</span>)</code></body></html>

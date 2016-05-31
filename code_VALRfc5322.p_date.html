@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_date</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_date&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_day<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_month<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_year&nbsp;<span class="keyword">false</span><br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_date&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_day
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_month
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_year&nbsp;<span class="keyword">false</span>
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;y&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(d,&nbsp;m,&nbsp;y)</code></body></html>

@@ -37,11 +37,11 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.is_valid_atext</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;is_valid_atext&nbsp;text&nbsp;=<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;i&nbsp;=&nbsp;ref&nbsp;0&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">while</span>&nbsp;!i&nbsp;&lt;&nbsp;<span class="constructor">String</span>.length&nbsp;text<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;is_atext&nbsp;(<span class="constructor">String</span>.get&nbsp;text&nbsp;!i)<br>
-&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;incr&nbsp;i&nbsp;<span class="keyword">done</span>;<br>
-<br>
+<code class="code"><span class="keyword">let</span>&nbsp;is_valid_atext&nbsp;text&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;i&nbsp;=&nbsp;ref&nbsp;0&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">while</span>&nbsp;!i&nbsp;&lt;&nbsp;<span class="constructor">String</span>.length&nbsp;text
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;is_atext&nbsp;(<span class="constructor">String</span>.get&nbsp;text&nbsp;!i)
+&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;incr&nbsp;i&nbsp;<span class="keyword">done</span>;
+
 &nbsp;&nbsp;!i&nbsp;=&nbsp;<span class="constructor">String</span>.length&nbsp;text</code></body></html>

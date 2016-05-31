@@ -37,12 +37,12 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_msg_id</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_msg_id&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_cfws<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'&lt;'</span><br>
-&nbsp;&nbsp;@&nbsp;p_id_left<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;left&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'@'</span><br>
-&nbsp;&nbsp;@&nbsp;p_id_right<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;right&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'&gt;'</span><br>
-&nbsp;&nbsp;@&nbsp;p_cfws<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_msg_id&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_cfws
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'&lt;'</span>
+&nbsp;&nbsp;@&nbsp;p_id_left
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;left&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'@'</span>
+&nbsp;&nbsp;@&nbsp;p_id_right
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;right&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'&gt;'</span>
+&nbsp;&nbsp;@&nbsp;p_cfws
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(left,&nbsp;right)</code></body></html>

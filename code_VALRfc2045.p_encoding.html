@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.p_encoding</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_encoding&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mechanism<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_encoding&nbsp;p&nbsp;=
+&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mechanism
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;e</code></body></html>

@@ -37,23 +37,23 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Base64.F.add</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;add&nbsp;(quantum,&nbsp;size)&nbsp;chr&nbsp;buf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;code&nbsp;=&nbsp;<span class="constructor">Char</span>.code&nbsp;(_of.[<span class="constructor">Char</span>.code&nbsp;chr])&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">assert</span>&nbsp;(code&nbsp;&lt;&nbsp;64);<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;size&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(code,&nbsp;1)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;((quantum&nbsp;<span class="keyword">lsl</span>&nbsp;6)&nbsp;<span class="keyword">lor</span>&nbsp;code,&nbsp;2)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;((quantum&nbsp;<span class="keyword">lsl</span>&nbsp;6)&nbsp;<span class="keyword">lor</span>&nbsp;code,&nbsp;3)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a&nbsp;=&nbsp;&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;10)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;255&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;2)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;255&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;((quantum&nbsp;<span class="keyword">lsl</span>&nbsp;6)&nbsp;&nbsp;<span class="keyword">lor</span>&nbsp;code)&nbsp;<span class="keyword">land</span>&nbsp;255&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(<span class="constructor">Char</span>.chr&nbsp;a);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(<span class="constructor">Char</span>.chr&nbsp;b);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(<span class="constructor">Char</span>.chr&nbsp;c);<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(0,&nbsp;0)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;add&nbsp;(quantum,&nbsp;size)&nbsp;chr&nbsp;buf&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;code&nbsp;=&nbsp;<span class="constructor">Char</span>.code&nbsp;(_of.[<span class="constructor">Char</span>.code&nbsp;chr])&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">assert</span>&nbsp;(code&nbsp;&lt;&nbsp;64);
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;size&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(code,&nbsp;1)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;((quantum&nbsp;<span class="keyword">lsl</span>&nbsp;6)&nbsp;<span class="keyword">lor</span>&nbsp;code,&nbsp;2)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;((quantum&nbsp;<span class="keyword">lsl</span>&nbsp;6)&nbsp;<span class="keyword">lor</span>&nbsp;code,&nbsp;3)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a&nbsp;=&nbsp;&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;10)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;255&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;2)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;255&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;((quantum&nbsp;<span class="keyword">lsl</span>&nbsp;6)&nbsp;&nbsp;<span class="keyword">lor</span>&nbsp;code)&nbsp;<span class="keyword">land</span>&nbsp;255&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(<span class="constructor">Char</span>.chr&nbsp;a);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(<span class="constructor">Char</span>.chr&nbsp;b);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(<span class="constructor">Char</span>.chr&nbsp;c);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(0,&nbsp;0)
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span></code></body></html>

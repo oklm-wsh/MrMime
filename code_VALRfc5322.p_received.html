@@ -37,12 +37,12 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_received</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_received&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_received_token<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">';'</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_date_time<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;date_time&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(l,&nbsp;<span class="constructor">Some</span>&nbsp;date_time)<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_received&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_received_token
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
+&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_chr&nbsp;<span class="string">';'</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_date_time
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;date_time&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(l,&nbsp;<span class="constructor">Some</span>&nbsp;date_time)
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(l,&nbsp;<span class="constructor">None</span>)</code></body></html>

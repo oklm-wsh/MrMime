@@ -37,13 +37,13 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T.add_quoted_char</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;wrap_bigword&nbsp;buf&nbsp;t&nbsp;3;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;code&nbsp;=&nbsp;<span class="constructor">Char</span>.code&nbsp;chr&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;h&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(code&nbsp;<span class="keyword">lsr</span>&nbsp;4)&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;l&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;<span class="string">'='</span>;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[h];<br>
+<code class="code"><span class="keyword">let</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;chr&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;wrap_bigword&nbsp;buf&nbsp;t&nbsp;3;
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;code&nbsp;=&nbsp;<span class="constructor">Char</span>.code&nbsp;chr&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;h&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(code&nbsp;<span class="keyword">lsr</span>&nbsp;4)&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;l&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;<span class="string">'='</span>;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[h];
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[l]</code></body></html>

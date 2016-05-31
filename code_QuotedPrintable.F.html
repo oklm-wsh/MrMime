@@ -37,29 +37,29 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.F</title>
 </head>
 <body>
-<code class="code"><span class="keyword">struct</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hex&nbsp;a&nbsp;b&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;aux&nbsp;code&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;code&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'0'</span>..<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'0'</span>)&nbsp;+&nbsp;0<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>..<span class="string">'F'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'A'</span>)&nbsp;+&nbsp;10<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>..<span class="string">'f'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'a'</span>)&nbsp;+&nbsp;10<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"QuotedPrintable.F.hex"</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Char</span>.chr&nbsp;(((aux&nbsp;a)&nbsp;*&nbsp;16)&nbsp;+&nbsp;(aux&nbsp;b))<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hex&nbsp;s&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;aux&nbsp;code&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;code&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'0'</span>..<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'0'</span>)&nbsp;+&nbsp;0<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>..<span class="string">'F'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'A'</span>)&nbsp;+&nbsp;10<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>..<span class="string">'f'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'a'</span>)&nbsp;+&nbsp;10<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"QuotedPrintable.F.hex"</span>)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Char</span>.chr&nbsp;((aux&nbsp;(<span class="constructor">String</span>.get&nbsp;s&nbsp;0)&nbsp;*&nbsp;16)&nbsp;+&nbsp;(aux&nbsp;(<span class="constructor">String</span>.get&nbsp;s&nbsp;1)))<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_char&nbsp;buf&nbsp;chr&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_string&nbsp;buf&nbsp;str&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buf&nbsp;str<br>
+<code class="code"><span class="keyword">struct</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hex&nbsp;a&nbsp;b&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;aux&nbsp;code&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;code&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'0'</span>..<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'0'</span>)&nbsp;+&nbsp;0
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>..<span class="string">'F'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'A'</span>)&nbsp;+&nbsp;10
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>..<span class="string">'f'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'a'</span>)&nbsp;+&nbsp;10
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"QuotedPrintable.F.hex"</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Char</span>.chr&nbsp;(((aux&nbsp;a)&nbsp;*&nbsp;16)&nbsp;+&nbsp;(aux&nbsp;b))
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hex&nbsp;s&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;aux&nbsp;code&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;code&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'0'</span>..<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'0'</span>)&nbsp;+&nbsp;0
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>..<span class="string">'F'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'A'</span>)&nbsp;+&nbsp;10
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>..<span class="string">'f'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Char</span>.code&nbsp;code)&nbsp;-&nbsp;(<span class="constructor">Char</span>.code&nbsp;<span class="string">'a'</span>)&nbsp;+&nbsp;10
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Invalid_argument</span>&nbsp;<span class="string">"QuotedPrintable.F.hex"</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Char</span>.chr&nbsp;((aux&nbsp;(<span class="constructor">String</span>.get&nbsp;s&nbsp;0)&nbsp;*&nbsp;16)&nbsp;+&nbsp;(aux&nbsp;(<span class="constructor">String</span>.get&nbsp;s&nbsp;1)))
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_char&nbsp;buf&nbsp;chr&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_string&nbsp;buf&nbsp;str&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buf&nbsp;str
 <span class="keyword">end</span></code></body></html>

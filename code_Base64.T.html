@@ -37,96 +37,96 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Base64.T</title>
 </head>
 <body>
-<code class="code"><span class="keyword">struct</span><br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_to&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"</span><br>
-<br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buffer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">Bytes</span>.t;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">mutable</span>&nbsp;seek&nbsp;:&nbsp;int;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">mutable</span>&nbsp;cnum&nbsp;:&nbsp;int;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrap&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;bool;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;make&nbsp;?(wrap&nbsp;=&nbsp;<span class="keyword">true</span>)&nbsp;()&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.make&nbsp;2&nbsp;(<span class="constructor">Char</span>.chr&nbsp;255)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;seek&nbsp;=&nbsp;0<br>
-&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;cnum&nbsp;=&nbsp;0<br>
-&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;wrap&nbsp;}<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wrap&nbsp;t&nbsp;buf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;t.cnum&nbsp;&lt;-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.cnum&nbsp;+&nbsp;4&nbsp;&gt;&nbsp;76<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;(<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;&nbsp;0)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;t.cnum&nbsp;+&nbsp;4<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add&nbsp;t&nbsp;chr&nbsp;buf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.seek&nbsp;&gt;=&nbsp;2<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">assert</span>&nbsp;(t.seek&nbsp;=&nbsp;2);<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a,&nbsp;b,&nbsp;c&nbsp;=&nbsp;t.buffer.[0],&nbsp;t.buffer.[1],&nbsp;chr&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.wrap&nbsp;<span class="keyword">then</span>&nbsp;wrap&nbsp;t&nbsp;buf;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.seek&nbsp;&lt;-&nbsp;0;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quantum&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;a)&nbsp;<span class="keyword">lsl</span>&nbsp;16)&nbsp;+<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;b)&nbsp;<span class="keyword">lsl</span>&nbsp;8&nbsp;)&nbsp;+<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;c))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a&nbsp;=&nbsp;&nbsp;quantum&nbsp;<span class="keyword">lsr</span>&nbsp;18&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;12)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;6&nbsp;)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;d&nbsp;=&nbsp;&nbsp;quantum&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;_to.[a];<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;_to.[b];<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;_to.[c];<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;_to.[d]<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.set&nbsp;t.buffer&nbsp;t.seek&nbsp;chr;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.seek&nbsp;&lt;-&nbsp;t.seek&nbsp;+&nbsp;1<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;t<br>
-<br>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;flush&nbsp;t&nbsp;buf&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.wrap&nbsp;<span class="keyword">then</span>&nbsp;wrap&nbsp;t&nbsp;buf;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;t.seek&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b,&nbsp;c&nbsp;=&nbsp;t.buffer.[0],&nbsp;t.buffer.[1]&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.seek&nbsp;&lt;-&nbsp;0;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quantum&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;b)&nbsp;<span class="keyword">lsl</span>&nbsp;10)&nbsp;+<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;c)&nbsp;<span class="keyword">lsl</span>&nbsp;2&nbsp;)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;12)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;6&nbsp;)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;d&nbsp;=&nbsp;&nbsp;quantum&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[b]);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[c]);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[d]);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'='</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;t.buffer.[0]&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.seek&nbsp;&lt;-&nbsp;0;<br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quantum&nbsp;=<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;c)&nbsp;<span class="keyword">lsl</span>&nbsp;4)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span><br>
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;6)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;d&nbsp;=&nbsp;&nbsp;quantum&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[c]);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[d]);<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'='</span>;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'='</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span><br>
+<code class="code"><span class="keyword">struct</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_to&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"</span>
+
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buffer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">Bytes</span>.t;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">mutable</span>&nbsp;seek&nbsp;:&nbsp;int;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">mutable</span>&nbsp;cnum&nbsp;:&nbsp;int;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrap&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;bool;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;make&nbsp;?(wrap&nbsp;=&nbsp;<span class="keyword">true</span>)&nbsp;()&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.make&nbsp;2&nbsp;(<span class="constructor">Char</span>.chr&nbsp;255)
+&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;seek&nbsp;=&nbsp;0
+&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;cnum&nbsp;=&nbsp;0
+&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;wrap&nbsp;}
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wrap&nbsp;t&nbsp;buf&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;t.cnum&nbsp;&lt;-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.cnum&nbsp;+&nbsp;4&nbsp;&gt;&nbsp;76
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;(<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;&nbsp;0)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;t.cnum&nbsp;+&nbsp;4
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add&nbsp;t&nbsp;chr&nbsp;buf&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.seek&nbsp;&gt;=&nbsp;2
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">assert</span>&nbsp;(t.seek&nbsp;=&nbsp;2);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a,&nbsp;b,&nbsp;c&nbsp;=&nbsp;t.buffer.[0],&nbsp;t.buffer.[1],&nbsp;chr&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.wrap&nbsp;<span class="keyword">then</span>&nbsp;wrap&nbsp;t&nbsp;buf;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.seek&nbsp;&lt;-&nbsp;0;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quantum&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;a)&nbsp;<span class="keyword">lsl</span>&nbsp;16)&nbsp;+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;b)&nbsp;<span class="keyword">lsl</span>&nbsp;8&nbsp;)&nbsp;+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;c))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a&nbsp;=&nbsp;&nbsp;quantum&nbsp;<span class="keyword">lsr</span>&nbsp;18&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;12)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;6&nbsp;)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;d&nbsp;=&nbsp;&nbsp;quantum&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;_to.[a];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;_to.[b];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;_to.[c];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;_to.[d]
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.set&nbsp;t.buffer&nbsp;t.seek&nbsp;chr;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.seek&nbsp;&lt;-&nbsp;t.seek&nbsp;+&nbsp;1
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;
+
+&nbsp;&nbsp;&nbsp;&nbsp;t
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;flush&nbsp;t&nbsp;buf&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;t.wrap&nbsp;<span class="keyword">then</span>&nbsp;wrap&nbsp;t&nbsp;buf;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;t.seek&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b,&nbsp;c&nbsp;=&nbsp;t.buffer.[0],&nbsp;t.buffer.[1]&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.seek&nbsp;&lt;-&nbsp;0;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quantum&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;b)&nbsp;<span class="keyword">lsl</span>&nbsp;10)&nbsp;+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;c)&nbsp;<span class="keyword">lsl</span>&nbsp;2&nbsp;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;12)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;6&nbsp;)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;d&nbsp;=&nbsp;&nbsp;quantum&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[b]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[c]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[d]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'='</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;t.buffer.[0]&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.seek&nbsp;&lt;-&nbsp;0;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;quantum&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">Char</span>.code&nbsp;c)&nbsp;<span class="keyword">lsl</span>&nbsp;4)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;c&nbsp;=&nbsp;(quantum&nbsp;<span class="keyword">lsr</span>&nbsp;6)&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;d&nbsp;=&nbsp;&nbsp;quantum&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;63&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[c]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;(_to.[d]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'='</span>;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'='</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span>
 <span class="keyword">end</span></code></body></html>

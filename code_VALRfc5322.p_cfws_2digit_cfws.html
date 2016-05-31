@@ -37,8 +37,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_cfws_2digit_cfws</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_cfws_2digit_cfws&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;p_cfws<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(2&nbsp;*&nbsp;2)&nbsp;is_digit<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws<br>
+<code class="code"><span class="keyword">let</span>&nbsp;p_cfws_2digit_cfws&nbsp;p&nbsp;=
+&nbsp;&nbsp;p_cfws
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(2&nbsp;*&nbsp;2)&nbsp;is_digit
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws
 &nbsp;&nbsp;@&nbsp;p&nbsp;(int_of_string&nbsp;n)</code></body></html>
