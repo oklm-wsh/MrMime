@@ -2,9 +2,8 @@ S lib/
 
 B _build/lib/
 
-FLG -ppx './_build/ppx/ppx_debug.byte -debug'
 FLAG -safe-string
 
-PKG alcotest logs logs.cli logs.fmt ipaddr
+PKG alcotest ipaddr
 PKG cmdliner compiler-libs xmlm ppx_tools.metaquot ppx_tools
 PKG lwt cohttp.lwt uri tls.lwt jackson
