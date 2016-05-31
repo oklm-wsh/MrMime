@@ -43,7 +43,6 @@ let () = dispatch
    | After_hygiene ->
      dep ["ppx_mtype"] ["mtype.xml"];
      dep ["ppx_mtype"] [ppx_mtype];
-     dep ["ppx_debug"] [ppx_debug];
 
      flag [ "ocaml"; "ocamldep"; "ppx_mtype" ] (S [A "-ppx"; A cmd_mtype]);
      flag [ "ocaml"; "compile"; "ppx_mtype" ]  (S [A "-ppx"; A cmd_mtype]);
@@ -56,14 +55,7 @@ let () = dispatch
      flag [ "ocaml"; "compile"; "ppx_tag" ]  (S [A "-ppx"; A cmd_tag]);
      flag [ "ocaml"; "link"; "ppx_tag" ]     (S [A "-ppx"; A cmd_tag]);
 
-     if trace
-     then begin
-       flag_and_dep [ "ocaml"; "ocamldep"; "ppx_debug" ]  logs;
-       flag_and_dep [ "ocaml"; "compile";  "ppx_debug" ]  logs;
-       flag_and_dep [ "ocaml"; "ocamldep"; "use_mrmime" ] logs;
-       flag_and_dep [ "ocaml"; "compile";  "use_mrmime" ] logs;
-       flag_and_dep [ "ocaml"; "link";     "use_mrmime" ] logs;
-     end;
+     dep ["ppx_debug"] [ppx_debug];
 
      flag [ "ocaml"; "ocamldep"; "ppx_debug" ] (S [ A "-ppx"; A (cmd_debug trace) ]);
      flag [ "ocaml"; "compile";  "ppx_debug" ] (S [ A "-ppx"; A (cmd_debug trace) ]);
