@@ -1298,7 +1298,6 @@ let p_field extend field p =
         (extend field @ p)
   in
 
-  (*
   (rule @ fun field state -> `Ok (field, state))
   / (p_unstructured
      @ fun l -> p_crlf
@@ -1306,7 +1305,6 @@ let p_field extend field p =
        [%debug Printf.printf "state: p_field (RFC 5322) fail with %s\n%!" field];
        p (`Unsafe (field, l)) state)
   @ p
-  *) rule p
 
 let p_header extend p =
   [%debug Printf.printf "state: p_header (RFC 5322)\n%!"];
