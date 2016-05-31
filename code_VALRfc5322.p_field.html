@@ -147,12 +147,10 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(extend&nbsp;field&nbsp;@&nbsp;p)
 &nbsp;&nbsp;<span class="keyword">in</span>
 
-&nbsp;&nbsp;<span class="comment">(*
-&nbsp;&nbsp;(rule&nbsp;@&nbsp;fun&nbsp;field&nbsp;state&nbsp;-&gt;&nbsp;`Ok&nbsp;(field,&nbsp;state))
+&nbsp;&nbsp;(rule&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(field,&nbsp;state))
 &nbsp;&nbsp;/&nbsp;(p_unstructured
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;fun&nbsp;l&nbsp;-&gt;&nbsp;p_crlf
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;fun&nbsp;state&nbsp;-&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;Printf.printf&nbsp;"state:&nbsp;p_field&nbsp;(RFC&nbsp;5322)&nbsp;fail&nbsp;with&nbsp;%s\n%!"&nbsp;field];
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(`Unsafe&nbsp;(field,&nbsp;l))&nbsp;state)
-&nbsp;&nbsp;@&nbsp;p
-&nbsp;&nbsp;*)</span>&nbsp;rule&nbsp;p</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_field&nbsp;(RFC&nbsp;5322)&nbsp;fail&nbsp;with&nbsp;%s\n%!"</span>&nbsp;field];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;l))&nbsp;state)
+&nbsp;&nbsp;@&nbsp;p</code></body></html>

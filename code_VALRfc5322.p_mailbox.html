@@ -40,6 +40,6 @@
 <code class="code"><span class="keyword">let</span>&nbsp;p_mailbox&nbsp;p&nbsp;=
 &nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mailbox\n%!"</span>];
 
-&nbsp;&nbsp;(p_name_addr&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;name_addr&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(name_addr,&nbsp;state))
-&nbsp;&nbsp;/&nbsp;(p_addr_spec&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;(local_part,&nbsp;domain)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">None</span>,&nbsp;(local_part,&nbsp;[domain])))
+&nbsp;&nbsp;(p_addr_spec&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;(local_part,&nbsp;domain)&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((<span class="constructor">None</span>,&nbsp;(local_part,&nbsp;[domain])),&nbsp;state))
+&nbsp;&nbsp;/&nbsp;(p_name_addr&nbsp;@&nbsp;p)
 &nbsp;&nbsp;@&nbsp;p</code></body></html>

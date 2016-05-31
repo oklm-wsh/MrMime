@@ -38,7 +38,8 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;cur_chr&nbsp;p&nbsp;state&nbsp;=
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;cur_chr\n%!"</span>];
+&nbsp;&nbsp;[%debug&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;cur_chr&nbsp;[%S]\n%!"</span>&nbsp;(<span class="constructor">String</span>.make&nbsp;1&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos))];
 
 &nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
 &nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos)&nbsp;state

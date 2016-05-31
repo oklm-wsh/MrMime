@@ -257,7 +257,10 @@
 &nbsp;&nbsp;<span class="constructor">Buffer</span>.add_bytes&nbsp;tmp&nbsp;(<span class="constructor">Bytes</span>.sub&nbsp;state.buffer&nbsp;state.pos&nbsp;(state.len&nbsp;-&nbsp;state.pos));
 
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)&nbsp;<span class="keyword">as</span>&nbsp;error&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_try_rule&nbsp;fail&nbsp;with&nbsp;%s\n%!"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Printexc</span>.to_string&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;error))];
+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;<span class="constructor">Buffer</span>.length&nbsp;tmp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;tmp&nbsp;&gt;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer
@@ -339,7 +342,8 @@
 &nbsp;&nbsp;loop&nbsp;0&nbsp;state
 
 <span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;cur_chr&nbsp;p&nbsp;state&nbsp;=
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;cur_chr\n%!"</span>];
+&nbsp;&nbsp;[%debug&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;cur_chr&nbsp;[%S]\n%!"</span>&nbsp;(<span class="constructor">String</span>.make&nbsp;1&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos))];
 
 &nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
 &nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos)&nbsp;state
