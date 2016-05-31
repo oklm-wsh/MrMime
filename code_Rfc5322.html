@@ -94,22 +94,22 @@ type trace =
   | `ReturnPath      of mailbox option ]
 
 type field =
-  [ `From            of person list
-  | `Date            of date_time
+  [ `Date            of date_time
+  | `From            of person list
   | `Sender          of person
   | `ReplyTo         of address list
   | `To              of address list
   | `Cc              of address list
   | `Bcc             of address list
-  | `Subject         of phrase
-  | `Comments        of phrase
-  | `Keywords        of phrase list
   | `MessageID       of msg_id
   | `InReplyTo       of [`Phrase of phrase | `MsgID of msg_id] list
   | `References      of [`Phrase of phrase | `MsgID of msg_id] list
-  | `Field           of string * phrase
+  | `Subject         of phrase
+  | `Comments        of phrase
+  | `Keywords        of phrase list
   | resent
   | trace
+  | `Field           of string * phrase
   | `Unsafe          of string * phrase ]
 
 (* See RFC 5234 § Appendix B.1:

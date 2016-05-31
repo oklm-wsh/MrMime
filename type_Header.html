@@ -38,8 +38,19 @@
 </head>
 <body>
 <code class="code"><span class="keyword">sig</span><br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;strict&nbsp;=&nbsp;(<span class="constructor">Date</span>.t,&nbsp;<span class="constructor">Address</span>.person&nbsp;list)&nbsp;<span class="constructor">Header</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;unstrict&nbsp;=&nbsp;(<span class="constructor">Date</span>.t&nbsp;option,&nbsp;<span class="constructor">Address</span>.person&nbsp;list&nbsp;option)&nbsp;<span class="constructor">Header</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;phrase&nbsp;=&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Phrase</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;]<br>
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Relax</span>&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Expected_date</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Expected_from</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;strict&nbsp;:&nbsp;(<span class="constructor">Date</span>.t,&nbsp;<span class="constructor">Address</span>.person&nbsp;list)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unstrict&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Date</span>.t&nbsp;option,&nbsp;<span class="constructor">Address</span>.person&nbsp;list&nbsp;option)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span><br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;field&nbsp;=<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Bcc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Cc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
@@ -67,11 +78,13 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">To</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">List</span>.t<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;]<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;field_of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc5322</span>.field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Header</span>.field<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_string&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Header</span>.t<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_string&nbsp;:&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_string&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Header</span>.strict<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_string&nbsp;:&nbsp;<span class="constructor">Header</span>.strict&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t&nbsp;<span class="keywordsign">-&gt;</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="constructor">Rfc5322</span>.field&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>field)&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Header</span>.t&nbsp;option&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>field&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Lexer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Lexer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;((<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>field&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Lexer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Header</span>.strict&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 <span class="keyword">end</span></code></body></html>

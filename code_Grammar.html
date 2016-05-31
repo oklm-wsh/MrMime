@@ -55,16 +55,10 @@
 &nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;state<br>
 <br>
 <span class="comment">(*&nbsp;check&nbsp;of&nbsp;the&nbsp;header,&nbsp;eg.&nbsp;{!val:Header.of_lexer}&nbsp;and&nbsp;{!val:Content.of_lexer}&nbsp;*)</span><br>
-<span class="keyword">let</span>&nbsp;c_header&nbsp;fields&nbsp;p&nbsp;state&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Header</span>.of_lexer&nbsp;fields<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;header&nbsp;rest&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;header&nbsp;<span class="keyword">with</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;header&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Content</span>.of_lexer&nbsp;rest<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;content&nbsp;rest&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;header&nbsp;content&nbsp;state)&nbsp;state<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_header&nbsp;state)))<br>
-&nbsp;&nbsp;&nbsp;&nbsp;state<br>
+<span class="keyword">let</span>&nbsp;c_header&nbsp;fields&nbsp;p&nbsp;=<br>
+&nbsp;&nbsp;<span class="constructor">Header</span>.of_lexer&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.unstrict&nbsp;fields<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;header&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Content</span>.of_lexer&nbsp;rest<br>
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;content&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;header&nbsp;content<br>
 <br>
 <span class="comment">(*&nbsp;composition&nbsp;betweeen&nbsp;RFC&nbsp;5322/body,&nbsp;RFC&nbsp;2045/Base64/body&nbsp;and&nbsp;RFC<br>
 &nbsp;&nbsp;&nbsp;2045/QuotedPrintable/body&nbsp;with&nbsp;the&nbsp;[boundary]&nbsp;*)</span><br>

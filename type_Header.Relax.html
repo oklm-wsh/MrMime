@@ -34,10 +34,13 @@
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
 <link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
 <link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
-<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Grammar.c_header</title>
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Header.Relax</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;c_header&nbsp;fields&nbsp;p&nbsp;=<br>
-&nbsp;&nbsp;<span class="constructor">Header</span>.of_lexer&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.unstrict&nbsp;fields<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;header&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Content</span>.of_lexer&nbsp;rest<br>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;content&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;header&nbsp;content</code></body></html>
+<code class="code"><span class="keyword">sig</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;t<br>
+&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Expected_date</span><br>
+&nbsp;&nbsp;<span class="keyword">exception</span>&nbsp;<span class="constructor">Expected_from</span><br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;strict&nbsp;:&nbsp;(<span class="constructor">Date</span>.t,&nbsp;<span class="constructor">Address</span>.person&nbsp;list)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;unstrict&nbsp;:&nbsp;(<span class="constructor">Date</span>.t&nbsp;option,&nbsp;<span class="constructor">Address</span>.person&nbsp;list&nbsp;option)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t<br>
+<span class="keyword">end</span></code></body></html>
