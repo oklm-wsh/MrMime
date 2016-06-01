@@ -89,10 +89,7 @@ let p_composite_type p =
   | "message"   -> p `Message
   | "multipart" -> p `Multipart
   | extension_token ->
-    fun state ->
-      p_extension_token
-        (fun t _ -> p t state)
-        (Decoder.of_string extension_token)
+    roll_back (p_extension_token p) extension_token
 
 let p_discrete_type p =
   p_token @ function
@@ -102,10 +99,7 @@ let p_discrete_type p =
   | "video" -> p `Video
   | "application" -> p `Application
   | extension_token ->
-    fun state ->
-      p_extension_token
-        (fun t _ -> p t state)
-        (Decoder.of_string extension_token)
+    roll_back (p_extension_token p) extension_token
 
 let p_msg_id = Rfc822.p_msg_id
 
@@ -122,10 +116,7 @@ let p_type p =
   | "multipart" -> p `Multipart
   (* extension-type *)
   | extension_token ->
-    fun state ->
-      (p_extension_token
-       @ fun t _ -> p t state)
-      (Decoder.of_string extension_token)
+    roll_back (p_extension_token p) extension_token
 
 let ty_to_string = function
   | `Text -> "text"
@@ -203,10 +194,8 @@ let p_mechanism p =
   | "quoted-printable" -> p `QuotedPrintable
   | "base64" -> p `Base64
   | extension_token ->
-    fun state ->
-      p_extension_token
-        (fun t _ -> p t state)
-        (Decoder.of_string extension_token)
+    [%debug Printf.printf "state: p_mechanism (ext token): %S\n%!" extension_token];
+    roll_back (p_extension_token p) extension_token
 
 let p_encoding p =
   Rfc822.p_cfws
