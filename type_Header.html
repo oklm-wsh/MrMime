@@ -23,8 +23,8 @@
 <link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
-<link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -83,8 +83,8 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.t&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="constructor">Rfc5322</span>.field&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>field)&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;((<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>field&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Lexer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lexer</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a
+&nbsp;&nbsp;&nbsp;&nbsp;((<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>field&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Decoder</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Decoder</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="keywordsign">'</span>date,&nbsp;<span class="keywordsign">'</span>from)&nbsp;<span class="constructor">Header</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Header</span>.strict&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
 <span class="keyword">end</span></code></body></html>

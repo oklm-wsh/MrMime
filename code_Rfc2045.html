@@ -23,8 +23,8 @@
 <link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
-<link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045</title>
 </head>
 <body>
-<code class="code"><span class="keyword">open</span>&nbsp;<span class="constructor">BaseLexer</span>
+<code class="code"><span class="keyword">open</span>&nbsp;<span class="constructor">BaseDecoder</span>
 
 <span class="keyword">type</span>&nbsp;discrete&nbsp;=
 &nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>
@@ -131,7 +131,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
 
 <span class="keyword">let</span>&nbsp;p_discrete_type&nbsp;p&nbsp;=
 &nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">function</span>
@@ -144,7 +144,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
 
 <span class="keyword">let</span>&nbsp;p_msg_id&nbsp;=&nbsp;<span class="constructor">Rfc822</span>.p_msg_id
 
@@ -160,7 +160,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(cur_chr&nbsp;@&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'X'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'x'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_x_token&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_ietf_token&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
 
 <span class="keyword">let</span>&nbsp;p_type&nbsp;p&nbsp;=
 &nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase_ascii&nbsp;token&nbsp;<span class="keyword">with</span>
@@ -178,7 +178,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_extension_token
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
 
 <span class="keyword">let</span>&nbsp;ty_to_string&nbsp;=&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"text"</span>
@@ -259,7 +259,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
 
 <span class="keyword">let</span>&nbsp;p_encoding&nbsp;p&nbsp;=
 &nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws

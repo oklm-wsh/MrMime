@@ -23,8 +23,8 @@
 <link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
-<link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -42,7 +42,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc2047</span>.p_decoded_word
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;charset&nbsp;encoding
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;data)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;data)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;data)
 &nbsp;&nbsp;&nbsp;&nbsp;|&gt;&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;fmt&nbsp;<span class="string">"%s"</span>&nbsp;data
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span>

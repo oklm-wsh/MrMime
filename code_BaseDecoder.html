@@ -1,0 +1,372 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseDecoder</title>
+</head>
+<body>
+<code class="code"><span class="keyword">open</span>&nbsp;<span class="constructor">Decoder</span>
+
+<span class="keyword">let</span>&nbsp;safe&nbsp;k&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;k&nbsp;state
+&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;s,&nbsp;i,&nbsp;l))&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;s,&nbsp;i,&nbsp;l)
+
+<span class="keyword">let</span>&nbsp;read_exact&nbsp;need&nbsp;k&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tmp&nbsp;&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;need&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;have&nbsp;=&nbsp;min&nbsp;need&nbsp;(state.len&nbsp;-&nbsp;state.pos)&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;tmp&nbsp;0&nbsp;have;
+&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;+&nbsp;have;
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;rest&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;rest&nbsp;=&nbsp;0&nbsp;<span class="keyword">then</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;(k&nbsp;tmp)&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(tmp,&nbsp;state.pos,&nbsp;need&nbsp;-&nbsp;rest,&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(rest&nbsp;-&nbsp;m))
+&nbsp;&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;loop&nbsp;(need&nbsp;-&nbsp;have)
+
+<span class="keyword">let</span>&nbsp;has_line&nbsp;buff&nbsp;off&nbsp;len&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;cr_read&nbsp;j&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;j&nbsp;&gt;=&nbsp;len&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">false</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Bytes</span>.get&nbsp;buff&nbsp;j&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\n'</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;cr_read&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">true</span>&nbsp;<span class="keyword">else</span>&nbsp;loop&nbsp;<span class="keyword">false</span>&nbsp;(j&nbsp;+&nbsp;1)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\r'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;<span class="keyword">true</span>&nbsp;(j&nbsp;+&nbsp;1)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;<span class="keyword">false</span>&nbsp;(j&nbsp;+&nbsp;1)
+&nbsp;&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;loop&nbsp;<span class="keyword">false</span>&nbsp;off
+
+<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;roll_back&nbsp;k&nbsp;data&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;len&nbsp;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;data&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&gt;&nbsp;len
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span>&nbsp;i&nbsp;=&nbsp;0&nbsp;<span class="keyword">to</span>&nbsp;len&nbsp;-&nbsp;1
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;<span class="constructor">Bytes</span>.set&nbsp;state.buffer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(state.pos&nbsp;-&nbsp;1&nbsp;-&nbsp;i)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;data&nbsp;(len&nbsp;-&nbsp;1&nbsp;-&nbsp;i))
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">done</span>;
+&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;-&nbsp;len;
+
+&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;k&nbsp;state
+&nbsp;&nbsp;<span class="keyword">end</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_len&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;state.len&nbsp;-&nbsp;state.pos&nbsp;+&nbsp;len&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;new_len&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;data&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;len;
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;new_buffer&nbsp;len&nbsp;(state.len&nbsp;-&nbsp;state.pos);
+
+&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0;
+&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;new_len;
+&nbsp;&nbsp;&nbsp;&nbsp;state.buffer&nbsp;&lt;-&nbsp;new_buffer;
+
+&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;k&nbsp;state
+&nbsp;&nbsp;<span class="keyword">end</span>
+
+<span class="keyword">let</span>&nbsp;read_line&nbsp;k&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;read_line\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_line&nbsp;state.buffer&nbsp;state.pos&nbsp;state.len
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;k&nbsp;state
+&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&gt;&nbsp;0
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;state.buffer&nbsp;0&nbsp;(state.len&nbsp;-&nbsp;state.pos);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;state.len&nbsp;-&nbsp;state.pos;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;
+
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;off&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;read_line&nbsp;loop\n%!"</span>];
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_line&nbsp;state.buffer&nbsp;state.pos&nbsp;off
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;read_line&nbsp;end\n%!"</span>];
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;off;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;safe&nbsp;k&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;the&nbsp;(-2)&nbsp;operation&nbsp;is&nbsp;according&nbsp;to&nbsp;the&nbsp;translation&nbsp;between&nbsp;Unix
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;and&nbsp;CRLF&nbsp;(window)&nbsp;file.&nbsp;we&nbsp;need&nbsp;at&nbsp;least&nbsp;2&nbsp;free&nbsp;bytes&nbsp;in
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;buffer&nbsp;to&nbsp;add&nbsp;CRLF&nbsp;characters&nbsp;instead&nbsp;CR&nbsp;(apple)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or&nbsp;LF&nbsp;(unix).
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;off&nbsp;&gt;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;2
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;(2&nbsp;*&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;+&nbsp;1)&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;(<span class="constructor">Bytes</span>.length&nbsp;state.buffer);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.buffer&nbsp;&lt;-&nbsp;new_buffer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(state.buffer,&nbsp;off,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;off,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(off&nbsp;+&nbsp;n))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;state.len
+&nbsp;&nbsp;<span class="keyword">end</span>
+
+<span class="keyword">let</span>&nbsp;to_end_of_file&nbsp;k&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;to_end_of_file\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&gt;&nbsp;0
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;state.pos&nbsp;state.buffer&nbsp;0&nbsp;(state.len&nbsp;-&nbsp;state.pos);
+&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;state.len&nbsp;-&nbsp;state.pos;
+&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0
+&nbsp;&nbsp;<span class="keyword">end</span>;
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;off&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;state.len&nbsp;&lt;-&nbsp;off;&nbsp;safe&nbsp;k&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;to_end_of_file/continue&nbsp;[%d]\n%!"</span>&nbsp;(off&nbsp;+&nbsp;n)];
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;off&nbsp;+&nbsp;n&nbsp;&gt;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;(2&nbsp;*&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;+&nbsp;1)&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;(<span class="constructor">Bytes</span>.length&nbsp;state.buffer);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.buffer&nbsp;&lt;-&nbsp;new_buffer;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(state.buffer,&nbsp;off&nbsp;+&nbsp;n,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;(off&nbsp;+&nbsp;n),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;(off&nbsp;+&nbsp;n))
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(state.buffer,&nbsp;state.len,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;state.len,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;state.len)
+
+<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;cur_chr&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos
+&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected_eoi&nbsp;state))
+
+<span class="keyword">let</span>&nbsp;peek_chr&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">Some</span>&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos)
+&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="constructor">None</span>
+
+<span class="keyword">let</span>&nbsp;junk_chr&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;+&nbsp;1
+&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected_eoi&nbsp;state))
+
+<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;p_chr&nbsp;chr&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;c&nbsp;<span class="keyword">when</span>&nbsp;chr&nbsp;=&nbsp;c&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;&nbsp;p&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_expected&nbsp;chr&nbsp;state))
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;read_line&nbsp;(p_chr&nbsp;chr&nbsp;p)&nbsp;state
+
+<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;u_chr&nbsp;chr&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;u_chr\n%!"</span>];
+
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;c&nbsp;<span class="keyword">when</span>&nbsp;chr&nbsp;=&nbsp;c&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_expected&nbsp;chr&nbsp;state))
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected_eoi&nbsp;state))
+
+<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;p_set&nbsp;l&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;c&nbsp;<span class="keyword">when</span>&nbsp;<span class="constructor">List</span>.exists&nbsp;((=)&nbsp;c)&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;&nbsp;p&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_expected_set&nbsp;l&nbsp;state))
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;read_line&nbsp;(p_set&nbsp;l&nbsp;p)&nbsp;state
+
+<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;p_while&nbsp;f&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;buf&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;state&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;buf)&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;read_line&nbsp;loop&nbsp;state
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr;
+&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;
+&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;read_line&nbsp;(p_while&nbsp;f&nbsp;p)&nbsp;state
+
+<span class="keyword">let</span>&nbsp;p_str&nbsp;str&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;pos&nbsp;state&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;pos&nbsp;=&nbsp;<span class="constructor">String</span>.length&nbsp;str
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;<span class="constructor">String</span>.get&nbsp;str&nbsp;pos&nbsp;=&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;state;&nbsp;loop&nbsp;(pos&nbsp;+&nbsp;1)&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;read_line&nbsp;(loop&nbsp;pos)&nbsp;state
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;loop&nbsp;0&nbsp;state
+
+<span class="keyword">let</span>&nbsp;junk_chr&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;(state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;+&nbsp;1;&nbsp;p&nbsp;state)
+&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected_eoi&nbsp;state))
+
+<span class="keyword">let</span>&nbsp;p_try_rule&nbsp;success&nbsp;fail&nbsp;rule&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;tmp&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_bytes&nbsp;tmp&nbsp;(<span class="constructor">Bytes</span>.sub&nbsp;state.buffer&nbsp;state.pos&nbsp;(state.len&nbsp;-&nbsp;state.pos));
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)&nbsp;<span class="keyword">as</span>&nbsp;error&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_try_rule&nbsp;fail&nbsp;with&nbsp;%s\n%!"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Printexc</span>.to_string&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;error))];
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.pos&nbsp;&lt;-&nbsp;0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state.len&nbsp;&lt;-&nbsp;<span class="constructor">Buffer</span>.length&nbsp;tmp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;tmp&nbsp;&gt;&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;state.buffer&nbsp;&lt;-&nbsp;<span class="constructor">Buffer</span>.contents&nbsp;tmp
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">begin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit_string&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;tmp)&nbsp;0&nbsp;state.buffer&nbsp;0&nbsp;(<span class="constructor">Buffer</span>.length&nbsp;tmp);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fail&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,&nbsp;k)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;writing&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_bytes&nbsp;tmp&nbsp;(<span class="constructor">Bytes</span>.sub&nbsp;buf&nbsp;off&nbsp;writing);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loop&nbsp;@@&nbsp;safe&nbsp;k&nbsp;writing))
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;safe&nbsp;(success&nbsp;data)&nbsp;state
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;loop&nbsp;@@&nbsp;safe&nbsp;rule&nbsp;state
+
+<span class="keyword">let</span>&nbsp;(&nbsp;/&nbsp;)&nbsp;x&nbsp;y&nbsp;k&nbsp;e&nbsp;=&nbsp;p_try_rule&nbsp;k&nbsp;y&nbsp;x&nbsp;e
+<span class="keyword">let</span>&nbsp;ok&nbsp;data&nbsp;state&nbsp;=&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)
+<span class="keyword">let</span>&nbsp;(&nbsp;@&nbsp;)&nbsp;=&nbsp;(&nbsp;@@&nbsp;)
+
+<span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5234&nbsp;§&nbsp;3.6:
+
+&nbsp;&nbsp;&nbsp;The&nbsp;operator&nbsp;"*"&nbsp;preceding&nbsp;an&nbsp;element&nbsp;indicates&nbsp;repetition.&nbsp;The&nbsp;full&nbsp;form&nbsp;is:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;a&gt;*&lt;b&gt;element
+
+&nbsp;&nbsp;&nbsp;where&nbsp;&lt;a&gt;&nbsp;and&nbsp;&lt;b&gt;&nbsp;are&nbsp;optional&nbsp;decimal&nbsp;values,&nbsp;indicating&nbsp;at&nbsp;least&nbsp;&lt;a&gt;&nbsp;and&nbsp;at
+&nbsp;&nbsp;&nbsp;most&nbsp;&lt;b&gt;&nbsp;occurrences&nbsp;of&nbsp;the&nbsp;element.
+
+&nbsp;&nbsp;&nbsp;Default&nbsp;values&nbsp;are&nbsp;&nbsp;0&nbsp;&nbsp;and&nbsp;&nbsp;infinity&nbsp;&nbsp;so&nbsp;&nbsp;that&nbsp;&nbsp;*&lt;element&gt;&nbsp;allows&nbsp;any&nbsp;number,
+&nbsp;&nbsp;&nbsp;including&nbsp;&nbsp;zero;&nbsp;&nbsp;1*&lt;element&gt;&nbsp;&nbsp;requires&nbsp;&nbsp;at&nbsp;&nbsp;least&nbsp;&nbsp;one;&nbsp;&nbsp;3*3&lt;element&gt;&nbsp;allows
+&nbsp;&nbsp;&nbsp;exactly&nbsp;3;&nbsp;and&nbsp;1*2&lt;element&gt;&nbsp;allows&nbsp;one&nbsp;or&nbsp;two.
+*)</span>
+<span class="keyword">let</span>&nbsp;u_repeat&nbsp;?a&nbsp;?b&nbsp;f&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;i0&nbsp;=&nbsp;state.pos&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;most&nbsp;pos&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;b&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;most&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(pos&nbsp;-&nbsp;i0)&nbsp;&lt;=&nbsp;most
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
+&nbsp;&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;least&nbsp;pos&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;a&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;least&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(pos&nbsp;-&nbsp;i0)&nbsp;&gt;=&nbsp;least
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
+&nbsp;&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">while</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;f&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;most&nbsp;state.pos
+&nbsp;&nbsp;<span class="keyword">do</span>&nbsp;state.pos&nbsp;&lt;-&nbsp;state.pos&nbsp;+&nbsp;1&nbsp;<span class="keyword">done</span>;
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;least&nbsp;state.pos
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(<span class="constructor">Bytes</span>.sub&nbsp;state.buffer&nbsp;i0&nbsp;(state.pos&nbsp;-&nbsp;i0))&nbsp;state
+&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;(cur_chr&nbsp;state)&nbsp;state))
+
+<span class="keyword">let</span>&nbsp;p_repeat&nbsp;?a&nbsp;?b&nbsp;f&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;most&nbsp;pos&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;b&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;most&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pos&nbsp;&lt;=&nbsp;most
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
+&nbsp;&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;least&nbsp;pos&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;a&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;least&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pos&nbsp;&gt;=&nbsp;least
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;buf&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;(<span class="keyword">match</span>&nbsp;b&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Some</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;x&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;16)&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;n&nbsp;state&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;most&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;(loop&nbsp;(n&nbsp;+&nbsp;1))&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;least&nbsp;n
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;buf)&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;read_line&nbsp;(loop&nbsp;n)&nbsp;state
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;loop&nbsp;0&nbsp;state
+
+<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;cur_chr&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;cur_chr&nbsp;[%S]\n%!"</span>&nbsp;(<span class="constructor">String</span>.make&nbsp;1&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos))];
+
+&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;state.pos&nbsp;&lt;&nbsp;state.len
+&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p&nbsp;(<span class="constructor">Bytes</span>.get&nbsp;state.buffer&nbsp;state.pos)&nbsp;state
+&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;read_line&nbsp;(cur_chr&nbsp;p)&nbsp;state
+
+<span class="keyword">let</span>&nbsp;(&nbsp;*&nbsp;)&nbsp;a&nbsp;b&nbsp;f&nbsp;e&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;a&nbsp;=&nbsp;<span class="keyword">if</span>&nbsp;a&nbsp;=&nbsp;0&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="constructor">Some</span>&nbsp;a&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;<span class="keyword">if</span>&nbsp;b&nbsp;=&nbsp;0&nbsp;<span class="keyword">then</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keyword">else</span>&nbsp;<span class="constructor">Some</span>&nbsp;b&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;p_repeat&nbsp;?a&nbsp;?b&nbsp;f&nbsp;e
+
+<span class="keyword">let</span>&nbsp;p_try&nbsp;f&nbsp;p&nbsp;state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;buf&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;n&nbsp;state&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;(loop&nbsp;(n&nbsp;+&nbsp;1))&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;roll_back&nbsp;(p&nbsp;n)&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;buf)&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;read_line&nbsp;(loop&nbsp;n)&nbsp;state
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;loop&nbsp;0&nbsp;state
+
+<span class="keyword">let</span>&nbsp;(&nbsp;$&nbsp;)&nbsp;x&nbsp;y&nbsp;k&nbsp;e&nbsp;=&nbsp;x&nbsp;(y&nbsp;k)&nbsp;e
+</code></body></html>

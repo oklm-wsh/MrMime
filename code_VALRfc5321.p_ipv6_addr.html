@@ -23,8 +23,8 @@
 <link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
-<link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -38,11 +38,11 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_ipv6_addr&nbsp;p&nbsp;state&nbsp;=
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pos&nbsp;=&nbsp;ref&nbsp;state.<span class="constructor">Lexer</span>.pos&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pos&nbsp;=&nbsp;ref&nbsp;state.<span class="constructor">Decoder</span>.pos&nbsp;<span class="keyword">in</span>
 
 &nbsp;&nbsp;<span class="keyword">try</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ip&nbsp;&nbsp;=&nbsp;<span class="constructor">Ipaddr</span>.<span class="constructor">V6</span>.of_string_raw&nbsp;state.<span class="constructor">Lexer</span>.buffer&nbsp;pos&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ip&nbsp;&nbsp;=&nbsp;<span class="constructor">Ipaddr</span>.<span class="constructor">V6</span>.of_string_raw&nbsp;state.<span class="constructor">Decoder</span>.buffer&nbsp;pos&nbsp;<span class="keyword">in</span>
 
-&nbsp;&nbsp;&nbsp;&nbsp;state.<span class="constructor">Lexer</span>.pos&nbsp;&lt;-&nbsp;!pos;
+&nbsp;&nbsp;&nbsp;&nbsp;state.<span class="constructor">Decoder</span>.pos&nbsp;&lt;-&nbsp;!pos;
 &nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;ip&nbsp;state
 &nbsp;&nbsp;<span class="keyword">with</span>&nbsp;exn&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_invalid_ipv6&nbsp;state))</code></body></html>

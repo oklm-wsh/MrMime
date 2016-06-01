@@ -23,8 +23,8 @@
 <link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
-<link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822</title>
 </head>
 <body>
-<code class="code">open BaseLexer
+<code class="code">open BaseDecoder
 
 type atom    = [ `Atom of string ]
 type word    = [ atom | `String of string ]
@@ -217,11 +217,11 @@ let rec p_fws p state =
   let has_line state =
     let tmp = Buffer.create 16 in
     let rec loop cr_read j =
-      Buffer.add_char tmp (Bytes.get state.Lexer.buffer j);
+      Buffer.add_char tmp (Bytes.get state.Decoder.buffer j);
 
-      if j >= state.Lexer.len then false
+      if j >= state.Decoder.len then false
       else
-        match Bytes.get state.Lexer.buffer j with
+        match Bytes.get state.Decoder.buffer j with
         | '\n' ->
           if cr_read then true else loop false (j + 1)
         | '\r' ->
@@ -229,7 +229,7 @@ let rec p_fws p state =
         | '\x20' | '\x09' -> loop false (j + 1)
         | _ -> false
     in
-    if loop false state.Lexer.pos
+    if loop false state.Decoder.pos
     then Some (Buffer.contents tmp)
     else None
   in
@@ -248,7 +248,7 @@ let rec p_fws p state =
   let rec end_of_line has_wsp has_fws success fail state =
     match has_line state with
     | Some tmp ->
-      state.Lexer.pos <- state.Lexer.pos + String.length tmp;
+      state.Decoder.pos <- state.Decoder.pos + String.length tmp;
 
       (cur_chr
        @ function

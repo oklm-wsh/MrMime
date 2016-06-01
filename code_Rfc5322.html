@@ -23,8 +23,8 @@
 <link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
-<link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -37,7 +37,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322</title>
 </head>
 <body>
-<code class="code">open BaseLexer
+<code class="code">open BaseDecoder
 open Rfc822
 
 type month =
@@ -676,7 +676,7 @@ let p_domain_literal p =
       @ fun _ state ->
         Rfc5321.p_address_literal
         (fun d state' ->
-         let open Lexer in
+         let open Decoder in
          if state'.pos = state'.len
          (* XXX: we use the old state! *)
          then p d state
@@ -686,7 +686,7 @@ let p_domain_literal p =
                      (Error.err_unexpected_str
                       (Bytes.sub state'.buffer state'.pos (state'.len - state'.pos))
                       state')))
-        (Lexer.of_string @@ String.concat "" @@ List.rev acc)
+        (Decoder.of_string @@ String.concat "" @@ List.rev acc)
     | chr when is_dtext chr || chr = '\\' ->
       p_dtext
       @ fun s -> p_fws

@@ -23,8 +23,8 @@
 <link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
-<link title="Lexer" rel="Chapter" href="Lexer.html">
-<link title="BaseLexer" rel="Chapter" href="BaseLexer.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -53,12 +53,12 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="keywordsign">`</span><span class="constructor">Error</span>&nbsp;(err,&nbsp;buf,&nbsp;off,&nbsp;len)))
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Read</span>&nbsp;(buf,&nbsp;off,&nbsp;len,&nbsp;k)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_nothing_to_do&nbsp;{&nbsp;<span class="constructor">Lexer</span>.buffer&nbsp;=&nbsp;buf;&nbsp;pos&nbsp;=&nbsp;off;&nbsp;len;&nbsp;}))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_nothing_to_do&nbsp;{&nbsp;<span class="constructor">Decoder</span>.buffer&nbsp;=&nbsp;buf;&nbsp;pos&nbsp;=&nbsp;off;&nbsp;len;&nbsp;}))
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;data
 &nbsp;&nbsp;<span class="keyword">in</span>
 
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;=&nbsp;<span class="constructor">Grammar</span>.p_message&nbsp;(<span class="keyword">fun</span>&nbsp;header&nbsp;message&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(header,&nbsp;message))&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;loop&nbsp;@@&nbsp;<span class="constructor">BaseLexer</span>.safe&nbsp;rule&nbsp;(<span class="constructor">Lexer</span>.of_string&nbsp;s)
+&nbsp;&nbsp;loop&nbsp;@@&nbsp;<span class="constructor">BaseDecoder</span>.safe&nbsp;rule&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;s)
 
 <span class="keyword">let</span>&nbsp;equal&nbsp;=&nbsp;(=)
 

@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Decoder.html">
+<link rel="next" href="Rfc822.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>BaseDecoder</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Decoder.html" title="Decoder">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Rfc822.html" title="Rfc822">Next</a>
+</div>
+<h1>Module <a href="type_BaseDecoder.html">BaseDecoder</a> (<a href="code_BaseDecoder.html">.ml</a>)</h1>
+
+<pre><span class="keyword">module</span> BaseDecoder: <code class="code"><span class="keyword">sig</span></code> <a href="BaseDecoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="VALsafe"><span class="keyword">val</span> <a href="code_VALBaseDecoder.safe.html">safe</a></span> : <code class="type">('a -> ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int ] as 'b)) -> 'a -> 'b</code></pre>
+<pre><span id="VALread_exact"><span class="keyword">val</span> <a href="code_VALBaseDecoder.read_exact.html">read_exact</a></span> : <code class="type">int -><br>       (bytes -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of bytes * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALhas_line"><span class="keyword">val</span> <a href="code_VALBaseDecoder.has_line.html">has_line</a></span> : <code class="type">bytes -> int -> int -> bool</code></pre>
+<pre><span id="VALroll_back"><span class="keyword">val</span> <a href="code_VALBaseDecoder.roll_back.html">roll_back</a></span> : <code class="type">(<a href="Decoder.html#TYPEt">Decoder.t</a> -> ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int ] as 'a)) -><br>       bytes -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALread_line"><span class="keyword">val</span> <a href="code_VALBaseDecoder.read_line.html">read_line</a></span> : <code class="type">(<a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALto_end_of_file"><span class="keyword">val</span> <a href="code_VALBaseDecoder.to_end_of_file.html">to_end_of_file</a></span> : <code class="type">(<a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> [> `Read of Bytes.t * int * int * (int -> 'a) ]</code></pre>
+<pre><span id="VALcur_chr"><span class="keyword">val</span> <a href="code_VALBaseDecoder.cur_chr.html">cur_chr</a></span> : <code class="type">(char -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALpeek_chr"><span class="keyword">val</span> <a href="code_VALBaseDecoder.peek_chr.html">peek_chr</a></span> : <code class="type"><a href="Decoder.html#TYPEt">Decoder.t</a> -> char option</code></pre>
+<pre><span id="VALjunk_chr"><span class="keyword">val</span> <a href="code_VALBaseDecoder.junk_chr.html">junk_chr</a></span> : <code class="type">(<a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a) -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALp_chr"><span class="keyword">val</span> <a href="code_VALBaseDecoder.p_chr.html">p_chr</a></span> : <code class="type">char -><br>       (<a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALu_chr"><span class="keyword">val</span> <a href="code_VALBaseDecoder.u_chr.html">u_chr</a></span> : <code class="type">char -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> unit</code></pre>
+<pre><span id="VALp_set"><span class="keyword">val</span> <a href="code_VALBaseDecoder.p_set.html">p_set</a></span> : <code class="type">char list -><br>       (<a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALp_while"><span class="keyword">val</span> <a href="code_VALBaseDecoder.p_while.html">p_while</a></span> : <code class="type">(char -> bool) -><br>       (string -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALp_str"><span class="keyword">val</span> <a href="code_VALBaseDecoder.p_str.html">p_str</a></span> : <code class="type">string -><br>       (<a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALjunk_chr"><span class="keyword">val</span> <a href="code_VALBaseDecoder.junk_chr.html">junk_chr</a></span> : <code class="type">(<a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a) -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALp_try_rule"><span class="keyword">val</span> <a href="code_VALBaseDecoder.p_try_rule.html">p_try_rule</a></span> : <code class="type">('a -><br>        'b -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of bytes * int * 'd * (int -> 'c) ]<br>         as 'c)) -><br>       (<a href="Decoder.html#TYPEt">Decoder.t</a> -> 'c) -><br>       (<a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([< `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Ok of 'a * 'b<br>          | `Read of bytes * int * 'd * (int -> 'e)<br>          > `Error ]<br>         as 'e)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'c</code></pre>
+<pre><span id="VAL(/)"><span class="keyword">val</span> <a href="code_VALBaseDecoder.(_slash_).html">(/)</a></span> : <code class="type">(<a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([< `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Ok of 'b * 'c<br>          | `Read of bytes * int * 'd * (int -> 'a)<br>          > `Error ]<br>         as 'a)) -><br>       (<a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of bytes * int * 'd * (int -> 'e) ]<br>         as 'e)) -><br>       ('b -> 'c -> 'e) -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'e</code></pre>
+<pre><span id="VALok"><span class="keyword">val</span> <a href="code_VALBaseDecoder.ok.html">ok</a></span> : <code class="type">'a -> 'b -> [> `Ok of 'a * 'b ]</code></pre>
+<pre><span id="VAL(@)"><span class="keyword">val</span> <a href="code_VALBaseDecoder.(_at_).html">(@)</a></span> : <code class="type">('a -> 'b) -> 'a -> 'b</code></pre>
+<pre><span id="VALu_repeat"><span class="keyword">val</span> <a href="code_VALBaseDecoder.u_repeat.html">u_repeat</a></span> : <code class="type">?a:int -><br>       ?b:int -> (char -> bool) -> (bytes -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a) -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALp_repeat"><span class="keyword">val</span> <a href="code_VALBaseDecoder.p_repeat.html">p_repeat</a></span> : <code class="type">?a:int -><br>       ?b:int -><br>       (char -> bool) -><br>       (string -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALcur_chr"><span class="keyword">val</span> <a href="code_VALBaseDecoder.cur_chr.html">cur_chr</a></span> : <code class="type">(char -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VAL( * )"><span class="keyword">val</span> <a href="code_VALBaseDecoder.( _star_ ).html">( * )</a></span> : <code class="type">int -><br>       int -><br>       (char -> bool) -><br>       (string -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALp_try"><span class="keyword">val</span> <a href="code_VALBaseDecoder.p_try.html">p_try</a></span> : <code class="type">(char -> bool) -><br>       (int -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VAL($)"><span class="keyword">val</span> <a href="code_VALBaseDecoder.(_dollar_).html">($)</a></span> : <code class="type">('a -> 'b -> 'c) -> ('d -> 'a) -> 'd -> 'b -> 'c</code></pre></body></html>
