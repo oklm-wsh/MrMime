@@ -12,6 +12,6 @@ type field =
   | `ReturnPath of Address.mailbox option ]
 
 val field_of_lexer : Rfc5322.trace -> field
-val of_lexer : ([> Rfc5322.trace ] as 'trace) list -> (t option -> 'trace list -> Lexer.t -> 'a) -> Lexer.t -> 'a
+val of_lexer : ([> Rfc5322.trace ] as 'trace) list -> (t option -> 'trace list -> Decoder.t -> 'a) -> Decoder.t -> 'a
 
 val pp       : Format.formatter -> t -> unit

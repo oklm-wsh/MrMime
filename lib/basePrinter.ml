@@ -38,7 +38,7 @@ let pp_phrase =
     Rfc2047.p_decoded_word
       charset encoding
       (fun data _ -> `Ok data)
-      (Lexer.of_string data)
+      (Decoder.of_string data)
     |> function
        | `Ok data -> p fmt "%s" data
        | _        -> assert false

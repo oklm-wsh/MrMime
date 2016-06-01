@@ -23,24 +23,24 @@ type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
 
 exception Error of err
 
-val err                     : error -> Lexer.t -> err
-val err_unexpected_eoi      : Lexer.t -> err
-val err_expected            : char -> Lexer.t -> err
-val err_expected_set        : char list -> Lexer.t -> err
-val err_unexpected          : char -> Lexer.t -> err
-val err_unexpected_str      : string -> Lexer.t -> err
-val err_expected_str        : string -> Lexer.t -> err
-val err_wrong_padding       : Lexer.t -> err
-val err_unexpected_encoding : string -> Lexer.t -> err
-val err_invalid_ipv6        : Lexer.t -> err
-val err_invalid_ipv4        : Lexer.t -> err
-val err_invalid_ipv4v6      : Lexer.t -> err
-val err_invalid_tag         : string -> Lexer.t -> err
-val err_invalid_field       : string -> Lexer.t -> err
-val err_nothing_to_do       : Lexer.t -> err
-val err_invalid_header      : Lexer.t -> err
-val err_unexpected_field    : string -> Lexer.t -> err
-val err_invalid_boundary    : string -> Lexer.t -> err
-val err_expected_boundary   : Lexer.t -> err
+val err                     : error -> Decoder.t -> err
+val err_unexpected_eoi      : Decoder.t -> err
+val err_expected            : char -> Decoder.t -> err
+val err_expected_set        : char list -> Decoder.t -> err
+val err_unexpected          : char -> Decoder.t -> err
+val err_unexpected_str      : string -> Decoder.t -> err
+val err_expected_str        : string -> Decoder.t -> err
+val err_wrong_padding       : Decoder.t -> err
+val err_unexpected_encoding : string -> Decoder.t -> err
+val err_invalid_ipv6        : Decoder.t -> err
+val err_invalid_ipv4        : Decoder.t -> err
+val err_invalid_ipv4v6      : Decoder.t -> err
+val err_invalid_tag         : string -> Decoder.t -> err
+val err_invalid_field       : string -> Decoder.t -> err
+val err_nothing_to_do       : Decoder.t -> err
+val err_invalid_header      : Decoder.t -> err
+val err_unexpected_field    : string -> Decoder.t -> err
+val err_invalid_boundary    : string -> Decoder.t -> err
+val err_expected_boundary   : Decoder.t -> err
 
 val pp : Format.formatter -> error -> unit

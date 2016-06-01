@@ -1,4 +1,4 @@
-open BaseLexer
+open BaseDecoder
 
 type encoding =
   | QuotedPrintable
@@ -70,7 +70,7 @@ let p_decoded_word charset encoding p state =
   | QuotedPrintable ->
     QuotedPrintable.p_inline_encode
       (fun state ->
-       if state.Lexer.pos = state.Lexer.len
+       if state.Decoder.pos = state.Decoder.len
        then `Stop state
        else `Continue state)
       (fun encoded state ->
@@ -81,7 +81,7 @@ let p_decoded_word charset encoding p state =
   | Base64 ->
     Base64.p_inline_encode
       (fun state ->
-       if state.Lexer.pos = state.Lexer.len
+       if state.Decoder.pos = state.Decoder.len
        then `Stop state
        else `Continue state)
       (fun encoded state ->

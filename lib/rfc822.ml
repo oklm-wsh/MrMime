@@ -1,4 +1,4 @@
-open BaseLexer
+open BaseDecoder
 
 type atom    = [ `Atom of string ]
 type word    = [ atom | `String of string ]
@@ -178,11 +178,11 @@ let rec p_fws p state =
   let has_line state =
     let tmp = Buffer.create 16 in
     let rec loop cr_read j =
-      Buffer.add_char tmp (Bytes.get state.Lexer.buffer j);
+      Buffer.add_char tmp (Bytes.get state.Decoder.buffer j);
 
-      if j >= state.Lexer.len then false
+      if j >= state.Decoder.len then false
       else
-        match Bytes.get state.Lexer.buffer j with
+        match Bytes.get state.Decoder.buffer j with
         | '\n' ->
           if cr_read then true else loop false (j + 1)
         | '\r' ->
@@ -190,7 +190,7 @@ let rec p_fws p state =
         | '\x20' | '\x09' -> loop false (j + 1)
         | _ -> false
     in
-    if loop false state.Lexer.pos
+    if loop false state.Decoder.pos
     then Some (Buffer.contents tmp)
     else None
   in
@@ -209,7 +209,7 @@ let rec p_fws p state =
   let rec end_of_line has_wsp has_fws success fail state =
     match has_line state with
     | Some tmp ->
-      state.Lexer.pos <- state.Lexer.pos + String.length tmp;
+      state.Decoder.pos <- state.Decoder.pos + String.length tmp;
 
       (cur_chr
        @ function

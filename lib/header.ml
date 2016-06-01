@@ -299,7 +299,7 @@ let of_string s =
     (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state)))
     (fun fields state -> `Ok (fields, state)) in
 
-  loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
+  loop @@ BaseDecoder.safe rule (Decoder.of_string (s ^ "\r\n\r\n"))
 
 let p = Format.fprintf
 

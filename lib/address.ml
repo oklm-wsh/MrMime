@@ -107,7 +107,7 @@ let of_string s =
 
   let rule = Rfc5322.p_address
     (fun data -> Rfc822.p_crlf (fun _ -> `Ok data)) in
-  loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
+  loop @@ BaseDecoder.safe rule (Decoder.of_string (s ^ "\r\n\r\n"))
 
 let to_string t =
   let tmp = Buffer.create 16 in
@@ -142,7 +142,7 @@ struct
 
     let rule = Rfc5322.p_address_list
       (fun data -> Rfc822.p_crlf (fun _ -> `Ok data)) in
-    loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
+    loop @@ BaseDecoder.safe rule (Decoder.of_string (s ^ "\r\n\r\n"))
 
   let pp fmt =
     p fmt "%a" (pp_list ~sep:", " pp)

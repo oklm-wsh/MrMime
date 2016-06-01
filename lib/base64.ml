@@ -1,4 +1,4 @@
-open BaseLexer
+open BaseDecoder
 
 module T =
 struct
@@ -184,7 +184,7 @@ let p_decode stop p state =
       [%debug Printf.printf "state: p_decode (Base64) data\n%!"];
 
       if padding = 0 then begin
-        state.Lexer.pos <- state.Lexer.pos + 1;
+        state.Decoder.pos <- state.Decoder.pos + 1;
         (decode[@tailcall]) (F.add base64 chr buf) padding state;
       end else begin
         F.flush base64 buf;
@@ -193,12 +193,12 @@ let p_decode stop p state =
     | Some '=' ->
       [%debug Printf.printf "state: p_decode (Base64) =\n%!"];
 
-      state.Lexer.pos <- state.Lexer.pos + 1;
+      state.Decoder.pos <- state.Decoder.pos + 1;
       (decode[@tailcall]) base64 (padding + 1) state
     | Some ('\x20' | '\x09') ->
       [%debug Printf.printf "state: p_decode (Base64) space\n%!"];
 
-      state.Lexer.pos <- state.Lexer.pos + 1;
+      state.Decoder.pos <- state.Decoder.pos + 1;
       (decode[@tailcall]) base64 padding state
     | Some '\r' ->
       [%debug Printf.printf "state: p_decode (Base64) CLRF\n%!"];

@@ -92,7 +92,7 @@ struct
     commit_word buf t
 end
 
-open BaseLexer
+open BaseDecoder
 
 (* See RFC 2045 § 6.7:
 

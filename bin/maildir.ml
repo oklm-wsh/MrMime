@@ -135,7 +135,7 @@ let of_filename filename = Lwt_io.open_file ~mode:Lwt_io.Input filename
 let message filename newline input =
   Fmt.pf Fmt.stdout "%a%a%!" (left left_c yellow_s) "..." cyan_s filename;
 
-  let state = Lexer.make () in
+  let state = Decoder.make () in
   Lwt.catch
     (fun () ->
      of_flow (input, state) newline

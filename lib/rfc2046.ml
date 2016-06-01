@@ -1,4 +1,4 @@
-open BaseLexer
+open BaseDecoder
 
 let is_bcharsnospace = function
   | '\'' | '(' | ')' | '+' | '_' | ','

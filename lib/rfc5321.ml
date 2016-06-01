@@ -1,4 +1,4 @@
-open BaseLexer
+open BaseDecoder
 
 type literal_domain =
   [ `IPv4 of Ipaddr.V4.t
@@ -6,21 +6,21 @@ type literal_domain =
   | `General of (string * string) ]
 
 let p_ipv4_address_literal p state =
-  let pos = ref state.Lexer.pos in
+  let pos = ref state.Decoder.pos in
 
-  try let ip = Ipaddr.V4.of_string_raw state.Lexer.buffer pos in
+  try let ip = Ipaddr.V4.of_string_raw state.Decoder.buffer pos in
 
-      state.Lexer.pos <- !pos;
+      state.Decoder.pos <- !pos;
       p ip state
   with exn -> raise (Error.Error (Error.err_invalid_ipv4 state))
 
 let p_ipv6_addr p state =
-  let pos = ref state.Lexer.pos in
+  let pos = ref state.Decoder.pos in
 
   try
-    let ip  = Ipaddr.V6.of_string_raw state.Lexer.buffer pos in
+    let ip  = Ipaddr.V6.of_string_raw state.Decoder.buffer pos in
 
-    state.Lexer.pos <- !pos;
+    state.Decoder.pos <- !pos;
     p ip state
   with exn -> raise (Error.Error (Error.err_invalid_ipv6 state))
 
@@ -48,7 +48,7 @@ let p_general_address_literal p =
   @ fun content ->
     (* XXX:  we already try to parse IPv6 tag, so if we are in this
              case, we have an invalid IPv6 data.
-       TODO: may be it's useful to associate a lexer with the tag
+       TODO: may be it's useful to associate a Decoder with the tag
              and try this. I have no time for that.
     *)
     if Iana.Set.exists ((=) tag) Iana.tag && tag <> "IPv6"

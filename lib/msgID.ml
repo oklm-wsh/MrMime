@@ -35,7 +35,7 @@ let of_string s =
   in
 
   let rule = Rfc5322.p_msg_id (fun data state -> `Ok data) in
-  loop @@ BaseLexer.safe rule (Lexer.of_string (s ^ "\r\n\r\n"))
+  loop @@ BaseDecoder.safe rule (Decoder.of_string (s ^ "\r\n\r\n"))
 
 let to_string t =
   let tmp = Buffer.create 16 in

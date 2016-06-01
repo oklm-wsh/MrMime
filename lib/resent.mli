@@ -11,6 +11,6 @@ type field =
   | `ResentReplyTo of Address.List.t ]
 
 val field_of_lexer : Rfc5322.resent -> field
-val of_lexer : ([> Rfc5322.resent ] as 'resent) list -> (t option -> 'resent list -> Lexer.t -> 'a) -> Lexer.t -> 'a
+val of_lexer : ([> Rfc5322.resent ] as 'resent) list -> (t option -> 'resent list -> Decoder.t -> 'a) -> Decoder.t -> 'a
 
 val pp       : Format.formatter -> t -> unit

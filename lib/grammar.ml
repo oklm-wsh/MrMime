@@ -1,4 +1,4 @@
-open BaseLexer
+open BaseDecoder
 
 type field =
   [ Header.field

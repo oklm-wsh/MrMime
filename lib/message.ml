@@ -14,12 +14,12 @@ let of_string s : t =
     | `Error (err, buf, off, len) ->
       raise (Error.Error (`Error (err, buf, off, len)))
     | `Read (buf, off, len, k) ->
-      raise (Error.Error (Error.err_nothing_to_do { Lexer.buffer = buf; pos = off; len; }))
+      raise (Error.Error (Error.err_nothing_to_do { Decoder.buffer = buf; pos = off; len; }))
     | `Ok data -> data
   in
 
   let rule = Grammar.p_message (fun header message state -> `Ok (header, message)) in
-  loop @@ BaseLexer.safe rule (Lexer.of_string s)
+  loop @@ BaseDecoder.safe rule (Decoder.of_string s)
 
 let equal = (=)
 

@@ -1,4 +1,4 @@
-open BaseLexer
+open BaseDecoder
 open Rfc822
 
 type month =
@@ -637,7 +637,7 @@ let p_domain_literal p =
       @ fun _ state ->
         Rfc5321.p_address_literal
         (fun d state' ->
-         let open Lexer in
+         let open Decoder in
          if state'.pos = state'.len
          (* XXX: we use the old state! *)
          then p d state
@@ -647,7 +647,7 @@ let p_domain_literal p =
                      (Error.err_unexpected_str
                       (Bytes.sub state'.buffer state'.pos (state'.len - state'.pos))
                       state')))
-        (Lexer.of_string @@ String.concat "" @@ List.rev acc)
+        (Decoder.of_string @@ String.concat "" @@ List.rev acc)
     | chr when is_dtext chr || chr = '\\' ->
       p_dtext
       @ fun s -> p_fws

@@ -19,9 +19,9 @@ type error =
   | `Expected_boundary ]
 
 let err e state                       = `Error
-                                        (e, state.Lexer.buffer,
-                                            state.Lexer.pos,
-                                            state.Lexer.len)
+                                        (e, state.Decoder.buffer,
+                                            state.Decoder.pos,
+                                            state.Decoder.len)
 let err_unexpected_eoi state          = err `Unexpected_eoi state
 let err_expected chr state            = err (`Expected_char chr) state
 let err_expected_set set state        = err (`Expected_set set) state

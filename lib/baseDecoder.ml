@@ -1,4 +1,4 @@
-open Lexer
+open Decoder
 
 let safe k state =
   try k state

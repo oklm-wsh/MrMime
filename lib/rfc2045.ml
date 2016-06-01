@@ -1,4 +1,4 @@
-open BaseLexer
+open BaseDecoder
 
 type discrete =
   [ `Application
@@ -92,7 +92,7 @@ let p_composite_type p =
     fun state ->
       p_extension_token
         (fun t _ -> p t state)
-        (Lexer.of_string extension_token)
+        (Decoder.of_string extension_token)
 
 let p_discrete_type p =
   p_token @ function
@@ -105,7 +105,7 @@ let p_discrete_type p =
     fun state ->
       p_extension_token
         (fun t _ -> p t state)
-        (Lexer.of_string extension_token)
+        (Decoder.of_string extension_token)
 
 let p_msg_id = Rfc822.p_msg_id
 
@@ -121,7 +121,7 @@ let p_mechanism p =
       (cur_chr @ function
        | 'X' | 'x' -> p_x_token (fun t _ -> p t state)
        | chr       -> p_ietf_token (fun t _ -> p t state))
-      (Lexer.of_string extension_token)
+      (Decoder.of_string extension_token)
 
 let p_type p =
   p_token @ fun token -> match String.lowercase_ascii token with
@@ -139,7 +139,7 @@ let p_type p =
     fun state ->
       (p_extension_token
        @ fun t _ -> p t state)
-      (Lexer.of_string extension_token)
+      (Decoder.of_string extension_token)
 
 let ty_to_string = function
   | `Text -> "text"
@@ -220,7 +220,7 @@ let p_mechanism p =
     fun state ->
       p_extension_token
         (fun t _ -> p t state)
-        (Lexer.of_string extension_token)
+        (Decoder.of_string extension_token)
 
 let p_encoding p =
   Rfc822.p_cfws

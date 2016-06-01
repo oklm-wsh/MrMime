@@ -42,8 +42,8 @@ val to_string      : strict -> string
 val of_lexer       :
   ('date, 'from) Relax.t ->
   ([> Rfc5322.field ] as 'field) list ->
-  (('date, 'from) t -> 'field list -> Lexer.t -> 'a) ->
-  Lexer.t -> 'a
+  (('date, 'from) t -> 'field list -> Decoder.t -> 'a) ->
+  Decoder.t -> 'a
 
 val equal          : ('date, 'from) t -> ('date, 'from) t -> bool
 val pp             : Format.formatter -> strict -> unit
