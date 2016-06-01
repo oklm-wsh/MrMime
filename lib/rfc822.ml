@@ -178,7 +178,8 @@ let rec p_fws p state =
   let has_line state =
     let tmp = Buffer.create 16 in
     let rec loop cr_read j =
-      Buffer.add_char tmp (Bytes.get state.Decoder.buffer j);
+      if j < state.Decoder.len
+      then Buffer.add_char tmp (Bytes.get state.Decoder.buffer j);
 
       if j >= state.Decoder.len then false
       else
