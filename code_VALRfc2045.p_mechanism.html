@@ -45,7 +45,5 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"quoted-printable"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">QuotedPrintable</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"base64"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mechanism&nbsp;(ext&nbsp;token):&nbsp;%S\n%!"</span>&nbsp;extension_token];
+&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token</code></body></html>

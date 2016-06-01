@@ -45,7 +45,4 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"video"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"application"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token</code></body></html>

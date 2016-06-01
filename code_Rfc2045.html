@@ -128,10 +128,7 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"message"</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"multipart"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token
 
 <span class="keyword">let</span>&nbsp;p_discrete_type&nbsp;p&nbsp;=
 &nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">function</span>
@@ -141,26 +138,9 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"video"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"application"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token
 
 <span class="keyword">let</span>&nbsp;p_msg_id&nbsp;=&nbsp;<span class="constructor">Rfc822</span>.p_msg_id
-
-<span class="keyword">let</span>&nbsp;p_mechanism&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase_ascii&nbsp;token&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"7bit"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit7</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"8bit"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit8</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"binary"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Binary</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"quoted-printable"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Quoted_printable</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"base64"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(cur_chr&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'X'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'x'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_x_token&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_ietf_token&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
 
 <span class="keyword">let</span>&nbsp;p_type&nbsp;p&nbsp;=
 &nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase_ascii&nbsp;token&nbsp;<span class="keyword">with</span>
@@ -175,10 +155,7 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"multipart"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>
 &nbsp;&nbsp;<span class="comment">(*&nbsp;extension-type&nbsp;*)</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_extension_token
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token
 
 <span class="keyword">let</span>&nbsp;ty_to_string&nbsp;=&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"text"</span>
@@ -256,10 +233,8 @@
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"quoted-printable"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">QuotedPrintable</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"base64"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_extension_token
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;t&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;t&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Decoder</span>.of_string&nbsp;extension_token)
+&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mechanism&nbsp;(ext&nbsp;token):&nbsp;%S\n%!"</span>&nbsp;extension_token];
+&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token
 
 <span class="keyword">let</span>&nbsp;p_encoding&nbsp;p&nbsp;=
 &nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws
