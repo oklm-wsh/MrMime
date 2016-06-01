@@ -109,20 +109,6 @@ let p_discrete_type p =
 
 let p_msg_id = Rfc822.p_msg_id
 
-let p_mechanism p =
-  p_token @ fun token -> match String.lowercase_ascii token with
-  | "7bit" -> p `Bit7
-  | "8bit" -> p `Bit8
-  | "binary" -> p `Binary
-  | "quoted-printable" -> p `Quoted_printable
-  | "base64" -> p `Base64
-  | extension_token ->
-    fun state ->
-      (cur_chr @ function
-       | 'X' | 'x' -> p_x_token (fun t _ -> p t state)
-       | chr       -> p_ietf_token (fun t _ -> p t state))
-      (Decoder.of_string extension_token)
-
 let p_type p =
   p_token @ fun token -> match String.lowercase_ascii token with
   (* discrete-type *)
