@@ -87,7 +87,7 @@ let of_filename filename =
   Lwt_io.open_file ~mode:Lwt_io.Input filename
 
 let message ?(newline = LF) input =
-  let state = Lexer.make () in
+  let state = Decoder.make () in
   of_flow (input, state) newline
     (Grammar.p_message
     (fun header message _ -> `Ok (header, message)) state)
@@ -105,3 +105,77 @@ let convert input =
   in
 
   aux 0 1024
+
+let read_into' ?(newline = LF) channel buf off len =
+  if len + off > Bytes.length buf
+     || off < 0
+     || len < 0
+  then raise (Invalid_argument "index out of bound");
+
+  let last = len + off in
+
+  match newline with
+  | CRLF -> input channel buf off len
+  | CR ->
+    let rec read_char has_cr remaining =
+      assert (remaining >= 0);
+
+      if remaining = 0 then len
+      else match input_char channel with
+           | '\n' when has_cr ->
+             read_char false remaining
+           | '\r' ->
+             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
+             read_char true  (remaining - 2)
+           | chr  ->
+             Bytes.set buf (last - remaining) chr;
+             read_char false (pred remaining)
+           | exception End_of_file -> (len - remaining)
+    in
+
+    read_char false len
+  | LF ->
+    let rec read_char has_cr remaining =
+      assert (remaining >= 0);
+
+      if remaining = 0 then len
+      else match input_char channel with
+           | '\n' when not has_cr && remaining >= 2 ->
+             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
+             read_char false (remaining - 2)
+           | '\n' when not has_cr && remaining = 1 ->
+             let pos = pos_in channel in
+             seek_in channel (pred pos);
+             (len - remaining)
+           | '\r' ->
+             Bytes.set buf (last - remaining) '\r';
+             read_char true  (pred remaining)
+           | chr  ->
+             Bytes.set buf (last - remaining) chr;
+             read_char false (pred remaining)
+           | exception End_of_file -> (len - remaining)
+    in
+
+    read_char false len
+
+let rec of_flow' (ch, decoder) newline =
+  let rec aux = function
+    | `Read (buff, off, len, k) ->
+      let n = read_into' ~newline ch buff off len in
+      Printf.printf "read> [%d]\n%!" n;
+      aux (k n)
+    | `Error (err, buff, off, len) ->
+      raise (Error.Error (`Error (err, buff, off, len)))
+    | `Ok message -> message
+  in
+
+  aux
+
+let of_filename' filename =
+  open_in filename
+
+let message' ?(newline = LF) input =
+  let state = Decoder.make () in
+  of_flow' (input, state) newline
+    (Grammar.p_message
+    (fun header message _ -> `Ok (header, message)) state)
