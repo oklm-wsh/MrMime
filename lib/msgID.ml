@@ -1,47 +1,79 @@
-open BasePrinter
-
 type left  = Rfc5322.left
 type right = Rfc5322.right
 type t     = { left : left; right : right; }
 
-let p = Format.fprintf
+module D =
+struct
+  let of_lexer (left, right) =
+    { left; right; }
 
-let pp_right fmt = function
-  | `Domain l -> p fmt "%a" (pp_list ~sep:"." pp_atom) l
-  | `Literal s -> p fmt "[%a]" (pp_string ~in_qs:false ~in_dm:true) s
+  open BaseDecoder
 
-let pp_left fmt =
-  p fmt "%a" (pp_list ~sep:"." pp_word)
+  let of_decoder state =
+    let rec loop = function
+      | `Error (exn, buf, off, len) ->
+        let tmp = Buffer.create 16 in
+        let fmt = Format.formatter_of_buffer tmp in
 
-let pp fmt { left; right; } =
-  p fmt "<%a@%a>" pp_left left pp_right right
+        Format.fprintf fmt "%a (buf: %S)%!"
+          Error.pp exn (Bytes.sub buf off (len - off));
 
-let of_lexer (left, right) =
-  { left; right; }
+        raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
+      | `Read (buf, off, len, k) ->
+        raise (Invalid_argument "Address.of_string: unterminated string")
+      | `Ok data -> of_lexer data
+    in
 
-let of_string s =
-  let rec loop = function
-    | `Error (exn, buf, off, len) ->
-      let tmp = Buffer.create 16 in
-      let fmt = Format.formatter_of_buffer tmp in
+    let rule = Rfc5322.p_msg_id (fun data state -> `Ok data) in
+    loop @@ safe rule state
+end
 
-      Format.fprintf fmt "%a (buf: %S)%!"
-        Error.pp exn (Bytes.sub buf off (len - off));
+module E =
+struct
+  module Internal =
+  struct
+    open BaseEncoder
+    open Wrap
 
-      raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
-    | `Read (buf, off, len, k) ->
-      raise (Invalid_argument "Address.of_string: unterminated string")
-    | `Ok data -> of_lexer data
-  in
+    let w_left = Address.E.w_local
+    let w_right = Address.E.w_domain
 
-  let rule = Rfc5322.p_msg_id (fun data state -> `Ok data) in
-  loop @@ BaseDecoder.safe rule (Decoder.of_string (s ^ "\r\n\r\n"))
+    let w_msg_id { left; right; } =
+      w_hovbox 1
+      $ w_char '<'
+      $ w_hovbox 1
+      $ w_left left
+      $ w_close_box
+      $ w_char '@'
+      $ w_hovbox 1
+      $ w_right (right :> Address.domain)
+      $ w_close_box
+      $ w_char '>'
+      $ w_close_box
+  end
 
-let to_string t =
-  let tmp = Buffer.create 16 in
-  let fmt = Format.formatter_of_buffer tmp in
+  let w = Internal.w_msg_id
 
-  Format.fprintf fmt "%a%!" pp t;
-  Buffer.contents tmp
+  let to_buffer t state =
+    let buf = Buffer.create 16 in
+
+    let rec loop = function
+      | `Partial (s, i, l, k) ->
+        Buffer.add_subbytes buf s i l;
+        loop @@ (k l)
+      | `Ok -> buf
+    in
+
+    let rule =
+      let open BaseEncoder in
+      let ok = flush (fun _ -> `Ok) in
+      Wrap.lift Wrap.(Internal.w_msg_id t (unlift ok))
+    in
+
+    loop @@ rule state
+end
+
+let of_string s = D.of_decoder (Decoder.of_string s)
+let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
 
 let equal = (=)
