@@ -1096,9 +1096,9 @@ let p_phrase_or_msg_id p =
 let p_received_token p =
   let rec loop acc =
     (p_addr_spec @ fun (local, domain) state -> `Ok ((local, [domain]), state))
-    / ((p_angle_addr @ fun data state -> `Ok (data, state))
-       / ((p_domain @ fun data state -> `Ok (data, state))
-          / ((p_word @ fun data state -> `Ok (data, state))
+    / ((p_angle_addr @ ok)
+       / ((p_domain @ ok)
+          / ((p_word @ ok)
              / (p_cfws @ fun _ -> p (List.rev acc))
              @ (fun data -> loop (`Word data :: acc)))
           @ (fun data -> loop (`Domain data :: acc)))
