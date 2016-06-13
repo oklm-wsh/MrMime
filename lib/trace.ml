@@ -1,12 +1,10 @@
 (* TODO: implement RFC 5321 § 4.4 *)
 
-open BasePrinter
-
 type word = [ `Word of Rfc5322.word ]
 
 type received =
   [ word
-  | `Domain of Address.domain
+  | `Domain  of Address.domain
   | `Mailbox of Address.mailbox ]
 
 type t =
@@ -20,64 +18,49 @@ type field =
 let field_of_lexer : Rfc5322.trace -> field = function
   | `Received (l, d) ->
     let l = List.map (function
-                      | `Domain d  -> `Domain (Address.domain_of_lexer d)
-                      | `Mailbox a -> `Mailbox (Address.mailbox_of_lexer a)
+                      | `Domain d  -> `Domain (Address.D.domain_of_lexer d)
+                      | `Mailbox a -> `Mailbox (Address.D.mailbox_of_lexer a)
                       | #word as x -> x) l in
-    let d = Option.bind Date.of_lexer d in
+    let d = Option.bind Date.D.of_lexer d in
     `Received (l, d)
-  | `ReturnPath a -> `ReturnPath (Option.bind Address.mailbox_of_lexer a)
+  | `ReturnPath a -> `ReturnPath (Option.bind Address.D.mailbox_of_lexer a)
 
-let of_lexer fields p state =
-  let received = ref [] in
-  let path     = ref None in
+let to_field trace =
+  [`ReturnPath trace.path ]
+  @ (List.map (fun x -> `Received x) trace.received)
 
-  let sanitize fields =
-    match !received, !path with
-    | [], None -> p None fields state
-    | _ -> p (Some { received = List.rev !received
-                   ; path = Option.value ~default:None !path; }) fields state
-  in
+module D =
+struct
+  let of_lexer fields p state =
+    let received = ref [] in
+    let path     = ref None in
 
-  let rec loop garbage fields = match fields with
-    | [] -> sanitize (List.rev garbage)
-    | field :: rest ->
-      match field with
-      | `Received (l, d) ->
-        let l = List.map (function
-                          | `Domain d  -> `Domain (Address.domain_of_lexer d)
-                          | `Mailbox a -> `Mailbox (Address.mailbox_of_lexer a)
-                          | #word as x -> x) l in
-        let d = Option.bind Date.of_lexer d in
-        received := (l, d) :: !received; loop garbage rest
-      | `ReturnPath a ->
-        (match !path with
-         | None   ->
-           path := Some (Option.bind Address.mailbox_of_lexer a);
-           loop garbage rest
-         | Some _ -> sanitize (List.rev (field :: garbage) @ rest))
-      | field -> loop (field :: garbage) rest
-  in
+    let sanitize fields =
+      match !received, !path with
+      | [], None -> p None fields state
+      | _ -> p (Some { received = List.rev !received
+                     ; path = Option.value ~default:None !path; }) fields state
+    in
 
-  loop [] fields
+    let rec loop garbage fields = match fields with
+      | [] -> sanitize (List.rev garbage)
+      | field :: rest ->
+        match field with
+        | `Received (l, d) ->
+          let l = List.map (function
+                            | `Domain d  -> `Domain (Address.D.domain_of_lexer d)
+                            | `Mailbox a -> `Mailbox (Address.D.mailbox_of_lexer a)
+                            | #word as x -> x) l in
+          let d = Option.bind Date.D.of_lexer d in
+          received := (l, d) :: !received; loop garbage rest
+        | `ReturnPath a ->
+          (match !path with
+           | None   ->
+             path := Some (Option.bind Address.D.mailbox_of_lexer a);
+             loop garbage rest
+           | Some _ -> sanitize (List.rev (field :: garbage) @ rest))
+        | field -> loop (field :: garbage) rest
+    in
 
-let pp fmt { received; path; } =
-  let pp_field_opt fmt field_name pp_field field_opt =
-    match field_opt with
-    | Some field -> p fmt "%s: %a\r\n" field_name pp_field field
-    | None       -> ()
-  in
-  let pp_elt fmt = function
-    | `Domain d  -> Address.pp_domain fmt d
-    | `Mailbox m -> p fmt "<%a>" Address.pp_mailbox m
-    | `Word w    -> pp_word fmt w
-  in
-  let pp_opt_date fmt = function
-    | Some date -> p fmt "; %a" Date.pp date
-    | None      -> ()
-  in
-  let pp_received fmt (lst, date) =
-    p fmt "%a%a" (pp_list ~sep:" " pp_elt) lst pp_opt_date date
-  in
-
-  pp_field_opt fmt "Return-Path" Address.pp_mailbox path;
-  List.iter (p fmt "Received: %a\r\n" pp_received) received;
+    loop [] fields
+end
