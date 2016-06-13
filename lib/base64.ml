@@ -2,97 +2,111 @@ open BaseDecoder
 
 module T =
 struct
+  open BaseEncoder
+
   let _to =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
   type t =
-    {
-      buffer       : Bytes.t;
-      mutable seek : int;
-      mutable cnum : int;
-      wrap         : bool;
-    }
+    { state        : Encoder.t
+    ; buffer       : Bytes.t
+    ; mutable seek : int
+    ; mutable cnum : int
+    ; wrap         : bool }
 
-  let make ?(wrap = true) () =
-    { buffer = Bytes.make 2 (Char.chr 255)
-    ; seek = 0
-    ; cnum = 0
-    ; wrap }
+  let lift ?(wrap = true) k state =
+    k { state
+      ; buffer = Bytes.make 2 (Char.chr 255)
+      ; seek   = 0
+      ; cnum   = 0
+      ; wrap }
 
-  let wrap t buf =
-    t.cnum <-
-      if t.cnum + 4 > 76
-      then (Buffer.add_char buf '\n'; 0)
-      else t.cnum + 4
+  let wrap k ({ state; cnum; _ } as t) =
+    if cnum + 4 > 76
+    then w "\n" (fun state -> k { t with state = state; cnum = 0; }) state
+    else k { t with cnum = cnum + 4 }
 
-  let add t chr buf =
-    if t.seek >= 2
+  let add chr k ({ state; buffer; seek; _ } as t) =
+    if seek >= 2
     then begin
-      assert (t.seek = 2);
+      let a, b, c = buffer.[0], buffer.[1], chr in
+      (if t.wrap
+       then wrap
+       else noop)
+      (fun ({ state; _ } as t) ->
+       let quantum =
+         ((Char.code a) lsl 16) +
+         ((Char.code b) lsl 8 ) +
+         ((Char.code c))
+       in
 
-      let a, b, c = t.buffer.[0], t.buffer.[1], chr in
-      if t.wrap then wrap t buf;
+       let a =  quantum lsr 18 in
+       let b = (quantum lsr 12) land 63 in
+       let c = (quantum lsr 6 ) land 63 in
+       let d =  quantum         land 63 in
 
-      t.seek <- 0;
-
-      let quantum =
-        ((Char.code a) lsl 16) +
-        ((Char.code b) lsl 8 ) +
-        ((Char.code c))
-      in
-
-      let a =  quantum lsr 18 in
-      let b = (quantum lsr 12) land 63 in
-      let c = (quantum lsr 6 ) land 63 in
-      let d =  quantum         land 63 in
-      Buffer.add_char buf _to.[a];
-      Buffer.add_char buf _to.[b];
-      Buffer.add_char buf _to.[c];
-      Buffer.add_char buf _to.[d]
+       (w_char _to.[a]
+        $ w_char _to.[b]
+        $ w_char _to.[c]
+        $ w_char _to.[d])
+       (fun state -> k { t with state = state; seek = 0 })
+       state)
+      t
     end else begin
       Bytes.set t.buffer t.seek chr;
-      t.seek <- t.seek + 1
-    end;
+      k { t with seek = seek + 1; }
+    end
 
+  let flush k t =
+    (if t.wrap
+     then wrap
+     else noop)
+    (fun ({ state; buffer; seek; _ } as t) ->
+     match seek with
+     | 2 ->
+       let b, c = buffer.[0], buffer.[1] in
+
+       t.seek <- 0;
+
+       let quantum =
+         ((Char.code b) lsl 10) +
+         ((Char.code c) lsl 2 )
+       in
+
+       let b = (quantum lsr 12) land 63 in
+       let c = (quantum lsr 6 ) land 63 in
+       let d =  quantum         land 63 in
+
+       (w_char _to.[b]
+        $ w_char _to.[c]
+        $ w_char _to.[d]
+        $ w_char '=')
+       (fun state -> k { t with state = state; seek = 0 })
+       state
+     | 1 ->
+       let c = buffer.[0] in
+
+       t.seek <- 0;
+
+       let quantum =
+         ((Char.code c) lsl 4)
+       in
+
+       let c = (quantum lsr 6) land 63 in
+       let d =  quantum        land 63 in
+
+       (w_char _to.[c]
+        $ w_char _to.[d]
+        $ w_char '='
+        $ w_char '=')
+       (fun state -> k { t with state = state; seek = 0 })
+       state
+     | 0 -> k t
+     | _ -> assert false)
     t
 
-  let flush t buf =
-    if t.wrap then wrap t buf;
-    match t.seek with
-    | 2 ->
-      let b, c = t.buffer.[0], t.buffer.[1] in
-
-      t.seek <- 0;
-
-      let quantum =
-        ((Char.code b) lsl 10) +
-        ((Char.code c) lsl 2 )
-      in
-
-      let b = (quantum lsr 12) land 63 in
-      let c = (quantum lsr 6 ) land 63 in
-      let d =  quantum         land 63 in
-      Buffer.add_char buf (_to.[b]);
-      Buffer.add_char buf (_to.[c]);
-      Buffer.add_char buf (_to.[d]);
-      Buffer.add_char buf '='
-    | 1 ->
-      let c = t.buffer.[0] in
-
-      t.seek <- 0;
-
-      let quantum =
-        ((Char.code c) lsl 4)
-      in
-
-      let c = (quantum lsr 6) land 63 in
-      let d =  quantum        land 63 in
-      Buffer.add_char buf (_to.[c]);
-      Buffer.add_char buf (_to.[d]);
-      Buffer.add_char buf '=';
-      Buffer.add_char buf '='
-    | 0 -> ()
-    | _ -> assert false
+  let unlift k t =
+    flush (fun { state; _ } -> k state) t
 end
 
 module F =
@@ -217,47 +231,24 @@ let p_decode stop p state =
 
   decode F.default 0 state
 
-let p_encode stop p state =
-  let buf = Buffer.create 16 in
+open BaseEncoder
 
-  let rec encode base64 state =
-    let rec aux = function
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
-      | `Stop state ->
-        T.flush base64 buf;
-        p (Buffer.contents buf) state
-      | `Continue state ->
-        (cur_chr
-         @ fun chr -> junk_chr
-         @ encode (T.add base64 chr buf))
-        state
-    in aux (stop state)
+let explode str =
+  let rec exp i l =
+    if i < 0 then l else exp (i - 1) (str.[i] :: l) in
+  exp (String.length str - 1) []
+
+let w_inline_encode str k =
+  T.lift ~wrap:false
+    (List.fold_right T.add (explode str) (T.unlift k))
+
+let w_encode content k =
+  let len = String.length content in
+
+  let rec loop idx k =
+    if idx < len
+    then T.add (String.get content idx) @@ loop (idx + 1) k
+    else k
   in
 
-  encode (T.make ()) state
-
-let p_encode' ?(wrap = true) stop p state =
-  let buf = Buffer.create 16 in
-
-  let rec encode base64 state =
-    let rec aux = function
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
-      | `Stop state ->
-        T.flush base64 buf;
-        p (Buffer.contents buf) state
-      | `Continue state ->
-        (cur_chr
-         @ fun chr -> junk_chr
-         @ encode (T.add base64 chr buf))
-        state
-    in aux (stop state)
-  in
-
-  encode (T.make ~wrap ()) state
-
-let p_encode stop p state = p_encode' ~wrap:true stop p state
-let p_inline_encode stop p state = p_encode' ~wrap:false stop p state
+  T.lift (loop 0 @@ T.unlift k)
