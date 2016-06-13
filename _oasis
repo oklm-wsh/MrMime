@@ -30,9 +30,10 @@ Flag trace
 
 Library mrmime
   Path:                 lib
-  Modules:              MrMime, Date, LiteralDomain, Address, MsgID, Resent, Trace, MimeVersion, ContentType, ContentEncoding, Content, Header, Message,
-                        Option, BasePrinter, Iana, Error, Decoder, BaseDecoder, Rfc822, Rfc5321, Rfc5322, Rfc6854, Rfc2045, Base64, QuotedPrintable, Rfc2046, Rfc2047, Grammar
-  BuildDepends:         ipaddr
+  Modules:              MrMime, Newline, Date, LiteralDomain, Address, MsgID, Resent, Trace, MimeVersion, ContentType, ContentEncoding, Content, Header, Message,
+                        Option, Iana, Error, Decoder, BaseDecoder, Encoder, BaseEncoder, Wrap,
+                        Rfc822, Rfc5321, Rfc5322, Rfc6854, Rfc2045, Base64, QuotedPrintable, Rfc2046, Rfc2047, Grammar
+  BuildDepends:         ipaddr, ppx_deriving.show
 
 SourceRepository master
   Type:                 git
