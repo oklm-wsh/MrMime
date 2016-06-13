@@ -9,6 +9,8 @@ let make_pp_test s =
   Printf.sprintf "%S" s,
   `Slow,
   (fun () -> let a = Date.of_string s in
+   Printf.eprintf "%s\n%!" s;
+   Printf.eprintf "%s\n%!" (Date.to_string a);
    Alcotest.(check date) "pp" a (Date.of_string @@ Date.to_string a))
 
 let tests =
