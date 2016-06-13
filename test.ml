@@ -174,6 +174,11 @@ let rec of_flow' (ch, decoder) newline =
 let of_filename' filename =
   open_in filename
 
+let to_filename' filename content =
+  let ch = open_out filename in
+  output_string ch content;
+  close_out ch
+
 let message' ?(newline = LF) input =
   let state = Decoder.make () in
   of_flow' (input, state) newline
