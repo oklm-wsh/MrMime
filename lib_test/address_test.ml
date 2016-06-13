@@ -1,4 +1,11 @@
-let address_list = (module Address.List : Alcotest.TESTABLE with type t = Address.List.t)
+module A =
+struct
+  type t = Address.t list
+
+  include Address.List
+end
+
+let address_list = (module A : Alcotest.TESTABLE with type t = A.t)
 
 let make_compute_test s =
   Printf.sprintf "%S" s,

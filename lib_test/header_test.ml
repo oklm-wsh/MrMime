@@ -1,12 +1,12 @@
-module StrictHeader =
+module UnstrictHeader =
 struct
-  type t = Header.strict
+  type t = Header.unstrict
 
   let pp = Header.pp
   let equal : t -> t -> bool = Header.equal
 end
 
-let header = (module StrictHeader : Alcotest.TESTABLE with type t = StrictHeader.t)
+let header = (module UnstrictHeader : Alcotest.TESTABLE with type t = UnstrictHeader.t)
 
 let make_compute_test s =
   Printf.sprintf "header",
@@ -17,7 +17,7 @@ let make_pp_test s =
   Printf.sprintf "header",
   `Slow,
   (fun () -> let a = Header.of_string s in
-   Format.eprintf "%a\n----------\n%!" Header.pp a;
+   Format.eprintf "%s\n----------\n%!" s;
    Format.eprintf "%s\n----------\n%!" (Header.to_string a);
    Alcotest.(check header) "pp" a (Header.of_string @@ Header.to_string a))
 
