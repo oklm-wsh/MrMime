@@ -8,80 +8,144 @@ type t =
   ; time : int * int * int option
   ; tz   : tz }
 
-let of_lexer (day, (d, m, y), (hh, mm, ss), tz) =
-  { day; date = (d, m, y); time = (hh, mm, ss); tz; }
+module D =
+struct
+  let of_lexer (day, (d, m, y), (hh, mm, ss), tz) =
+    { day; date = (d, m, y); time = (hh, mm, ss); tz; }
 
-let of_string s =
-  let rec loop = function
-    | `Error (exn, buf, off, len) ->
-      let tmp = Buffer.create 16 in
-      let fmt = Format.formatter_of_buffer tmp in
+  open BaseDecoder
 
-      Format.fprintf fmt "%a (buf: %S)%!"
-        Error.pp exn (Bytes.sub buf off (len - off));
+  let of_decoder state =
+    let rec loop = function
+      | `Error (exn, buf, off, len) ->
+        let tmp = Buffer.create 16 in
+        let fmt = Format.formatter_of_buffer tmp in
 
-      raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
-    | `Read (buf, off, len, k) ->
-      raise (Invalid_argument "Address.of_string: unterminated string")
-    | `Ok data -> of_lexer data
-  in
+        Format.fprintf fmt "%a (buf: %S)%!"
+          Error.pp exn (Bytes.sub buf off (len - off));
 
-  let rule = Rfc5322.p_date_time (fun data state -> `Ok data) in
-  loop @@ BaseDecoder.safe rule (Decoder.of_string (s ^ "\r\n\r\n"))
+        raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
+      | `Read (buf, off, len, k) ->
+        raise (Invalid_argument "Address.of_string: unterminated string")
+      | `Ok data -> of_lexer data
+    in
 
-let p = Format.fprintf
+    let rule =
+      Rfc5322.p_date_time
+      @ fun date -> Rfc822.p_crlf
+      @ Rfc822.p_crlf
+      @ fun _ -> `Ok date
+    in
 
-let pp_day fmt = function
-  | Some `Mon -> p fmt "Mon, "
-  | Some `Tue -> p fmt "Tue, "
-  | Some `Wed -> p fmt "Wed, "
-  | Some `Thu -> p fmt "Thu, "
-  | Some `Fri -> p fmt "Fri, "
-  | Some `Sat -> p fmt "Sat, "
-  | Some `Sun -> p fmt "Sun, "
-  | None -> ()
+    loop @@ safe rule state
+end
 
-let pp_month fmt = function
-  | `Jan -> p fmt "Jan"
-  | `Feb -> p fmt "Feb"
-  | `Mar -> p fmt "Mar"
-  | `Apr -> p fmt "Apr"
-  | `May -> p fmt "May"
-  | `Jun -> p fmt "Jun"
-  | `Jul -> p fmt "Jul"
-  | `Aug -> p fmt "Aug"
-  | `Sep -> p fmt "Sep"
-  | `Oct -> p fmt "Oct"
-  | `Nov -> p fmt "Nov"
-  | `Dec -> p fmt "Dec"
+module E =
+struct
+  module Internal =
+  struct
+    open BaseEncoder
+    open Wrap
 
-let pp_second fmt = function
-  | Some ss -> p fmt ":%02d" ss
-  | None -> ()
+    let w_day = function
+      | `Sat -> w_string "Sat"
+      | `Fri -> w_string "Fri"
+      | `Mon -> w_string "Mon"
+      | `Wed -> w_string "Wed"
+      | `Sun -> w_string "Sun"
+      | `Tue -> w_string "Tue"
+      | `Thu -> w_string "Thu"
 
-let pp_tz fmt = function
-  | `TZ n -> p fmt "%c%04d" (if n < 0 then '-' else '+') (abs n)
-  | `UT -> p fmt "UT"
-  | `GMT -> p fmt "GMT"
-  | `EST -> p fmt "EST"
-  | `EDT -> p fmt "EDT"
-  | `CST -> p fmt "CST"
-  | `CDT -> p fmt "CDT"
-  | `MST -> p fmt "MST"
-  | `MDT -> p fmt "MDT"
-  | `PST -> p fmt "PST"
-  | `PDT -> p fmt "PDT"
-  | `Military_zone chr -> p fmt "%c" chr
+    let w_date (day, month, year) =
+      w_hovbox 1
+      $ w_string (string_of_int day)
+      $ w_close_box
+      $ w_space
+      $ w_hovbox 1
+      $ (match month with
+         | `Feb -> w_string "Feb"
+         | `Mar -> w_string "Mar"
+         | `Dec -> w_string "Dec"
+         | `Jul -> w_string "Jul"
+         | `Sep -> w_string "Sep"
+         | `Nov -> w_string "Nov"
+         | `Aug -> w_string "Aug"
+         | `Jun -> w_string "Jun"
+         | `May -> w_string "May"
+         | `Apr -> w_string "Apr"
+         | `Oct -> w_string "Oct"
+         | `Jan -> w_string "Jan")
+      $ w_close_box
+      $ w_space
+      $ w_hovbox 1
+      $ w_string (string_of_int year)
+      $ w_close_box
 
-let pp fmt { day; date = (d, m, y); time = (hh, mm, ss); tz } =
-  p fmt "%a%02d %a %d %02d:%02d%a %a"
-    pp_day day d pp_month m y hh mm pp_second ss pp_tz tz
+    let w_time (hh, mm, ss) =
+      w_hovbox 1
+      $ w_string (sp "%02d" hh)
+      $ w_close_box
+      $ w_string ":"
+      $ w_hovbox 1
+      $ w_string (sp "%02d" mm)
+      $ w_close_box
+      $ match ss with
+        | Some ss -> w_string ":" $ w_hovbox 1 $ w_string (sp "%02d" ss) $ w_close_box
+        | None -> noop
 
-let to_string date =
-  let tmp = Buffer.create 16 in
-  let fmt = Format.formatter_of_buffer tmp in
+    let w_tz = function
+    | `TZ zone -> w_string (sp "%c%04d" (if zone < 0 then '-' else '+') (abs zone))
+    | `Military_zone c -> w_string (sp "%c" c)
+    | `GMT -> w_string "GMT"
+    | `PST -> w_string "PST"
+    | `UT  -> w_string "UT"
+    | `EDT -> w_string "EDT"
+    | `PDT -> w_string "PDT"
+    | `CST -> w_string "CST"
+    | `CDT -> w_string "CDT"
+    | `MDT -> w_string "MDT"
+    | `MST -> w_string "MST"
+    | `EST -> w_string "EST"
 
-  Format.fprintf fmt "%a%!" pp date;
-  Buffer.contents tmp
+    let w_date { day; date; time; tz } =
+      w_hovbox 1
+      $ (match day with
+         | Some day -> w_day day $ w_string "," $ w_space
+         | None -> noop)
+      $ w_date date
+      $ w_space
+      $ w_time time
+      $ w_space
+      $ w_hovbox 1
+      $ w_tz tz
+      $ w_close_box
+      $ w_close_box
+  end
+
+  let w = Internal.w_date
+
+  let to_buffer date state =
+    let buf = Buffer.create 16 in
+
+    let rec loop = function
+      | `Partial (s, i, l, k) ->
+        Buffer.add_subbytes buf s i l;
+        loop @@ (k l)
+      | `Ok -> buf
+    in
+
+    let rule =
+      let open BaseEncoder in
+      let ok = flush (fun _ -> `Ok) in
+      Wrap.lift Wrap.(Internal.w_date date (unlift ok))
+    in
+
+    loop @@ rule state
+end
+
+let of_string s = D.of_decoder (Decoder.of_string (s ^ "\r\n\r\n"))
+let to_string d = Buffer.contents @@ E.to_buffer d (Encoder.make ())
 
 let equal = (=)
+
+let pp fmt _ = Format.fprintf fmt "#date"
