@@ -2,8 +2,7 @@ open BaseDecoder
 
 type field =
   [ Header.field
-  | Content.field
-  | MimeVersion.field ]
+  | Content.Message.field ]
 
 (* composition between RFC 5322 and RFC 2045 about the header *)
 let p_header p state =
@@ -15,10 +14,10 @@ let p_header p state =
       (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state))))
     p state
 
-(* check of the header, eg. {!val:Header.of_lexer} and {!val:Content.of_lexer} *)
+(* check of the header, eg. {!val:Header.D.of_lexer} and {!val:Content.D.of_lexer} *)
 let c_header fields p =
-  Header.of_lexer Header.Relax.unstrict fields
-  @ fun header rest -> Content.of_lexer rest
+  Header.D.of_lexer Header.Relax.unstrict fields
+  @ fun header rest -> Content.Message.D.of_lexer rest
   @ fun content rest -> p header content
 
 (* composition betweeen RFC 5322/body, RFC 2045/Base64/body and RFC
@@ -56,8 +55,7 @@ let p_body boundary content =
 
 let field_of_lexer = function
   | #Rfc5322.field as x -> (Header.field_of_lexer x :> field)
-  | #Rfc2045.field as x -> (Content.field_of_lexer x :> field)
-  | #Rfc2045.mime_field as x -> (MimeVersion.field_of_lexer x :> field)
+  | (#Rfc2045.field | #Rfc2045.mime_field) as x -> (Content.Message.field_of_lexer x :> field)
 
 (* compute the multipart explained in RFC 2046 § 5 *)
 let rec p_multipart boundary p_body' p state =
@@ -68,7 +66,7 @@ let rec p_multipart boundary p_body' p state =
        let rec aux p_body' boundary fields next =
          [%debug Printf.printf "state: p_multipart/aux\n%!"];
 
-         Content.of_lexer fields @@ fun content rest ->
+         Content.Part.D.of_lexer fields @@ fun content rest ->
            match ContentType.ty @@ Content.ty content with
            | #Rfc2045.other
            | #Rfc2045.discrete ->
