@@ -1,7 +1,15 @@
+let () = Printexc.record_backtrace true
+
 type t =
   { mutable buffer : Bytes.t
   ; mutable pos    : int
   ; mutable len    : int }
+
+type 'r read = [> `Read of (Bytes.t * int * int * (int -> 'r)) ] as 'r
+
+type 'r k0           = (t -> 'r) -> t -> 'r
+type ('a, 'r) k1     = ('a -> t -> 'r) -> t -> 'r
+type ('a, 'b, 'r) k2 = ('a -> 'b -> t -> 'r) -> t -> 'r
 
 let make ?(len = 1024) () =
   { buffer = Bytes.create len
