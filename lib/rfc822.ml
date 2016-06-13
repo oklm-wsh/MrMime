@@ -702,6 +702,8 @@ let p_domain p =
   [%debug Printf.printf "state: p_domain\n%!"];
 
   let p_obs_domain' p =
+    [%debug Printf.printf "state: p_obs_domain'\n%!"];
+
     let rec loop acc =
       cur_chr
       @ function
