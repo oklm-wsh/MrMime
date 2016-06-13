@@ -1,7 +1,7 @@
 module F =
 struct
   let add_newline buf =
-    Buffer.add_char buf '\n'
+    Buffer.add_string buf Newline.newline
 
   let hex a b =
     let aux code = match code with
@@ -28,68 +28,93 @@ end
 
 module T =
 struct
+  open BaseEncoder
+
   let _to = "0123456789ABCDEF"
 
   type t =
-    { word             : Buffer.t
+    { state            : Encoder.t
+    ; word             : Buffer.t
     ; mutable position : int }
 
-  let make () =
-    { word = Buffer.create 16
-    ; position = 0 }
+  let lift k state =
+    k { state
+      ; word     = Buffer.create 16
+      ; position = 0 }
 
-  let add_break buf ({ position; _ } as t) =
+  let add_break k ({ state; position; _ } as t) =
     if position > 0
-    then begin
-      Buffer.add_string buf "=\n";
-      t.position <- 0;
-    end
+    then w "=\n" (fun state -> k { t with position = 0; state = state }) state
+    else k t
 
-  let commit_word buf ({ position; word; } as t) =
-    if position + Buffer.length word >= 76
-    then add_break buf t;
+  let commit_word k ({ position; word; } as t) =
+    (if position + Buffer.length word >= 76
+     then add_break
+     else noop)
+    (fun ({ state; word; position; } as t) ->
+     w (Buffer.contents word)
+       (fun state ->
+        let len = Buffer.length word in
+        Buffer.clear word; k { t with state = state; position = position + len; })
+       state)
+    t
 
-    Buffer.add_buffer buf word;
-    t.position <- t.position + Buffer.length word;
-    Buffer.clear word
+  let wrap_bigword length k ({ word; _ } as t) =
+    let wrapping =
+      if Buffer.length word >= 76 - length
+      then add_break
+      else noop
+    in
 
-  (* XXX: or TODO, does not handle a word with size > 76 *)
-  let wrap_bigword buf ({ word; _ } as t) length =
-    if Buffer.length word >= 76 then add_break buf t;
+    wrapping
+      (fun ({ state; word; position; } as t) ->
+       w (Buffer.contents word)
+         (fun state ->
+          let len = Buffer.length word in
+          Buffer.clear word;
+          wrapping k { t with state = state; position = position + len; })
+         state)
+      t
 
-    Buffer.add_buffer buf word;
-    t.position <- t.position + Buffer.length word;
-    Buffer.clear word
+  let add_char chr =
+    wrap_bigword 1
+    $ fun k ({ state; _ } as t) ->
+      w_char chr (fun state -> k { t with state = state }) state
 
-  let add_char buf ({ word; _ } as t) chr =
-    wrap_bigword buf t 1;
-    Buffer.add_char word chr
+  let add_quoted_char chr k =
+    wrap_bigword 3
+      (fun ({ word; _ } as t) ->
 
-  let add_quoted_char buf ({ word; _ } as t) chr =
-    wrap_bigword buf t 3;
+       let code = Char.code chr in
+       let h    = (code lsr 4) land (16 - 1) in
+       let l    =  code        land (16 - 1) in
 
-    let code = Char.code chr in
-    let h    = (code lsr 4) land (16 - 1) in
-    let l    =  code        land (16 - 1) in
+       Buffer.add_char word '=';
+       Buffer.add_char word _to.[h];
+       Buffer.add_char word _to.[l];
 
-    Buffer.add_char word '=';
-    Buffer.add_char word _to.[h];
-    Buffer.add_char word _to.[l]
+       k t)
 
-  let add_wsp buf t chr =
-    add_char buf t chr;
-    commit_word buf t
+  let add_wsp = function
+    | `Space ->
+      add_char ' ' $ commit_word
+    | `Tab ->
+      add_char '\t' $ commit_word
 
-  let add_newline buf t chr =
+  let add_newline chr =
+    let rec aux k ({ state; _ } as t) =
+      w "\r\n" (fun state -> k { t with state = state; position = 0 }) state
+    in
     (match chr with
-     | Some chr -> add_quoted_char buf t chr
-     | None -> ());
-    commit_word buf t;
-    Buffer.add_char buf '\n';
-    t.position <- 0
+     | Some chr -> add_quoted_char chr
+     | None -> noop)
+    $ commit_word $ aux
 
-  let flush buf t =
-    commit_word buf t
+  let flush k t =
+    commit_word k t
+
+  let unlift k t =
+    flush (fun { state; _ } -> k state) t
 end
 
 open BaseDecoder
@@ -429,82 +454,71 @@ let p_decode stop p state =
 
   decode state
 
-let p_inline_encode stop p state =
-  let buf = Buffer.create 16 in
+open BaseEncoder
 
-  let rec encode state =
-    let rec aux = function
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
-      | `Stop state -> p (Buffer.contents buf) state
-      | `Continue state ->
-        (cur_chr @ function
+let explode str =
+  let rec exp i l =
+    if i < 0 then l else exp (i - 1) (str.[i] :: l) in
+  exp (String.length str - 1) []
+
+let w_inline_encode str =
+  List.fold_right
+    (function
+     | '\x20' -> w_char '_'
+     | '\x09' -> w "=09"
+     | '?'    -> w "=3F"
+     | '_'    -> w "=5F"
+     | '='    -> w "=3D"
+     | chr    ->
+       if is_safe_char chr
+       then w_char chr
+       else let code = Char.code chr in
+            let h    = (code lsr 4) land (16 - 1) in
+            let l    = code land (16 - 1) in
+            w_char '=' $ w_char (String.get T._to h) $ w_char (String.get T._to l))
+    (explode str)
+
+let w_encode content k =
+  let len = String.length content in
+
+  let recognize_newline idx =
+    if idx < len && idx + (String.length Newline.newline) <= len
+    then let n = ref 0 in
+         let r = ref true in
+         while idx + !n < len
+               && !n < String.length Newline.newline
+         do if String.get Newline.newline !n <> String.get content (idx + !n)
+            then r := false;
+
+            incr n;
+         done;
+
+         !r
+    else false
+  in
+
+  let rec loop idx k =
+    if idx < len
+    then match String.get content idx with
          | '\x20' ->
-           junk_chr
-           @ fun state -> Buffer.add_char buf '_'; encode state
+           if recognize_newline (idx + 1)
+           then T.add_newline (Some '\x20') @@ loop (idx + 2) k
+           else T.add_wsp `Space @@ loop (idx + 1) k
          | '\x09' ->
-           junk_chr
-           @ fun state -> Buffer.add_string buf "=09"; encode state
-         | '?' ->
-           junk_chr
-           @ fun state -> Buffer.add_string buf "=3F"; encode state
-         | '_' ->
-           junk_chr
-           @ fun state -> Buffer.add_string buf "=5F"; encode state
-         | '=' ->
-           junk_chr
-           @ fun state -> Buffer.add_string buf "=3D"; encode state
+           if recognize_newline (idx + 1)
+           then T.add_newline (Some '\x09') @@ loop (idx + 2) k
+           else T.add_wsp `Tab @@ loop (idx + 1) k
+         (* Unix newline encoder *)
+         | '\n' when Newline.is_lf ->
+           T.add_newline None @@ loop (idx + 1) k
+         (* Windows newline encoder *)
+         | '\r' when Newline.is_crlf && (idx + 1 < len) && String.get content (idx + 1) = '\n' ->
+           T.add_newline None @@ loop (idx + 2) k
          | chr when is_safe_char chr ->
-           junk_chr
-           @ fun state -> Buffer.add_char buf chr; encode state
+           T.add_char chr @@ loop (idx + 1) k
          | chr ->
-           junk_chr
-           @ fun state ->
-             let code = Char.code chr in
-             let h    = (code lsr 4) land (16 - 1) in
-             let l    =  code        land (16 - 1) in
-
-             Buffer.add_char buf '=';
-             Buffer.add_char buf T._to.[h];
-             Buffer.add_char buf T._to.[l];
-
-             encode state)
-        state
-    in aux @@ safe stop state
+           T.add_quoted_char chr @@ loop (idx + 1) k
+    else T.flush k
   in
 
-  encode state
-
-let p_encode stop p state =
-  let buf = Buffer.create 16 in
-
-  let rec encode qp state =
-    let rec aux = function
-      | #Error.err as r -> r
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | `Stop state -> p (Buffer.contents buf) state
-      | `Continue state ->
-        (cur_chr @ function
-         | '\x20' | '\x09' as chr ->
-           junk_chr
-           @ cur_chr
-           @ (function
-              | '\n' ->
-                T.add_newline buf qp (Some chr);
-                junk_chr @ encode qp
-              | chr ->
-                T.add_wsp buf qp chr;
-                encode qp)
-         | chr when is_safe_char chr ->
-           T.add_char buf qp chr;
-           junk_chr @ encode qp
-         | chr ->
-           T.add_quoted_char buf qp chr;
-           junk_chr @ encode qp)
-        state
-    in aux (stop state)
-  in
-
-  encode (T.make ()) state
+  T.lift (loop 0 @@ T.unlift k)
