@@ -12,6 +12,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -25,11 +26,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -46,64 +49,14 @@
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
 &nbsp;<a class="post" href="Header.html" title="Header">Next</a>
 </div>
-<h1>Module <a href="type_Content.html">Content</a> (<a href="code_Content.html">.ml</a>)</h1>
+<h1>Module <a href="type_Content.html">Content</a></h1>
 
 <pre><span class="keyword">module</span> Content: <code class="code"><span class="keyword">sig</span></code> <a href="Content.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.ty">ty</span>&nbsp;: <code class="type"><a href="ContentType.html#TYPEt">ContentType.t</a></code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.encoding">encoding</span>&nbsp;: <code class="type"><a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a></code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.version">version</span>&nbsp;: <code class="type"><a href="MimeVersion.html#TYPEt">MimeVersion.t</a></code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.id">id</span>&nbsp;: <code class="type"><a href="MsgID.html#TYPEt">MsgID.t</a> option</code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.description">description</span>&nbsp;: <code class="type">string option</code>;</code></td>
-
-</tr>
-<tr>
-<td align="left" valign="top" >
-<code>&nbsp;&nbsp;</code></td>
-<td align="left" valign="top" >
-<code><span id="TYPEELTt.content">content</span>&nbsp;: <code class="type">(string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a>) list</code>;</code></td>
-
-</tr></table>
-}
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentDescription of string<br>       | `ContentEncoding of <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a><br>       | `ContentID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ContentType of <a href="ContentType.html#TYPEt">ContentType.t</a><br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
-
-
-<pre><span id="VALfield_of_lexer"><span class="keyword">val</span> <a href="code_VALContent.field_of_lexer.html">field_of_lexer</a></span> : <code class="type"><a href="Rfc2045.html#TYPEfield">Rfc2045.field</a> -> <a href="Content.html#TYPEfield">field</a></code></pre>
-<pre><span id="VALty"><span class="keyword">val</span> <a href="code_VALContent.ty.html">ty</a></span> : <code class="type"><a href="Content.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEt">ContentType.t</a></code></pre>
-<pre><span id="VALencoding"><span class="keyword">val</span> <a href="code_VALContent.encoding.html">encoding</a></span> : <code class="type"><a href="Content.html#TYPEt">t</a> -> <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a></code></pre>
-<pre><span id="VALmake"><span class="keyword">val</span> <a href="code_VALContent.make.html">make</a></span> : <code class="type">?ty:<a href="ContentType.html#TYPEt">ContentType.t</a> -><br>       ?encoding:<a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a> -><br>       ?version:<a href="MimeVersion.html#TYPEt">MimeVersion.t</a> -><br>       ?id:<a href="MsgID.html#TYPEt">MsgID.t</a> -><br>       ?description:string -><br>       ?extension:(string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a>) list -> unit -> <a href="Content.html#TYPEt">t</a></code></pre>
-<pre><span id="VALof_lexer"><span class="keyword">val</span> <a href="code_VALContent.of_lexer.html">of_lexer</a></span> : <code class="type">([> `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>         | `ContentDescription of string<br>         | `ContentEncoding of <a href="Rfc2045.html#TYPEencoding">Rfc2045.encoding</a><br>         | `ContentID of <a href="Rfc5322.html#TYPEmsg_id">Rfc5322.msg_id</a><br>         | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>         | `MimeVersion of int * int ]<br>        as 'a)<br>       list -> (<a href="Content.html#TYPEt">t</a> -> 'a list -> 'b -> 'c) -> 'b -> 'c</code></pre>
-<pre><span id="VALp"><span class="keyword">val</span> <a href="code_VALContent.p.html">p</a></span> : <code class="type">Format.formatter -> ('a, Format.formatter, unit) Pervasives.format -> 'a</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALContent.pp.html">pp</a></span> : <code class="type">Format.formatter -> <a href="Content.html#TYPEt">t</a> -> unit</code></pre></body></html>
+<pre><span id="VALty"><span class="keyword">val</span> ty</span> : <code class="type"><a href="Content.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEt">ContentType.t</a></code></pre>
+<pre><span id="VALencoding"><span class="keyword">val</span> encoding</span> : <code class="type"><a href="Content.html#TYPEt">t</a> -> <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a></code></pre>
+<pre><span class="keyword">module</span> <a href="Content.Part.html">Part</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Part.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="Content.Message.html">Message</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Message.html">..</a> <code class="code"><span class="keyword">end</span></code></pre></body></html>

@@ -7,6 +7,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -20,11 +21,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -37,10 +40,11 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T.add_newline</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;add_newline&nbsp;buf&nbsp;t&nbsp;chr&nbsp;=
+<code class="code"><span class="keyword">let</span>&nbsp;add_newline&nbsp;chr&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;k&nbsp;({&nbsp;state;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w&nbsp;<span class="string">"\r\n"</span>&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;state&nbsp;=&nbsp;state;&nbsp;position&nbsp;=&nbsp;0&nbsp;})&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;chr&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;add_quoted_char&nbsp;buf&nbsp;t&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;());
-&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;buf&nbsp;t;
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;<span class="string">'\n'</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;0</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;add_quoted_char&nbsp;chr
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop)
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;commit_word&nbsp;$&nbsp;aux</code></body></html>

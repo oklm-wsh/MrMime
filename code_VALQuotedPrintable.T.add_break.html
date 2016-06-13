@@ -7,6 +7,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -20,11 +21,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -37,9 +40,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T.add_break</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;add_break&nbsp;buf&nbsp;({&nbsp;position;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
+<code class="code"><span class="keyword">let</span>&nbsp;add_break&nbsp;k&nbsp;({&nbsp;state;&nbsp;position;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;position&nbsp;&gt;&nbsp;0
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buf&nbsp;<span class="string">"=\n"</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t.position&nbsp;&lt;-&nbsp;0;
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span></code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;w&nbsp;<span class="string">"=\n"</span>&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;position&nbsp;=&nbsp;0;&nbsp;state&nbsp;=&nbsp;state&nbsp;})&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;k&nbsp;t</code></body></html>

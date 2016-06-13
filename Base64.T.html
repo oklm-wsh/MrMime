@@ -11,6 +11,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -24,11 +25,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -50,6 +53,13 @@
 
 <pre><span id="VAL_to"><span class="keyword">val</span> <a href="code_VALBase64.T._to.html">_to</a></span> : <code class="type">string</code></pre>
 <pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.state">state</span>&nbsp;: <code class="type"><a href="Encoder.html#TYPEt">Encoder.t</a></code>;</code></td>
+
+</tr>
 <tr>
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
@@ -82,7 +92,8 @@
 
 
 
-<pre><span id="VALmake"><span class="keyword">val</span> <a href="code_VALBase64.T.make.html">make</a></span> : <code class="type">?wrap:bool -> unit -> <a href="Base64.T.html#TYPEt">t</a></code></pre>
-<pre><span id="VALwrap"><span class="keyword">val</span> <a href="code_VALBase64.T.wrap.html">wrap</a></span> : <code class="type"><a href="Base64.T.html#TYPEt">t</a> -> Buffer.t -> unit</code></pre>
-<pre><span id="VALadd"><span class="keyword">val</span> <a href="code_VALBase64.T.add.html">add</a></span> : <code class="type"><a href="Base64.T.html#TYPEt">t</a> -> char -> Buffer.t -> <a href="Base64.T.html#TYPEt">t</a></code></pre>
-<pre><span id="VALflush"><span class="keyword">val</span> <a href="code_VALBase64.T.flush.html">flush</a></span> : <code class="type"><a href="Base64.T.html#TYPEt">t</a> -> Buffer.t -> unit</code></pre></body></html>
+<pre><span id="VALlift"><span class="keyword">val</span> <a href="code_VALBase64.T.lift.html">lift</a></span> : <code class="type">?wrap:bool -> (<a href="Base64.T.html#TYPEt">t</a> -> 'a) -> <a href="Encoder.html#TYPEt">Encoder.t</a> -> 'a</code></pre>
+<pre><span id="VALwrap"><span class="keyword">val</span> <a href="code_VALBase64.T.wrap.html">wrap</a></span> : <code class="type">(<a href="Base64.T.html#TYPEt">t</a> -> ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a)) -><br>       <a href="Base64.T.html#TYPEt">t</a> -> 'a</code></pre>
+<pre><span id="VALadd"><span class="keyword">val</span> <a href="code_VALBase64.T.add.html">add</a></span> : <code class="type">char -><br>       (<a href="Base64.T.html#TYPEt">t</a> -> ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a)) -><br>       <a href="Base64.T.html#TYPEt">t</a> -> 'a</code></pre>
+<pre><span id="VALflush"><span class="keyword">val</span> <a href="code_VALBase64.T.flush.html">flush</a></span> : <code class="type">(<a href="Base64.T.html#TYPEt">t</a> -> ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a)) -><br>       <a href="Base64.T.html#TYPEt">t</a> -> 'a</code></pre>
+<pre><span id="VALunlift"><span class="keyword">val</span> <a href="code_VALBase64.T.unlift.html">unlift</a></span> : <code class="type">(<a href="Encoder.html#TYPEt">Encoder.t</a> -> ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a)) -><br>       <a href="Base64.T.html#TYPEt">t</a> -> 'a</code></pre></body></html>

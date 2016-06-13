@@ -7,6 +7,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -20,11 +21,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -43,7 +46,7 @@ type atom    = [ `Atom of string ]
 type word    = [ atom | `String of string ]
 type local   = word list
 type domain  =
-  [ `Literal of string
+  [ `Literal of string list
   | `Domain of atom list ]
 type left   = local
 type right  = domain
@@ -715,7 +718,7 @@ let p_domain_literal p =
     | ']' ->
       p_chr ']'
       @ p_cfws
-      @ fun _ -> p (List.rev acc |> String.concat "")
+      @ fun _ -> p (List.rev acc)
     | chr when is_dtext chr || chr = '\\' ->
       p_dtext @ fun s -> p_fws @ fun _ _ -> loop (s :: acc)
     | chr -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
@@ -741,6 +744,8 @@ let p_domain p =
   [%debug Printf.printf "state: p_domain\n%!"];
 
   let p_obs_domain' p =
+    [%debug Printf.printf "state: p_obs_domain'\n%!"];
+
     let rec loop acc =
       cur_chr
       @ function
@@ -759,7 +764,7 @@ let p_domain p =
   @ fun _ -> cur_chr
   @ function
     (* it's domain-literal *)
-    | '[' -> p_domain_literal @ fun s -> p (`Literal s)
+    | '[' -> p_domain_literal @ fun l -> p (`Literal l)
     (* it's dot-atom or obs-domain *)
     | chr ->
       p_dot_atom   (* may be we are [CFWS] allowed by obs-domain *)
@@ -793,7 +798,7 @@ let p_no_fold_literal p =
   p_chr '['
   @ p_dtext
   @ fun d -> p_chr ']'
-  @ p (`Literal d)
+  @ p (`Literal [d])
 
 let p_id_right p =
  (p_dot_atom_text (fun data state -> `Ok (`Domain data, state)))

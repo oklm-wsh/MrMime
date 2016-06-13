@@ -12,6 +12,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -25,11 +26,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -53,12 +56,13 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 
 
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `MimeVersion of int * int ]</code> </pre>
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `MimeVersion of <a href="MimeVersion.html#TYPEt">t</a> ]</code> </pre>
 
 
 <pre><span id="VALfield_of_lexer"><span class="keyword">val</span> field_of_lexer</span> : <code class="type"><a href="Rfc2045.html#TYPEmime_field">Rfc2045.mime_field</a> -> <a href="MimeVersion.html#TYPEfield">field</a></code></pre>
 <pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">int -> int -> <a href="MimeVersion.html#TYPEt">t</a></code></pre>
 <pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MimeVersion.html#TYPEt">t</a></code></pre>
-<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type"><a href="Rfc2045.html#TYPEmime_field">Rfc2045.mime_field</a> -> <a href="MimeVersion.html#TYPEt">t</a></code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MimeVersion.html#TYPEt">t</a> -> unit</code></pre>
-<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="MimeVersion.html#TYPEt">t</a> -> <a href="MimeVersion.html#TYPEt">t</a> -> bool</code></pre></body></html>
+<pre><span class="keyword">module</span> <a href="MimeVersion.D.html">D</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MimeVersion.D.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MimeVersion.E.html">E</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MimeVersion.E.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="MimeVersion.html#TYPEt">t</a> -> <a href="MimeVersion.html#TYPEt">t</a> -> bool</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MimeVersion.html#TYPEt">t</a> -> unit</code></pre></body></html>

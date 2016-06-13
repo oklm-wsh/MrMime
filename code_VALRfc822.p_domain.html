@@ -7,6 +7,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -20,11 +21,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -41,6 +44,8 @@
 &nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_domain\n%!"</span>];
 
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;p_obs_domain'&nbsp;p&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_obs_domain'\n%!"</span>];
+
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cur_chr
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
@@ -59,7 +64,7 @@
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
 &nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;it's&nbsp;domain-literal&nbsp;*)</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'['</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_domain_literal&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Literal</span>&nbsp;s)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'['</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_domain_literal&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Literal</span>&nbsp;l)
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;it's&nbsp;dot-atom&nbsp;or&nbsp;obs-domain&nbsp;*)</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_dot_atom&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;may&nbsp;be&nbsp;we&nbsp;are&nbsp;[CFWS]&nbsp;allowed&nbsp;by&nbsp;obs-domain&nbsp;*)</span>

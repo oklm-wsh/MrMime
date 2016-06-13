@@ -7,6 +7,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -20,11 +21,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -41,8 +44,7 @@
 
 <span class="keyword">type</span>&nbsp;field&nbsp;=
 &nbsp;&nbsp;[&nbsp;<span class="constructor">Header</span>.field
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Content</span>.field
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">MimeVersion</span>.field&nbsp;]
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Content</span>.<span class="constructor">Message</span>.field&nbsp;]
 
 <span class="comment">(*&nbsp;composition&nbsp;between&nbsp;RFC&nbsp;5322&nbsp;and&nbsp;RFC&nbsp;2045&nbsp;about&nbsp;the&nbsp;header&nbsp;*)</span>
 <span class="keyword">let</span>&nbsp;p_header&nbsp;p&nbsp;state&nbsp;=
@@ -54,10 +56,10 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;p&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_nothing_to_do&nbsp;state))))
 &nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;state
 
-<span class="comment">(*&nbsp;check&nbsp;of&nbsp;the&nbsp;header,&nbsp;eg.&nbsp;{!val:Header.of_lexer}&nbsp;and&nbsp;{!val:Content.of_lexer}&nbsp;*)</span>
+<span class="comment">(*&nbsp;check&nbsp;of&nbsp;the&nbsp;header,&nbsp;eg.&nbsp;{!val:Header.D.of_lexer}&nbsp;and&nbsp;{!val:Content.D.of_lexer}&nbsp;*)</span>
 <span class="keyword">let</span>&nbsp;c_header&nbsp;fields&nbsp;p&nbsp;=
-&nbsp;&nbsp;<span class="constructor">Header</span>.of_lexer&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.unstrict&nbsp;fields
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;header&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Content</span>.of_lexer&nbsp;rest
+&nbsp;&nbsp;<span class="constructor">Header</span>.<span class="constructor">D</span>.of_lexer&nbsp;<span class="constructor">Header</span>.<span class="constructor">Relax</span>.unstrict&nbsp;fields
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;header&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Content</span>.<span class="constructor">Message</span>.<span class="constructor">D</span>.of_lexer&nbsp;rest
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;content&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;header&nbsp;content
 
 <span class="comment">(*&nbsp;composition&nbsp;betweeen&nbsp;RFC&nbsp;5322/body,&nbsp;RFC&nbsp;2045/Base64/body&nbsp;and&nbsp;RFC
@@ -95,8 +97,7 @@
 
 <span class="keyword">let</span>&nbsp;field_of_lexer&nbsp;=&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc5322</span>.field&nbsp;<span class="keyword">as</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Header</span>.field_of_lexer&nbsp;x&nbsp;:&gt;&nbsp;field)
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.field&nbsp;<span class="keyword">as</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Content</span>.field_of_lexer&nbsp;x&nbsp;:&gt;&nbsp;field)
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.mime_field&nbsp;<span class="keyword">as</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">MimeVersion</span>.field_of_lexer&nbsp;x&nbsp;:&gt;&nbsp;field)
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.field&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.mime_field)&nbsp;<span class="keyword">as</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Content</span>.<span class="constructor">Message</span>.field_of_lexer&nbsp;x&nbsp;:&gt;&nbsp;field)
 
 <span class="comment">(*&nbsp;compute&nbsp;the&nbsp;multipart&nbsp;explained&nbsp;in&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5&nbsp;*)</span>
 <span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;p_multipart&nbsp;boundary&nbsp;p_body'&nbsp;p&nbsp;state&nbsp;=
@@ -107,7 +108,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;p_body'&nbsp;boundary&nbsp;fields&nbsp;next&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_multipart/aux\n%!"</span>];
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Content</span>.of_lexer&nbsp;fields&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;content&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Content</span>.<span class="constructor">Part</span>.<span class="constructor">D</span>.of_lexer&nbsp;fields&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;content&nbsp;rest&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">ContentType</span>.ty&nbsp;@@&nbsp;<span class="constructor">Content</span>.ty&nbsp;content&nbsp;<span class="keyword">with</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.other
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.discrete&nbsp;<span class="keywordsign">-&gt;</span>

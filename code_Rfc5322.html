@@ -7,6 +7,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -20,11 +21,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -1135,9 +1138,9 @@ let p_phrase_or_msg_id p =
 let p_received_token p =
   let rec loop acc =
     (p_addr_spec @ fun (local, domain) state -> `Ok ((local, [domain]), state))
-    / ((p_angle_addr @ fun data state -> `Ok (data, state))
-       / ((p_domain @ fun data state -> `Ok (data, state))
-          / ((p_word @ fun data state -> `Ok (data, state))
+    / ((p_angle_addr @ ok)
+       / ((p_domain @ ok)
+          / ((p_word @ ok)
              / (p_cfws @ fun _ -> p (List.rev acc))
              @ (fun data -> loop (`Word data :: acc)))
           @ (fun data -> loop (`Domain data :: acc)))
@@ -1392,8 +1395,7 @@ let p_body stop p state =
          | '\n' when has_cr ->
            junk_chr
            @ fun state ->
-             Buffer.add_char buf '\n'; (* XXX: Line-break in UNIX system (may be we
-                                          can become more configuration) *)
+             Buffer.add_string buf Newline.newline;
              body false state
          | '\r' when has_cr ->
            junk_chr

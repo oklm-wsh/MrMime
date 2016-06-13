@@ -12,6 +12,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -25,11 +26,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -59,16 +62,15 @@
 <pre><span id="TYPEunstrict"><span class="keyword">type</span> <code class="type"></code>unstrict</span> = <code class="type">(<a href="Date.html#TYPEt">Date.t</a> option, <a href="Address.html#TYPEperson">Address.person</a> list option) <a href="Header.html#TYPEt">t</a></code> </pre>
 
 
-<pre><span id="TYPEphrase"><span class="keyword">type</span> <code class="type"></code>phrase</span> = <code class="type">[ `Phrase of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
-
-
 <pre><span class="keyword">module</span> <a href="Header.Relax.html">Relax</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Header.Relax.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Bcc of <a href="Address.List.html#TYPEt">Address.List.t</a><br>       | `Cc of <a href="Address.List.html#TYPEt">Address.List.t</a><br>       | `Comments of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `Date of <a href="Date.html#TYPEt">Date.t</a><br>       | `Field of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `From of <a href="Address.html#TYPEperson">Address.person</a> list<br>       | `InReplyTo of [ `MsgID of <a href="MsgID.html#TYPEt">MsgID.t</a> | `Phrase of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ] list<br>       | `Keywords of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> list<br>       | `MessageID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `Received of <a href="Trace.html#TYPEreceived">Trace.received</a> list * <a href="Date.html#TYPEt">Date.t</a> option<br>       | `References of [ `MsgID of <a href="MsgID.html#TYPEt">MsgID.t</a> | `Phrase of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ] list<br>       | `ReplyTo of <a href="Address.List.html#TYPEt">Address.List.t</a><br>       | `ResentBcc of <a href="Address.List.html#TYPEt">Address.List.t</a><br>       | `ResentCc of <a href="Address.List.html#TYPEt">Address.List.t</a><br>       | `ResentDate of <a href="Date.html#TYPEt">Date.t</a><br>       | `ResentFrom of <a href="Address.html#TYPEperson">Address.person</a> list<br>       | `ResentMessageID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ResentReplyTo of <a href="Address.List.html#TYPEt">Address.List.t</a><br>       | `ResentSender of <a href="Address.html#TYPEperson">Address.person</a><br>       | `ResentTo of <a href="Address.List.html#TYPEt">Address.List.t</a><br>       | `ReturnPath of <a href="Address.html#TYPEmailbox">Address.mailbox</a> option<br>       | `Sender of <a href="Address.html#TYPEperson">Address.person</a><br>       | `Subject of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `To of <a href="Address.List.html#TYPEt">Address.List.t</a><br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Bcc of <a href="Address.html#TYPEt">Address.t</a> list<br>       | `Cc of <a href="Address.html#TYPEt">Address.t</a> list<br>       | `Comments of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `Date of <a href="Date.html#TYPEt">Date.t</a><br>       | `Field of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `From of <a href="Address.html#TYPEperson">Address.person</a> list<br>       | `InReplyTo of [ `MsgID of <a href="MsgID.html#TYPEt">MsgID.t</a> | `Phrase of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ] list<br>       | `Keywords of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> list<br>       | `MessageID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `Received of <a href="Trace.html#TYPEreceived">Trace.received</a> list * <a href="Date.html#TYPEt">Date.t</a> option<br>       | `References of [ `MsgID of <a href="MsgID.html#TYPEt">MsgID.t</a> | `Phrase of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ] list<br>       | `ReplyTo of <a href="Address.html#TYPEt">Address.t</a> list<br>       | `ResentBcc of <a href="Address.html#TYPEt">Address.t</a> list<br>       | `ResentCc of <a href="Address.html#TYPEt">Address.t</a> list<br>       | `ResentDate of <a href="Date.html#TYPEt">Date.t</a><br>       | `ResentFrom of <a href="Address.html#TYPEperson">Address.person</a> list<br>       | `ResentMessageID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ResentReplyTo of <a href="Address.html#TYPEt">Address.t</a> list<br>       | `ResentSender of <a href="Address.html#TYPEperson">Address.person</a><br>       | `ResentTo of <a href="Address.html#TYPEt">Address.t</a> list<br>       | `ReturnPath of <a href="Address.html#TYPEmailbox">Address.mailbox</a> option<br>       | `Sender of <a href="Address.html#TYPEperson">Address.person</a><br>       | `Subject of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `To of <a href="Address.html#TYPEt">Address.t</a> list<br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
 
 
 <pre><span id="VALfield_of_lexer"><span class="keyword">val</span> field_of_lexer</span> : <code class="type"><a href="Rfc5322.html#TYPEfield">Rfc5322.field</a> -> <a href="Header.html#TYPEfield">field</a></code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">string -> <a href="Header.html#TYPEstrict">strict</a></code></pre>
-<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="Header.html#TYPEstrict">strict</a> -> string</code></pre>
-<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">('date, 'from) <a href="Header.Relax.html#TYPEt">Relax.t</a> -><br>       ([> <a href="Rfc5322.html#TYPEfield">Rfc5322.field</a> ] as 'field) list -><br>       (('date, 'from) <a href="Header.html#TYPEt">t</a> -> 'field list -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
+<pre><span id="VALto_field"><span class="keyword">val</span> to_field</span> : <code class="type"><a href="Header.html#TYPEunstrict">unstrict</a> -> <a href="Header.html#TYPEfield">field</a> list</code></pre>
+<pre><span class="keyword">module</span> <a href="Header.D.html">D</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Header.D.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="Header.E.html">E</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Header.E.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">string -> <a href="Header.html#TYPEunstrict">unstrict</a></code></pre>
+<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="Header.html#TYPEunstrict">unstrict</a> -> string</code></pre>
 <pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type">('date, 'from) <a href="Header.html#TYPEt">t</a> -> ('date, 'from) <a href="Header.html#TYPEt">t</a> -> bool</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Header.html#TYPEstrict">strict</a> -> unit</code></pre></body></html>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> ('date, 'from) <a href="Header.html#TYPEt">t</a> -> unit</code></pre></body></html>

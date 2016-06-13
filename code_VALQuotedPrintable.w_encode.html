@@ -1,0 +1,86 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html">
+<link title="Option" rel="Chapter" href="Option.html">
+<link title="Iana" rel="Chapter" href="Iana.html">
+<link title="Error" rel="Chapter" href="Error.html">
+<link title="Decoder" rel="Chapter" href="Decoder.html">
+<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.w_encode</title>
+</head>
+<body>
+<code class="code">let w_encode content k =
+  let len = String.length content in
+
+  let recognize_newline idx =
+    if idx < len && idx + (String.length Newline.newline) <= len
+    then let n = ref 0 in
+         let r = ref true in
+         while idx + !n < len
+               && !n < String.length Newline.newline
+         do if String.get Newline.newline !n <> String.get content (idx + !n)
+            then r := false;
+
+            incr n;
+         done;
+
+         !r
+    else false
+  in
+
+  let rec loop idx k =
+    if idx < len
+    then match String.get content idx with
+         | '\x20' ->
+           if recognize_newline (idx + 1)
+           then T.add_newline (Some '\x20') @@ loop (idx + 2) k
+           else T.add_wsp `Space @@ loop (idx + 1) k
+         | '\x09' ->
+           if recognize_newline (idx + 1)
+           then T.add_newline (Some '\x09') @@ loop (idx + 2) k
+           else T.add_wsp `Tab @@ loop (idx + 1) k
+         (* Unix newline encoder *)
+         | '\n' when Newline.is_lf ->
+           T.add_newline None @@ loop (idx + 1) k
+         (* Windows newline encoder *)
+         | '\r' when Newline.is_crlf && (idx + 1 < len) && String.get content (idx + 1) = '\n' ->
+           T.add_newline None @@ loop (idx + 2) k
+         | chr when is_safe_char chr ->
+           T.add_char chr @@ loop (idx + 1) k
+         | chr ->
+           T.add_quoted_char chr @@ loop (idx + 1) k
+    else T.flush k
+  in
+
+  T.lift (loop 0 @@ T.unlift k)</code></body></html>

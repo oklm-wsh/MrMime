@@ -12,6 +12,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -25,11 +26,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -74,6 +77,18 @@
 </tr></table>
 }
 
+
+
+<pre><span id="TYPEread"><span class="keyword">type</span> <code class="type">[> `Read of Bytes.t * int * int * (int -> 'r) ] as 'r</code> read</span> = <code class="type">'r</code> </pre>
+
+
+<pre><span id="TYPEk0"><span class="keyword">type</span> <code class="type">'r</code> k0</span> = <code class="type">(<a href="Decoder.html#TYPEt">t</a> -> 'r) -> <a href="Decoder.html#TYPEt">t</a> -> 'r</code> </pre>
+
+
+<pre><span id="TYPEk1"><span class="keyword">type</span> <code class="type">('a, 'r)</code> k1</span> = <code class="type">('a -> <a href="Decoder.html#TYPEt">t</a> -> 'r) -> <a href="Decoder.html#TYPEt">t</a> -> 'r</code> </pre>
+
+
+<pre><span id="TYPEk2"><span class="keyword">type</span> <code class="type">('a, 'b, 'r)</code> k2</span> = <code class="type">('a -> 'b -> <a href="Decoder.html#TYPEt">t</a> -> 'r) -> <a href="Decoder.html#TYPEt">t</a> -> 'r</code> </pre>
 
 
 <pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">?len:int -> unit -> <a href="Decoder.html#TYPEt">t</a></code></pre>

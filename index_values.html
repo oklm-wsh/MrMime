@@ -8,6 +8,7 @@
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="Newline" rel="Chapter" href="Newline.html">
 <link title="Date" rel="Chapter" href="Date.html">
 <link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
 <link title="Address" rel="Chapter" href="Address.html">
@@ -21,11 +22,13 @@
 <link title="Header" rel="Chapter" href="Header.html">
 <link title="Message" rel="Chapter" href="Message.html">
 <link title="Option" rel="Chapter" href="Option.html">
-<link title="BasePrinter" rel="Chapter" href="BasePrinter.html">
 <link title="Iana" rel="Chapter" href="Iana.html">
 <link title="Error" rel="Chapter" href="Error.html">
 <link title="Decoder" rel="Chapter" href="Decoder.html">
 <link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -45,7 +48,11 @@
 <tr><td align="left"><br></td></tr>
 <tr><td><a href="BaseDecoder.html#VAL( * )">( * )</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
 <td></td></tr>
+<tr><td><a href="BaseEncoder.html#VAL($)">($)</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
+<td></td></tr>
 <tr><td><a href="BaseDecoder.html#VAL($)">($)</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
+<td></td></tr>
+<tr><td><a href="BaseEncoder.html#VAL(&)">(&amp;)</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="BaseDecoder.html#VAL(/)">(/)</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
 <td></td></tr>
@@ -97,7 +104,7 @@
 <td></td></tr>
 <tr><td><a href="MimeVersion.html#VALdefault">default</a> [<a href="MimeVersion.html">MimeVersion</a>]</td>
 <td></td></tr>
-<tr><td><a href="Address.html#VALdomain_of_lexer">domain_of_lexer</a> [<a href="Address.html">Address</a>]</td>
+<tr><td><a href="Address.D.html#VALdomain_of_lexer">domain_of_lexer</a> [<a href="Address.D.html">Address.D</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>E</td></tr>
 <tr><td><a href="Content.html#VALencoding">encoding</a> [<a href="Content.html">Content</a>]</td>
@@ -105,6 +112,8 @@
 <tr><td><a href="Message.html#VALequal">equal</a> [<a href="Message.html">Message</a>]</td>
 <td></td></tr>
 <tr><td><a href="Header.html#VALequal">equal</a> [<a href="Header.html">Header</a>]</td>
+<td></td></tr>
+<tr><td><a href="ContentEncoding.html#VALequal">equal</a> [<a href="ContentEncoding.html">ContentEncoding</a>]</td>
 <td></td></tr>
 <tr><td><a href="ContentType.html#VALequal">equal</a> [<a href="ContentType.html">ContentType</a>]</td>
 <td></td></tr>
@@ -158,12 +167,22 @@
 <td></td></tr>
 <tr><td><a href="Error.html#VALerr_wrong_padding">err_wrong_padding</a> [<a href="Error.html">Error</a>]</td>
 <td></td></tr>
+<tr><td><a href="QuotedPrintable.html#VALexplode">explode</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
+<td></td></tr>
+<tr><td><a href="Base64.html#VALexplode">explode</a> [<a href="Base64.html">Base64</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>F</td></tr>
 <tr><td><a href="Grammar.html#VALfield_of_lexer">field_of_lexer</a> [<a href="Grammar.html">Grammar</a>]</td>
 <td></td></tr>
 <tr><td><a href="Header.html#VALfield_of_lexer">field_of_lexer</a> [<a href="Header.html">Header</a>]</td>
 <td></td></tr>
-<tr><td><a href="Content.html#VALfield_of_lexer">field_of_lexer</a> [<a href="Content.html">Content</a>]</td>
+<tr><td><a href="Content.Message.html#VALfield_of_lexer">field_of_lexer</a> [<a href="Content.Message.html">Content.Message</a>]</td>
+<td></td></tr>
+<tr><td><a href="Content.Part.html#VALfield_of_lexer">field_of_lexer</a> [<a href="Content.Part.html">Content.Part</a>]</td>
+<td></td></tr>
+<tr><td><a href="ContentEncoding.html#VALfield_of_lexer">field_of_lexer</a> [<a href="ContentEncoding.html">ContentEncoding</a>]</td>
+<td></td></tr>
+<tr><td><a href="ContentType.html#VALfield_of_lexer">field_of_lexer</a> [<a href="ContentType.html">ContentType</a>]</td>
 <td></td></tr>
 <tr><td><a href="MimeVersion.html#VALfield_of_lexer">field_of_lexer</a> [<a href="MimeVersion.html">MimeVersion</a>]</td>
 <td></td></tr>
@@ -176,6 +195,8 @@
 <tr><td><a href="Base64.F.html#VALflush">flush</a> [<a href="Base64.F.html">Base64.F</a>]</td>
 <td></td></tr>
 <tr><td><a href="Base64.T.html#VALflush">flush</a> [<a href="Base64.T.html">Base64.T</a>]</td>
+<td></td></tr>
+<tr><td><a href="BaseEncoder.html#VALflush">flush</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>H</td></tr>
 <tr><td><a href="BaseDecoder.html#VALhas_line">has_line</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
@@ -192,6 +213,8 @@
 <tr><td><a href="Rfc2046.html#VALis_bcharsnospace">is_bcharsnospace</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALis_cr">is_cr</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<td></td></tr>
+<tr><td><a href="Newline.html#VALis_crlf">is_crlf</a> [<a href="Newline.html">Newline</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALis_ctext">is_ctext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
@@ -216,6 +239,8 @@
 <tr><td><a href="QuotedPrintable.html#VALis_hex_octet">is_hex_octet</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALis_lf">is_lf</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<td></td></tr>
+<tr><td><a href="Newline.html#VALis_lf">is_lf</a> [<a href="Newline.html">Newline</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALis_lwsp">is_lwsp</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
@@ -248,6 +273,13 @@
 <tr><td align="left"><br>J</td></tr>
 <tr><td><a href="BaseDecoder.html#VALjunk_chr">junk_chr</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
 <td></td></tr>
+<tr><td align="left"><br>L</td></tr>
+<tr><td><a href="QuotedPrintable.T.html#VALlift">lift</a> [<a href="QuotedPrintable.T.html">QuotedPrintable.T</a>]</td>
+<td></td></tr>
+<tr><td><a href="Base64.T.html#VALlift">lift</a> [<a href="Base64.T.html">Base64.T</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALlift">lift</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>M</td></tr>
 <tr><td><a href="Rfc2046.html#VALm_close_delimiter">m_close_delimiter</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
 <td></td></tr>
@@ -255,15 +287,11 @@
 <td></td></tr>
 <tr><td><a href="Rfc2046.html#VALm_delimiter">m_delimiter</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
 <td></td></tr>
-<tr><td><a href="Address.html#VALmailbox_of_lexer">mailbox_of_lexer</a> [<a href="Address.html">Address</a>]</td>
+<tr><td><a href="Address.D.html#VALmailbox_of_lexer">mailbox_of_lexer</a> [<a href="Address.D.html">Address.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="QuotedPrintable.T.html#VALmake">make</a> [<a href="QuotedPrintable.T.html">QuotedPrintable.T</a>]</td>
-<td></td></tr>
-<tr><td><a href="Base64.T.html#VALmake">make</a> [<a href="Base64.T.html">Base64.T</a>]</td>
+<tr><td><a href="Encoder.html#VALmake">make</a> [<a href="Encoder.html">Encoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="Decoder.html#VALmake">make</a> [<a href="Decoder.html">Decoder</a>]</td>
-<td></td></tr>
-<tr><td><a href="Content.html#VALmake">make</a> [<a href="Content.html">Content</a>]</td>
 <td></td></tr>
 <tr><td><a href="ContentType.html#VALmake">make</a> [<a href="ContentType.html">ContentType</a>]</td>
 <td></td></tr>
@@ -271,32 +299,59 @@
 <td></td></tr>
 <tr><td><a href="Iana.html#VALmtype">mtype</a> [<a href="Iana.html">Iana</a>]</td>
 <td></td></tr>
+<tr><td align="left"><br>N</td></tr>
+<tr><td><a href="Newline.html#VALnewline">newline</a> [<a href="Newline.html">Newline</a>]</td>
+<td></td></tr>
+<tr><td><a href="BaseEncoder.html#VALnoop">noop</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>O</td></tr>
 <tr><td><a href="Decoder.html#VALof_bytes">of_bytes</a> [<a href="Decoder.html">Decoder</a>]</td>
 <td></td></tr>
+<tr><td><a href="Message.D.html#VALof_decoder">of_decoder</a> [<a href="Message.D.html">Message.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="Header.D.html#VALof_decoder">of_decoder</a> [<a href="Header.D.html">Header.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="MsgID.D.html#VALof_decoder">of_decoder</a> [<a href="MsgID.D.html">MsgID.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.List.D.html#VALof_decoder">of_decoder</a> [<a href="Address.List.D.html">Address.List.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.D.html#VALof_decoder">of_decoder</a> [<a href="Address.D.html">Address.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="LiteralDomain.D.html#VALof_decoder">of_decoder</a> [<a href="LiteralDomain.D.html">LiteralDomain.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="Date.D.html#VALof_decoder">of_decoder</a> [<a href="Date.D.html">Date.D</a>]</td>
+<td></td></tr>
 <tr><td><a href="Rfc822.html#VALof_escaped_character">of_escaped_character</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
-<tr><td><a href="Header.html#VALof_lexer">of_lexer</a> [<a href="Header.html">Header</a>]</td>
+<tr><td><a href="Header.D.html#VALof_lexer">of_lexer</a> [<a href="Header.D.html">Header.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="Content.html#VALof_lexer">of_lexer</a> [<a href="Content.html">Content</a>]</td>
+<tr><td><a href="Content.Message.D.html#VALof_lexer">of_lexer</a> [<a href="Content.Message.D.html">Content.Message.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="ContentEncoding.html#VALof_lexer">of_lexer</a> [<a href="ContentEncoding.html">ContentEncoding</a>]</td>
+<tr><td><a href="Content.Part.D.html#VALof_lexer">of_lexer</a> [<a href="Content.Part.D.html">Content.Part.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="ContentType.html#VALof_lexer">of_lexer</a> [<a href="ContentType.html">ContentType</a>]</td>
+<tr><td><a href="ContentEncoding.D.html#VALof_lexer">of_lexer</a> [<a href="ContentEncoding.D.html">ContentEncoding.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="MimeVersion.html#VALof_lexer">of_lexer</a> [<a href="MimeVersion.html">MimeVersion</a>]</td>
+<tr><td><a href="ContentType.D.html#VALof_lexer">of_lexer</a> [<a href="ContentType.D.html">ContentType.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="Trace.html#VALof_lexer">of_lexer</a> [<a href="Trace.html">Trace</a>]</td>
+<tr><td><a href="MimeVersion.D.html#VALof_lexer">of_lexer</a> [<a href="MimeVersion.D.html">MimeVersion.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="Resent.html#VALof_lexer">of_lexer</a> [<a href="Resent.html">Resent</a>]</td>
+<tr><td><a href="Trace.D.html#VALof_lexer">of_lexer</a> [<a href="Trace.D.html">Trace.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="MsgID.html#VALof_lexer">of_lexer</a> [<a href="MsgID.html">MsgID</a>]</td>
+<tr><td><a href="Resent.D.html#VALof_lexer">of_lexer</a> [<a href="Resent.D.html">Resent.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="Address.List.html#VALof_lexer">of_lexer</a> [<a href="Address.List.html">Address.List</a>]</td>
+<tr><td><a href="MsgID.D.html#VALof_lexer">of_lexer</a> [<a href="MsgID.D.html">MsgID.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="Address.html#VALof_lexer">of_lexer</a> [<a href="Address.html">Address</a>]</td>
+<tr><td><a href="Address.List.D.html#VALof_lexer">of_lexer</a> [<a href="Address.List.D.html">Address.List.D</a>]</td>
 <td></td></tr>
-<tr><td><a href="Date.html#VALof_lexer">of_lexer</a> [<a href="Date.html">Date</a>]</td>
+<tr><td><a href="Address.D.html#VALof_lexer">of_lexer</a> [<a href="Address.D.html">Address.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="Date.D.html#VALof_lexer">of_lexer</a> [<a href="Date.D.html">Date.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="ContentEncoding.D.html#VALof_lexer'">of_lexer'</a> [<a href="ContentEncoding.D.html">ContentEncoding.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="ContentType.D.html#VALof_lexer'">of_lexer'</a> [<a href="ContentType.D.html">ContentType.D</a>]</td>
+<td></td></tr>
+<tr><td><a href="MimeVersion.D.html#VALof_lexer'">of_lexer'</a> [<a href="MimeVersion.D.html">MimeVersion.D</a>]</td>
 <td></td></tr>
 <tr><td><a href="Decoder.html#VALof_string">of_string</a> [<a href="Decoder.html">Decoder</a>]</td>
 <td></td></tr>
@@ -317,10 +372,6 @@
 <tr><td><a href="BaseDecoder.html#VALok">ok</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>P</td></tr>
-<tr><td><a href="BasePrinter.html#VALp">p</a> [<a href="BasePrinter.html">BasePrinter</a>]</td>
-<td></td></tr>
-<tr><td><a href="Content.html#VALp">p</a> [<a href="Content.html">Content</a>]</td>
-<td></td></tr>
 <tr><td><a href="Rfc5322.html#VALp_2digit_or_obs">p_2digit_or_obs</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc5322.html#VALp_addr_spec">p_addr_spec</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
@@ -385,8 +436,6 @@
 <td></td></tr>
 <tr><td><a href="Base64.html#VALp_decode">p_decode</a> [<a href="Base64.html">Base64</a>]</td>
 <td></td></tr>
-<tr><td><a href="Rfc2047.html#VALp_decoded_word">p_decoded_word</a> [<a href="Rfc2047.html">Rfc2047</a>]</td>
-<td></td></tr>
 <tr><td><a href="Rfc2046.html#VALp_delimiter">p_delimiter</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2046.html#VALp_discard_text">p_discard_text</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
@@ -412,12 +461,6 @@
 <tr><td><a href="Rfc822.html#VALp_dtext">p_dtext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2046.html#VALp_encapsulation">p_encapsulation</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
-<td></td></tr>
-<tr><td><a href="QuotedPrintable.html#VALp_encode">p_encode</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
-<td></td></tr>
-<tr><td><a href="Base64.html#VALp_encode">p_encode</a> [<a href="Base64.html">Base64</a>]</td>
-<td></td></tr>
-<tr><td><a href="Base64.html#VALp_encode'">p_encode'</a> [<a href="Base64.html">Base64</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2047.html#VALp_encoded_word">p_encoded_word</a> [<a href="Rfc2047.html">Rfc2047</a>]</td>
 <td></td></tr>
@@ -470,10 +513,6 @@
 <tr><td><a href="Rfc2045.html#VALp_ietf_token">p_ietf_token</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
 <td></td></tr>
 <tr><td><a href="QuotedPrintable.html#VALp_inline_decode">p_inline_decode</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
-<td></td></tr>
-<tr><td><a href="QuotedPrintable.html#VALp_inline_encode">p_inline_encode</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
-<td></td></tr>
-<tr><td><a href="Base64.html#VALp_inline_encode">p_inline_encode</a> [<a href="Base64.html">Base64</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc5321.html#VALp_ipv4_address_literal">p_ipv4_address_literal</a> [<a href="Rfc5321.html">Rfc5321</a>]</td>
 <td></td></tr>
@@ -653,7 +692,7 @@
 <td></td></tr>
 <tr><td><a href="BaseDecoder.html#VALpeek_chr">peek_chr</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
 <td></td></tr>
-<tr><td><a href="Address.html#VALperson_of_lexer">person_of_lexer</a> [<a href="Address.html">Address</a>]</td>
+<tr><td><a href="Address.D.html#VALperson_of_lexer">person_of_lexer</a> [<a href="Address.D.html">Address.D</a>]</td>
 <td></td></tr>
 <tr><td><a href="Error.html#VALpp">pp</a> [<a href="Error.html">Error</a>]</td>
 <td></td></tr>
@@ -661,19 +700,11 @@
 <td></td></tr>
 <tr><td><a href="Header.html#VALpp">pp</a> [<a href="Header.html">Header</a>]</td>
 <td></td></tr>
-<tr><td><a href="Content.html#VALpp">pp</a> [<a href="Content.html">Content</a>]</td>
-<td></td></tr>
 <tr><td><a href="ContentEncoding.html#VALpp">pp</a> [<a href="ContentEncoding.html">ContentEncoding</a>]</td>
 <td></td></tr>
 <tr><td><a href="ContentType.html#VALpp">pp</a> [<a href="ContentType.html">ContentType</a>]</td>
 <td></td></tr>
 <tr><td><a href="MimeVersion.html#VALpp">pp</a> [<a href="MimeVersion.html">MimeVersion</a>]</td>
-<td></td></tr>
-<tr><td><a href="Trace.html#VALpp">pp</a> [<a href="Trace.html">Trace</a>]</td>
-<td></td></tr>
-<tr><td><a href="Resent.html#VALpp">pp</a> [<a href="Resent.html">Resent</a>]</td>
-<td></td></tr>
-<tr><td><a href="MsgID.html#VALpp">pp</a> [<a href="MsgID.html">MsgID</a>]</td>
 <td></td></tr>
 <tr><td><a href="Address.List.html#VALpp">pp</a> [<a href="Address.List.html">Address.List</a>]</td>
 <td></td></tr>
@@ -682,22 +713,6 @@
 <tr><td><a href="LiteralDomain.html#VALpp">pp</a> [<a href="LiteralDomain.html">LiteralDomain</a>]</td>
 <td></td></tr>
 <tr><td><a href="Date.html#VALpp">pp</a> [<a href="Date.html">Date</a>]</td>
-<td></td></tr>
-<tr><td><a href="BasePrinter.html#VALpp_atom">pp_atom</a> [<a href="BasePrinter.html">BasePrinter</a>]</td>
-<td></td></tr>
-<tr><td><a href="Address.html#VALpp_domain">pp_domain</a> [<a href="Address.html">Address</a>]</td>
-<td></td></tr>
-<tr><td><a href="BasePrinter.html#VALpp_list">pp_list</a> [<a href="BasePrinter.html">BasePrinter</a>]</td>
-<td></td></tr>
-<tr><td><a href="Address.html#VALpp_mailbox">pp_mailbox</a> [<a href="Address.html">Address</a>]</td>
-<td></td></tr>
-<tr><td><a href="Address.html#VALpp_person">pp_person</a> [<a href="Address.html">Address</a>]</td>
-<td></td></tr>
-<tr><td><a href="BasePrinter.html#VALpp_phrase">pp_phrase</a> [<a href="BasePrinter.html">BasePrinter</a>]</td>
-<td></td></tr>
-<tr><td><a href="BasePrinter.html#VALpp_string">pp_string</a> [<a href="BasePrinter.html">BasePrinter</a>]</td>
-<td></td></tr>
-<tr><td><a href="BasePrinter.html#VALpp_word">pp_word</a> [<a href="BasePrinter.html">BasePrinter</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>R</td></tr>
 <tr><td><a href="BaseDecoder.html#VALread_exact">read_exact</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
@@ -715,6 +730,10 @@
 <td></td></tr>
 <tr><td><a href="LiteralDomain.html#VALsize">size</a> [<a href="LiteralDomain.html">LiteralDomain</a>]</td>
 <td></td></tr>
+<tr><td><a href="BaseEncoder.html#VALsp">sp</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
+<td></td></tr>
+<tr><td><a href="BaseEncoder.html#VALspaces">spaces</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
+<td></td></tr>
 <tr><td><a href="Header.Relax.html#VALstrict">strict</a> [<a href="Header.Relax.html">Header.Relax</a>]</td>
 <td></td></tr>
 <tr><td><a href="ContentType.html#VALsubty">subty</a> [<a href="ContentType.html">ContentType</a>]</td>
@@ -724,7 +743,33 @@
 <tr><td align="left"><br>T</td></tr>
 <tr><td><a href="Iana.html#VALtag">tag</a> [<a href="Iana.html">Iana</a>]</td>
 <td></td></tr>
+<tr><td><a href="Message.E.html#VALto_buffer">to_buffer</a> [<a href="Message.E.html">Message.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Header.E.html#VALto_buffer">to_buffer</a> [<a href="Header.E.html">Header.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="MsgID.E.html#VALto_buffer">to_buffer</a> [<a href="MsgID.E.html">MsgID.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.List.E.html#VALto_buffer">to_buffer</a> [<a href="Address.List.E.html">Address.List.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALto_buffer">to_buffer</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="LiteralDomain.E.html#VALto_buffer">to_buffer</a> [<a href="LiteralDomain.E.html">LiteralDomain.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Date.E.html#VALto_buffer">to_buffer</a> [<a href="Date.E.html">Date.E</a>]</td>
+<td></td></tr>
 <tr><td><a href="BaseDecoder.html#VALto_end_of_file">to_end_of_file</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
+<td></td></tr>
+<tr><td><a href="Header.html#VALto_field">to_field</a> [<a href="Header.html">Header</a>]</td>
+<td></td></tr>
+<tr><td><a href="Content.Message.html#VALto_field">to_field</a> [<a href="Content.Message.html">Content.Message</a>]</td>
+<td></td></tr>
+<tr><td><a href="Content.Part.html#VALto_field">to_field</a> [<a href="Content.Part.html">Content.Part</a>]</td>
+<td></td></tr>
+<tr><td><a href="Trace.html#VALto_field">to_field</a> [<a href="Trace.html">Trace</a>]</td>
+<td></td></tr>
+<tr><td><a href="Resent.html#VALto_field">to_field</a> [<a href="Resent.html">Resent</a>]</td>
+<td></td></tr>
+<tr><td><a href="Message.html#VALto_string">to_string</a> [<a href="Message.html">Message</a>]</td>
 <td></td></tr>
 <tr><td><a href="Header.html#VALto_string">to_string</a> [<a href="Header.html">Header</a>]</td>
 <td></td></tr>
@@ -735,6 +780,8 @@
 <tr><td><a href="Address.List.html#VALto_string">to_string</a> [<a href="Address.List.html">Address.List</a>]</td>
 <td></td></tr>
 <tr><td><a href="Address.html#VALto_string">to_string</a> [<a href="Address.html">Address</a>]</td>
+<td></td></tr>
+<tr><td><a href="LiteralDomain.html#VALto_string">to_string</a> [<a href="LiteralDomain.html">LiteralDomain</a>]</td>
 <td></td></tr>
 <tr><td><a href="Date.html#VALto_string">to_string</a> [<a href="Date.html">Date</a>]</td>
 <td></td></tr>
@@ -751,6 +798,12 @@
 <td></td></tr>
 <tr><td><a href="BaseDecoder.html#VALu_repeat">u_repeat</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
 <td></td></tr>
+<tr><td><a href="QuotedPrintable.T.html#VALunlift">unlift</a> [<a href="QuotedPrintable.T.html">QuotedPrintable.T</a>]</td>
+<td></td></tr>
+<tr><td><a href="Base64.T.html#VALunlift">unlift</a> [<a href="Base64.T.html">Base64.T</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALunlift">unlift</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
 <tr><td><a href="Header.Relax.html#VALunstrict">unstrict</a> [<a href="Header.Relax.html">Header.Relax</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>V</td></tr>
@@ -759,9 +812,103 @@
 <tr><td><a href="Rfc2045.html#VALvalue_to_string">value_to_string</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>W</td></tr>
+<tr><td><a href="BaseEncoder.html#VALw">w</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
+<td></td></tr>
+<tr><td><a href="Message.E.html#VALw">w</a> [<a href="Message.E.html">Message.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Header.E.html#VALw">w</a> [<a href="Header.E.html">Header.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Content.Message.E.html#VALw">w</a> [<a href="Content.Message.E.html">Content.Message.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Content.Part.E.html#VALw">w</a> [<a href="Content.Part.E.html">Content.Part.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="ContentEncoding.E.html#VALw">w</a> [<a href="ContentEncoding.E.html">ContentEncoding.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="ContentType.E.html#VALw">w</a> [<a href="ContentType.E.html">ContentType.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="MimeVersion.E.html#VALw">w</a> [<a href="MimeVersion.E.html">MimeVersion.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="MsgID.E.html#VALw">w</a> [<a href="MsgID.E.html">MsgID.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.List.E.html#VALw">w</a> [<a href="Address.List.E.html">Address.List.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALw">w</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="LiteralDomain.E.html#VALw">w</a> [<a href="LiteralDomain.E.html">LiteralDomain.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Date.E.html#VALw">w</a> [<a href="Date.E.html">Date.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_box">w_box</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_break">w_break</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_char">w_char</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="BaseEncoder.html#VALw_char">w_char</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_close_box">w_close_box</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_cut">w_cut</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Rfc2047.html#VALw_decoded_word">w_decoded_word</a> [<a href="Rfc2047.html">Rfc2047</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALw_domain">w_domain</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="QuotedPrintable.html#VALw_encode">w_encode</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
+<td></td></tr>
+<tr><td><a href="Base64.html#VALw_encode">w_encode</a> [<a href="Base64.html">Base64</a>]</td>
+<td></td></tr>
+<tr><td><a href="Content.Message.E.html#VALw_field">w_field</a> [<a href="Content.Message.E.html">Content.Message.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Content.Part.E.html#VALw_field">w_field</a> [<a href="Content.Part.E.html">Content.Part.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_flush">w_flush</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_force_newline">w_force_newline</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_hbox">w_hbox</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_hovbox">w_hovbox</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_hvbox">w_hvbox</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_if_newline">w_if_newline</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="QuotedPrintable.html#VALw_inline_encode">w_inline_encode</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
+<td></td></tr>
+<tr><td><a href="Base64.html#VALw_inline_encode">w_inline_encode</a> [<a href="Base64.html">Base64</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_limit">w_limit</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALw_local">w_local</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALw_mailbox">w_mailbox</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_newline">w_newline</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALw_person">w_person</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALw_phrase">w_phrase</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALw_safe_string">w_safe_string</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_space">w_space</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_string">w_string</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Wrap.html#VALw_vbox">w_vbox</a> [<a href="Wrap.html">Wrap</a>]</td>
+<td></td></tr>
+<tr><td><a href="Address.E.html#VALw_word">w_word</a> [<a href="Address.E.html">Address.E</a>]</td>
+<td></td></tr>
+<tr><td><a href="BaseEncoder.html#VALwait">wait</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
+<td></td></tr>
 <tr><td><a href="Base64.T.html#VALwrap">wrap</a> [<a href="Base64.T.html">Base64.T</a>]</td>
 <td></td></tr>
 <tr><td><a href="QuotedPrintable.T.html#VALwrap_bigword">wrap_bigword</a> [<a href="QuotedPrintable.T.html">QuotedPrintable.T</a>]</td>
+<td></td></tr>
+<tr><td><a href="BaseEncoder.html#VALwrapping">wrapping</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
+<td></td></tr>
+<tr><td><a href="BaseEncoder.html#VALwrites">writes</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
 <td></td></tr>
 </table>
 </body>
