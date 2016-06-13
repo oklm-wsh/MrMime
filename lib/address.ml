@@ -1,7 +1,7 @@
 open BasePrinter
 
 type atom     = Rfc5322.atom
-type domain   = [ `Domain of atom list | `Literal of string | LiteralDomain.t ]
+type domain   = [ `Domain of atom list | `Literal of string list | LiteralDomain.t ]
 type local    = Rfc5322.local
 type encoding = Rfc2047.encoding = QuotedPrintable | Base64
 type phrase   = Rfc5322.phrase
@@ -15,7 +15,7 @@ let size_of_domain domain =
   let aux = List.fold_left (fun acc -> function `Atom s -> String.length s + acc) 0 in
   match domain with
   | `Domain l -> aux l
-  | `Literal s -> String.length s
+  | `Literal l -> List.fold_left (fun acc x -> acc + (String.length x)) 0 l
   | #LiteralDomain.t as l -> LiteralDomain.size l
 
 type mailbox =

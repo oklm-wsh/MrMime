@@ -4,7 +4,7 @@ type atom    = [ `Atom of string ]
 type word    = [ atom | `String of string ]
 type local   = word list
 type domain  =
-  [ `Literal of string
+  [ `Literal of string list
   | `Domain of atom list ]
 type left   = local
 type right  = domain
@@ -676,7 +676,7 @@ let p_domain_literal p =
     | ']' ->
       p_chr ']'
       @ p_cfws
-      @ fun _ -> p (List.rev acc |> String.concat "")
+      @ fun _ -> p (List.rev acc)
     | chr when is_dtext chr || chr = '\\' ->
       p_dtext @ fun s -> p_fws @ fun _ _ -> loop (s :: acc)
     | chr -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
@@ -720,7 +720,7 @@ let p_domain p =
   @ fun _ -> cur_chr
   @ function
     (* it's domain-literal *)
-    | '[' -> p_domain_literal @ fun s -> p (`Literal s)
+    | '[' -> p_domain_literal @ fun l -> p (`Literal l)
     (* it's dot-atom or obs-domain *)
     | chr ->
       p_dot_atom   (* may be we are [CFWS] allowed by obs-domain *)
@@ -754,7 +754,7 @@ let p_no_fold_literal p =
   p_chr '['
   @ p_dtext
   @ fun d -> p_chr ']'
-  @ p (`Literal d)
+  @ p (`Literal [d])
 
 let p_id_right p =
  (p_dot_atom_text (fun data state -> `Ok (`Domain data, state)))
