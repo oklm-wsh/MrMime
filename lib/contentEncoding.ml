@@ -14,7 +14,9 @@ type t =
 *)
 let default = `Bit7
 
-let of_lexer x = x
+type field = [ `ContentEncoding of t ]
+
+let field_of_lexer x = x
 
 let to_string = function
   | `Base64 -> "base64"
@@ -24,13 +26,47 @@ let to_string = function
   | `QuotedPrintable -> "quoted-printable"
   | `Ietf_token s | `X_token s -> s
 
-let p = Format.fprintf
+module D =
+struct
+  let of_lexer x p state = p x state
+  let of_lexer' x = x
+end
 
-let pp fmt = function
-  | `Base64 -> p fmt "base64"
-  | `Bit7   -> p fmt "7bit"
-  | `Bit8   -> p fmt "8bit"
-  | `Binary -> p fmt "binary"
-  | `QuotedPrintable -> p fmt "quoted-printable"
-  | `Ietf_token s -> p fmt "%s" s
-  | `X_token s -> p fmt "%s" s
+module E =
+struct
+  module Internal =
+  struct
+    open BaseEncoder
+
+    let w_encoding x = w (to_string x)
+
+    let w_crlf k e = w "\r\n" k e
+
+    let wrap a =
+      let buf = Buffer.create 16 in
+
+      let rec loop = function
+        | `Partial (s, i, l, k) ->
+          Buffer.add_subbytes buf s i l;
+          loop @@ (k l)
+        | `Ok ->
+          Wrap.w_string (Buffer.contents buf)
+      in
+
+      loop @@ (a (flush (fun _ -> `Ok)) (Encoder.make ()))
+
+    let w_field = function
+      | `ContentEncoding x ->
+        w "Content-Encoding: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Content-Encoding: ")
+                          $ wrap (w_encoding x)
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+  end
+
+  let w = Internal.w_field
+end
+
+let equal = (=)
+let pp fmt _ = Format.fprintf fmt "#content-encoding"
