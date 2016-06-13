@@ -1353,8 +1353,7 @@ let p_body stop p state =
          | '\n' when has_cr ->
            junk_chr
            @ fun state ->
-             Buffer.add_char buf '\n'; (* XXX: Line-break in UNIX system (may be we
-                                          can become more configuration) *)
+             Buffer.add_string buf Newline.newline;
              body false state
          | '\r' when has_cr ->
            junk_chr
