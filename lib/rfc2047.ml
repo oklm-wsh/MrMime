@@ -56,42 +56,23 @@ let p_encoded_word p =
         (p charset Base64)
     | enc -> fun state -> raise (Error.Error (Error.err_unexpected_encoding enc state))
 
-let p_decoded_word charset encoding p state =
-  let buf = Buffer.create 16 in
-
-  Buffer.add_string buf "=?";
-  Buffer.add_string buf charset;
-  Buffer.add_string buf "?";
-  Buffer.add_string buf
-    (match encoding with QuotedPrintable -> "Q" | Base64 -> "B");
-  Buffer.add_string buf "?";
-
-  match encoding with
-  | QuotedPrintable ->
-    QuotedPrintable.p_inline_encode
-      (fun state ->
-       if state.Decoder.pos = state.Decoder.len
-       then `Stop state
-       else `Continue state)
-      (fun encoded state ->
-       Buffer.add_string buf encoded;
-       Buffer.add_string buf "?=";
-       p (Buffer.contents buf) state)
-      state
-  | Base64 ->
-    Base64.p_inline_encode
-      (fun state ->
-       if state.Decoder.pos = state.Decoder.len
-       then `Stop state
-       else `Continue state)
-      (fun encoded state ->
-       Buffer.add_string buf encoded;
-       Buffer.add_string buf "?=";
-       p (Buffer.contents buf) state)
-      state
-
 let p_try_rule p rule =
   (p_encoded_word
    @ fun charset encoding data state -> `Ok ((charset, encoding, data), state))
   / (rule p)
   @ (fun encoded -> p (`Encoded encoded))
+
+open BaseEncoder
+
+let w_decoded_word charset encoding content =
+  w "=?"
+  $ w charset
+  $ w "?"
+  $ (match encoding with
+     | QuotedPrintable -> w "Q"
+     | Base64          -> w "B")
+  $ w "?"
+  $ (match encoding with
+     | QuotedPrintable -> QuotedPrintable.w_inline_encode content
+     | Base64 -> Base64.w_inline_encode content)
+  $ w "?="
