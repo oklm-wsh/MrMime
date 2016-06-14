@@ -7,6 +7,45 @@ and nest =
   [ `Composite of (Content.t * field list) * 'a option list
   | `Discrete of (Content.t * field list) * string ] as 'a
 
+let pp = Format.fprintf
+
+let pp_lst ~sep pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
+
+let pp_option pp_data fmt = function
+  | Some data -> pp_data fmt data
+  | None -> pp fmt "<none>"
+
+let pp_field : Format.formatter -> field -> unit =
+  fun fmt -> function
+  | #Header.field as x -> Header.pp_field fmt x
+  | #Content.Part.field as x -> Content.Part.pp_field fmt x
+
+let rec pp_nest : Format.formatter -> nest -> unit =
+  fun fmt -> function
+  | `Composite ((content, fields), lst) ->
+      pp fmt "{ @[<v>content = %a;@\nheader = @[<v>%a@];@\n%a@] }"
+        Content.pp content
+        (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_field) fields
+        (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") (pp_option pp_nest)) lst
+  | `Discrete ((content, fields), body) ->
+      pp fmt "{ @[<v>content = %a;@\nheader = @[<v>%a@];@\nbody = %S@] }"
+        Content.pp content
+        (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_field) fields
+        body
+
+let pp fmt (header, top) = match top with
+  | `Composite (content, body) ->
+    pp fmt "{ @[<v>header = %a;@\ncontent = %a;@\n%a@] }"
+      Header.pp header Content.pp content (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") (pp_option pp_nest)) body
+  | `Discrete (content, body) ->
+    pp fmt "{ @[<v>header = %a;@\ncontent = %a;@\nbody = %S@] }"
+      Header.pp header Content.pp content body
+
 module D =
 struct
   open BaseDecoder
@@ -141,5 +180,3 @@ let of_string s = D.of_decoder (Decoder.of_string s)
 let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
 
 let equal = (=)
-
-let pp fmt _ = Format.fprintf fmt "#message"
