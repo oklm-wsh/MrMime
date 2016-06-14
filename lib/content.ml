@@ -8,13 +8,22 @@ type t =
 
 let pp = Format.fprintf
 
+let pp_lst ~sep pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
+
 let pp fmt = function
   | { ty; encoding; version; id = Some id; description; content; } ->
-    pp fmt "{ @[<hov>content-type = %a;@ content-encoding = %a;@ version = %a;@ content-id: %a;@ description = %s@] }"
+    pp fmt "{ @[<hov>content-type = %a;@ content-transfer-encoding = %a;@ version = %a;@ content-id: %a;@ description = %s;@ and @[<v>%a@]@] }"
       ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version MsgID.pp id (Option.value ~default:"<none>" description)
+      (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") (fun fmt (field, phrase) -> pp fmt "%s = %a" field Address.pp_phrase phrase)) content
   | { ty; encoding; version; id = None; description; content; } ->
-    pp fmt "{ @[<hov>content-type = %a;@ content-encoding = %a;@ version = %a;@ description = %s@] }"
+    pp fmt "{ @[<hov>content-type = %a;@ content-transfer-encoding = %a;@ version = %a;@ description = %s;@ and @[<v>%a@]@] }"
       ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version (Option.value ~default:"<none>" description)
+      (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") (fun fmt (field, phrase) -> pp fmt "content-%s = %a" field Address.pp_phrase phrase)) content
 
 let ty { ty; _ } = ty
 let encoding { encoding; _ } = encoding
