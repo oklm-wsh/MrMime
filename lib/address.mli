@@ -31,8 +31,13 @@ end
 val of_string : string -> t
 val to_string : t -> string
 
-val equal     : t -> t -> bool
-val pp        : Format.formatter -> t -> unit
+val equal      : t -> t -> bool
+val pp         : Format.formatter -> t -> unit
+val pp_person  : Format.formatter -> person -> unit
+val pp_phrase  : Format.formatter -> phrase -> unit
+val pp_mailbox : Format.formatter -> mailbox -> unit
+val pp_word    : Format.formatter -> word -> unit
+val pp_domain  : Format.formatter -> domain -> unit
 
 module List :
 sig

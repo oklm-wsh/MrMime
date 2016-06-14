@@ -5,6 +5,57 @@ type local    = Rfc5322.local
 type encoding = Rfc2047.encoding = QuotedPrintable | Base64
 type phrase   = Rfc5322.phrase
 
+let pp = Format.fprintf
+
+let pp_atom fmt = function
+  | `Atom x -> pp fmt "%s" x
+
+let pp_lst ~sep pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
+
+let pp_word fmt = function
+  | `Atom x -> pp fmt "%s" x
+  | `String s -> pp fmt "%S" s
+
+let pp_domain fmt = function
+  | `Domain lst -> pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt ".") pp_atom) lst
+  | `Literal lst -> pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") (fun fmt s -> pp fmt "%s" s)) lst
+  | #LiteralDomain.t as x -> LiteralDomain.pp fmt x
+
+let pp_local =
+  pp_lst ~sep:(fun fmt () -> pp fmt ".") pp_word
+
+let pp_encoding fmt = function
+  | QuotedPrintable -> pp fmt "Q"
+  | Base64 -> pp fmt "B"
+
+let pp_phrase fmt =
+  let make f n =
+    let rec aux acc = function
+      | 0 -> List.rev acc
+      | n -> aux (f n :: acc) (n - 1)
+    in aux [] n
+  in
+
+  let rec aux fmt = function
+    | `Atom x -> pp fmt "%s" x
+    | `CR n -> pp fmt "%s" (String.concat "" (make (fun _ -> "\r") n))
+    | `Dot -> pp fmt "."
+    | `Encoded (charset, encoding, data) ->
+      pp fmt "{ @[<hov> charset = %s;@ encoding = %a;@ data = %S@] }"
+        charset pp_encoding encoding data
+    | `FWS -> pp fmt "<fws>"
+    | `LF n -> pp fmt "%s" (String.concat "" (make (fun _ -> "\n") n))
+    | `String s -> pp fmt "%S" s
+    | `WSP -> pp fmt "@ "
+  in
+
+  pp fmt "@[<hov>%a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@,") aux)
+
 let size_of_local =
   List.fold_left (fun acc -> function
     | `Atom s -> String.length s + acc
@@ -30,6 +81,26 @@ type group =
   ; persons : person list }
 
 type t = [ `Group of group | `Person of person ]
+
+let pp_mailbox fmt { local; domain = (first, rest) } =
+  match rest with
+  | [] -> pp fmt "{ @[<hov>%a;@ %a@] }" pp_local local pp_domain first
+  | lst -> pp fmt "{ @[<hov>%a;@ @[<hov>%a@ |@ %a@]@] }"
+    pp_local local pp_domain first (pp_lst ~sep:(fun fmt () -> pp fmt "@ |@ ") pp_domain) lst
+
+let pp_person fmt = function
+  | { name = Some name; mailbox; } ->
+      pp fmt "@[<hov>%a:@ %a@]" pp_phrase name pp_mailbox mailbox
+  | { name = None; mailbox; } ->
+      pp fmt "@[<hov>%a@]" pp_mailbox mailbox
+
+let pp_group fmt { name; persons; } =
+  pp fmt "@[<hov>%a:@ %a;@]"
+    pp_phrase name (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") pp_person) persons
+
+let pp fmt = function
+  | `Group grp -> pp_group fmt grp
+  | `Person prs -> pp_person fmt prs
 
 module D =
 struct
@@ -292,8 +363,6 @@ let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
 
 let equal = (=)
 
-let pp fmt _ = Format.fprintf fmt "#address"
-
 module List =
 struct
   module D =
@@ -374,5 +443,6 @@ struct
 
   let equal = (=)
 
-  let pp fmt _ = Format.fprintf fmt "#addresses"
+  let pp fmt lst =
+    pp_lst ~sep:(fun fmt () -> Format.fprintf fmt ",@ ") pp fmt lst
 end
