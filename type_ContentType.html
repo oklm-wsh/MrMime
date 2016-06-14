@@ -55,6 +55,7 @@
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;field&nbsp;=&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">ContentType</span>.t&nbsp;]
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;field_of_lexer&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc2045</span>.content&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.field
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;pp_field&nbsp;:&nbsp;<span class="constructor">Format</span>.formatter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ContentType</span>.field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
 &nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">D</span>&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_lexer&nbsp;:&nbsp;<span class="constructor">Rfc2045</span>.content&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">ContentType</span>.t,&nbsp;<span class="keywordsign">'</span>r)&nbsp;<span class="constructor">Decoder</span>.k1

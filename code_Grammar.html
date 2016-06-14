@@ -44,7 +44,7 @@
 
 <span class="keyword">type</span>&nbsp;field&nbsp;=
 &nbsp;&nbsp;[&nbsp;<span class="constructor">Header</span>.field
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Content</span>.<span class="constructor">Message</span>.field&nbsp;]
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Content</span>.<span class="constructor">Part</span>.field&nbsp;]
 
 <span class="comment">(*&nbsp;composition&nbsp;between&nbsp;RFC&nbsp;5322&nbsp;and&nbsp;RFC&nbsp;2045&nbsp;about&nbsp;the&nbsp;header&nbsp;*)</span>
 <span class="keyword">let</span>&nbsp;p_header&nbsp;p&nbsp;state&nbsp;=
@@ -97,7 +97,7 @@
 
 <span class="keyword">let</span>&nbsp;field_of_lexer&nbsp;=&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc5322</span>.field&nbsp;<span class="keyword">as</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Header</span>.field_of_lexer&nbsp;x&nbsp;:&gt;&nbsp;field)
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.field&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.mime_field)&nbsp;<span class="keyword">as</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Content</span>.<span class="constructor">Message</span>.field_of_lexer&nbsp;x&nbsp;:&gt;&nbsp;field)
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.field&nbsp;<span class="keyword">as</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">Content</span>.<span class="constructor">Part</span>.field_of_lexer&nbsp;x&nbsp;:&gt;&nbsp;field)
 
 <span class="comment">(*&nbsp;compute&nbsp;the&nbsp;multipart&nbsp;explained&nbsp;in&nbsp;RFC&nbsp;2046&nbsp;§&nbsp;5&nbsp;*)</span>
 <span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;p_multipart&nbsp;boundary&nbsp;p_body'&nbsp;p&nbsp;state&nbsp;=
