@@ -48,4 +48,4 @@ struct
   let w = Internal.w_field
 end
 
-let pp fmt _ = Format.fprintf fmt "#version"
+let pp fmt (a, b) = Format.fprintf fmt "%d.%d" a b
