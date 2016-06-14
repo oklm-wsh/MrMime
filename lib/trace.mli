@@ -18,3 +18,6 @@ module D :
 sig
   val of_lexer : ([> Rfc5322.trace ] as 'trace) list -> (t option, 'trace list, 'r) Decoder.k2
 end
+
+val pp_field : Format.formatter -> field -> unit
+val pp       : Format.formatter -> t -> unit

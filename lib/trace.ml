@@ -29,6 +29,36 @@ let to_field trace =
   [`ReturnPath trace.path ]
   @ (List.map (fun x -> `Received x) trace.received)
 
+let pp = Format.fprintf
+
+let pp_received fmt = function
+  | `Word x -> Address.pp_word fmt x
+  | `Domain domain -> Address.pp_domain fmt domain
+  | `Mailbox mailbox -> Address.pp_mailbox fmt mailbox
+
+let pp_lst ~sep pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
+
+let pp_field fmt = function
+  | `Received (l, Some date) ->
+    pp fmt "@[<hov>Received = { @[<hov>token = %a;@ date = %a@] }@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_received) l Date.pp date
+  | `Received (l, None) ->
+    pp fmt "@[<hov>Received = %a@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_received) l
+  | `ReturnPath (Some m) ->
+    pp fmt "@[<hov>Return-Path = %a@]" Address.pp_mailbox m
+  | `ReturnPath None ->
+    pp fmt "@[<hov>Return-Path = <none>@]"
+
+let pp fmt t =
+  pp fmt "@[<v>%a@]"
+    (pp_lst ~sep:(fun fmt () -> pp fmt "\n") pp_field) (to_field t)
+
 module D =
 struct
   let of_lexer fields p state =
