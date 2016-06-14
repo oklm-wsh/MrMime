@@ -40,6 +40,28 @@ let to_field resent =
   @:@ (resent.reply_to >>= fun l -> `ResentReplyTo l)
   @:@ (`ResentDate resent.date) :: (`ResentFrom resent.from) :: []
 
+let pp = Format.fprintf
+
+let pp_lst ~sep pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
+
+let pp_field fmt = function
+  | `ResentDate d      -> pp fmt "@[<hov>Resent-Date = %a@]" Date.pp d
+  | `ResentFrom l      -> pp fmt "@[<hov>Resent-From = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_person) l
+  | `ResentSender p    -> pp fmt "@[<hov>Resent-Sender = %a@]" Address.pp_person p
+  | `ResentTo l        -> pp fmt "@[<hov>Resent-To = %a@]" Address.List.pp l
+  | `ResentCc l        -> pp fmt "@[<hov>Resent-Cc = %a@]" Address.List.pp l
+  | `ResentBcc l       -> pp fmt "@[<hov>Resent-Bcc = %a@]" Address.List.pp l
+  | `ResentMessageID m -> pp fmt "@[<hov>Resent-Message-ID = %a@]" MsgID.pp m
+  | `ResentReplyTo l   -> pp fmt "@[<hov>Resent-Reply-To = %a@]" Address.List.pp l
+
+let pp fmt t =
+  pp fmt "@[<v>%a]" (pp_lst ~sep:(fun fmt () -> pp fmt "\n") pp_field) (to_field t)
+
 module D =
 struct
   let of_lexer fields p state =

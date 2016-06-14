@@ -13,6 +13,9 @@ type field =
 val field_of_lexer  : Rfc5322.resent -> field
 val to_field        : t -> field list
 
+val pp_field        : Format.formatter -> field -> unit
+val pp              : Format.formatter -> t -> unit
+
 module D :
 sig
   val of_lexer : ([> Rfc5322.resent ] as 'resent) list -> (t option, 'resent list, 'r) Decoder.k2
