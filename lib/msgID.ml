@@ -2,6 +2,26 @@ type left  = Rfc5322.left
 type right = Rfc5322.right
 type t     = { left : left; right : right; }
 
+let pp = Format.fprintf
+
+let pp_left fmt = function
+  | `String s -> pp fmt "%S" s
+  | `Atom s -> pp fmt "%s" s
+
+let pp_lst ~sep pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
+
+let pp_right fmt = function
+  | `Domain lst -> pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt ".") (fun fmt -> function `Atom s -> pp fmt "%s" s)) lst
+  | `Literal lst -> pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") (fun fmt s -> pp fmt "%s" s)) lst
+
+let pp fmt { left; right } =
+  pp fmt "{ @[<hov>%a;@ %a@] }" (pp_lst ~sep:(fun fmt () -> pp fmt ".") pp_left) left pp_right right
+
 module D =
 struct
   let of_lexer (left, right) =
