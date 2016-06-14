@@ -3,6 +3,13 @@ type t =
   | `IPv4 of Ipaddr.V4.t
   | `IPv6 of Ipaddr.V6.t ]
 
+let pp = Format.fprintf
+
+let pp fmt = function
+  | `General (tag, data) -> pp fmt "[@[<hov>%s:@,%s@]]" tag data
+  | `IPv4 ipv4 -> pp fmt "[@[<hov>%a@]]" Ipaddr.V4.pp_hum ipv4
+  | `IPv6 ipv6 -> pp fmt "[@[<hov>IPv6:@,%a@]]" Ipaddr.V6.pp_hum ipv6
+
 module D =
 struct
   open BaseDecoder
@@ -113,7 +120,6 @@ end
 let of_string s = D.of_decoder (Decoder.of_string (s ^ "\r\n\r\n"))
 let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
 
-let pp fmt _ = Format.fprintf fmt "#literal-domain"
 let equal = (=)
 
 let size domain =
