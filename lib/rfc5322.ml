@@ -1293,9 +1293,9 @@ let p_field extend field p =
        obs-optional    = field-name *WSP ":" unstructured CRLF
     *)
     | field ->
-      p_try_rule p
-        (p_unstructured @ fun value -> p_crlf @ p (`Field (field, value)))
-        (extend field @ p)
+      (extend field @ ok)
+      / (p_unstructured @ fun value -> p_crlf @ p (`Field (field, value)))
+      @ p
   in
 
   (rule @ fun field state -> `Ok (field, state))

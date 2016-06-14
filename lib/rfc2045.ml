@@ -209,56 +209,55 @@ let p_id p =
   @ fun m -> Rfc822.p_cfws
   @ fun _ -> p m
 
-let p_field mime_extend extend field p =
+let p_field ?(unsafe = (fun field p -> Rfc5322.p_unstructured @ fun l -> Rfc822.p_crlf @ p (`Unsafe (field, l)))) extend_mime extend field p =
   [%debug Printf.printf "state: p_field (RFC 2045) %s\n%!" field];
 
   let field = String.lowercase_ascii field in
 
-  let rule =
+  let rule p =
     match field with
-    | "content-type" -> p_content @ fun c -> Rfc822.p_crlf @ ok (`ContentType c)
-    | "content-transfer-encoding" -> p_encoding @ fun e -> Rfc822.p_crlf @ ok (`ContentEncoding e)
+    | "content-type" -> p_content @ fun c -> Rfc822.p_crlf @ p (`ContentType c)
+    | "content-transfer-encoding" -> p_encoding @ fun e -> Rfc822.p_crlf @ p (`ContentEncoding e)
     | "content-id" -> p_id @ fun i -> Rfc822.p_crlf @ p (`ContentID i)
-    | "content-description" -> Rfc822.p_text @ fun _ s -> Rfc822.p_crlf @ ok (`ContentDescription s)
+    | "content-description" -> Rfc822.p_text @ fun _ s -> Rfc822.p_crlf @ p (`ContentDescription s)
     | field ->
       (* XXX: the optionnal-field [fields] is handle by RFC 822 or RFC 5322.
               in this case, we raise an error. *)
       if String.length field >= 8 && String.sub field 0 8 = "content-"
-      then let field = String.sub field 8 (String.length field - 8) in
-           p_try_rule p
-             (Rfc5322.p_unstructured @ fun value ->
-              Rfc822.p_crlf @ p (`Content (field, value)))
-             (mime_extend field @ ok)
+      then (Printf.printf "WE HAVE CONTENT: %s\n%!" field;
+           let field = String.sub field 8 (String.length field - 8) in
+           (extend_mime field @ ok)
+           / (Rfc5322.p_unstructured @ fun value ->
+             Rfc822.p_crlf @ fun state -> Printf.printf "YES, CONTENT\n%!"; p (`Content (field, value)) state)
+           @ p)
       else extend field p
   in
 
-  rule
-  / (Rfc5322.p_unstructured
-     @ fun l -> Rfc822.p_crlf
-     @ p (`Unsafe (field, l)))
+  (rule @ fun field state -> `Ok (field, state))
+  / (unsafe field p)
   @ p
 
-let p_entity_headers extend_mime extend p state =
+let p_entity_headers ?unsafe extend_mime extend p =
   [%debug Printf.printf "state: p_entity_header\n%!"];
 
   let rec loop acc =
     (Rfc822.p_field_name
      @ fun field -> (0 * 0) Rfc822.is_lwsp
      @ fun _ -> p_chr ':'
-     @ p_field extend_mime extend field
+     @ p_field ?unsafe extend_mime extend field
      @ fun data state -> `Ok (data, state))
     / (p (List.rev acc))
     @ (fun field -> loop (field :: acc))
   in
 
-  loop [] state
+  loop []
 
-let p_mime_message_headers extend_mime extend field p =
+let p_mime_message_headers ?unsafe extend_mime extend field p =
   [%debug Printf.printf "state: p_mime_message_header\n%!"];
 
   match field with
   | "mime-version" -> p_version @ fun v -> Rfc822.p_crlf @ p (`MimeVersion v)
-  | field -> p_field extend_mime extend field p
+  | field -> p_field ?unsafe extend_mime extend field p
 
 let p_mime_part_headers = p_entity_headers
 
