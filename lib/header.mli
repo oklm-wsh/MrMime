@@ -43,6 +43,7 @@ end
 
 module E :
 sig
+  val w_field      : (field, 'r Encoder.partial) Encoder.k1
   val w            : (field list, 'r Encoder.partial) Encoder.k1
   val to_buffer    : unstrict -> Encoder.t -> Buffer.t
 end
@@ -51,4 +52,5 @@ val of_string      : string -> unstrict
 val to_string      : unstrict -> string
 
 val equal          : ('date, 'from) t -> ('date, 'from) t -> bool
-val pp             : Format.formatter -> ('date, 'from) t -> unit
+val pp_field       : Format.formatter -> field -> unit
+val pp             : Format.formatter -> unstrict -> unit

@@ -110,6 +110,46 @@ let to_field header =
   @ (List.concat @@ ((List.map Resent.to_field header.resents) :> field list list))
   @ (List.concat @@ ((List.map Trace.to_field header.traces) :> field list list))
 
+let pp = Format.fprintf
+
+let pp_lst ~sep pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
+
+let pp_field fmt field =
+  let rec aux fmt = function
+    | `MsgID m -> MsgID.pp fmt m
+    | `Phrase p -> Address.pp_phrase fmt p
+  in
+
+  let rec pp_field fmt = function
+    | `From l -> pp fmt "@[<hov>From = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_person) l
+    | `Date d -> pp fmt "@[<hov>Date = %a@]" Date.pp d
+    | `Sender p -> pp fmt "@[<hov>Sender = %a@]" Address.pp_person p
+    | `ReplyTo l -> pp fmt "@[<hov>ReplyTo = %a@]" Address.List.pp l
+    | `To l -> pp fmt "@[<hov>To = %a@]" Address.List.pp l
+    | `Cc l -> pp fmt "@[<hov>Cc = %a@]" Address.List.pp l
+    | `Bcc l -> pp fmt "@[<hov>Bcc = %a@]" Address.List.pp l
+    | `Subject p -> pp fmt "@[<hov>Subject = %a@]" Address.pp_phrase p
+    | `Comments c -> pp fmt "@[<hov>Comments = %a@]" Address.pp_phrase c
+    | `Keywords l -> pp fmt "@[<hov>Keywords = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") Address.pp_phrase) l
+    | `MessageID m -> pp fmt "@[<hov>Messsage-ID = %a@]" MsgID.pp m
+    | `InReplyTo l -> pp fmt "@[<hov>InReplyTo = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux) l
+    | `References l -> pp fmt "@[<hov>References = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux) l
+    | #Resent.field as x -> Resent.pp_field fmt x
+    | #Trace.field as x -> Trace.pp_field fmt x
+    | `Field (k, v) -> pp fmt "@[<hov>%s = %a@]" (String.capitalize_ascii k) Address.pp_phrase v
+    | `Unsafe (k, v) -> pp fmt "@[<hov>%s ~= %a@]" (String.capitalize_ascii k) Address.pp_phrase v
+  in
+
+  pp_field fmt field
+
+let pp fmt t =
+  pp fmt "@[<v>%a]" (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_field) (to_field t)
+
 module D =
 struct
   let of_lexer relax fields p state =
@@ -338,223 +378,224 @@ struct
 
     let w_crlf k e = w "\r\n" k e
 
+    let rec w_lst w_sep w_data l =
+      let open Wrap in
+        let rec aux = function
+        | [] -> noop
+        | [ x ] -> w_data x
+        | x :: r -> w_data x $ w_sep $ aux r
+      in aux l
+
+    let w_field = function
+      | `ResentCc l ->
+        w "Resent-Cc: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Cc: ")
+                          $ Address.List.E.w l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ResentMessageID m ->
+        w "Resent-Message-ID: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Message-ID: ")
+                          $ MsgID.E.w m
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Bcc l ->
+        w "Bcc: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Bcc: ")
+                          $ Address.List.E.w l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Cc l ->
+        w "Cc: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Cc: ")
+                          $ Address.List.E.w l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ReturnPath (Some m) ->
+        w  "Return-Path: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Return-Path: ")
+                          $ Address.E.w_mailbox m
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ReturnPath None ->
+        w "Return-Path: < >" $ w_crlf
+      | `ResentTo l ->
+        w "Resent-To: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-To: ")
+                          $ Address.List.E.w l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Subject p ->
+        w "Subject:"
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Subject:")
+                          $ Address.E.w_phrase p
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `To l ->
+        w "To: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "To: ")
+                          $ Address.List.E.w l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `References l ->
+        let w_data = function
+          | `Phrase p -> Address.E.w_phrase p
+          | `MsgID m -> MsgID.E.w m
+        in
+        w "References: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "References: ")
+                          $ w_lst w_space w_data l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ResentSender p ->
+        w "Resent-Sender: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Sender: ")
+                          $ Address.E.w_person p
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Field (key, value) ->
+        w key $ w ":"
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length key + 2)
+                          $ Address.E.w_phrase value
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Date d ->
+        w "Date: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Date: ")
+                          $ Date.E.w d
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `InReplyTo l ->
+        let w_data = function
+          | `Phrase p -> Address.E.w_phrase p
+          | `MsgID m -> MsgID.E.w m
+        in
+        w "In-Reply-To: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "In-Reply-To: ")
+                          $ w_lst w_space w_data l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Received (l, Some date) ->
+        let w_data = function
+          | `Word word -> Address.E.w_word word
+          | `Domain domain -> Address.E.w_domain domain
+          | `Mailbox mailbox -> Address.E.w_mailbox mailbox
+        in
+        w "Received: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Received: ")
+                          $ w_hovbox 1 $ w_lst w_space w_data l $ w_close_box
+                          $ w_hovbox 1 $ w_string ";" $ w_space $ Date.E.w date $ w_close_box
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Received (l, None) ->
+        let w_data = function
+          | `Word word -> Address.E.w_word word
+          | `Domain domain -> Address.E.w_domain domain
+          | `Mailbox mailbox -> Address.E.w_mailbox mailbox
+        in
+        w "Received: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Received: ")
+                          $ w_hovbox 1 $ w_lst w_space w_data l $ w_close_box
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `MessageID m ->
+        w "Message-ID: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Message-ID: ")
+                          $ MsgID.E.w m
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Comments p ->
+        w "Comments:"
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Comments: ")
+                          $ Address.E.w_phrase p
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ResentBcc l ->
+        w "Resent-Bcc: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Bcc: ")
+                          $ Address.List.E.w l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `From l ->
+        w "From: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "From: ")
+                          $ w_lst (w_string "," $ w_space) Address.E.w_person l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ResentFrom l ->
+        w "Resent-From: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-From: ")
+                          $ w_lst (w_string "," $ w_space) Address.E.w_person l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Sender p ->
+        w "Sender: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Sender: ")
+                          $ Address.E.w_person p
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ResentReplyTo l ->
+        w "Resent-Reply-To: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Reply-To: ")
+                          $ Address.List.E.w l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Unsafe (key, value) ->
+        w key $ w ":"
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length key + 2)
+                          $ Address.E.w_phrase value
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `Keywords l ->
+        w "Keywords:"
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Keywords: ")
+                          $ w_lst (w_string "," $ w_space) Address.E.w_phrase l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ReplyTo l ->
+        w "Reply-To: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Reply-To: ")
+                          $ Address.List.E.w l
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+      | `ResentDate d ->
+        w "Resent-Date: "
+        $ Wrap.lift
+        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Date: ")
+                          $ Date.E.w d
+                          $ w_close_box) (unlift k))
+        $ w_crlf
+
     let w_unstrict_header fields =
-      let rec w_lst w_sep w_data l =
-        let open Wrap in
-          let rec aux = function
-          | [] -> noop
-          | [ x ] -> w_data x
-          | x :: r -> w_data x $ w_sep $ aux r
-        in aux l
-      in
-      List.fold_right
-        (function
-         | `ResentCc l ->
-           w "Resent-Cc: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Cc: ")
-                             $ Address.List.E.w l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ResentMessageID m ->
-           w "Resent-Message-ID: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Message-ID: ")
-                             $ MsgID.E.w m
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Bcc l ->
-           w "Bcc: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Bcc: ")
-                             $ Address.List.E.w l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Cc l ->
-           w "Cc: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Cc: ")
-                             $ Address.List.E.w l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ReturnPath (Some m) ->
-           w  "Return-Path: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Return-Path: ")
-                             $ Address.E.w_mailbox m
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ReturnPath None ->
-           w "Return-Path: < >" $ w_crlf
-         | `ResentTo l ->
-           w "Resent-To: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Resent-To: ")
-                             $ Address.List.E.w l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Subject p ->
-           w "Subject:"
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Subject:")
-                             $ Address.E.w_phrase p
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `To l ->
-           w "To: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "To: ")
-                             $ Address.List.E.w l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `References l ->
-           let w_data = function
-             | `Phrase p -> Address.E.w_phrase p
-             | `MsgID m -> MsgID.E.w m
-           in
-           w "References: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "References: ")
-                             $ w_lst w_space w_data l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ResentSender p ->
-           w "Resent-Sender: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Sender: ")
-                             $ Address.E.w_person p
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Field (key, value) ->
-           w key $ w ":"
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length key + 2)
-                             $ Address.E.w_phrase value
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Date d ->
-           w "Date: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Date: ")
-                             $ Date.E.w d
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `InReplyTo l ->
-           let w_data = function
-             | `Phrase p -> Address.E.w_phrase p
-             | `MsgID m -> MsgID.E.w m
-           in
-           w "In-Reply-To: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "In-Reply-To: ")
-                             $ w_lst w_space w_data l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Received (l, Some date) ->
-           let w_data = function
-             | `Word word -> Address.E.w_word word
-             | `Domain domain -> Address.E.w_domain domain
-             | `Mailbox mailbox -> Address.E.w_mailbox mailbox
-           in
-           w "Received: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Received: ")
-                             $ w_hovbox 1 $ w_lst w_space w_data l $ w_close_box
-                             $ w_hovbox 1 $ w_string ";" $ w_space $ Date.E.w date $ w_close_box
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Received (l, None) ->
-           let w_data = function
-             | `Word word -> Address.E.w_word word
-             | `Domain domain -> Address.E.w_domain domain
-             | `Mailbox mailbox -> Address.E.w_mailbox mailbox
-           in
-           w "Received: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Received: ")
-                             $ w_hovbox 1 $ w_lst w_space w_data l $ w_close_box
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `MessageID m ->
-           w "Message-ID: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Message-ID: ")
-                             $ MsgID.E.w m
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Comments p ->
-           w "Comments:"
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Comments: ")
-                             $ Address.E.w_phrase p
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ResentBcc l ->
-           w "Resent-Bcc: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Bcc: ")
-                             $ Address.List.E.w l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `From l ->
-           w "From: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "From: ")
-                             $ w_lst (w_string "," $ w_space) Address.E.w_person l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ResentFrom l ->
-           w "Resent-From: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Resent-From: ")
-                             $ w_lst (w_string "," $ w_space) Address.E.w_person l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Sender p ->
-           w "Sender: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Sender: ")
-                             $ Address.E.w_person p
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ResentReplyTo l ->
-           w "Resent-Reply-To: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Reply-To: ")
-                             $ Address.List.E.w l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Unsafe (key, value) ->
-           w key $ w ":"
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length key + 2)
-                             $ Address.E.w_phrase value
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `Keywords l ->
-           w "Keywords:"
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Keywords: ")
-                             $ w_lst (w_string "," $ w_space) Address.E.w_phrase l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ReplyTo l ->
-           w "Reply-To: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Reply-To: ")
-                             $ Address.List.E.w l
-                             $ w_close_box) (unlift k))
-           $ w_crlf
-         | `ResentDate d ->
-           w "Resent-Date: "
-           $ Wrap.lift
-           $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Date: ")
-                             $ Date.E.w d
-                             $ w_close_box) (unlift k))
-           $ w_crlf)
-        fields
+      List.fold_right w_field fields
   end
 
+  let w_field = Internal.w_field
   let w = Internal.w_unstrict_header
 
   let to_buffer t state =
@@ -580,5 +621,3 @@ let of_string s = D.of_decoder (Decoder.of_string (s ^ "\r\n\r\n"))
 let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
 
 let equal = (=)
-
-let pp fmt _ = Format.fprintf fmt "#header"
