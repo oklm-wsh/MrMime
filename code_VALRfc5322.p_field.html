@@ -145,9 +145,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-optional&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;field-name&nbsp;*WSP&nbsp;":"&nbsp;unstructured&nbsp;CRLF
 &nbsp;&nbsp;&nbsp;&nbsp;*)</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_try_rule&nbsp;p
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Field</span>&nbsp;(field,&nbsp;value)))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(extend&nbsp;field&nbsp;@&nbsp;p)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(extend&nbsp;field&nbsp;@&nbsp;ok)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Field</span>&nbsp;(field,&nbsp;value)))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p
 &nbsp;&nbsp;<span class="keyword">in</span>
 
 &nbsp;&nbsp;(rule&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(field,&nbsp;state))

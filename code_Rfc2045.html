@@ -251,56 +251,55 @@
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;m
 
-<span class="keyword">let</span>&nbsp;p_field&nbsp;mime_extend&nbsp;extend&nbsp;field&nbsp;p&nbsp;=
+<span class="keyword">let</span>&nbsp;p_field&nbsp;?(unsafe&nbsp;=&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;p&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;l))))&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p&nbsp;=
 &nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_field&nbsp;(RFC&nbsp;2045)&nbsp;%s\n%!"</span>&nbsp;field];
 
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;field&nbsp;=&nbsp;<span class="constructor">String</span>.lowercase_ascii&nbsp;field&nbsp;<span class="keyword">in</span>
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;p&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-type"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_content&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;c&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;ok&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;c)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-transfer-encoding"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_encoding&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;ok&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-type"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_content&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;c&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;c)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-transfer-encoding"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_encoding&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e)
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-id"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_id&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;i&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;i)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-description"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_text&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;ok&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-description"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_text&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s)
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;the&nbsp;optionnal-field&nbsp;[fields]&nbsp;is&nbsp;handle&nbsp;by&nbsp;RFC&nbsp;822&nbsp;or&nbsp;RFC&nbsp;5322.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in&nbsp;this&nbsp;case,&nbsp;we&nbsp;raise&nbsp;an&nbsp;error.&nbsp;*)</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">String</span>.length&nbsp;field&nbsp;&gt;=&nbsp;8&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;<span class="constructor">String</span>.sub&nbsp;field&nbsp;0&nbsp;8&nbsp;=&nbsp;<span class="string">"content-"</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">let</span>&nbsp;field&nbsp;=&nbsp;<span class="constructor">String</span>.sub&nbsp;field&nbsp;8&nbsp;(<span class="constructor">String</span>.length&nbsp;field&nbsp;-&nbsp;8)&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_try_rule&nbsp;p
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc5322</span>.p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;(field,&nbsp;value)))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(mime_extend&nbsp;field&nbsp;@&nbsp;ok)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;(<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"WE&nbsp;HAVE&nbsp;CONTENT:&nbsp;%s\n%!"</span>&nbsp;field;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;field&nbsp;=&nbsp;<span class="constructor">String</span>.sub&nbsp;field&nbsp;8&nbsp;(<span class="constructor">String</span>.length&nbsp;field&nbsp;-&nbsp;8)&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(extend_mime&nbsp;field&nbsp;@&nbsp;ok)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(<span class="constructor">Rfc5322</span>.p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"YES,&nbsp;CONTENT\n%!"</span>;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;(field,&nbsp;value))&nbsp;state)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;extend&nbsp;field&nbsp;p
 &nbsp;&nbsp;<span class="keyword">in</span>
 
-&nbsp;&nbsp;rule
-&nbsp;&nbsp;/&nbsp;(<span class="constructor">Rfc5322</span>.p_unstructured
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;l)))
+&nbsp;&nbsp;(rule&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(field,&nbsp;state))
+&nbsp;&nbsp;/&nbsp;(unsafe&nbsp;field&nbsp;p)
 &nbsp;&nbsp;@&nbsp;p
 
-<span class="keyword">let</span>&nbsp;p_entity_headers&nbsp;extend_mime&nbsp;extend&nbsp;p&nbsp;state&nbsp;=
+<span class="keyword">let</span>&nbsp;p_entity_headers&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;p&nbsp;=
 &nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_entity_header\n%!"</span>];
 
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_field_name
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(0&nbsp;*&nbsp;0)&nbsp;<span class="constructor">Rfc822</span>.is_lwsp
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">':'</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_field&nbsp;extend_mime&nbsp;extend&nbsp;field
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_field&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;field
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))
 &nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))
 &nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;acc))
 &nbsp;&nbsp;<span class="keyword">in</span>
 
-&nbsp;&nbsp;loop&nbsp;[]&nbsp;state
+&nbsp;&nbsp;loop&nbsp;[]
 
-<span class="keyword">let</span>&nbsp;p_mime_message_headers&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p&nbsp;=
+<span class="keyword">let</span>&nbsp;p_mime_message_headers&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p&nbsp;=
 &nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mime_message_header\n%!"</span>];
 
 &nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span>
 &nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"mime-version"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_version&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">MimeVersion</span>&nbsp;v)
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_field&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_field&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p
 
 <span class="keyword">let</span>&nbsp;p_mime_part_headers&nbsp;=&nbsp;p_entity_headers
 
