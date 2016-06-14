@@ -2,10 +2,45 @@ type ty    = Rfc2045.ty
 type subty = Rfc2045.subty
 type value = Rfc2045.value
 
+let pp = Format.fprintf
+
+let pp_ty fmt = function
+  | `Audio        -> pp fmt "audio"
+  | `Ietf_token s -> pp fmt "ietf-token:%s" s
+  | `Application  -> pp fmt "application"
+  | `X_token s    -> pp fmt "x-token:%s" s
+  | `Message      -> pp fmt "message"
+  | `Image        -> pp fmt "image"
+  | `Video        -> pp fmt "video"
+  | `Multipart    -> pp fmt "multipart"
+  | `Text         -> pp fmt "text"
+
+let pp_subty fmt = function
+  | `Ietf_token s -> pp fmt "ietf-token:%s" s
+  | `X_token s    -> pp fmt "x-token:%s" s
+  | `Iana_token s -> pp fmt "iana-token:%s" s
+
+let pp_value fmt = function
+  | `String s -> pp fmt "%S" s
+  | `Token s -> pp fmt "%s" s
+
 type t =
   { ty         : ty
   ; subty      : subty
   ; parameters : (string * value) list }
+
+let pp_lst pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a;@ " pp_data x; aux r
+  in
+
+  pp fmt "[@[<hov>"; aux lst; pp fmt "@]]"
+
+let pp fmt { ty; subty; parameters } =
+  pp fmt "{ @[<hov>type = %a/%a;@ parameters = %a@] }"
+    pp_ty ty pp_subty subty (pp_lst (fun fmt (key, value) -> pp fmt "%s = %a" key pp_value value)) parameters
 
 let ty { ty; _ } = ty
 let subty { subty; _ } = subty
@@ -47,6 +82,10 @@ type field = [ `ContentType of t ]
 
 let field_of_lexer = function
   | `ContentType (ty, subty, parameters ) -> `ContentType { ty; subty; parameters; }
+
+let pp_field fmt = function
+  | `ContentType t ->
+    Format.fprintf fmt "@[<hov>Content-Type = %a@]" pp t
 
 module D =
 struct
@@ -127,4 +166,3 @@ struct
 end
 
 let equal = (=)
-let pp fmt _ = Format.fprintf fmt "#content-type"

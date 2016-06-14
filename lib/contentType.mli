@@ -13,6 +13,7 @@ val default : t
 type field = [ `ContentType of t ]
 
 val field_of_lexer : [ `ContentType of Rfc2045.content ] -> field
+val pp_field       : Format.formatter -> field -> unit
 
 module D :
 sig
