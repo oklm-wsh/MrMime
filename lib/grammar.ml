@@ -2,7 +2,7 @@ open BaseDecoder
 
 type field =
   [ Header.field
-  | Content.Message.field ]
+  | Content.Part.field ]
 
 (* composition between RFC 5322 and RFC 2045 about the header *)
 let p_header p state =
@@ -55,7 +55,7 @@ let p_body boundary content =
 
 let field_of_lexer = function
   | #Rfc5322.field as x -> (Header.field_of_lexer x :> field)
-  | (#Rfc2045.field | #Rfc2045.mime_field) as x -> (Content.Message.field_of_lexer x :> field)
+  | #Rfc2045.field as x -> (Content.Part.field_of_lexer x :> field)
 
 (* compute the multipart explained in RFC 2046 § 5 *)
 let rec p_multipart boundary p_body' p state =

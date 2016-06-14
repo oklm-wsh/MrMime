@@ -63,27 +63,37 @@ struct
 
     let w_crlf k e = w "\r\n" k e
 
+    let w_field (field : field) = match field with
+      | #Content.Part.field as x -> Content.Part.E.w_field x
+      | #Header.field as x -> Header.E.w_field x
+
+    let w_fields fields = List.fold_right w_field fields
+
     let rec w_multipart content lst =
       let boundary = Rfc2045.value_to_string @@ List.assoc "boundary" (ContentType.parameters @@ Content.ty content) in
       let rec aux = function
         | [] | [ None ]-> w (Rfc2046.m_close_delimiter boundary)
         | [ Some (`Discrete ((content, fields), body)) ] ->
           Content.Part.E.w (Content.Part.to_field content)
+          $ w_fields fields
           $ w_crlf
           $ w_body content body
           $ w (Rfc2046.m_close_delimiter boundary)
         | [ Some (`Composite ((content, fields), lst)) ] ->
           Content.Part.E.w (Content.Part.to_field content)
+          $ w_fields fields
           $ w_multipart content lst
           $ w (Rfc2046.m_close_delimiter boundary)
         | Some (`Discrete ((content, fields), body)) :: rest ->
           Content.Part.E.w (Content.Part.to_field content)
+          $ w_fields fields
           $ w_crlf
           $ w_body content body
           $ w (Rfc2046.m_delimiter boundary)
           $ w_crlf $ aux rest
         | Some (`Composite ((content, fields), body)) :: rest ->
           Content.Part.E.w (Content.Part.to_field content)
+          $ w_fields fields
           $ w_multipart content lst
           $ w (Rfc2046.m_delimiter boundary)
           $ w_crlf $ aux rest
