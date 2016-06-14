@@ -28,3 +28,4 @@ val to_string : t -> string
 
 val equal : t -> t -> bool
 val pp    : Format.formatter -> t -> unit
+val pp_field : Format.formatter -> field -> unit

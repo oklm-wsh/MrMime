@@ -7,6 +7,17 @@ type t =
   | `Ietf_token of string
   | `X_token of string ]
 
+let pp = Format.fprintf
+
+let pp fmt = function
+  | `Binary          -> pp fmt "binary"
+  | `Ietf_token x    -> pp fmt "ietf-token:%s" x
+  | `Base64          -> pp fmt "base64"
+  | `X_token x       -> pp fmt "x-token:%s" x
+  | `Bit7            -> pp fmt "7bit"
+  | `QuotedPrintable -> pp fmt "quoted-printable"
+  | `Bit8            -> pp fmt "8bit"
+
 (** See RFC 2045 § 6.1:
 
     This is the default value -- that is,  "Content-Transfer-Encoding:  7BIT" is
@@ -25,6 +36,10 @@ let to_string = function
   | `Binary -> "binary"
   | `QuotedPrintable -> "quoted-printable"
   | `Ietf_token s | `X_token s -> s
+
+let pp_field fmt = function
+  | `ContentEncoding t ->
+    Format.fprintf fmt "@[<hov>Content-Encoding = %a@]" pp t
 
 module D =
 struct
@@ -69,4 +84,3 @@ struct
 end
 
 let equal = (=)
-let pp fmt _ = Format.fprintf fmt "#content-encoding"
