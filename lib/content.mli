@@ -16,6 +16,8 @@ sig
   val field_of_lexer : Rfc2045.field -> field
   val to_field       : t -> field list
 
+  val pp_field       : Format.formatter -> field -> unit
+
   module D :
   sig
     val of_lexer : ([> Rfc2045.field ] as 'content) list -> (t, 'content list, 'r) Decoder.k2
@@ -46,3 +48,5 @@ sig
     val w : (field list, 'r Encoder.partial) Encoder.k1
   end
 end
+
+val pp : Format.formatter -> t -> unit

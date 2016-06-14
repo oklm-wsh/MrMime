@@ -6,6 +6,16 @@ type t =
   ; description : string option
   ; content     : (string * Rfc5322.phrase) list }
 
+let pp = Format.fprintf
+
+let pp fmt = function
+  | { ty; encoding; version; id = Some id; description; content; } ->
+    pp fmt "{ @[<hov>content-type = %a;@ content-encoding = %a;@ version = %a;@ content-id: %a;@ description = %s@] }"
+      ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version MsgID.pp id (Option.value ~default:"<none>" description)
+  | { ty; encoding; version; id = None; description; content; } ->
+    pp fmt "{ @[<hov>content-type = %a;@ content-encoding = %a;@ version = %a;@ description = %s@] }"
+      ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version (Option.value ~default:"<none>" description)
+
 let ty { ty; _ } = ty
 let encoding { encoding; _ } = encoding
 
@@ -34,6 +44,16 @@ struct
     | (`ContentEncoding _) as x -> (ContentEncoding.field_of_lexer x :> field)
     | `ContentID i              -> `ContentID (MsgID.D.of_lexer i)
     | `Unsafe (field, value)    -> `Unsafe (field, value)
+
+  let pp = Format.fprintf
+
+  let pp_field fmt = function
+    | #ContentType.field as x     -> ContentType.pp_field fmt x
+    | #ContentEncoding.field as x -> ContentEncoding.pp_field fmt x
+    | `ContentID m                -> pp fmt "@[<hov>Content-ID = %a@]" MsgID.pp m
+    | `ContentDescription s       -> pp fmt "@[<hov>Content-Description = %s@]" s
+    | `Content (k, v)             -> pp fmt "@[<hov>Content-%s = %a@]" (String.capitalize_ascii k) Address.pp_phrase v
+    | `Unsafe (k, v)              -> pp fmt "@[<hov>%s ~= %a@]" (String.capitalize_ascii k) Address.pp_phrase v
 
   let to_field t : field list =
     let ( >>= ) o f = match o with Some x -> Some (f x) | None -> None in
