@@ -1,5 +1,14 @@
 #require "lwt"
 #require "mrmime"
+#install_printer Content.pp
+#install_printer ContentType.pp
+#install_printer ContentEncoding.pp
+#install_printer MsgID.pp
+#install_printer Date.pp
+#install_printer Message.pp
+#install_printer Header.pp
+#install_printer Trace.pp
+#install_printer Resent.pp
 
 open Lwt.Infix
 
@@ -74,7 +83,6 @@ let rec of_flow (ch, decoder) newline =
   let rec aux = function
     | `Read (buff, off, len, k) ->
       read_into ~newline ch buff off len >>= fun n ->
-      Printf.printf "read> [%d]\n%!" n;
       aux (k n)
     | `Error (err, buff, off, len) ->
       Lwt.fail (Error.Error (`Error (err, buff, off, len)))
@@ -162,11 +170,10 @@ let rec of_flow' (ch, decoder) newline =
   let rec aux = function
     | `Read (buff, off, len, k) ->
       let n = read_into' ~newline ch buff off len in
-      Printf.printf "read> [%d]\n%!" n;
       aux (k n)
     | `Error (err, buff, off, len) ->
       raise (Error.Error (`Error (err, buff, off, len)))
-    | `Ok message -> message
+    | `Ok message -> (message : Message.t)
   in
 
   aux
