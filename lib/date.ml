@@ -2,11 +2,58 @@ type day   = Rfc5322.day
 type month = Rfc5322.month
 type tz    = Rfc5322.tz
 
+let pp = Format.fprintf
+
+let pp_tz fmt = function
+  | `Military_zone c -> pp fmt "%c" c
+  | `TZ i -> pp fmt "TZ %04d" i
+  | `GMT  -> pp fmt "GMT"
+  | `PST  -> pp fmt "PST"
+  | `UT   -> pp fmt "UT"
+  | `EDT  -> pp fmt "EDT"
+  | `PDT  -> pp fmt "PDT"
+  | `CST  -> pp fmt "CST"
+  | `CDT  -> pp fmt "CDT"
+  | `MDT  -> pp fmt "MDT"
+  | `MST  -> pp fmt "MST"
+  | `EST  -> pp fmt "EST"
+
+let pp_month fmt = function
+  | `Feb -> pp fmt "Feb"
+  | `Mar -> pp fmt "Mar"
+  | `Dec -> pp fmt "Dec"
+  | `Jul -> pp fmt "Jul"
+  | `Sep -> pp fmt "Sep"
+  | `Nov -> pp fmt "Nov"
+  | `Aug -> pp fmt "Aug"
+  | `Jun -> pp fmt "Jun"
+  | `May -> pp fmt "May"
+  | `Apr -> pp fmt "Apr"
+  | `Oct -> pp fmt "Oct"
+  | `Jan -> pp fmt "Jan"
+
+let pp_day fmt = function
+  | `Sat -> pp fmt "Sat"
+  | `Fri -> pp fmt "Fri"
+  | `Mon -> pp fmt "Mon"
+  | `Wed -> pp fmt "Wed"
+  | `Sun -> pp fmt "Sun"
+  | `Tue -> pp fmt "Tue"
+  | `Thu -> pp fmt "Thu"
+
 type t =
   { day  : day option
   ; date : int * month * int
   ; time : int * int * int option
   ; tz   : tz }
+
+let pp fmt = function
+  | { day = Some day; date = (d, m, y); time = (hh, mm, ss); tz; } ->
+    pp fmt "{ @[<hov>day = %a;@ date = (@[<hov>%d,@ %a,@ %d@])@ time = (@[<hov>%d,@ %d,@ %d@])@ tz = %a@] }"
+      pp_day day d pp_month m y hh mm (Option.value ~default:0 ss) pp_tz tz
+  | { day = None; date = (d, m, y); time = (hh, mm, ss); tz; } ->
+    pp fmt "{ @[<hov>date = (@[<hov>%d,@ %a,@ %d@])@ time = (@[<hov>%d,@ %d,@ %d@])@ tz = %a@] }"
+      d pp_month m y hh mm (Option.value ~default:0 ss) pp_tz tz
 
 module D =
 struct
@@ -147,5 +194,3 @@ let of_string s = D.of_decoder (Decoder.of_string (s ^ "\r\n\r\n"))
 let to_string d = Buffer.contents @@ E.to_buffer d (Encoder.make ())
 
 let equal = (=)
-
-let pp fmt _ = Format.fprintf fmt "#date"
