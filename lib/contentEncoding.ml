@@ -72,9 +72,9 @@ struct
 
     let w_field = function
       | `ContentEncoding x ->
-        w "Content-Encoding: "
+        w "Content-Transfer-Encoding: "
         $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Content-Encoding: ")
+        $ Wrap.(fun k -> (w_hovbox (String.length "Content-Transfer-Encoding: ")
                           $ wrap (w_encoding x)
                           $ w_close_box) (unlift k))
         $ w_crlf
