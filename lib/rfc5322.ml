@@ -564,36 +564,6 @@ let p_date_time p =
       @ aux (Some day)
     | chr -> aux None
 
-(* See RFC 5322 § 3.4.1 & 4.4:
-
-   dtext           = %d33-90 /            ; Printable US-ASCII
-                     %d94-126 /           ;  characters not including
-                     obs-dtext            ;  "[", "]", or %x5C
-   obs-dtext       = obs-NO-WS-CTL / quoted-pair
-*)
-let is_dtext = function
-  | '\033' .. '\090'
-  | '\094' .. '\126' -> true
-  | chr -> is_obs_no_ws_ctl chr
-
-let p_dtext p state =
-  let rec loop acc =
-    cur_chr @ function
-    | '\033' .. '\090'
-    | '\094' .. '\126' ->
-      p_while is_dtext
-      @ fun s -> loop (s :: acc)
-    | chr when is_obs_no_ws_ctl chr ->
-      p_while is_dtext
-      @ fun s -> loop (s :: acc)
-    | '\\' ->
-      p_quoted_pair
-      @ fun chr -> loop (String.make 1 chr :: acc)
-    | chr -> p (List.rev acc |> String.concat "")
-  in
-
-  loop [] state
-
 (* See RFC 5322 § 4.4:
 
    obs-domain      = atom *("." atom)
