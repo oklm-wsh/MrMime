@@ -189,7 +189,7 @@ let p_decode stop p state =
       `Read (buf, off, len, (fun i -> to_stop @@ safe k i))
     | #Error.err as err -> err
     | `Stop state -> p (Buffer.contents buf) state
-    | `Continue state -> (junk_chr @ (fun state -> to_stop (stop state))) state
+    | `Continue state -> (junk_chr @ fun state -> to_stop (stop state)) state
   in
 
   let rec decode base64 padding state =
@@ -217,7 +217,7 @@ let p_decode stop p state =
     | Some '\r' ->
       [%debug Printf.printf "state: p_decode (Base64) CLRF\n%!"];
 
-      (p_chr '\r' @ p_chr '\n' @ decode base64 padding) state
+      (p_chr '\r' @ p_chr '\n' @ (decode[@taillcall]) base64 padding) state
     | Some chr ->
       [%debug Printf.printf "state: p_decode (Base64) stop\n%!"];
 
