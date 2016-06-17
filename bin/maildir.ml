@@ -3,10 +3,7 @@ open Astring
 
 let () = Fmt.set_style_renderer Fmt.stdout `Ansi_tty
 
-type newline =
-  | CRLF
-  | CR
-  | LF
+type newline = CRLF | CR | LF
 
 let with_process_in cmd f =
   let ic = Unix.open_process_in cmd in
@@ -60,7 +57,7 @@ let yellow_s fmt = color `Yellow fmt
 let bold_s fmt = color `Bold fmt
 let cyan_s fmt = color `Cyan fmt
 
-let read_into ?(newline = LF) channel buf off len =
+let read_into' ?(newline = LF) channel buf off len =
   if len + off > Bytes.length buf
      || off < 0
      || len < 0
@@ -69,25 +66,22 @@ let read_into ?(newline = LF) channel buf off len =
   let last = len + off in
 
   match newline with
-  | CRLF -> Lwt_io.read_into channel buf off len
+  | CRLF -> input channel buf off len
   | CR ->
     let rec read_char has_cr remaining =
       assert (remaining >= 0);
 
-      if remaining = 0 then Lwt.return len
-      else Lwt.catch
-             (fun () -> Lwt_io.read_char channel >>= fun chr -> Lwt.return (Some chr))
-             (fun exn -> Lwt.return None)
-           >>= function
-           | Some '\n' when has_cr ->
+      if remaining = 0 then len
+      else match input_char channel with
+           | '\n' when has_cr ->
              read_char false remaining
-           | Some '\r' ->
+           | '\r' ->
              Bytes.blit "\r\n" 0 buf (last - remaining) 2;
              read_char true  (remaining - 2)
-           | Some chr  ->
+           | chr  ->
              Bytes.set buf (last - remaining) chr;
              read_char false (pred remaining)
-           | None -> Lwt.return (len - remaining)
+           | exception End_of_file -> (len - remaining)
     in
 
     read_char false len
@@ -95,87 +89,58 @@ let read_into ?(newline = LF) channel buf off len =
     let rec read_char has_cr remaining =
       assert (remaining >= 0);
 
-      if remaining = 0 then Lwt.return len
-      else Lwt.catch
-             (fun () -> Lwt_io.read_char channel >>= fun chr -> Lwt.return (Some chr))
-             (fun exn -> Lwt.return None)
-           >>= function
-           | Some '\n' when not has_cr && remaining >= 2 ->
+      if remaining = 0 then len
+      else match input_char channel with
+           | '\n' when not has_cr && remaining >= 2 ->
              Bytes.blit "\r\n" 0 buf (last - remaining) 2;
              read_char false (remaining - 2)
-           | Some '\n' when not has_cr && remaining = 1 ->
-             let pos = Lwt_io.position channel in
-             Lwt_io.set_position channel (Int64.pred pos) >>= fun () ->
-             Lwt.return (len - remaining)
-           | Some '\r' ->
+           | '\n' when not has_cr && remaining = 1 ->
+             let pos = pos_in channel in
+             seek_in channel (pred pos);
+             (len - remaining)
+           | '\r' ->
              Bytes.set buf (last - remaining) '\r';
              read_char true  (pred remaining)
-           | Some chr  ->
+           | chr  ->
              Bytes.set buf (last - remaining) chr;
              read_char false (pred remaining)
-           | None -> Lwt.return (len - remaining)
+           | exception End_of_file -> (len - remaining)
     in
 
     read_char false len
 
-let rec of_flow (ch, decoder) newline =
+let rec of_flow' (ch, decoder) newline =
+  let max = in_channel_length ch in
+  let go_to_end = ref false in
   let rec aux = function
     | `Read (buff, off, len, k) ->
-      read_into ~newline ch buff off len >>= fun n ->
-      aux (k n)
+      let n = read_into' ~newline ch buff off len in
+      if n = 0 && pos_in ch = max
+      then begin
+        if !go_to_end = true
+        then raise (Invalid_argument "Unterminated message")
+        else (go_to_end := true; aux (k n))
+      end else aux (k n)
     | `Error (err, buff, off, len) ->
-      Lwt.fail (Error.Error (`Error (err, buff, off, len)))
-    | `Ok message -> Lwt.return message
+      raise (Error.Error (`Error (err, buff, off, len)))
+    | `Ok message -> close_in ch; (message : Message.t)
   in
 
   aux
 
-let of_filename filename = Lwt_io.open_file ~mode:Lwt_io.Input filename
+let of_filename' filename =
+  open_in filename
 
-let message filename newline input =
-  Fmt.pf Fmt.stdout "%a%a%!" (left left_c yellow_s) "..." cyan_s filename;
+let to_filename' filename content =
+  let ch = open_out filename in
+  output_string ch content;
+  close_out ch
 
+let message' ?(newline = LF) input =
   let state = Decoder.make () in
-  Lwt.catch
-    (fun () ->
-     of_flow (input, state) newline
-       (Grammar.p_message
-       (fun header message _ -> `Ok (header, message)) state)
-     >>= fun _ ->
-         print (fun ppf -> Fmt.string ppf "\r");
-         Fmt.pf Fmt.stdout "%a%a\n%!"
-           (left left_c green_s) "[OK]"
-           (left 20 cyan_s) filename;
-         Lwt.return ())
-    (function (Error.Error `Error (_, buf, off, len)) as exn ->
-              print (fun ppf -> Fmt.string ppf "\r");
-              Fmt.pf Fmt.stdout "%a%a %a\n%!"
-                (left left_c red_s) "[ERROR]"
-                cyan_s filename
-                yellow_s (Printexc.to_string exn);
-              Lwt.return ()
-            | exn ->
-              print (fun ppf -> Fmt.string ppf "\r");
-              Fmt.pf Fmt.stdout "%a%a %a\n%!"
-                (left left_c red_s) "[ERROR]"
-                cyan_s filename
-                yellow_s (Printexc.to_string exn);
-              Lwt.return ())
-  >>= fun () -> Lwt_io.close input
-
-let convert input =
-  let buffer = Bytes.create 1024 in
-
-  let rec aux off len =
-    read_into input buffer off len >>= function
-    | 0 -> Lwt.return ()
-    | n -> Printf.printf "%s%!" (Bytes.sub buffer off n);
-           if off + n = 1024
-           then aux 0 1024
-           else aux (off + n) (len - n)
-  in
-
-  aux 0 1024
+  of_flow' (input, state) newline
+    (Grammar.p_message
+    (fun header message _ -> `Ok (header, message)) state)
 
 open Cmdliner
 
@@ -201,8 +166,54 @@ let walk directory pattern =
 
 let do_cmd path newline =
   let files = walk path ".+" in
-  Lwt_main.run
-    (Lwt_list.map_s (fun x -> of_filename x >>= message x newline) files)
+  let one filename =
+     Fmt.pf Fmt.stdout "%a%a%!"
+       (left left_c yellow_s) "..."
+       (left 20 cyan_s) filename;
+
+     try let m1 = message' ~newline @@ of_filename' filename in
+         let s1 = Message.to_string m1 in
+         begin try let m2 = Message.of_string s1 in
+                   if m1 = m2
+                   then begin
+                     print (fun ppf -> Fmt.string ppf "\r");
+                     Fmt.pf Fmt.stdout "%a%a\n%!"
+                       (left left_c green_s) "[OK]"
+                       (left 20 cyan_s) filename;
+                   end else begin
+                     print (fun ppf -> Fmt.string ppf "\r");
+                     Fmt.pf Fmt.stdout "%a%a\n%!"
+                       (left left_c yellow_s) "[DIFF]"
+                       (left 20 cyan_s) filename;
+                   end
+               with Error.Error _ as exn ->
+                    print (fun ppf -> Fmt.string ppf "\r");
+                    Fmt.pf Fmt.stdout "%a%a %a\n%!"
+                      (left left_c red_s) "[ERROR]"
+                      cyan_s filename
+                      yellow_s (Printexc.to_string exn)
+                  | exn ->
+                    print (fun ppf -> Fmt.string ppf "\r");
+                    Fmt.pf Fmt.stdout "%a%a %a\n%!"
+                      (left left_c red_s) "[UNKNOW]"
+                      cyan_s filename
+                      yellow_s (Printexc.to_string exn)
+        end
+     with Error.Error _ as exn ->
+          print (fun ppf -> Fmt.string ppf "\r");
+          Fmt.pf Fmt.stdout "%a%a %a\n%!"
+            (left left_c red_s) "[ERROR]"
+            cyan_s filename
+            yellow_s (Printexc.to_string exn)
+        | exn ->
+          print (fun ppf -> Fmt.string ppf "\r");
+          Fmt.pf Fmt.stdout "%a%a %a\n%!"
+            (left left_c red_s) "[UNKNOW]"
+            cyan_s filename
+            yellow_s (Printexc.to_string exn)
+  in
+
+  List.iter one files
 
 let path =
   let doc = "Path of mail directory." in
