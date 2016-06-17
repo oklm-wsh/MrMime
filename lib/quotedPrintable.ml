@@ -509,7 +509,7 @@ let w_encode content k =
     then match String.get content idx with
          | '\x20' ->
            if recognize_newline (idx + 1)
-           then T.add_newline (Some '\x20') @@ loop (idx + 2) k
+           then T.add_newline (Some '\x20') @@ loop (idx + 2) k (* TODO: +2 only if the newline is LF (+3 if it's CRLF on windows) *)
            else T.add_wsp `Space @@ loop (idx + 1) k
          | '\x09' ->
            if recognize_newline (idx + 1)
