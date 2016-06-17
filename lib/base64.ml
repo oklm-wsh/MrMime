@@ -23,7 +23,7 @@ struct
 
   let wrap k ({ state; cnum; _ } as t) =
     if cnum + 4 > 76
-    then w "\n" (fun state -> k { t with state = state; cnum = 0; }) state
+    then w "\r\n" (fun state -> k { t with state = state; cnum = 4; }) state
     else k { t with cnum = cnum + 4 }
 
   let add chr k ({ state; buffer; seek; _ } as t) =
