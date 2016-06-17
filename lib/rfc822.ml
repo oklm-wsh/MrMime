@@ -357,16 +357,16 @@ let rec p_ccontent p =
   @ function
     | '\\' -> p_quoted_pair @ fun chr -> p
     | '('  -> p_comment @ p
-    | chr  -> p_ctext @ fun _ -> p
+    | chr  -> p_ctext @ fun s -> [%debug Printf.printf "state: p_ccontent [%s]\n%!" s]; p
 
 and p_comment p =
   let rec loop () =
     cur_chr
     @ function
       | ')' ->
+        [%debug Printf.printf "state: p_comment (end of comment)\n%!"];
         junk_chr @ p
       | chr ->
-        (* XXX: we ignore if we passed a fws entity. *)
         p_fws
         @ fun _ _ -> p_ccontent
         @ p_fws
@@ -501,6 +501,7 @@ let p_quoted_string p =
     cur_chr
     @ function
     | '"' ->
+      [%debug Printf.printf "state: p_quoted_string (end)\n%!"];
       p_chr '"'
       @ p_cfws
       @ fun _ -> p (List.rev acc |> String.concat "")
@@ -610,6 +611,8 @@ let p_atext p state =
    atom        =  1*<any CHAR except specials, SPACE and CTLs>
 *)
 let p_atom p =
+  [%debug Printf.printf "state: p_atom\n%!"];
+
   p_cfws
   @ fun _ -> p_atext
   @ fun atext -> p_cfws
@@ -661,7 +664,11 @@ let p_obs_local_part p =
    dot-atom-text   = 1*atext *("." 1*atext)
 *)
 let p_dot_atom_text p =
+  [%debug Printf.printf "state: p_dot_atom_text\n%!"];
+
   let rec next acc =
+    [%debug Printf.printf "state: p_dot_atom_text/next\n%!"];
+
     cur_chr
     @ function
     | '.' ->
@@ -679,6 +686,8 @@ let p_dot_atom_text p =
    dot-atom        = [CFWS] dot-atom-text [CFWS]
 *)
 let p_dot_atom p =
+  [%debug Printf.printf "state: p_dot_atom\n%!"];
+
   p_cfws
   @ fun _ -> p_dot_atom_text
   @ fun lst -> p_cfws
@@ -699,7 +708,7 @@ let p_local_part p =
   [%debug Printf.printf "state: p_local_part\n%!"];
 
   let p_obs_local_part' acc state =
-    [%debug Printf.printf "state: p_obs_local_part'\n%!"];
+    [%debug Printf.printf "state: p_obs_local_part' (lst: %d)\n%!" (List.length acc)];
 
     let rec loop acc =
       cur_chr
