@@ -119,7 +119,7 @@ struct
       | `X_token s    -> w_string s
 
     let w_value = function
-      | `String s -> Address.E.w_safe_string s
+      | `String s -> w_char '"' $ Address.E.w_safe_string s $ w_char '"'
       | `Token s  -> w_string s
 
     let w_parameter (key, value) =
