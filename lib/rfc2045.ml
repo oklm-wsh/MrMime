@@ -224,12 +224,11 @@ let p_field ?(unsafe = (fun field p -> Rfc5322.p_unstructured @ fun l -> Rfc822.
       (* XXX: the optionnal-field [fields] is handle by RFC 822 or RFC 5322.
               in this case, we raise an error. *)
       if String.length field >= 8 && String.sub field 0 8 = "content-"
-      then (Printf.printf "WE HAVE CONTENT: %s\n%!" field;
-           let field = String.sub field 8 (String.length field - 8) in
+      then let field = String.sub field 8 (String.length field - 8) in
            (extend_mime field @ ok)
            / (Rfc5322.p_unstructured @ fun value ->
-             Rfc822.p_crlf @ fun state -> Printf.printf "YES, CONTENT\n%!"; p (`Content (field, value)) state)
-           @ p)
+              Rfc822.p_crlf @ p (`Content (field, value)))
+           @ p
       else extend field p
   in
 
