@@ -1,5 +1,3 @@
-let () = Printexc.record_backtrace true
-
 type t =
   { mutable buffer : Bytes.t
   ; mutable pos    : int
