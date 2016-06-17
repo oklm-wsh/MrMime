@@ -44,7 +44,7 @@ struct
 
   let add_break k ({ state; position; _ } as t) =
     if position > 0
-    then w "=\n" (fun state -> k { t with position = 0; state = state }) state
+    then w "=\r\n" (fun state -> k { t with position = 0; state = state }) state
     else k t
 
   let commit_word k ({ position; word; } as t) =
