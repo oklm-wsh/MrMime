@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,4 +41,58 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_atext</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_atext&nbsp;p&nbsp;state&nbsp;=&nbsp;p_while&nbsp;is_atext&nbsp;p&nbsp;state</code></body></html>
+<code class="code">let p_atext p state =
+  [%debug Printf.printf "state: p_atext\n%!"];
+
+  let is_alpha = function
+    | '\x41' .. '\x5a'
+    | '\x61' .. '\x7A' -> true
+    | chr              -> false
+  in
+  let is_digit = function
+    | '\x30' .. '\x39' -> true
+    | chr              -> false
+  in
+  let is_atext = function
+    | '!' | '#'
+    | '$' | '%'
+    | '&' | '\''
+    | '*' | '+'
+    | '-' | '/'
+    | '=' | '?'
+    | '^' | '_'
+    | '`' | '{'
+    | '|' | '}'
+    | '~' -> true
+    | chr -> is_digit chr || is_alpha chr
+  in
+
+  let buf = Buffer.create 16 in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false
+    | `Uchar uchar ->
+      Uutf.Buffer.add_utf_8 buf uchar;
+      loop decoder
+    | `Malformed _ ->
+      if Buffer.length buf > 0
+      then p (Buffer.contents buf)
+      else fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      cur_chr @ function
+      | '\x00' .. '\x7F' as chr ->
+        [%debug Printf.printf "state: p_atext ascii char (%S)\n%!" (String.make 1 chr)];
+        if is_atext chr
+        then begin
+          [%debug Printf.printf "state: p_atext char (%S)\n%!" (String.make 1 chr)];
+          Uutf.Buffer.add_utf_8 buf (Char.code chr);
+          junk_chr @ loop decoder
+        end else if Buffer.length buf > 0
+        then p (Buffer.contents buf)
+        else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+      | uchr ->
+        Uutf.Manual.src decoder (String.make 1 uchr) 0 1; junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+  loop decoder state</code></body></html>

@@ -32,6 +32,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -51,7 +52,7 @@
 
 <pre><span class="keyword">module</span> Part: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Part.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentDescription of string<br>       | `ContentEncoding of <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a><br>       | `ContentID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ContentType of <a href="ContentType.html#TYPEt">ContentType.t</a><br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentDescription of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentEncoding of <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a><br>       | `ContentID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ContentType of <a href="ContentType.html#TYPEt">ContentType.t</a><br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
 
 
 <pre><span id="VALfield_of_lexer"><span class="keyword">val</span> field_of_lexer</span> : <code class="type"><a href="Rfc2045.html#TYPEfield">Rfc2045.field</a> -> <a href="Content.Part.html#TYPEfield">field</a></code></pre>

@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,82 +41,82 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2047</title>
 </head>
 <body>
-<code class="code"><span class="keyword">open</span>&nbsp;<span class="constructor">BaseDecoder</span>
+<code class="code">open BaseDecoder
 
-<span class="keyword">type</span>&nbsp;encoding&nbsp;=
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">QuotedPrintable</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Base64</span>
+type encoding =
+  | QuotedPrintable
+  | Base64
 
-<span class="keyword">type</span>&nbsp;encoded&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;encoding&nbsp;*&nbsp;string&nbsp;]
+type encoded =
+  [ `Encoded of string * encoding * string ]
 
-<span class="keyword">let</span>&nbsp;is_especials&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">')'</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&lt;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&gt;'</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'@'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">':'</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'"'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'/'</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'['</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">']'</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'?'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>
+let is_especials = function
+  | '(' | ')'
+  | '<' | '>'
+  | '@' | ','
+  | ';' | ':'
+  | '"' | '/'
+  | '[' | ']'
+  | '?' | '.'
+  | '=' -> true
+  | chr -> false
 
-<span class="keyword">let</span>&nbsp;p_encoding_text&nbsp;p&nbsp;state&nbsp;=
-&nbsp;&nbsp;p_while&nbsp;(<span class="keyword">function</span>&nbsp;<span class="string">'&nbsp;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'?'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>)&nbsp;p&nbsp;state
+let p_encoding_text p state =
+  p_while (function ' ' | '?' -> false | chr -> true) p state
 
-<span class="keyword">let</span>&nbsp;p_token&nbsp;p&nbsp;state&nbsp;=
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;is&nbsp;chr&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;is_especials&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;<span class="constructor">Rfc822</span>.is_ctl&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;<span class="constructor">Rfc822</span>.is_space&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">false</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">true</span>
-&nbsp;&nbsp;<span class="keyword">in</span>
+(* TODO: handle utf-8? *)
+let p_token p state =
+  let is_ctl = function
+    | '\000' .. '\031' -> true
+    | _ -> false
+  in
+  let is_space = (=) '\x20' in
+  let is chr = not (is_especials chr || is_ctl chr || is_space chr) in
 
-&nbsp;&nbsp;p_while&nbsp;is&nbsp;p&nbsp;state
+  p_while is p state
 
-<span class="keyword">let</span>&nbsp;p_charset&nbsp;&nbsp;=&nbsp;p_token
-<span class="keyword">let</span>&nbsp;p_encoding&nbsp;=&nbsp;p_token
+let p_charset  = p_token
+let p_encoding = p_token
 
-<span class="keyword">let</span>&nbsp;p_encoded_word&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_str&nbsp;<span class="string">"=?"</span>
-&nbsp;&nbsp;@&nbsp;p_charset
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;charset&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'?'</span>
-&nbsp;&nbsp;@&nbsp;p_encoding
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;encoding&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'?'</span>
-&nbsp;&nbsp;@&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.uppercase_ascii&nbsp;encoding&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"Q"</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">QuotedPrintable</span>.p_inline_decode
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((p_str&nbsp;<span class="string">"?="</span>&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((),&nbsp;state))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Continue</span>&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;()&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Stop</span>&nbsp;state))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p&nbsp;charset&nbsp;<span class="constructor">QuotedPrintable</span>)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"B"</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Base64</span>.p_decode
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((p_str&nbsp;<span class="string">"?="</span>&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((),&nbsp;state))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Continue</span>&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;()&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Stop</span>&nbsp;state))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p&nbsp;charset&nbsp;<span class="constructor">Base64</span>)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;enc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected_encoding&nbsp;enc&nbsp;state))
+let p_encoded_word p =
+  p_str "=?"
+  @ p_charset
+  @ fun charset -> p_chr '?'
+  @ p_encoding
+  @ fun encoding -> p_chr '?'
+  @ match String.uppercase_ascii encoding with
+    | "Q" ->
+      QuotedPrintable.p_inline_decode
+        ((p_str "?=" @ fun state -> `Ok ((), state))
+         / (fun state -> `Continue state)
+         @ (fun () state -> `Stop state))
+        (p charset QuotedPrintable)
+    | "B" ->
+      Base64.p_decode
+        ((p_str "?=" @ fun state -> `Ok ((), state))
+         / (fun state -> `Continue state)
+         @ (fun () state -> `Stop state))
+        (p charset Base64)
+    | enc -> fun state -> raise (Error.Error (Error.err_unexpected_encoding enc state))
 
-<span class="keyword">let</span>&nbsp;p_try_rule&nbsp;p&nbsp;rule&nbsp;=
-&nbsp;&nbsp;(p_encoded_word
-&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;charset&nbsp;encoding&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;((charset,&nbsp;encoding,&nbsp;data),&nbsp;state))
-&nbsp;&nbsp;/&nbsp;(rule&nbsp;p)
-&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;encoded&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;encoded))
+let p_try_rule p rule =
+  (p_encoded_word
+   @ fun charset encoding data state -> `Ok ((charset, encoding, data), state))
+  / (rule p)
+  @ (fun encoded -> p (`Encoded encoded))
 
-<span class="keyword">open</span>&nbsp;<span class="constructor">BaseEncoder</span>
+open BaseEncoder
 
-<span class="keyword">let</span>&nbsp;w_decoded_word&nbsp;charset&nbsp;encoding&nbsp;content&nbsp;=
-&nbsp;&nbsp;w&nbsp;<span class="string">"=?"</span>
-&nbsp;&nbsp;$&nbsp;w&nbsp;charset
-&nbsp;&nbsp;$&nbsp;w&nbsp;<span class="string">"?"</span>
-&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;encoding&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w&nbsp;<span class="string">"Q"</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Base64</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w&nbsp;<span class="string">"B"</span>)
-&nbsp;&nbsp;$&nbsp;w&nbsp;<span class="string">"?"</span>
-&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;encoding&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">QuotedPrintable</span>.w_inline_encode&nbsp;content
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Base64</span>.w_inline_encode&nbsp;content)
-&nbsp;&nbsp;$&nbsp;w&nbsp;<span class="string">"?="</span>
+let w_decoded_word charset encoding content =
+  w "=?"
+  $ w charset
+  $ w "?"
+  $ (match encoding with
+     | QuotedPrintable -> w "Q"
+     | Base64          -> w "B")
+  $ w "?"
+  $ (match encoding with
+     | QuotedPrintable -> QuotedPrintable.w_inline_encode content
+     | Base64 -> Base64.w_inline_encode content)
+  $ w "?="
 </code></body></html>

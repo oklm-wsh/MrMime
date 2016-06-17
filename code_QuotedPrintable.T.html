@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,92 +41,81 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T</title>
 </head>
 <body>
-<code class="code"><span class="keyword">struct</span>
-&nbsp;&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">BaseEncoder</span>
+<code class="code">struct
+  open BaseEncoder
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_to&nbsp;=&nbsp;<span class="string">"0123456789ABCDEF"</span>
+  let _to = "0123456789ABCDEF"
 
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;state&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">Encoder</span>.t
-&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;word&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<span class="constructor">Buffer</span>.t
-&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="keyword">mutable</span>&nbsp;position&nbsp;:&nbsp;int&nbsp;}
+  type t =
+    { state            : Encoder.t
+    ; word             : Buffer.t
+    ; mutable position : int }
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;lift&nbsp;k&nbsp;state&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;k&nbsp;{&nbsp;state
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;word&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Buffer</span>.create&nbsp;16
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;position&nbsp;=&nbsp;0&nbsp;}
+  let lift k state =
+    k { state
+      ; word     = Buffer.create 16
+      ; position = 0 }
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_break&nbsp;k&nbsp;({&nbsp;state;&nbsp;position;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;position&nbsp;&gt;&nbsp;0
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;w&nbsp;<span class="string">"=\n"</span>&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;position&nbsp;=&nbsp;0;&nbsp;state&nbsp;=&nbsp;state&nbsp;})&nbsp;state
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;k&nbsp;t
+  let add_break k ({ state; position; _ } as t) =
+    if position > 0
+    then w "=\r\n" (fun state -> k { t with position = 0; state = state }) state
+    else k t
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;commit_word&nbsp;k&nbsp;({&nbsp;position;&nbsp;word;&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">if</span>&nbsp;position&nbsp;+&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;add_break
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;noop)
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;({&nbsp;state;&nbsp;word;&nbsp;position;&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;word)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;len&nbsp;=&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word;&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;state&nbsp;=&nbsp;state;&nbsp;position&nbsp;=&nbsp;position&nbsp;+&nbsp;len;&nbsp;})
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;t
+  let commit_word k ({ position; word; } as t) =
+    (if position + Buffer.length word >= 76
+     then add_break
+     else noop)
+    (fun ({ state; word; position; } as t) ->
+     w (Buffer.contents word)
+       (fun state ->
+        let len = Buffer.length word in
+        Buffer.clear word; k { t with state = state; position = position + len; })
+       state)
+    t
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wrap_bigword&nbsp;length&nbsp;k&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;wrapping&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;&gt;=&nbsp;76&nbsp;-&nbsp;length
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;add_break
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;noop
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+  let wrap_bigword length k ({ word; _ } as t) =
+    (if Buffer.length word >= 76 - length
+     then add_break $ commit_word $ add_break
+     else noop) k t
 
-&nbsp;&nbsp;&nbsp;&nbsp;wrapping
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;({&nbsp;state;&nbsp;word;&nbsp;position;&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w&nbsp;(<span class="constructor">Buffer</span>.contents&nbsp;word)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;len&nbsp;=&nbsp;<span class="constructor">Buffer</span>.length&nbsp;word&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.clear&nbsp;word;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wrapping&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;state&nbsp;=&nbsp;state;&nbsp;position&nbsp;=&nbsp;position&nbsp;+&nbsp;len;&nbsp;})
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t
+  let add_char chr =
+    wrap_bigword 1
+    $ fun k ({ word; _ } as t) ->
+      Buffer.add_char word chr;
+      k t
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_char&nbsp;chr&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;wrap_bigword&nbsp;1
-&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;<span class="keyword">fun</span>&nbsp;k&nbsp;({&nbsp;state;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w_char&nbsp;chr&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;state&nbsp;=&nbsp;state&nbsp;})&nbsp;state
+  let add_quoted_char chr k =
+    wrap_bigword 3
+      (fun ({ word; _ } as t) ->
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_quoted_char&nbsp;chr&nbsp;k&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;wrap_bigword&nbsp;3
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;({&nbsp;word;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;<span class="keywordsign">-&gt;</span>
+       let code = Char.code chr in
+       let h    = (code lsr 4) land (16 - 1) in
+       let l    =  code        land (16 - 1) in
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;code&nbsp;=&nbsp;<span class="constructor">Char</span>.code&nbsp;chr&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;h&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(code&nbsp;<span class="keyword">lsr</span>&nbsp;4)&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;l&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">land</span>&nbsp;(16&nbsp;-&nbsp;1)&nbsp;<span class="keyword">in</span>
+       Buffer.add_char word '=';
+       Buffer.add_char word _to.[h];
+       Buffer.add_char word _to.[l];
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;<span class="string">'='</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[h];
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;word&nbsp;_to.[l];
+       k t)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;k&nbsp;t)
+  let add_wsp = function
+    | `Space ->
+      add_char '\x20' $ commit_word
+    | `Tab ->
+      add_char '\x09' $ commit_word
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_wsp&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Space</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add_char&nbsp;<span class="string">'&nbsp;'</span>&nbsp;$&nbsp;commit_word
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Tab</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add_char&nbsp;<span class="string">'\t'</span>&nbsp;$&nbsp;commit_word
+  let add_newline chr =
+    let rec aux k ({ state; _ } as t) =
+      w "\r\n" (fun state -> k { t with state = state; position = 0 }) state
+    in
+    (match chr with
+     | Some chr -> add_quoted_char chr
+     | None -> noop)
+    $ commit_word $ aux
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_newline&nbsp;chr&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;k&nbsp;({&nbsp;state;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w&nbsp;<span class="string">"\r\n"</span>&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;state&nbsp;=&nbsp;state;&nbsp;position&nbsp;=&nbsp;0&nbsp;})&nbsp;state
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;chr&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;add_quoted_char&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop)
-&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;commit_word&nbsp;$&nbsp;aux
+  let flush k t =
+    commit_word k t
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;flush&nbsp;k&nbsp;t&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;commit_word&nbsp;k&nbsp;t
-
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;unlift&nbsp;k&nbsp;t&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;flush&nbsp;(<span class="keyword">fun</span>&nbsp;{&nbsp;state;&nbsp;_&nbsp;}&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;k&nbsp;state)&nbsp;t
-<span class="keyword">end</span></code></body></html>
+  let unlift k t =
+    flush (fun { state; _ } -> k state) t
+end</code></body></html>

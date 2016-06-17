@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,17 +41,17 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045.p_entity_headers</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_entity_headers&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;p&nbsp;=
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_entity_header\n%!"</span>];
+<code class="code">let p_entity_headers ?unsafe extend_mime extend p =
+  [%debug Printf.printf "state: p_entity_header\n%!"];
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_field_name
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(0&nbsp;*&nbsp;0)&nbsp;<span class="constructor">Rfc822</span>.is_lwsp
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">':'</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_field&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;field
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))
-&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;acc))
-&nbsp;&nbsp;<span class="keyword">in</span>
+  let rec loop acc =
+    (Rfc822.p_field_name
+     @ fun field -> (0 * 0) (function '\x09' | '\x20' -> true | _ -> false)
+     @ fun _ -> p_chr ':'
+     @ p_field ?unsafe extend_mime extend field
+     @ fun data state -> `Ok (data, state))
+    / (p (List.rev acc))
+    @ (fun field -> loop (field :: acc))
+  in
 
-&nbsp;&nbsp;loop&nbsp;[]</code></body></html>
+  loop []</code></body></html>

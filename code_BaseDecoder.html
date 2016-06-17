@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -155,7 +156,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;to_end_of_file/continue&nbsp;[%d]\n%!"</span>&nbsp;(off&nbsp;+&nbsp;n)];
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;off&nbsp;+&nbsp;n&nbsp;&gt;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;off&nbsp;+&nbsp;n&nbsp;&gt;=&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;-&nbsp;2
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">begin</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;new_buffer&nbsp;=&nbsp;<span class="constructor">Bytes</span>.create&nbsp;(2&nbsp;*&nbsp;<span class="constructor">Bytes</span>.length&nbsp;state.buffer&nbsp;+&nbsp;1)&nbsp;<span class="keyword">in</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Bytes</span>.blit&nbsp;state.buffer&nbsp;0&nbsp;new_buffer&nbsp;0&nbsp;(<span class="constructor">Bytes</span>.length&nbsp;state.buffer);
@@ -285,7 +286,7 @@
 
 <span class="keyword">let</span>&nbsp;(&nbsp;/&nbsp;)&nbsp;x&nbsp;y&nbsp;k&nbsp;e&nbsp;=&nbsp;p_try_rule&nbsp;k&nbsp;y&nbsp;x&nbsp;e
 <span class="keyword">let</span>&nbsp;ok&nbsp;data&nbsp;state&nbsp;=&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)
-<span class="keyword">let</span>&nbsp;(&nbsp;@&nbsp;)&nbsp;=&nbsp;(&nbsp;@@&nbsp;)
+<span class="keyword">let</span>&nbsp;(&nbsp;@&nbsp;)&nbsp;x&nbsp;y&nbsp;e&nbsp;=&nbsp;x&nbsp;y&nbsp;e
 
 <span class="comment">(*&nbsp;See&nbsp;RFC&nbsp;5234&nbsp;§&nbsp;3.6:
 
@@ -332,7 +333,7 @@
 
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;n&nbsp;state&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;most&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;most&nbsp;(n&nbsp;+&nbsp;1)&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;(loop&nbsp;(n&nbsp;+&nbsp;1))&nbsp;state
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>

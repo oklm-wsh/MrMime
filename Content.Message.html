@@ -32,6 +32,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -51,10 +52,10 @@
 
 <pre><span class="keyword">module</span> Message: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Message.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentDescription of string<br>       | `ContentEncoding of <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a><br>       | `ContentID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ContentType of <a href="ContentType.html#TYPEt">ContentType.t</a><br>       | `MimeVersion of <a href="MimeVersion.html#TYPEt">MimeVersion.t</a><br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentDescription of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentEncoding of <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a><br>       | `ContentID of <a href="MsgID.html#TYPEt">MsgID.t</a><br>       | `ContentType of <a href="ContentType.html#TYPEt">ContentType.t</a><br>       | `MimeVersion of <a href="MimeVersion.html#TYPEt">MimeVersion.t</a><br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]</code> </pre>
 
 
-<pre><span id="VALfield_of_lexer"><span class="keyword">val</span> field_of_lexer</span> : <code class="type">[ `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentDescription of string<br>       | `ContentEncoding of <a href="Rfc2045.html#TYPEencoding">Rfc2045.encoding</a><br>       | `ContentID of <a href="Rfc2045.html#TYPEid">Rfc2045.id</a><br>       | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>       | `MimeVersion of int * int<br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ] -> <a href="Content.Message.html#TYPEfield">field</a></code></pre>
+<pre><span id="VALfield_of_lexer"><span class="keyword">val</span> field_of_lexer</span> : <code class="type">[ `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentDescription of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>       | `ContentEncoding of <a href="Rfc2045.html#TYPEencoding">Rfc2045.encoding</a><br>       | `ContentID of <a href="Rfc2045.html#TYPEid">Rfc2045.id</a><br>       | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>       | `MimeVersion of int * int<br>       | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ] -> <a href="Content.Message.html#TYPEfield">field</a></code></pre>
 <pre><span id="VALto_field"><span class="keyword">val</span> to_field</span> : <code class="type"><a href="Content.html#TYPEt">Content.t</a> -> <a href="Content.Message.html#TYPEfield">field</a> list</code></pre>
 <pre><span class="keyword">module</span> <a href="Content.Message.D.html">D</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Message.D.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module</span> <a href="Content.Message.E.html">E</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Message.E.html">..</a> <code class="code"><span class="keyword">end</span></code></pre></body></html>

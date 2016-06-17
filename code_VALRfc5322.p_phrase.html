@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,55 +41,75 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5322.p_phrase</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_phrase&nbsp;p&nbsp;=
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;add_fws&nbsp;has_fws&nbsp;element&nbsp;words&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_fws
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;element&nbsp;::&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;words
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;element&nbsp;::&nbsp;words
-&nbsp;&nbsp;<span class="keyword">in</span>
+<code class="code">let p_phrase p =
+  let is_alpha = function
+    | '\x41' .. '\x5a'
+    | '\x61' .. '\x7A' -> true
+    | chr              -> false
+  in
+  let is_digit = function
+    | '\x30' .. '\x39' -> true
+    | chr              -> false
+  in
+  let is_atext = function
+    | '!' | '#'
+    | '$' | '%'
+    | '&' | '\''
+    | '*' | '+'
+    | '-' | '/'
+    | '=' | '?'
+    | '^' | '_'
+    | '`' | '{'
+    | '|' | '}'
+    | '~' -> true
+    | chr -> is_digit chr || is_alpha chr
+  in
+  let is_dquote = (=) '"' in
 
-&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;remove&nbsp;unused&nbsp;FWS,&nbsp;if&nbsp;we&nbsp;don't&nbsp;remove&nbsp;that,&nbsp;the&nbsp;pretty-printer&nbsp;raise
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;an&nbsp;error.&nbsp;May&nbsp;be,&nbsp;we&nbsp;fix&nbsp;that&nbsp;in&nbsp;the&nbsp;pretty-printer&nbsp;but&nbsp;I&nbsp;decide&nbsp;to
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fix&nbsp;that&nbsp;in&nbsp;this&nbsp;place.&nbsp;*)</span>
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;trim&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;trim&nbsp;r
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;r
-&nbsp;&nbsp;<span class="keyword">in</span>
+  let add_fws has_fws element words =
+    if has_fws
+    then element :: `WSP :: words
+    else element :: words
+  in
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;obs&nbsp;words&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;p_cfws
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;@&nbsp;obs&nbsp;(add_fws&nbsp;has_fws&nbsp;<span class="keywordsign">`</span><span class="constructor">Dot</span>&nbsp;words)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_atext&nbsp;chr&nbsp;<span class="keywordsign">||</span>&nbsp;is_dquote&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc2047</span>.p_try_rule
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;obs&nbsp;(add_fws&nbsp;has_fws&nbsp;word&nbsp;words))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_word
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;without&nbsp;RFC&nbsp;2047
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_word&nbsp;(fun&nbsp;word&nbsp;-&gt;&nbsp;obs&nbsp;(add_fws&nbsp;has_fws&nbsp;word&nbsp;words))&nbsp;state&nbsp;*)</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(trim&nbsp;@@&nbsp;<span class="constructor">List</span>.rev&nbsp;@@&nbsp;trim&nbsp;words)
-&nbsp;&nbsp;<span class="keyword">in</span>
+  (* XXX: remove unused FWS, if we don't remove that, the pretty-printer raise
+          an error. May be, we fix that in the pretty-printer but I decide to
+          fix that in this place. *)
+  let rec trim = function
+    | `WSP :: r -> trim r
+    | r -> r
+  in
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;words&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;we&nbsp;catch&nbsp;[p_word]&nbsp;(with&nbsp;its&nbsp;[CFWS]&nbsp;in&nbsp;[p_atom]/[p_quoted_string])
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;determine&nbsp;if&nbsp;we&nbsp;need&nbsp;to&nbsp;switch&nbsp;to&nbsp;[obs]&nbsp;(if&nbsp;we&nbsp;have&nbsp;a&nbsp;'.'),
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or&nbsp;to&nbsp;continue&nbsp;[p_word]&nbsp;*)</span>
-&nbsp;&nbsp;&nbsp;&nbsp;p_cfws
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_atext&nbsp;chr&nbsp;<span class="keywordsign">||</span>&nbsp;is_dquote&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc2047</span>.p_try_rule
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(add_fws&nbsp;<span class="keyword">true</span>&nbsp;word&nbsp;words))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_word
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;without&nbsp;RFC&nbsp;2047
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_word&nbsp;(fun&nbsp;word&nbsp;-&gt;&nbsp;loop&nbsp;(add_fws&nbsp;true&nbsp;word&nbsp;words))&nbsp;state&nbsp;*)</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;obs&nbsp;(<span class="keyword">if</span>&nbsp;has_fws&nbsp;<span class="keyword">then</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">WSP</span>&nbsp;::&nbsp;words&nbsp;<span class="keyword">else</span>&nbsp;words)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;may&nbsp;be&nbsp;it's&nbsp;'.',&nbsp;so&nbsp;we&nbsp;try&nbsp;to&nbsp;switch&nbsp;to&nbsp;obs&nbsp;*)</span>
-&nbsp;&nbsp;<span class="keyword">in</span>
+  let rec obs words =
+    p_cfws
+    @ fun has_fws -> cur_chr
+    @ function
+      | '.' ->
+        junk_chr @ obs (add_fws has_fws `Dot words)
+      | '\x00' .. '\x7F' as chr ->
+        if is_atext chr || is_dquote chr
+        then Rfc2047.p_try_rule (fun word -> obs (add_fws has_fws word words)) p_word
+        else p (trim @@ List.rev @@ trim words)
+      | uchar -> p_word @ fun word -> obs (add_fws has_fws word words)
+  in
 
-&nbsp;&nbsp;p_fws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc2047</span>.p_try_rule
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;[word])
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_word</code></body></html>
+  let rec loop words =
+    (* XXX: we catch [p_word] (with its [CFWS] in [p_atom]/[p_quoted_string])
+            to determine if we need to switch to [obs] (if we have a '.'),
+            or to continue [p_word] *)
+    p_cfws
+    @ fun has_fws -> cur_chr
+    @ function
+      | '\x00' .. '\x7F' as chr ->
+        if is_atext chr || is_dquote chr
+        then Rfc2047.p_try_rule (fun word -> loop (add_fws true word words)) p_word
+        else obs (if has_fws then `WSP :: words else words)
+      | _ -> obs (if has_fws then `WSP :: words else words)
+      (* XXX: may be it's '.' or uchar, so we try to switch to obs *)
+  in
+
+  p_fws
+  @ fun _ _ ->
+    Rfc2047.p_try_rule
+      (fun word -> loop [word])
+      p_word</code></body></html>

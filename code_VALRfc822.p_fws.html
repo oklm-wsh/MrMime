@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -41,6 +42,11 @@
 </head>
 <body>
 <code class="code">let rec p_fws p state =
+  let is_wsp = function
+    | '\x20' | '\x09' -> true
+    | chr             -> false
+  in
+
   [%debug Printf.printf "state: p_fws\n%!"];
 
   (* verify if we have *WSP CRLF, if it's true,
@@ -94,8 +100,8 @@
            @ fun _ -> success true true
          (* … *(CRLF 1*WSP) CRLF e *)
          | chr ->
-           let has_wsp, tmp = trim tmp in
-           roll_back (p has_wsp has_fws) tmp)
+           let has_wsp', tmp = trim tmp in
+           roll_back (p (has_wsp || has_wsp') has_fws) tmp)
       state
     (* … e *)
     | None -> fail has_wsp has_fws state

@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -45,16 +46,16 @@
 &nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\\'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_quoted_pair&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_comment&nbsp;@&nbsp;p
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_ctext&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_ctext&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_ccontent&nbsp;[%s]\n%!"</span>&nbsp;s];&nbsp;p
 
 <span class="keyword">and</span>&nbsp;p_comment&nbsp;p&nbsp;=
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;()&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;cur_chr
 &nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">')'</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_comment&nbsp;(end&nbsp;of&nbsp;comment)\n%!"</span>];
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;@&nbsp;p
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;we&nbsp;ignore&nbsp;if&nbsp;we&nbsp;passed&nbsp;a&nbsp;fws&nbsp;entity.&nbsp;*)</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_fws
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_ccontent
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_fws

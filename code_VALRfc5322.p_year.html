@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -43,10 +44,10 @@
 <code class="code"><span class="keyword">let</span>&nbsp;p_year&nbsp;has_already_fws&nbsp;p&nbsp;=
 &nbsp;&nbsp;<span class="comment">(*&nbsp;(FWS&nbsp;4*DIGIT&nbsp;FWS)&nbsp;/&nbsp;obs-year&nbsp;*)</span>
 &nbsp;&nbsp;p_fws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_try&nbsp;is_digit
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_try&nbsp;(<span class="keyword">function</span>&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>)
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;(has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws&nbsp;<span class="keywordsign">||</span>&nbsp;has_already_fws)&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;n&nbsp;&gt;=&nbsp;4
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p_while&nbsp;is_digit&nbsp;<span class="comment">(*&nbsp;TODO:&nbsp;(4&nbsp;*&nbsp;0)&nbsp;is_digit&nbsp;*)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;p_while&nbsp;(<span class="keyword">function</span>&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>)&nbsp;<span class="comment">(*&nbsp;TODO:&nbsp;(4&nbsp;*&nbsp;0)&nbsp;is_digit&nbsp;*)</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;y&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_fws
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;has_wsp&nbsp;has_fws&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;has_wsp&nbsp;<span class="keywordsign">||</span>&nbsp;has_fws

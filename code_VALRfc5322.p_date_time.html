@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -51,7 +52,7 @@
 &nbsp;&nbsp;p_fws
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
 &nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;is_alpha&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'a'</span>&nbsp;..&nbsp;<span class="string">'z'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'A'</span>&nbsp;..&nbsp;<span class="string">'Z'</span>&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p_day_of_week
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;day&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">','</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;aux&nbsp;(<span class="constructor">Some</span>&nbsp;day)

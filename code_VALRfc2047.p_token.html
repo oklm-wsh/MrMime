@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,13 +41,12 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2047.p_token</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_token&nbsp;p&nbsp;state&nbsp;=
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;is&nbsp;chr&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;is_especials&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;<span class="constructor">Rfc822</span>.is_ctl&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;<span class="constructor">Rfc822</span>.is_space&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;<span class="keyword">false</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">true</span>
-&nbsp;&nbsp;<span class="keyword">in</span>
+<code class="code">let p_token p state =
+  let is_ctl = function
+    | '\000' .. '\031' -> true
+    | _ -> false
+  in
+  let is_space = (=) '\x20' in
+  let is chr = not (is_especials chr || is_ctl chr || is_space chr) in
 
-&nbsp;&nbsp;p_while&nbsp;is&nbsp;p&nbsp;state</code></body></html>
+  p_while is p state</code></body></html>

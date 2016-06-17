@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -42,5 +43,5 @@
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;wrap&nbsp;k&nbsp;({&nbsp;state;&nbsp;cnum;&nbsp;_&nbsp;}&nbsp;<span class="keyword">as</span>&nbsp;t)&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;cnum&nbsp;+&nbsp;4&nbsp;&gt;&nbsp;76
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;w&nbsp;<span class="string">"\n"</span>&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;state&nbsp;=&nbsp;state;&nbsp;cnum&nbsp;=&nbsp;0;&nbsp;})&nbsp;state
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;w&nbsp;<span class="string">"\r\n"</span>&nbsp;(<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;state&nbsp;=&nbsp;state;&nbsp;cnum&nbsp;=&nbsp;4;&nbsp;})&nbsp;state
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;k&nbsp;{&nbsp;t&nbsp;<span class="keyword">with</span>&nbsp;cnum&nbsp;=&nbsp;cnum&nbsp;+&nbsp;4&nbsp;}</code></body></html>

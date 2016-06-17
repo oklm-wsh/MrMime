@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -115,54 +116,6 @@ type field =
   | `Field           of string * phrase
   | `Unsafe          of string * phrase ]
 
-(* See RFC 5234 § Appendix B.1:
-
-   VCHAR           = %x21-7E              ; visible (printing) characters
-*)
-let is_vchar = is_vchar
-
-let s_vchar =
-  let make a b incr =
-    let rec aux acc i =
-      if i > b then List.rev acc
-      else aux (incr i :: acc) (incr i)
-    in
-    aux [a] a
-  in
-
-  make 0x21 0x7e ((+) 1) |> List.map Char.chr
-
-(* See RFC 5234 § Appendix B.1:
-
-   SP              = %x20
-   HTAB            = %x09                 ; horizontal tab
-   WSP             = SP / HTAB            ; white space
-*)
-let s_wsp  = ['\x20'; '\x09']
-
-(* See RFC 5322 § 3.2.3:
-
-   atext           = ALPHA / DIGIT /      ; Printable US-ASCII
-                     "!" / "#" /          ;  characters not including
-                     "$" / "%" /          ;  specials. Used for atoms.
-                     "&" / "'" /
-                     "*" / "+" /
-                     "-" / "/" /
-                     "=" / "?" /
-                     "^" / "_" /
-                     "`" / "{" /
-                     "|" / "}" /
-                     "~"
-*)
-let is_valid_atext text =
-  let i = ref 0 in
-
-  while !i < String.length text
-        && is_atext (String.get text !i)
-  do incr i done;
-
-  !i = String.length text
-
 (* See RFC 5322 § 3.2.3:
 
    specials        = %x28 / %x29 /        ; Special characters that do
@@ -200,6 +153,30 @@ let p_msg_id = p_msg_id
    obs-phrase      = word *(word / "." / CFWS)
 *)
 let p_phrase p =
+  let is_alpha = function
+    | '\x41' .. '\x5a'
+    | '\x61' .. '\x7A' -> true
+    | chr              -> false
+  in
+  let is_digit = function
+    | '\x30' .. '\x39' -> true
+    | chr              -> false
+  in
+  let is_atext = function
+    | '!' | '#'
+    | '$' | '%'
+    | '&' | '\''
+    | '*' | '+'
+    | '-' | '/'
+    | '=' | '?'
+    | '^' | '_'
+    | '`' | '{'
+    | '|' | '}'
+    | '~' -> true
+    | chr -> is_digit chr || is_alpha chr
+  in
+  let is_dquote = (=) '"' in
+
   let add_fws has_fws element words =
     if has_fws
     then element :: `WSP :: words
@@ -220,13 +197,11 @@ let p_phrase p =
     @ function
       | '.' ->
         junk_chr @ obs (add_fws has_fws `Dot words)
-      | chr when is_atext chr || is_dquote chr ->
-        Rfc2047.p_try_rule
-          (fun word -> obs (add_fws has_fws word words))
-          p_word
-        (* XXX: without RFC 2047
-           p_word (fun word -> obs (add_fws has_fws word words)) state *)
-      | _ -> p (trim @@ List.rev @@ trim words)
+      | '\x00' .. '\x7F' as chr ->
+        if is_atext chr || is_dquote chr
+        then Rfc2047.p_try_rule (fun word -> obs (add_fws has_fws word words)) p_word
+        else p (trim @@ List.rev @@ trim words)
+      | uchar -> p_word @ fun word -> obs (add_fws has_fws word words)
   in
 
   let rec loop words =
@@ -236,14 +211,12 @@ let p_phrase p =
     p_cfws
     @ fun has_fws -> cur_chr
     @ function
-      | chr when is_atext chr || is_dquote chr ->
-        Rfc2047.p_try_rule
-          (fun word -> loop (add_fws true word words))
-          p_word
-        (* XXX: without RFC 2047
-           p_word (fun word -> loop (add_fws true word words)) state *)
+      | '\x00' .. '\x7F' as chr ->
+        if is_atext chr || is_dquote chr
+        then Rfc2047.p_try_rule (fun word -> loop (add_fws true word words)) p_word
+        else obs (if has_fws then `WSP :: words else words)
       | _ -> obs (if has_fws then `WSP :: words else words)
-      (* XXX: may be it's '.', so we try to switch to obs *)
+      (* XXX: may be it's '.' or uchar, so we try to switch to obs *)
   in
 
   p_fws
@@ -256,28 +229,80 @@ let p_phrase p =
 
    obs-utext       = %d0 / obs-NO-WS-CTL / VCHAR
 *)
-let is_obs_utext = function
-  | '\000' -> true
-  | chr -> is_obs_no_ws_ctl chr || is_vchar chr
+let p_obs_utext p state =
+  [%debug Printf.printf "state: p_obs_utext\n%!"];
+
+  let is_obs_no_ws_ctl = function
+    | '\001' .. '\008'
+    | '\011'
+    | '\012'
+    | '\014' .. '\031'
+    | '\127' -> true
+    | _ -> false
+  in
+  let is_vchar = function
+    | '\x21' .. '\x7e' -> true
+    | chr              -> false
+  in
+  let is_obs_utext = function
+    | '\000' -> true
+    | chr -> is_obs_no_ws_ctl chr || is_vchar chr
+  in
+
+  let buf = Buffer.create 16 in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false
+    | `Uchar uchar ->
+      [%debug Printf.printf "state: p_obs_utext uchar (%d)\n%!" uchar];
+      Uutf.Buffer.add_utf_8 buf uchar;
+      loop decoder
+    | `Malformed _ ->
+      if Buffer.length buf > 0
+      then p (Buffer.contents buf)
+      else fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      [%debug Printf.printf "state: p_obs_utext (Await)\n%!"];
+
+      cur_chr @ function
+      | '\x00' .. '\x7F' as chr ->
+        if is_obs_utext chr
+        then begin
+          [%debug Printf.printf "state: p_obs_utext ascii char (%S)\n%!" (String.make 1 chr)];
+          Uutf.Manual.src decoder (String.make 1 chr) 0 1;
+          junk_chr @ loop decoder
+        end else if Buffer.length buf > 0
+        then p (Buffer.contents buf)
+        else raise (Error.Error (Error.err_unexpected chr state))
+      | uchr ->
+        [%debug Printf.printf "state: p_obs_utext part of uchar %d\n%!" (Char.code uchr)];
+
+        Uutf.Manual.src decoder (String.make 1 uchr) 0 1; junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+  loop decoder state
 
 let p_obs_unstruct ?(acc = []) p =
+  let is_lf = (=) '\n' in
+  let is_cr = (=) '\r' in
   let rec loop3 acc =
     (0 * 0) is_lf
     @ fun lf -> (0 * 0) is_cr
     @ fun cr -> cur_chr
     @ fun chr -> match String.length lf, String.length cr, chr with
-      | 0, n, chr when is_obs_utext chr -> loop2 (`CR n :: acc)
-      | n, 0, chr when is_obs_utext chr -> loop2 (`LF n :: acc)
-      | 0, 0, chr when is_obs_utext chr -> loop2 acc
-      | a, b, chr when is_obs_utext chr -> loop2 (`CR b :: `LF a :: acc)
       | _, 1, '\n' -> roll_back (loop0 (List.rev acc)) "\r"
       | _, n, '\n' -> roll_back (loop0 (List.rev (`CR (n - 1) :: acc))) "\r"
+      | 0, 0, chr -> loop2 acc
+      | 0, n, chr -> loop1 (`CR n :: acc)
+      | n, 0, chr -> loop2 (`LF n :: acc)
+      | a, b, chr -> loop2 (`CR b :: `LF a :: acc)
       | _ -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
 
   and loop2 acc =
     (Rfc2047.p_encoded_word
      @ fun charset encoding data -> ok (charset, encoding, data))
-    / (p_while is_obs_utext
+    / (p_obs_utext
        @ fun value -> loop3 (`Atom value :: acc))
     @ fun word -> loop3 (`Encoded word :: acc)
 
@@ -286,12 +311,12 @@ let p_obs_unstruct ?(acc = []) p =
     @ fun lf -> (0 * 0) is_cr
     @ fun cr -> cur_chr
     @ fun chr -> match String.length lf, String.length cr, chr with
-      | 0, n, chr when is_obs_utext chr -> loop2 (`CR n :: acc)
-      | n, 0, chr when is_obs_utext chr -> loop2 (`LF n :: acc)
-      | 0, 0, chr when is_obs_utext chr -> loop2 acc
-      | a, b, chr when is_obs_utext chr -> loop2 (`CR b :: `LF a :: acc)
       | _, 1, '\n' -> roll_back (p (List.rev acc)) "\r"
       | _, n, '\n' -> roll_back (p (List.rev (`CR (n - 1) :: acc))) "\r"
+      | 0, 0, chr -> loop2 acc
+      | 0, n, chr -> loop2 (`CR n :: acc)
+      | n, 0, chr -> loop2 (`LF n :: acc)
+      | a, b, chr -> loop2 (`CR b :: `LF a :: acc)
       | _ -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
 
   and loop0 acc =
@@ -305,32 +330,39 @@ let p_obs_unstruct ?(acc = []) p =
   loop0 acc
 
 let p_unstructured p =
+  let is_wsp = function '\x09' | '\x20' -> true | _ -> false in
+  let is_vchar = function
+    | '\x21' .. '\x7e' -> true
+    | chr              -> false
+  in
+
   let p_word p =
     (Rfc2047.p_encoded_word
      @ fun charset encoding data -> ok (charset, encoding, data))
-    / (p_while is_vchar @ fun atom -> p (`Atom atom))
+    / (p_vchar @ fun atom -> p (`Atom atom))
     @ fun word -> p (`Encoded word)
   in
   let rec loop0 acc =
     p_fws
     @ fun has_wsp has_fws -> cur_chr
     @ fun chr -> match has_wsp, has_fws, chr with
-      | true, true, chr when is_vchar chr ->
-        p_word
-        @ fun value -> loop0 (value :: `FWS :: `WSP :: acc)
-      | true, false, chr when is_vchar chr ->
-        p_word
-        @ fun value -> loop0 (value :: `WSP :: acc)
-      | false, false, chr when is_vchar chr ->
-        p_word
-        @ fun value -> loop0 (value :: acc)
-      | false, false, chr when is_wsp chr ->
-        p_while is_wsp
-        @ fun _ -> p (List.rev (`WSP :: acc))
+      | true, true, ('\x00' .. '\x7F' as chr) when is_vchar chr ->
+        p_word @ fun value -> loop0 (value :: `FWS :: `WSP :: acc)
+      | true, false, ('\x00' .. '\x7F' as chr) when is_vchar chr ->
+        p_word @ fun value -> loop0 (value :: `WSP :: acc)
+      | false, false, ('\x00' .. '\x7F' as chr) when is_vchar chr ->
+        p_word @ fun value -> loop0 (value :: acc)
+      | false, false, ('\x00' .. '\x7F' as chr) when is_wsp chr->
+        p_while is_wsp @ fun _ -> p (List.rev (`WSP :: acc))
+      (* about the utf-8, [p_obs_unstruct] accepts UTF8-non-ascii, so by
+       * extension [p_unstructured] accepts UTF8-non-ascii including ASCII
+       * vchar (see above) - and RFC 6532 considers the new
+       *
+       * vchar = ascii-vchar / UTF8-non-ascii. *)
       | true, true, _   -> p_obs_unstruct ~acc:(`FWS :: `WSP :: acc) p
       | true, false, _  -> p_obs_unstruct ~acc:(`WSP :: acc) p
       | false, false, _ -> p_obs_unstruct ~acc p
-      | _               -> assert false
+      | false, true, _  -> assert false
   in
 
   loop0 []
@@ -338,7 +370,7 @@ let p_unstructured p =
 (* [CFWS] 2DIGIT [CFWS] *)
 let p_cfws_2digit_cfws p =
   p_cfws
-  @ fun _ -> (2 * 2) is_digit
+  @ fun _ -> (2 * 2) (function '0' .. '9' -> true | _ -> false)
   @ fun n -> p_cfws
   @ p (int_of_string n)
 
@@ -366,10 +398,10 @@ let p_obs_second p =
    second          = 2DIGIT / obs-second
 *)
 let p_2digit_or_obs p =
-  p_try is_digit
+  p_try (function '0' .. '9' -> true | _ -> false)
   @ fun n ->
     if n = 2
-    then p_while is_digit
+    then p_while (function '0' .. '9' -> true | _ -> false)
          @ fun n -> p_cfws
          @ p (int_of_string n)
          (* XXX: in this case, it's possible to
@@ -395,17 +427,17 @@ let p_second p =
 let p_obs_year p =
   (* [CFWS] 2*DIGIT [CFWS] *)
   p_cfws
-  @ fun _ -> (2 * 0) is_digit
+  @ fun _ -> (2 * 0) (function '0' .. '9' -> true | _ -> false)
   @ fun y -> p_cfws
   @ fun _ -> p (int_of_string y)
 
 let p_year has_already_fws p =
   (* (FWS 4*DIGIT FWS) / obs-year *)
   p_fws
-  @ fun has_wsp has_fws -> p_try is_digit
+  @ fun has_wsp has_fws -> p_try (function '0' .. '9' -> true | _ -> false)
   @ fun n ->
     if (has_wsp || has_fws || has_already_fws) && n >= 4
-    then p_while is_digit (* TODO: (4 * 0) is_digit *)
+    then p_while (function '0' .. '9' -> true | _ -> false) (* TODO: (4 * 0) is_digit *)
          @ fun y -> p_fws
          @ fun has_wsp has_fws ->
            if has_wsp || has_fws
@@ -420,7 +452,7 @@ let p_year has_already_fws p =
 *)
 let p_obs_day p =
   p_cfws
-  @ fun _ -> (1 * 2) is_digit
+  @ fun _ -> (1 * 2) (function '0' .. '9' -> true | _ -> false)
   @ fun d -> p_cfws
   @ fun _ -> p (int_of_string d)
 
@@ -428,8 +460,8 @@ let p_day p =
   p_fws
   @ fun _ _ -> cur_chr
   @ function
-    | chr when is_digit chr ->
-      (1 * 2) is_digit
+    | '0' .. '9'->
+      (1 * 2) (function '0' .. '9' -> true | _ -> false)
       @ fun d -> p_fws
       @ fun has_wsp has_fws ->
         if has_wsp || has_fws
@@ -444,7 +476,7 @@ let p_day p =
                      "Sep" / "Oct" / "Nov" / "Dec"
 *)
 let p_month p =
-  (3 * 3) is_alpha
+  (3 * 3) (function 'a' .. 'z' | 'A' .. 'Z' -> true | _ -> false)
   @ function
     | "Jan" -> p `Jan
     | "Feb" -> p `Feb
@@ -466,7 +498,7 @@ let p_month p =
                      "Fri" / "Sat" / "Sun"
 *)
 let p_day_name p =
-  (3 * 3) is_alpha
+  (3 * 3) (function 'a' .. 'z' | 'A' .. 'Z' -> true | _ -> false)
   @ function
     | "Mon" -> p `Mon
     | "Tue" -> p `Tue
@@ -486,7 +518,7 @@ let p_day_of_week p =
   p_fws
   @ fun _ _ -> cur_chr
   @ function
-    | chr when is_alpha chr -> p_day_name p
+    | 'a' .. 'z' | 'A' .. 'Z' -> p_day_name p
     | chr ->
      p_cfws
      @ fun _ -> p_day_name
@@ -565,14 +597,14 @@ let p_zone has_already_fws p =
   @ fun chr -> match has_already_fws || has_wsp || has_fws, chr with
     | true, '+' ->
       p_chr '+'
-      @ (4 * 4) is_digit
+      @ (4 * 4) (function '0' .. '9' -> true | _ -> false)
       @ fun tz -> p (`TZ (int_of_string tz))
     | true, '-' ->
       p_chr '-'
-      @ (4 * 4) is_digit
+      @ (4 * 4) (function '0' .. '9' -> true | _ -> false)
       @ fun tz -> p (`TZ (- (int_of_string tz)))
-    | true, chr when is_digit chr ->
-      (4 * 4) is_digit
+    | true, '0' .. '9' ->
+      (4 * 4) (function '0' .. '9' -> true | _ -> false)
       @ fun tz -> p (`TZ (int_of_string tz))
     | _ -> p_obs_zone p
 
@@ -600,41 +632,11 @@ let p_date_time p =
   p_fws
   @ fun _ _ -> cur_chr
   @ function
-    | chr when is_alpha chr ->
+    | 'a' .. 'z' | 'A' .. 'Z' ->
       p_day_of_week
       @ fun day -> p_chr ','
       @ aux (Some day)
     | chr -> aux None
-
-(* See RFC 5322 § 3.4.1 & 4.4:
-
-   dtext           = %d33-90 /            ; Printable US-ASCII
-                     %d94-126 /           ;  characters not including
-                     obs-dtext            ;  "[", "]", or %x5C
-   obs-dtext       = obs-NO-WS-CTL / quoted-pair
-*)
-let is_dtext = function
-  | '\033' .. '\090'
-  | '\094' .. '\126' -> true
-  | chr -> is_obs_no_ws_ctl chr
-
-let p_dtext p state =
-  let rec loop acc =
-    cur_chr @ function
-    | '\033' .. '\090'
-    | '\094' .. '\126' ->
-      p_while is_dtext
-      @ fun s -> loop (s :: acc)
-    | chr when is_obs_no_ws_ctl chr ->
-      p_while is_dtext
-      @ fun s -> loop (s :: acc)
-    | '\\' ->
-      p_quoted_pair
-      @ fun chr -> loop (String.make 1 chr :: acc)
-    | chr -> p (List.rev acc |> String.concat "")
-  in
-
-  loop [] state
 
 (* See RFC 5322 § 4.4:
 
@@ -690,11 +692,10 @@ let p_domain_literal p =
                       (Bytes.sub state'.buffer state'.pos (state'.len - state'.pos))
                       state')))
         (Decoder.of_string @@ String.concat "" @@ List.rev acc)
-    | chr when is_dtext chr || chr = '\\' ->
+    | chr ->
       p_dtext
       @ fun s -> p_fws
       @ fun _ _ -> loop (s :: acc)
-    | chr -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
   in
 
   p_cfws
@@ -1353,7 +1354,7 @@ let p_header extend p =
 
   let rec loop acc =
     (p_field_name
-     @ fun field -> (0 * 0) is_wsp
+     @ fun field -> (0 * 0) (function '\x09' | '\x20' -> true | _ -> false)
      @ fun _ -> p_chr ':'
      @ p_field extend field
      @ fun data state -> `Ok (data, state))

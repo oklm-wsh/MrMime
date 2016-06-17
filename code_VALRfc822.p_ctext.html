@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,4 +41,46 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.p_ctext</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;p_ctext&nbsp;p&nbsp;state&nbsp;=&nbsp;p_while&nbsp;is_ctext&nbsp;p&nbsp;state</code></body></html>
+<code class="code">let rec p_ctext p state =
+  let is_obs_no_ws_ctl = function
+    | '\001' .. '\008'
+    | '\011'
+    | '\012'
+    | '\014' .. '\031'
+    | '\127' -> true
+    | _ -> false
+  in
+  let is_ctext = function
+    | '\033' .. '\039'
+    | '\042' .. '\091'
+    | '\093' .. '\126' -> true
+    | chr -> is_obs_no_ws_ctl chr
+  in
+
+  let buf = Buffer.create 16 in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false
+    | `Uchar uchar ->
+      Uutf.Buffer.add_utf_8 buf uchar;
+      loop decoder
+    | `Malformed _ ->
+      [%debug Printf.printf "state: p_ctext (Malformed)\n%!"];
+
+      if Buffer.length buf > 0
+      then p (Buffer.contents buf)
+      else fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      cur_chr @ function
+      | '\x00' .. '\x7F' as chr ->
+        if is_ctext chr
+        then begin Uutf.Buffer.add_utf_8 buf (Char.code chr); junk_chr @ loop decoder
+        end else if Buffer.length buf > 0
+        then p (Buffer.contents buf)
+        else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+      | uchr ->
+        Uutf.Manual.src decoder (String.make 1 uchr) 0 1; junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+  loop decoder state</code></body></html>

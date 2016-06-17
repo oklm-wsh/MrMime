@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,6 +41,7 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.p_transport_padding</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_transport_padding&nbsp;p&nbsp;=
-&nbsp;&nbsp;(0&nbsp;*&nbsp;0)&nbsp;<span class="constructor">Rfc822</span>.is_lwsp
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p</code></body></html>
+<code class="code">let p_transport_padding p =
+  let is_lwsp_char = function '\x09' | '\x20' -> true | _ -> false in
+  (0 * 0) is_lwsp_char
+  @ fun _ -> p</code></body></html>

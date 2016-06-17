@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -86,7 +87,7 @@ struct
 
   let add_break k ({ state; position; _ } as t) =
     if position > 0
-    then w "=\n" (fun state -> k { t with position = 0; state = state }) state
+    then w "=\r\n" (fun state -> k { t with position = 0; state = state }) state
     else k t
 
   let commit_word k ({ position; word; } as t) =
@@ -102,26 +103,15 @@ struct
     t
 
   let wrap_bigword length k ({ word; _ } as t) =
-    let wrapping =
-      if Buffer.length word >= 76 - length
-      then add_break
-      else noop
-    in
-
-    wrapping
-      (fun ({ state; word; position; } as t) ->
-       w (Buffer.contents word)
-         (fun state ->
-          let len = Buffer.length word in
-          Buffer.clear word;
-          wrapping k { t with state = state; position = position + len; })
-         state)
-      t
+    (if Buffer.length word >= 76 - length
+     then add_break $ commit_word $ add_break
+     else noop) k t
 
   let add_char chr =
     wrap_bigword 1
-    $ fun k ({ state; _ } as t) ->
-      w_char chr (fun state -> k { t with state = state }) state
+    $ fun k ({ word; _ } as t) ->
+      Buffer.add_char word chr;
+      k t
 
   let add_quoted_char chr k =
     wrap_bigword 3
@@ -139,9 +129,9 @@ struct
 
   let add_wsp = function
     | `Space ->
-      add_char ' ' $ commit_word
+      add_char '\x20' $ commit_word
     | `Tab ->
-      add_char '\t' $ commit_word
+      add_char '\x09' $ commit_word
 
   let add_newline chr =
     let rec aux k ({ state; _ } as t) =
@@ -182,8 +172,9 @@ let is_safe_char = function
                         ; RFC 2049 as "mail-safe".
 *)
 let is_hex_octet = function
+  | '0' .. '9'
   | 'A' .. 'F' -> true
-  | chr        -> Rfc822.is_digit chr
+  | chr -> false
 
 let p_hex_octet p =
   p_chr '='
@@ -252,9 +243,13 @@ let p_qp_part = p_qp_section
                           ; be able to handle padding
                           ; added by message transports.
 
+   See RFC 822 § 3.3:
+
+   LWSP-char   =  SPACE / HTAB                 ; semantics = SPACE
 *)
 let p_transport_padding p =
-  (0 * 0) Rfc822.is_lwsp
+  let is_lwsp_char = function '\x09' | '\x20' -> true | _ -> false in
+  (0 * 0) is_lwsp_char
   @ fun _ -> p
 
 (* See RFC 2045 § 6.7:
@@ -442,56 +437,75 @@ let p_inline_decode stop p state =
           line break in the encoded text.
 *)
 let p_decode stop p state =
-  [%debug Printf.printf "state: p_decode (QuotedPrintable)\n%!"];
+  let is_lwsp_char = function '\x09' | '\x20' -> true | _ -> false in
 
   let buf = Buffer.create 16 in
 
+  let rec try_stop k' = function
+    | `Stop state -> p (Buffer.contents buf) state
+    | `Continue state -> k' state
+    | `Read (buf, off, len, k) ->
+      `Read (buf, off, len, (fun i -> try_stop k' (safe k i)))
+    | #Error.err as err -> err
+  in
+
   let rec decode state =
-    let rec aux = function
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
-      | `Stop state ->
-        [%debug Printf.printf "state: p_decode (QuotedPrintable) end\n%!"];
+    match peek_chr state with
+    | Some '=' ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) equal\n%!"];
 
-        p (Buffer.contents buf) state
-      | `Continue state ->
-        (cur_chr @ function
-         | '=' ->
-           [%debug Printf.printf "state: p_decode (QuotedPrintable) =\n%!"];
+      junk_chr
+       (fun state -> p_try is_hex_octet
+         (fun n state ->
+          if n >= 2
+          then (2 * 2) is_hex_octet
+                (fun s state ->
+                 [%debug Printf.printf "state: p_decode (QuotedPrintable) [=%s]\n%!" s];
+                 F.add_char buf (F.hex s); (decode[@tailcall]) state)
+                state
+          else try_stop
+                 (fun state ->
+                  p_chr '\r' (* soft line-breaks *)
+                   (fun state -> p_chr '\n' (fun state -> (decode[@tailcall]) state) state)
+                    state)
+                 (stop state))
+        state)
+      state
+    | Some '\x20' | Some '\x09' ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
 
-           junk_chr
-           @ p_try is_hex_octet
-           @ fun n ->
-             if n >= 2
-             then (2 * 2) is_hex_octet
-                  @ fun s ->
-                      F.add_char buf (F.hex s);
-                      decode
-             else p_chr '\r' (* soft line-breaks *)
-                  @ p_chr '\n'
-                  @ decode
-         | '\x20' | '\x09' ->
-           [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
+      p_while is_lwsp_char
+       (fun lwsp state -> cur_chr (fun chr state -> match chr with
+        | '\r' ->
+          try_stop
+            (fun state ->
+             p_chr '\r' (* line-breaks *)
+              (fun state -> p_chr '\n' (fun state -> F.add_newline buf; (decode[@tailcall]) state) state)
+               state)
+            (stop state)
+        | chr  -> F.add_string buf lwsp; (decode[@tailcall]) state) state)
+      state
+    | Some '\r' ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) CRLF\n%!"];
 
-           p_while Rfc822.is_lwsp
-           @ fun lwsp -> cur_chr
-           @ (function
-              | '\r' -> p_chr '\r'
-                        @ p_chr '\n'
-                        @ fun state -> F.add_newline buf; decode state
-              | chr -> F.add_string buf lwsp; decode)
-         | '\r' ->
-           p_chr '\r' (* line-breaks *)
-           @ p_chr '\n'
-           @ fun state ->
-             F.add_newline buf;
-             decode state
-         | chr when is_safe_char chr  ->
-           F.add_char buf chr; junk_chr @ decode
-         | chr -> junk_chr @ decode)
-        state
-    in aux (safe stop state)
+      try_stop
+       (fun state ->
+        p_chr '\r' (* line-breaks *)
+         (fun state -> p_chr '\n' (fun state -> F.add_newline buf; (decode[@tailcall]) state) state)
+          state)
+       (stop state)
+    | Some chr when is_safe_char chr  ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) [%S]\n%!" (String.make 1 chr)];
+
+      F.add_char buf chr; junk_chr (fun state -> (decode[@tailcall]) state) state
+    | Some chr ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) unsafe char\n%!"];
+
+      junk_chr (fun state -> (decode[@tailcall]) state) state
+    | None ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) end\n%!"];
+
+      p (Buffer.contents buf) state
   in
 
   decode state
@@ -544,7 +558,7 @@ let w_encode content k =
     then match String.get content idx with
          | '\x20' ->
            if recognize_newline (idx + 1)
-           then T.add_newline (Some '\x20') @@ loop (idx + 2) k
+           then T.add_newline (Some '\x20') @@ loop (idx + 2) k (* TODO: +2 only if the newline is LF (+3 if it's CRLF on windows) *)
            else T.add_wsp `Space @@ loop (idx + 1) k
          | '\x09' ->
            if recognize_newline (idx + 1)

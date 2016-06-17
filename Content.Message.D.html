@@ -32,6 +32,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -51,4 +52,4 @@
 
 <pre><span class="keyword">module</span> D: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Message.D.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">([> `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>         | `ContentDescription of string<br>         | `ContentEncoding of <a href="Rfc2045.html#TYPEencoding">Rfc2045.encoding</a><br>         | `ContentID of <a href="Rfc2045.html#TYPEid">Rfc2045.id</a><br>         | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>         | `MimeVersion of int * int<br>         | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]<br>        as 'content)<br>       list -> (<a href="Content.html#TYPEt">Content.t</a>, 'content list, 'r) <a href="Decoder.html#TYPEk2">Decoder.k2</a></code></pre></body></html>
+<pre><span id="VALof_lexer"><span class="keyword">val</span> of_lexer</span> : <code class="type">([> `Content of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>         | `ContentDescription of <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a><br>         | `ContentEncoding of <a href="Rfc2045.html#TYPEencoding">Rfc2045.encoding</a><br>         | `ContentID of <a href="Rfc2045.html#TYPEid">Rfc2045.id</a><br>         | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>         | `MimeVersion of int * int<br>         | `Unsafe of string * <a href="Rfc5322.html#TYPEphrase">Rfc5322.phrase</a> ]<br>        as 'content)<br>       list -> (<a href="Content.html#TYPEt">Content.t</a>, 'content list, 'r) <a href="Decoder.html#TYPEk2">Decoder.k2</a></code></pre></body></html>

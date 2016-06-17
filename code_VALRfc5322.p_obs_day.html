@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -42,6 +43,6 @@
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_obs_day&nbsp;p&nbsp;=
 &nbsp;&nbsp;p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(1&nbsp;*&nbsp;2)&nbsp;is_digit
+&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(1&nbsp;*&nbsp;2)&nbsp;(<span class="keyword">function</span>&nbsp;<span class="string">'0'</span>&nbsp;..&nbsp;<span class="string">'9'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>)
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_cfws
 &nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(int_of_string&nbsp;d)</code></body></html>

@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -41,7 +42,11 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_dot_atom_text&nbsp;p&nbsp;=
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_dot_atom_text\n%!"</span>];
+
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;next&nbsp;acc&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_dot_atom_text/next\n%!"</span>];
+
 &nbsp;&nbsp;&nbsp;&nbsp;cur_chr
 &nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'.'</span>&nbsp;<span class="keywordsign">-&gt;</span>

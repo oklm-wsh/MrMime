@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -41,56 +42,75 @@
 </head>
 <body>
 <code class="code">let p_decode stop p state =
-  [%debug Printf.printf "state: p_decode (QuotedPrintable)\n%!"];
+  let is_lwsp_char = function '\x09' | '\x20' -> true | _ -> false in
 
   let buf = Buffer.create 16 in
 
+  let rec try_stop k' = function
+    | `Stop state -> p (Buffer.contents buf) state
+    | `Continue state -> k' state
+    | `Read (buf, off, len, k) ->
+      `Read (buf, off, len, (fun i -> try_stop k' (safe k i)))
+    | #Error.err as err -> err
+  in
+
   let rec decode state =
-    let rec aux = function
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
-      | `Stop state ->
-        [%debug Printf.printf "state: p_decode (QuotedPrintable) end\n%!"];
+    match peek_chr state with
+    | Some '=' ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) equal\n%!"];
 
-        p (Buffer.contents buf) state
-      | `Continue state ->
-        (cur_chr @ function
-         | '=' ->
-           [%debug Printf.printf "state: p_decode (QuotedPrintable) =\n%!"];
+      junk_chr
+       (fun state -> p_try is_hex_octet
+         (fun n state ->
+          if n >= 2
+          then (2 * 2) is_hex_octet
+                (fun s state ->
+                 [%debug Printf.printf "state: p_decode (QuotedPrintable) [=%s]\n%!" s];
+                 F.add_char buf (F.hex s); (decode[@tailcall]) state)
+                state
+          else try_stop
+                 (fun state ->
+                  p_chr '\r' (* soft line-breaks *)
+                   (fun state -> p_chr '\n' (fun state -> (decode[@tailcall]) state) state)
+                    state)
+                 (stop state))
+        state)
+      state
+    | Some '\x20' | Some '\x09' ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
 
-           junk_chr
-           @ p_try is_hex_octet
-           @ fun n ->
-             if n >= 2
-             then (2 * 2) is_hex_octet
-                  @ fun s ->
-                      F.add_char buf (F.hex s);
-                      decode
-             else p_chr '\r' (* soft line-breaks *)
-                  @ p_chr '\n'
-                  @ decode
-         | '\x20' | '\x09' ->
-           [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
+      p_while is_lwsp_char
+       (fun lwsp state -> cur_chr (fun chr state -> match chr with
+        | '\r' ->
+          try_stop
+            (fun state ->
+             p_chr '\r' (* line-breaks *)
+              (fun state -> p_chr '\n' (fun state -> F.add_newline buf; (decode[@tailcall]) state) state)
+               state)
+            (stop state)
+        | chr  -> F.add_string buf lwsp; (decode[@tailcall]) state) state)
+      state
+    | Some '\r' ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) CRLF\n%!"];
 
-           p_while Rfc822.is_lwsp
-           @ fun lwsp -> cur_chr
-           @ (function
-              | '\r' -> p_chr '\r'
-                        @ p_chr '\n'
-                        @ fun state -> F.add_newline buf; decode state
-              | chr -> F.add_string buf lwsp; decode)
-         | '\r' ->
-           p_chr '\r' (* line-breaks *)
-           @ p_chr '\n'
-           @ fun state ->
-             F.add_newline buf;
-             decode state
-         | chr when is_safe_char chr  ->
-           F.add_char buf chr; junk_chr @ decode
-         | chr -> junk_chr @ decode)
-        state
-    in aux (safe stop state)
+      try_stop
+       (fun state ->
+        p_chr '\r' (* line-breaks *)
+         (fun state -> p_chr '\n' (fun state -> F.add_newline buf; (decode[@tailcall]) state) state)
+          state)
+       (stop state)
+    | Some chr when is_safe_char chr  ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) [%S]\n%!" (String.make 1 chr)];
+
+      F.add_char buf chr; junk_chr (fun state -> (decode[@tailcall]) state) state
+    | Some chr ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) unsafe char\n%!"];
+
+      junk_chr (fun state -> (decode[@tailcall]) state) state
+    | None ->
+      [%debug Printf.printf "state: p_decode (QuotedPrintable) end\n%!"];
+
+      p (Buffer.contents buf) state
   in
 
   decode state</code></body></html>

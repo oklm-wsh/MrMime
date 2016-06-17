@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,8 +41,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2046.p_transport_padding</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;p_transport_padding&nbsp;p&nbsp;=
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_transport_padding\n%!"</span>];
+<code class="code">let p_transport_padding p =
+  [%debug Printf.printf "state: p_transport_padding\n%!"];
 
-&nbsp;&nbsp;(0&nbsp;*&nbsp;0)&nbsp;<span class="constructor">Rfc822</span>.is_lwsp
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_transport_padding&nbsp;end\n%!"</span>];&nbsp;p&nbsp;state</code></body></html>
+  (0 * 0) (function '\x09' | '\x20' -> true | _ -> false)
+  @ fun _ state -> [%debug Printf.printf "state: p_transport_padding end\n%!"]; p state</code></body></html>

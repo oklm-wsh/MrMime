@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -54,7 +55,7 @@
 
 &nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;n&nbsp;state&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;peek_chr&nbsp;state&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;most&nbsp;n&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keyword">when</span>&nbsp;f&nbsp;chr&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;most&nbsp;(n&nbsp;+&nbsp;1)&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buf&nbsp;chr;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr&nbsp;(loop&nbsp;(n&nbsp;+&nbsp;1))&nbsp;state
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>

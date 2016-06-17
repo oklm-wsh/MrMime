@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -47,10 +48,10 @@
 
   let rec to_stop = function
     | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> to_stop @@ safe k i))
+      `Read (buf, off, len, (fun i -> to_stop @@ safe k i))
     | #Error.err as err -> err
     | `Stop state -> p (Buffer.contents buf) state
-    | `Continue state -> (junk_chr @ (fun state -> to_stop (stop state))) state
+    | `Continue state -> (junk_chr @ fun state -> to_stop (stop state)) state
   in
 
   let rec decode base64 padding state =
@@ -78,7 +79,7 @@
     | Some '\r' ->
       [%debug Printf.printf "state: p_decode (Base64) CLRF\n%!"];
 
-      (p_chr '\r' @ p_chr '\n' @ decode base64 padding) state
+      (p_chr '\r' @ p_chr '\n' @ (decode[@taillcall]) base64 padding) state
     | Some chr ->
       [%debug Printf.printf "state: p_decode (Base64) stop\n%!"];
 

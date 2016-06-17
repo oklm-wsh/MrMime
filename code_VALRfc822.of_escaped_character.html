@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,12 +41,12 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc822.of_escaped_character</title>
 </head>
 <body>
-<code class="code">let of_escaped_character = function
-  | 'a' -> '\x07'
-  | 'b' -> '\b'
-  | 't' -> '\t'
-  | 'n' -> '\n'
-  | 'v' -> '\x0b'
-  | 'f' -> '\x0c'
-  | 'r' -> '\r'
-  | chr -> chr</code></body></html>
+<code class="code"><span class="keyword">let</span>&nbsp;of_escaped_character&nbsp;p&nbsp;uchar&nbsp;state&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;uchar&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0x61&nbsp;<span class="comment">(*&nbsp;a&nbsp;*)</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;0x07&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0x62&nbsp;<span class="comment">(*&nbsp;b&nbsp;*)</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;0x08&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0x74&nbsp;<span class="comment">(*&nbsp;t&nbsp;*)</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;0x09&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0x6E&nbsp;<span class="comment">(*&nbsp;n&nbsp;*)</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;0x0A&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0x76&nbsp;<span class="comment">(*&nbsp;v&nbsp;*)</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;0x0B&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0x66&nbsp;<span class="comment">(*&nbsp;f&nbsp;*)</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;0x0C&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0x72&nbsp;<span class="comment">(*&nbsp;r&nbsp;*)</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;0x0D&nbsp;state
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;chr&nbsp;state</code></body></html>

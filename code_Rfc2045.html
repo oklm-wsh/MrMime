@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,269 +41,285 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc2045</title>
 </head>
 <body>
-<code class="code"><span class="keyword">open</span>&nbsp;<span class="constructor">BaseDecoder</span>
+<code class="code">open BaseDecoder
 
-<span class="keyword">type</span>&nbsp;discrete&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span>&nbsp;]
-<span class="keyword">type</span>&nbsp;composite&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>&nbsp;]
-<span class="keyword">type</span>&nbsp;other&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;]
-<span class="keyword">type</span>&nbsp;ty&nbsp;=&nbsp;[&nbsp;discrete&nbsp;<span class="keywordsign">|</span>&nbsp;composite&nbsp;<span class="keywordsign">|</span>&nbsp;other&nbsp;]
+type discrete =
+  [ `Application
+  | `Audio
+  | `Image
+  | `Text
+  | `Video ]
+type composite =
+  [ `Message
+  | `Multipart ]
+type other =
+  [ `Ietf_token of string
+  | `X_token of string ]
+type ty = [ discrete | composite | other ]
 
-<span class="keyword">type</span>&nbsp;subty&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Iana_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;]
+type subty =
+  [ `Ietf_token of string
+  | `Iana_token of string
+  | `X_token of string ]
 
-<span class="keyword">type</span>&nbsp;value&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;<span class="keyword">of</span>&nbsp;string
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;]
+type value =
+  [ `String of string
+  | `Token of string ]
 
-<span class="keyword">type</span>&nbsp;content&nbsp;=&nbsp;ty&nbsp;*&nbsp;subty&nbsp;*&nbsp;(string&nbsp;*&nbsp;value)&nbsp;list
-<span class="keyword">type</span>&nbsp;version&nbsp;=&nbsp;int&nbsp;*&nbsp;int
-<span class="keyword">type</span>&nbsp;encoding&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit7</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit8</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Binary</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">QuotedPrintable</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;]
-<span class="keyword">type</span>&nbsp;id&nbsp;=&nbsp;<span class="constructor">Rfc822</span>.msg_id
+type content = ty * subty * (string * value) list
+type version = int * int
+type encoding =
+  [ `Base64
+  | `Bit7
+  | `Bit8
+  | `Binary
+  | `QuotedPrintable
+  | `Ietf_token of string
+  | `X_token of string ]
+type id = Rfc822.msg_id
 
-<span class="keyword">type</span>&nbsp;field&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;<span class="keyword">of</span>&nbsp;content
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;<span class="keyword">of</span>&nbsp;encoding
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;<span class="keyword">of</span>&nbsp;id
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;<span class="keyword">of</span>&nbsp;string
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;]
+type field =
+  [ `ContentType of content
+  | `ContentEncoding of encoding
+  | `ContentID of id
+  | `ContentDescription of Rfc5322.phrase
+  | `Content of string * Rfc5322.phrase
+  | `Unsafe of string * Rfc5322.phrase ]
 
-<span class="keyword">type</span>&nbsp;mime_field&nbsp;=
-&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">MimeVersion</span>&nbsp;<span class="keyword">of</span>&nbsp;int&nbsp;*&nbsp;int&nbsp;]
+type mime_field =
+  [ `MimeVersion of int * int ]
 
-<span class="keyword">let</span>&nbsp;value_to_string&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;s
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;s&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;s
+let value_to_string = function
+  | `String s -> s
+  | `Token s  -> s
 
-<span class="keyword">let</span>&nbsp;is_tspecials&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'('</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">')'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&lt;'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'&gt;'</span>&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'@'</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">','</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">':'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'\\'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'"'</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'/'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'['</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">']'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'?'</span>&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'='</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">true</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">false</span>
+let is_tspecials = function
+  | '(' | ')' | '<' | '>'  | '@'
+  | ',' | ';' | ':' | '\\' | '"'
+  | '/' | '[' | ']' | '?'  | '=' -> true
+  | _ -> false
 
-<span class="keyword">let</span>&nbsp;is_token&nbsp;chr&nbsp;=
-&nbsp;&nbsp;not&nbsp;(is_tspecials&nbsp;chr)
-&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(<span class="constructor">Rfc822</span>.is_ctl&nbsp;chr)
-&nbsp;&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;not&nbsp;(<span class="constructor">Rfc822</span>.is_space&nbsp;chr)
+let is_token chr =
+  let is_ctl = function '\000' .. '\031' -> true | _ -> false in
+  let is_space = (=) ' ' in
+  not (is_tspecials chr)
+  && not (is_ctl chr)
+  && not (is_space chr)
 
-<span class="keyword">let</span>&nbsp;p_token&nbsp;p&nbsp;state&nbsp;=&nbsp;p_while&nbsp;is_token&nbsp;p&nbsp;state
+(* XXX: we don't handle an utf-8 token! *)
+let p_token p state = p_while is_token p state
 
-<span class="keyword">let</span>&nbsp;p_attribute&nbsp;p&nbsp;state&nbsp;=&nbsp;p_token&nbsp;(<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">String</span>.lowercase_ascii&nbsp;token))&nbsp;state
+(* XXX: same as [p_token]. *)
+let p_attribute p state = p_token (fun token -> p (String.lowercase_ascii token)) state
 
-<span class="keyword">let</span>&nbsp;p_ietf_token&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_token
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;token)
+let p_ietf_token p =
+  p_token
+  @ fun token -> p (`Ietf_token token)
 
-<span class="keyword">let</span>&nbsp;p_iana_token&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_token
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Iana_token</span>&nbsp;token)
+let p_iana_token p =
+  p_token
+  @ fun token -> p (`Iana_token token)
 
-<span class="keyword">let</span>&nbsp;p_x_token&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_set&nbsp;[<span class="string">'X'</span>;&nbsp;<span class="string">'x'</span>]
-&nbsp;&nbsp;@&nbsp;p_chr&nbsp;<span class="string">'-'</span>
-&nbsp;&nbsp;@&nbsp;p_token
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;token)
+let p_x_token p =
+  p_set ['X'; 'x']
+  @ p_chr '-'
+  @ p_token
+  @ fun token -> p (`X_token token)
 
-<span class="keyword">let</span>&nbsp;p_extension_token&nbsp;p&nbsp;=
-&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'X'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'x'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_x_token&nbsp;p
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_ietf_token&nbsp;p
+let p_extension_token p =
+  cur_chr @ function
+  | 'X' | 'x' -> p_x_token p
+  | chr       -> p_ietf_token p
 
-<span class="keyword">let</span>&nbsp;p_composite_type&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"message"</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"multipart"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token
+let p_composite_type p =
+  p_token @ function
+  | "message"   -> p `Message
+  | "multipart" -> p `Multipart
+  | extension_token ->
+    roll_back (p_extension_token p) extension_token
 
-<span class="keyword">let</span>&nbsp;p_discrete_type&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"text"</span>&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"image"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"audio"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"video"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"application"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token
+let p_discrete_type p =
+  p_token @ function
+  | "text"  -> p `Text
+  | "image" -> p `Image
+  | "audio" -> p `Audio
+  | "video" -> p `Video
+  | "application" -> p `Application
+  | extension_token ->
+    roll_back (p_extension_token p) extension_token
 
-<span class="keyword">let</span>&nbsp;p_msg_id&nbsp;=&nbsp;<span class="constructor">Rfc822</span>.p_msg_id
+let p_msg_id = Rfc822.p_msg_id
 
-<span class="keyword">let</span>&nbsp;p_type&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase_ascii&nbsp;token&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;discrete-type&nbsp;*)</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"text"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"image"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"audio"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"video"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"application"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;composite-type&nbsp;*)</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"message"</span>&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"multipart"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>
-&nbsp;&nbsp;<span class="comment">(*&nbsp;extension-type&nbsp;*)</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token
+let p_type p =
+  p_token @ fun token -> match String.lowercase_ascii token with
+  (* discrete-type *)
+  | "text" -> p `Text
+  | "image" -> p `Image
+  | "audio" -> p `Audio
+  | "video" -> p `Video
+  | "application" -> p `Application
+  (* composite-type *)
+  | "message"   -> p `Message
+  | "multipart" -> p `Multipart
+  (* extension-type *)
+  | extension_token ->
+    roll_back (p_extension_token p) extension_token
 
-<span class="keyword">let</span>&nbsp;ty_to_string&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Text</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"text"</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Image</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"image"</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Audio</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"audio"</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Video</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"video"</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Application</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"application"</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Message</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"message"</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Multipart</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="string">"multipart"</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;s&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ietf_token</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;s
+let ty_to_string = function
+  | `Text -> "text"
+  | `Image -> "image"
+  | `Audio -> "audio"
+  | `Video -> "video"
+  | `Application -> "application"
+  | `Message -> "message"
+  | `Multipart -> "multipart"
+  | `X_token s | `Ietf_token s -> s
 
-<span class="keyword">let</span>&nbsp;p_subtype&nbsp;ty&nbsp;p&nbsp;=
-&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'X'</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">'x'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_extension_token&nbsp;p
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;p_token
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;<span class="constructor">Iana</span>.<span class="constructor">Map</span>.find&nbsp;ty&nbsp;<span class="constructor">Iana</span>.mtype
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&gt;&nbsp;<span class="constructor">Iana</span>.<span class="constructor">Set</span>.find&nbsp;token
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&gt;&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Iana_token</span>&nbsp;value)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;exn&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">X_token</span>&nbsp;token)
+let p_subtype ty p =
+  cur_chr @ function
+  | 'X' | 'x' -> p_extension_token p
+  | chr       ->
+    p_token
+    @ fun token ->
+      try Iana.Map.find ty Iana.mtype
+          |> Iana.Set.find token
+          |> fun value -> p (`Iana_token value)
+      with exn -> p (`X_token token)
 
-<span class="keyword">let</span>&nbsp;p_value&nbsp;p&nbsp;=
-&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_quoted_string&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state)))
-&nbsp;&nbsp;/&nbsp;(p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;token))
-&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;data&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;data))
+let p_value p =
+  (Rfc822.p_quoted_string (fun data state -> `Ok (data, state)))
+  / (p_token @ fun token -> p (`Token token))
+  @ (fun data -> p (`String data))
 
-<span class="keyword">let</span>&nbsp;p_parameter&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_attribute
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;name&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'='</span>
-&nbsp;&nbsp;@&nbsp;p_value
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(name,&nbsp;value)
+(* XXX: from RFC 2045 *)
+let is_bcharsnospace = function
+  | '\'' | '(' | ')' | '+' | '_' | ','
+  | '-' | '.' | '/' | ':' | '=' | '?' -> true
+  | 'a' .. 'z' | 'A' .. 'Z' -> true
+  | '0' .. '9' -> true
+  | _ -> false
 
-<span class="keyword">let</span>&nbsp;p_content&nbsp;p&nbsp;=
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;p&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;acc&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cur_chr&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;junk_chr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="constructor">Rfc822</span>.p_fws
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_parameter
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;parameter&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_fws
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;aux&nbsp;(parameter&nbsp;::&nbsp;acc)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+let p_boundary p =
+  (Rfc822.p_quoted_string (fun data state -> `Ok (data, state)))
+  / ((p_while is_bcharsnospace) @ fun token -> p (`Token token))
+  @ (fun data -> p (`String data))
 
-&nbsp;&nbsp;&nbsp;&nbsp;aux&nbsp;[]
-&nbsp;&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_type
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;ty&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'/'</span>
-&nbsp;&nbsp;@&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_subtype&nbsp;(ty_to_string&nbsp;ty)
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;subty&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;cur_chr
-&nbsp;&nbsp;@&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">';'</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;parameters&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(ty,&nbsp;subty,&nbsp;parameters)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(ty,&nbsp;subty,&nbsp;[])
+let p_parameter p =
+  p_attribute
+  @ fun name -> p_chr '='
+  @ (if name = "boundary" then p_boundary else p_value)
+  @ fun value -> p (name, value)
 
-<span class="keyword">let</span>&nbsp;p_version&nbsp;p&nbsp;=
-&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_while&nbsp;<span class="constructor">Rfc822</span>.is_digit
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">let</span>&nbsp;a&nbsp;=&nbsp;int_of_string&nbsp;a&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">'.'</span>
-&nbsp;&nbsp;@&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_while&nbsp;<span class="constructor">Rfc822</span>.is_digit
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;b&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">let</span>&nbsp;b&nbsp;=&nbsp;int_of_string&nbsp;b&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;(a,&nbsp;b)
+let p_content p =
+  let rec loop p =
+    let rec aux acc =
+      cur_chr @ function
+      | ';' ->
+        junk_chr
+        @ Rfc822.p_fws
+        @ fun _ _ -> p_parameter
+        @ fun parameter -> Rfc822.p_fws
+        @ fun _ _ -> aux (parameter :: acc)
+      | chr -> p (List.rev acc)
+    in
 
-<span class="keyword">let</span>&nbsp;p_mechanism&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_token&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;token&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">String</span>.lowercase_ascii&nbsp;token&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"7bit"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit7</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"8bit"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Bit8</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"binary"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Binary</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"quoted-printable"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">QuotedPrintable</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"base64"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;extension_token&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mechanism&nbsp;(ext&nbsp;token):&nbsp;%S\n%!"</span>&nbsp;extension_token];
-&nbsp;&nbsp;&nbsp;&nbsp;roll_back&nbsp;(p_extension_token&nbsp;p)&nbsp;extension_token
+    aux []
+  in
+  Rfc822.p_cfws
+  @ fun _ -> p_type
+  @ fun ty -> p_chr '/'
+  @ Rfc822.p_cfws
+  @ fun _ -> p_subtype (ty_to_string ty)
+  @ fun subty -> Rfc822.p_cfws
+  @ fun _ -> cur_chr
+  @ function
+    | ';' -> loop @ fun parameters -> Rfc822.p_cfws @ fun _ -> p (ty, subty, parameters)
+    | chr -> p (ty, subty, [])
 
-<span class="keyword">let</span>&nbsp;p_encoding&nbsp;p&nbsp;=
-&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_mechanism
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;e
+let p_version p =
+  Rfc822.p_cfws
+  @ fun _ -> p_while (function '0' .. '9' -> true | _ -> false)
+  @ fun a -> let a = int_of_string a in Rfc822.p_cfws
+  @ fun _ -> p_chr '.'
+  @ Rfc822.p_cfws
+  @ fun _ -> p_while (function '0' .. '9' -> true | _ -> false)
+  @ fun b -> let b = int_of_string b in Rfc822.p_cfws
+  @ fun _ -> p (a, b)
 
-<span class="keyword">let</span>&nbsp;p_id&nbsp;p&nbsp;=
-&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_msg_id
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_cfws
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p&nbsp;m
+let p_mechanism p =
+  p_token @ fun token -> match String.lowercase_ascii token with
+  | "7bit" -> p `Bit7
+  | "8bit" -> p `Bit8
+  | "binary" -> p `Binary
+  | "quoted-printable" -> p `QuotedPrintable
+  | "base64" -> p `Base64
+  | extension_token ->
+    [%debug Printf.printf "state: p_mechanism (ext token): %S\n%!" extension_token];
+    roll_back (p_extension_token p) extension_token
 
-<span class="keyword">let</span>&nbsp;p_field&nbsp;?(unsafe&nbsp;=&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;p&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc5322</span>.p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;(field,&nbsp;l))))&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p&nbsp;=
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_field&nbsp;(RFC&nbsp;2045)&nbsp;%s\n%!"</span>&nbsp;field];
+let p_encoding p =
+  Rfc822.p_cfws
+  @ fun _ -> p_mechanism
+  @ fun e -> Rfc822.p_cfws
+  @ fun _ -> p e
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;field&nbsp;=&nbsp;<span class="constructor">String</span>.lowercase_ascii&nbsp;field&nbsp;<span class="keyword">in</span>
+let p_id p =
+  Rfc822.p_cfws
+  @ fun _ -> Rfc822.p_msg_id
+  @ fun m -> Rfc822.p_cfws
+  @ fun _ -> p m
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;rule&nbsp;p&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-type"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_content&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;c&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentType</span>&nbsp;c)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-transfer-encoding"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_encoding&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;e&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentEncoding</span>&nbsp;e)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-id"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_id&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;i&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentID</span>&nbsp;i)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"content-description"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_text&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">ContentDescription</span>&nbsp;s)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;XXX:&nbsp;the&nbsp;optionnal-field&nbsp;[fields]&nbsp;is&nbsp;handle&nbsp;by&nbsp;RFC&nbsp;822&nbsp;or&nbsp;RFC&nbsp;5322.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in&nbsp;this&nbsp;case,&nbsp;we&nbsp;raise&nbsp;an&nbsp;error.&nbsp;*)</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;<span class="constructor">String</span>.length&nbsp;field&nbsp;&gt;=&nbsp;8&nbsp;<span class="keywordsign">&amp;&amp;</span>&nbsp;<span class="constructor">String</span>.sub&nbsp;field&nbsp;0&nbsp;8&nbsp;=&nbsp;<span class="string">"content-"</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;(<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"WE&nbsp;HAVE&nbsp;CONTENT:&nbsp;%s\n%!"</span>&nbsp;field;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;field&nbsp;=&nbsp;<span class="constructor">String</span>.sub&nbsp;field&nbsp;8&nbsp;(<span class="constructor">String</span>.length&nbsp;field&nbsp;-&nbsp;8)&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(extend_mime&nbsp;field&nbsp;@&nbsp;ok)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(<span class="constructor">Rfc5322</span>.p_unstructured&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;value&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"YES,&nbsp;CONTENT\n%!"</span>;&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">Content</span>&nbsp;(field,&nbsp;value))&nbsp;state)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;extend&nbsp;field&nbsp;p
-&nbsp;&nbsp;<span class="keyword">in</span>
+let p_field ?(unsafe = (fun field p -> Rfc5322.p_unstructured @ fun l -> Rfc822.p_crlf @ p (`Unsafe (field, l)))) extend_mime extend field p =
+  [%debug Printf.printf "state: p_field (RFC 2045) %s\n%!" field];
 
-&nbsp;&nbsp;(rule&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(field,&nbsp;state))
-&nbsp;&nbsp;/&nbsp;(unsafe&nbsp;field&nbsp;p)
-&nbsp;&nbsp;@&nbsp;p
+  let field = String.lowercase_ascii field in
 
-<span class="keyword">let</span>&nbsp;p_entity_headers&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;p&nbsp;=
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_entity_header\n%!"</span>];
+  let rule p =
+    match field with
+    | "content-type" -> p_content @ fun c -> Rfc822.p_crlf @ p (`ContentType c)
+    | "content-transfer-encoding" -> p_encoding @ fun e -> Rfc822.p_crlf @ p (`ContentEncoding e)
+    | "content-id" -> p_id @ fun i -> Rfc822.p_crlf @ p (`ContentID i)
+    | "content-description" -> Rfc5322.p_unstructured @ fun l -> Rfc822.p_crlf @ p (`ContentDescription l)
+    | field ->
+      (* XXX: the optionnal-field [fields] is handle by RFC 822 or RFC 5322.
+              in this case, we raise an error. *)
+      if String.length field >= 8 && String.sub field 0 8 = "content-"
+      then let field = String.sub field 8 (String.length field - 8) in
+           (extend_mime field @ ok)
+           / (Rfc5322.p_unstructured @ fun value ->
+              Rfc822.p_crlf @ p (`Content (field, value)))
+           @ p
+      else extend field p
+  in
 
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;loop&nbsp;acc&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc822</span>.p_field_name
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(0&nbsp;*&nbsp;0)&nbsp;<span class="constructor">Rfc822</span>.is_lwsp
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_chr&nbsp;<span class="string">':'</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;p_field&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;field
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;data&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Ok</span>&nbsp;(data,&nbsp;state))
-&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(p&nbsp;(<span class="constructor">List</span>.rev&nbsp;acc))
-&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;(<span class="keyword">fun</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;loop&nbsp;(field&nbsp;::&nbsp;acc))
-&nbsp;&nbsp;<span class="keyword">in</span>
+  (rule @ fun field state -> `Ok (field, state))
+  / (unsafe field p)
+  @ p
 
-&nbsp;&nbsp;loop&nbsp;[]
+let p_entity_headers ?unsafe extend_mime extend p =
+  [%debug Printf.printf "state: p_entity_header\n%!"];
 
-<span class="keyword">let</span>&nbsp;p_mime_message_headers&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p&nbsp;=
-&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_mime_message_header\n%!"</span>];
+  let rec loop acc =
+    (Rfc822.p_field_name
+     @ fun field -> (0 * 0) (function '\x09' | '\x20' -> true | _ -> false)
+     @ fun _ -> p_chr ':'
+     @ p_field ?unsafe extend_mime extend field
+     @ fun data state -> `Ok (data, state))
+    / (p (List.rev acc))
+    @ (fun field -> loop (field :: acc))
+  in
 
-&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;field&nbsp;<span class="keyword">with</span>
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="string">"mime-version"</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_version&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Rfc822</span>.p_crlf&nbsp;@&nbsp;p&nbsp;(<span class="keywordsign">`</span><span class="constructor">MimeVersion</span>&nbsp;v)
-&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;p_field&nbsp;?unsafe&nbsp;extend_mime&nbsp;extend&nbsp;field&nbsp;p
+  loop []
 
-<span class="keyword">let</span>&nbsp;p_mime_part_headers&nbsp;=&nbsp;p_entity_headers
+let p_mime_message_headers ?unsafe extend_mime extend field p =
+  [%debug Printf.printf "state: p_mime_message_header\n%!"];
 
-<span class="keyword">module</span>&nbsp;<span class="constructor">Base64</span>&nbsp;=&nbsp;<span class="constructor">Base64</span>
-<span class="keyword">module</span>&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;=&nbsp;<span class="constructor">QuotedPrintable</span>
+  match field with
+  | "mime-version" -> p_version @ fun v -> Rfc822.p_crlf @ p (`MimeVersion v)
+  | field -> p_field ?unsafe extend_mime extend field p
+
+let p_mime_part_headers = p_entity_headers
+
+module Base64 = Base64
+module QuotedPrintable = QuotedPrintable
 </code></body></html>

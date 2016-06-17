@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -64,7 +65,7 @@
     then match String.get content idx with
          | '\x20' ->
            if recognize_newline (idx + 1)
-           then T.add_newline (Some '\x20') @@ loop (idx + 2) k
+           then T.add_newline (Some '\x20') @@ loop (idx + 2) k (* TODO: +2 only if the newline is LF (+3 if it's CRLF on windows) *)
            else T.add_wsp `Space @@ loop (idx + 1) k
          | '\x09' ->
            if recognize_newline (idx + 1)

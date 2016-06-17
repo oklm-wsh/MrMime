@@ -29,6 +29,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -153,6 +154,8 @@
 <td></td></tr>
 <tr><td><a href="Error.html#VALerr_invalid_tag">err_invalid_tag</a> [<a href="Error.html">Error</a>]</td>
 <td></td></tr>
+<tr><td><a href="Error.html#VALerr_malformed_sequence">err_malformed_sequence</a> [<a href="Error.html">Error</a>]</td>
+<td></td></tr>
 <tr><td><a href="Error.html#VALerr_nothing_to_do">err_nothing_to_do</a> [<a href="Error.html">Error</a>]</td>
 <td></td></tr>
 <tr><td><a href="Error.html#VALerr_unexpected">err_unexpected</a> [<a href="Error.html">Error</a>]</td>
@@ -204,33 +207,15 @@
 <tr><td><a href="QuotedPrintable.F.html#VALhex">hex</a> [<a href="QuotedPrintable.F.html">QuotedPrintable.F</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>I</td></tr>
-<tr><td><a href="Rfc822.html#VALis_alpha">is_alpha</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_atext">is_atext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
 <tr><td><a href="Rfc2046.html#VALis_bchars">is_bchars</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2046.html#VALis_bcharsnospace">is_bcharsnospace</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
 <td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_cr">is_cr</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<tr><td><a href="Rfc2045.html#VALis_bcharsnospace">is_bcharsnospace</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
 <td></td></tr>
 <tr><td><a href="Newline.html#VALis_crlf">is_crlf</a> [<a href="Newline.html">Newline</a>]</td>
 <td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_ctext">is_ctext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_ctl">is_ctl</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_d0">is_d0</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
 <tr><td><a href="Rfc5321.html#VALis_dcontent">is_dcontent</a> [<a href="Rfc5321.html">Rfc5321</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_digit">is_digit</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_dquote">is_dquote</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc5322.html#VALis_dtext">is_dtext</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_dtext">is_dtext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2047.html#VALis_especials">is_especials</a> [<a href="Rfc2047.html">Rfc2047</a>]</td>
 <td></td></tr>
@@ -238,21 +223,9 @@
 <td></td></tr>
 <tr><td><a href="QuotedPrintable.html#VALis_hex_octet">is_hex_octet</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
 <td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_lf">is_lf</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
 <tr><td><a href="Newline.html#VALis_lf">is_lf</a> [<a href="Newline.html">Newline</a>]</td>
 <td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_lwsp">is_lwsp</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_obs_no_ws_ctl">is_obs_no_ws_ctl</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc5322.html#VALis_obs_utext">is_obs_utext</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_qtext">is_qtext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
 <tr><td><a href="QuotedPrintable.html#VALis_safe_char">is_safe_char</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_space">is_space</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc5322.html#VALis_specials">is_specials</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
 <td></td></tr>
@@ -260,15 +233,7 @@
 <td></td></tr>
 <tr><td><a href="Rfc2045.html#VALis_tspecials">is_tspecials</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
 <td></td></tr>
-<tr><td><a href="Rfc5322.html#VALis_valid_atext">is_valid_atext</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
-<td></td></tr>
 <tr><td><a href="Rfc2046.html#VALis_valid_bchars">is_valid_bchars</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc5322.html#VALis_vchar">is_vchar</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_vchar">is_vchar</a> [<a href="Rfc822.html">Rfc822</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc822.html#VALis_wsp">is_wsp</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>J</td></tr>
 <tr><td><a href="BaseDecoder.html#VALjunk_chr">junk_chr</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
@@ -305,6 +270,8 @@
 <tr><td><a href="BaseEncoder.html#VALnoop">noop</a> [<a href="BaseEncoder.html">BaseEncoder</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>O</td></tr>
+<tr><td><a href="Rfc822.html#VALo_vchar">o_vchar</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<td></td></tr>
 <tr><td><a href="Decoder.html#VALof_bytes">of_bytes</a> [<a href="Decoder.html">Decoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="Message.D.html#VALof_decoder">of_decoder</a> [<a href="Message.D.html">Message.D</a>]</td>
@@ -386,6 +353,8 @@
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALp_atext">p_atext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
+<tr><td><a href="Rfc6532.html#VALp_atext">p_atext</a> [<a href="Rfc6532.html">Rfc6532</a>]</td>
+<td></td></tr>
 <tr><td><a href="Rfc822.html#VALp_atom">p_atom</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2045.html#VALp_attribute">p_attribute</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
@@ -397,6 +366,8 @@
 <tr><td><a href="Rfc5322.html#VALp_body">p_body</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2046.html#VALp_body_part">p_body_part</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
+<td></td></tr>
+<tr><td><a href="Rfc2045.html#VALp_boundary">p_boundary</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALp_ccontent">p_ccontent</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
@@ -419,6 +390,8 @@
 <tr><td><a href="Rfc822.html#VALp_crlf">p_crlf</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALp_ctext">p_ctext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<td></td></tr>
+<tr><td><a href="Rfc6532.html#VALp_ctext">p_ctext</a> [<a href="Rfc6532.html">Rfc6532</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2046.html#VALp_dash_boundary">p_dash_boundary</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
 <td></td></tr>
@@ -456,9 +429,9 @@
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALp_dot_atom_text">p_dot_atom_text</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
-<tr><td><a href="Rfc5322.html#VALp_dtext">p_dtext</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
-<td></td></tr>
 <tr><td><a href="Rfc822.html#VALp_dtext">p_dtext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<td></td></tr>
+<tr><td><a href="Rfc6532.html#VALp_dtext">p_dtext</a> [<a href="Rfc6532.html">Rfc6532</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2046.html#VALp_encapsulation">p_encapsulation</a> [<a href="Rfc2046.html">Rfc2046</a>]</td>
 <td></td></tr>
@@ -592,6 +565,8 @@
 <td></td></tr>
 <tr><td><a href="Rfc5322.html#VALp_obs_unstruct">p_obs_unstruct</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
 <td></td></tr>
+<tr><td><a href="Rfc5322.html#VALp_obs_utext">p_obs_utext</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
+<td></td></tr>
 <tr><td><a href="Rfc5322.html#VALp_obs_year">p_obs_year</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc5322.html#VALp_obs_zone">p_obs_zone</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
@@ -619,6 +594,8 @@
 <tr><td><a href="QuotedPrintable.html#VALp_qp_segment">p_qp_segment</a> [<a href="QuotedPrintable.html">QuotedPrintable</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALp_qtext">p_qtext</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<td></td></tr>
+<tr><td><a href="Rfc6532.html#VALp_qtext">p_qtext</a> [<a href="Rfc6532.html">Rfc6532</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc822.html#VALp_quoted_pair">p_quoted_pair</a> [<a href="Rfc822.html">Rfc822</a>]</td>
 <td></td></tr>
@@ -648,7 +625,7 @@
 <td></td></tr>
 <tr><td><a href="Rfc2045.html#VALp_subtype">p_subtype</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
 <td></td></tr>
-<tr><td><a href="Rfc822.html#VALp_text">p_text</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<tr><td><a href="Rfc6532.html#VALp_text">p_text</a> [<a href="Rfc6532.html">Rfc6532</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc5322.html#VALp_time">p_time</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
 <td></td></tr>
@@ -673,6 +650,10 @@
 <tr><td><a href="Rfc5322.html#VALp_unstructured">p_unstructured</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2045.html#VALp_value">p_value</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
+<td></td></tr>
+<tr><td><a href="Rfc822.html#VALp_vchar">p_vchar</a> [<a href="Rfc822.html">Rfc822</a>]</td>
+<td></td></tr>
+<tr><td><a href="Rfc6532.html#VALp_vchar">p_vchar</a> [<a href="Rfc6532.html">Rfc6532</a>]</td>
 <td></td></tr>
 <tr><td><a href="Rfc2045.html#VALp_version">p_version</a> [<a href="Rfc2045.html">Rfc2045</a>]</td>
 <td></td></tr>
@@ -752,10 +733,6 @@
 <tr><td><a href="BaseDecoder.html#VALroll_back">roll_back</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>S</td></tr>
-<tr><td><a href="Rfc5322.html#VALs_vchar">s_vchar</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
-<td></td></tr>
-<tr><td><a href="Rfc5322.html#VALs_wsp">s_wsp</a> [<a href="Rfc5322.html">Rfc5322</a>]</td>
-<td></td></tr>
 <tr><td><a href="BaseDecoder.html#VALsafe">safe</a> [<a href="BaseDecoder.html">BaseDecoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="LiteralDomain.html#VALsize">size</a> [<a href="LiteralDomain.html">LiteralDomain</a>]</td>
@@ -798,6 +775,8 @@
 <tr><td><a href="Trace.html#VALto_field">to_field</a> [<a href="Trace.html">Trace</a>]</td>
 <td></td></tr>
 <tr><td><a href="Resent.html#VALto_field">to_field</a> [<a href="Resent.html">Resent</a>]</td>
+<td></td></tr>
+<tr><td><a href="Rfc6532.html#VALto_string">to_string</a> [<a href="Rfc6532.html">Rfc6532</a>]</td>
 <td></td></tr>
 <tr><td><a href="Message.html#VALto_string">to_string</a> [<a href="Message.html">Message</a>]</td>
 <td></td></tr>

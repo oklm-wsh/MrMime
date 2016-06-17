@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -40,8 +41,8 @@
 <link title="Grammar" rel="Chapter" href="Grammar.html"><title>QuotedPrintable.T.add_wsp</title>
 </head>
 <body>
-<code class="code"><span class="keyword">let</span>&nbsp;add_wsp&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Space</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add_char&nbsp;<span class="string">'&nbsp;'</span>&nbsp;$&nbsp;commit_word
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Tab</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add_char&nbsp;<span class="string">'\t'</span>&nbsp;$&nbsp;commit_word</code></body></html>
+<code class="code">let add_wsp = function
+    | `Space ->
+      add_char '\x20' $ commit_word
+    | `Tab ->
+      add_char '\x09' $ commit_word</code></body></html>

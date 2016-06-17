@@ -28,6 +28,7 @@
 <link title="Encoder" rel="Chapter" href="Encoder.html">
 <link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
 <link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
 <link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
@@ -41,14 +42,5 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;p_quoted_pair&nbsp;p&nbsp;=
-&nbsp;&nbsp;p_chr&nbsp;<span class="string">'\\'</span>
-&nbsp;&nbsp;@&nbsp;cur_chr
-&nbsp;&nbsp;@&nbsp;<span class="keyword">fun</span>&nbsp;chr&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>&nbsp;is_d0&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;is_obs_no_ws_ctl&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;is_lf&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;is_cr&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;is_vchar&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">||</span>&nbsp;is_wsp&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">then</span>&nbsp;junk_chr&nbsp;@&nbsp;p&nbsp;@&nbsp;of_escaped_character&nbsp;chr
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>&nbsp;<span class="keyword">fun</span>&nbsp;state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;raise&nbsp;(<span class="constructor">Error</span>.<span class="constructor">Error</span>&nbsp;(<span class="constructor">Error</span>.err_unexpected&nbsp;chr&nbsp;state))</code></body></html>
+&nbsp;&nbsp;[%debug&nbsp;<span class="constructor">Printf</span>.printf&nbsp;<span class="string">"state:&nbsp;p_quoted_pair\n%!"</span>];
+&nbsp;&nbsp;p_chr&nbsp;<span class="string">'\\'</span>&nbsp;@&nbsp;o_vchar&nbsp;@&nbsp;of_escaped_character&nbsp;p</code></body></html>
