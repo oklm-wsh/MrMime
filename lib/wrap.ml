@@ -234,6 +234,11 @@ let rec advance k fmt =
          advance k fmt)
         fmt
     end else k fmt
+  | exception Queue.Empty -> k fmt
+    (* XXX: [advance_left] catch this exception but, I don't know why,
+     * [Queue.Empty] escapes [advance_left] and fail the encoder. So, I catch
+     * this exception inside [advance] function and compute [k fmt] (like
+     * [advance_left] will do if he catches the exception). *)
 
 let advance_left k fmt =
   try advance k fmt
