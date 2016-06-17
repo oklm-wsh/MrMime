@@ -184,10 +184,10 @@ struct
          ; msg_id      = !msg_id
          ; in_reply_to = Option.value ~default:[] !in_reply_to
          ; references  = Option.value ~default:[] !references
-         ; resents     = !resents
-         ; traces      = !traces
-         ; comments    = !comments
-         ; keywords    = !keywords
+         ; resents     = List.rev !resents
+         ; traces      = List.rev !traces
+         ; comments    = List.rev !comments
+         ; keywords    = List.rev !keywords
          ; others      = List.rev !others
          ; unsafe      = List.rev !unsafe })
         fields state
