@@ -16,7 +16,8 @@ type error =
   | `Invalid_header
   | `Unexpected_field    of string
   | `Invalid_boundary    of string
-  | `Expected_boundary ]
+  | `Expected_boundary
+  | `Malformed_sequence ]
 
 type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
@@ -42,5 +43,6 @@ val err_invalid_header      : Decoder.t -> err
 val err_unexpected_field    : string -> Decoder.t -> err
 val err_invalid_boundary    : string -> Decoder.t -> err
 val err_expected_boundary   : Decoder.t -> err
+val err_malformed_sequence  : Decoder.t -> err
 
 val pp : Format.formatter -> error -> unit

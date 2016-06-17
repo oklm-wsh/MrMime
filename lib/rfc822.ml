@@ -64,6 +64,47 @@ let () = ()
 
    VCHAR           = %x21-7E            ; visible (printing) characters
 *)
+let p_vchar p state =
+  let is_vchar = function
+    | '\x21' .. '\x7e' -> true
+    | chr              -> false
+  in
+
+  let buf = Buffer.create 16 in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false
+    | `Uchar uchar ->
+      Uutf.Buffer.add_utf_8 buf uchar;
+      loop decoder
+    | `Malformed _ ->
+      if Buffer.length buf > 0
+      then p (Buffer.contents buf)
+      else fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      cur_chr @ function
+      | '\x00' .. '\x7F' as chr ->
+        if is_vchar chr
+        then begin Uutf.Buffer.add_utf_8 buf (Char.code chr); junk_chr @ loop decoder
+        end else if Buffer.length buf > 0
+        then p (Buffer.contents buf)
+        else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+      | uchr ->
+        Uutf.Manual.src decoder (String.make 1 uchr) 0 1; junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+  loop decoder state
+
+let of_escaped_character p uchar state = match uchar with
+  | 0x61 (* a *) -> p 0x07 state
+  | 0x62 (* b *) -> p 0x08 state
+  | 0x74 (* t *) -> p 0x09 state
+  | 0x6E (* n *) -> p 0x0A state
+  | 0x76 (* v *) -> p 0x0B state
+  | 0x66 (* f *) -> p 0x0C state
+  | 0x72 (* r *) -> p 0x0D state
+  | chr -> p chr state
 
 (* See RFC 5322 § 3.2.1:
 
@@ -258,8 +299,49 @@ let rec p_fws p state =
                    ")", "\" & CR, & including
                    linear-white-space>"
 *)
+let rec p_ctext p state =
+  let is_obs_no_ws_ctl = function
+    | '\001' .. '\008'
+    | '\011'
+    | '\012'
+    | '\014' .. '\031'
+    | '\127' -> true
+    | _ -> false
+  in
+  let is_ctext = function
+    | '\033' .. '\039'
+    | '\042' .. '\091'
+    | '\093' .. '\126' -> true
+    | chr -> is_obs_no_ws_ctl chr
+  in
 
-let rec p_ctext p state = p_while is_ctext p state
+  let buf = Buffer.create 16 in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false
+    | `Uchar uchar ->
+      Uutf.Buffer.add_utf_8 buf uchar;
+      loop decoder
+    | `Malformed _ ->
+      [%debug Printf.printf "state: p_ctext (Malformed)\n%!"];
+
+      if Buffer.length buf > 0
+      then p (Buffer.contents buf)
+      else fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      cur_chr @ function
+      | '\x00' .. '\x7F' as chr ->
+        if is_ctext chr
+        then begin Uutf.Buffer.add_utf_8 buf (Char.code chr); junk_chr @ loop decoder
+        end else if Buffer.length buf > 0
+        then p (Buffer.contents buf)
+        else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+      | uchr ->
+        Uutf.Manual.src decoder (String.make 1 uchr) 0 1; junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+  loop decoder state
 
 (* See RFC 5322 § 3.2.2:
 
@@ -344,8 +426,53 @@ let p_cfws p =
 
    <">         =  <ASCII quote mark>           ; (     42,      34. )"
 *)
+let p_qtext p state =
+  let is_obs_no_ws_ctl = function
+    | '\001' .. '\008'
+    | '\011'
+    | '\012'
+    | '\014' .. '\031'
+    | '\127' -> true
+    | _ -> false
+  in
+  let is_qtext = function
+    | '\033'
+    | '\035' .. '\091'
+    | '\093' .. '\126' -> true
+    | chr              -> is_obs_no_ws_ctl chr
+  in
 
-let p_qtext p state = p_while is_qtext p state
+  [%debug Printf.printf "state: p_qtext\n%!"];
+
+  let buf = Buffer.create 16 in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false
+    | `Uchar uchar ->
+      [%debug Printf.printf "state: p_qtext uchar (%d)\n%!" uchar];
+      Uutf.Buffer.add_utf_8 buf uchar;
+      loop decoder
+    | `Malformed _ ->
+      if Buffer.length buf > 0
+      then p (Buffer.contents buf)
+      else fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      cur_chr @ function
+      | '\x00' .. '\x7F' as chr ->
+        if is_qtext chr
+        then begin
+          [%debug Printf.printf "state: p_qtext char (%S)\n%!" (String.make 1 chr)];
+          Uutf.Buffer.add_utf_8 buf (Char.code chr);
+          junk_chr @ loop decoder
+        end else if Buffer.length buf > 0
+        then p (Buffer.contents buf)
+        else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+      | uchr ->
+        Uutf.Manual.src decoder (String.make 1 uchr) 0 1; junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+  loop decoder state
 
 (* See RFC 5322 § 3.2.4:
 
@@ -418,7 +545,61 @@ let p_quoted_string p =
                      "|" / "}" /
                      "~"
 *)
-let p_atext p state = p_while is_atext p state
+let p_atext p state =
+  [%debug Printf.printf "state: p_atext\n%!"];
+
+  let is_alpha = function
+    | '\x41' .. '\x5a'
+    | '\x61' .. '\x7A' -> true
+    | chr              -> false
+  in
+  let is_digit = function
+    | '\x30' .. '\x39' -> true
+    | chr              -> false
+  in
+  let is_atext = function
+    | '!' | '#'
+    | '$' | '%'
+    | '&' | '\''
+    | '*' | '+'
+    | '-' | '/'
+    | '=' | '?'
+    | '^' | '_'
+    | '`' | '{'
+    | '|' | '}'
+    | '~' -> true
+    | chr -> is_digit chr || is_alpha chr
+  in
+
+  let buf = Buffer.create 16 in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false
+    | `Uchar uchar ->
+      Uutf.Buffer.add_utf_8 buf uchar;
+      loop decoder
+    | `Malformed _ ->
+      if Buffer.length buf > 0
+      then p (Buffer.contents buf)
+      else fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      cur_chr @ function
+      | '\x00' .. '\x7F' as chr ->
+        [%debug Printf.printf "state: p_atext ascii char (%S)\n%!" (String.make 1 chr)];
+        if is_atext chr
+        then begin
+          [%debug Printf.printf "state: p_atext char (%S)\n%!" (String.make 1 chr)];
+          Uutf.Buffer.add_utf_8 buf (Char.code chr);
+          junk_chr @ loop decoder
+        end else if Buffer.length buf > 0
+        then p (Buffer.contents buf)
+        else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+      | uchr ->
+        Uutf.Manual.src decoder (String.make 1 uchr) 0 1; junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+  loop decoder state
 
 (* See RFC 5322 § 3.2.3:
 
@@ -560,25 +741,52 @@ let p_local_part p =
                    "]", %x5C & CR, & including
                    linear-white-space>
 *)
-
-let p_dtext p =
-  let rec loop acc =
-    cur_chr
-    @ function
-    | '\033' .. '\090'
-    | '\094' .. '\126' ->
-      p_while is_dtext
-      @ fun s -> loop (s :: acc)
-    | chr when is_obs_no_ws_ctl chr ->
-      p_while is_dtext
-      @ fun s -> loop (s :: acc)
-    | '\\' ->
-      p_quoted_pair
-      @ fun chr -> loop (String.make 1 chr :: acc)
-    | chr -> p (List.rev acc |> String.concat "")
+let p_dtext p state =
+  let is_obs_no_ws_ctl = function
+    | '\001' .. '\008'
+    | '\011'
+    | '\012'
+    | '\014' .. '\031'
+    | '\127' -> true
+    | _ -> false
   in
 
-  loop []
+  let is_dtext = function
+    | '\033' .. '\090'
+    | '\094' .. '\126' -> true
+    | chr -> is_obs_no_ws_ctl chr
+  in
+
+  let buf = Buffer.create 16 in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false
+    | `Uchar uchar ->
+      Uutf.Buffer.add_utf_8 buf uchar;
+      loop decoder
+    | `Malformed _ ->
+      if Buffer.length buf > 0
+      then p (Buffer.contents buf)
+      else fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      cur_chr @ function
+      | '\\' ->
+        p_quoted_pair @ fun uchar -> Uutf.Buffer.add_utf_8 buf uchar; loop decoder
+      | '\x00' .. '\x7F' as chr ->
+        if is_dtext chr
+        then begin
+          [%debug Printf.printf "state: p_atext char (%S)\n%!" (String.make 1 chr)];
+          Uutf.Buffer.add_utf_8 buf (Char.code chr);
+          junk_chr @ loop decoder
+        end else if Buffer.length buf > 0
+        then p (Buffer.contents buf)
+        else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+      | uchr ->
+        Uutf.Manual.src decoder (String.make 1 uchr) 0 1; junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+  loop decoder state
 
 (* See RFC 5322 § 4.4:
 

@@ -16,7 +16,8 @@ type error =
   | `Invalid_header
   | `Unexpected_field    of string
   | `Invalid_boundary    of string
-  | `Expected_boundary ]
+  | `Expected_boundary
+  | `Malformed_sequence ]
 
 let err e state                       = `Error
                                         (e, state.Decoder.buffer,
@@ -40,6 +41,7 @@ let err_invalid_header state          = err `Invalid_header state
 let err_unexpected_field field state  = err (`Unexpected_field field) state
 let err_invalid_boundary bound state  = err (`Invalid_boundary bound) state
 let err_expected_boundary state       = err `Expected_boundary state
+let err_malformed_sequence state      = err `Malformed_sequence state
 
 let p = Format.fprintf
 
@@ -73,6 +75,7 @@ let pp fmt = function
   | `Unexpected_field field  -> p fmt "Unexpected field [%s]" field
   | `Invalid_boundary bound  -> p fmt "Invalid boundary [%S]" bound
   | `Expected_boundary       -> p fmt "Expected boundary parameter"
+  | `Malformed_sequence      -> p fmt "Malformed sequence"
 
 type     err = [ `Error of error * string * int * int ]
 type 'a read = [ `Read of Bytes.t * int * int * (int -> 'a) ]
