@@ -113,7 +113,7 @@ let to_end_of_file k state =
     | n ->
       [%debug Printf.printf "state: to_end_of_file/continue [%d]\n%!" (off + n)];
 
-      if off + n >= Bytes.length state.buffer
+      if off + n >= Bytes.length state.buffer - 2
       then begin
         let new_buffer = Bytes.create (2 * Bytes.length state.buffer + 1) in
         Bytes.blit state.buffer 0 new_buffer 0 (Bytes.length state.buffer);
