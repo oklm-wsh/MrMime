@@ -126,23 +126,23 @@ let pp_field fmt field =
   in
 
   let rec pp_field fmt = function
-    | `From l -> pp fmt "@[<hov>From = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_person) l
-    | `Date d -> pp fmt "@[<hov>Date = %a@]" Date.pp d
-    | `Sender p -> pp fmt "@[<hov>Sender = %a@]" Address.pp_person p
-    | `ReplyTo l -> pp fmt "@[<hov>ReplyTo = %a@]" Address.List.pp l
-    | `To l -> pp fmt "@[<hov>To = %a@]" Address.List.pp l
-    | `Cc l -> pp fmt "@[<hov>Cc = %a@]" Address.List.pp l
-    | `Bcc l -> pp fmt "@[<hov>Bcc = %a@]" Address.List.pp l
-    | `Subject p -> pp fmt "@[<hov>Subject = %a@]" Address.pp_phrase p
-    | `Comments c -> pp fmt "@[<hov>Comments = %a@]" Address.pp_phrase c
-    | `Keywords l -> pp fmt "@[<hov>Keywords = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") Address.pp_phrase) l
-    | `MessageID m -> pp fmt "@[<hov>Messsage-ID = %a@]" MsgID.pp m
-    | `InReplyTo l -> pp fmt "@[<hov>InReplyTo = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux) l
-    | `References l -> pp fmt "@[<hov>References = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux) l
+    | `From l            -> pp fmt "@[<hov>From = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_person) l
+    | `Date d            -> pp fmt "@[<hov>Date = %a@]" Date.pp d
+    | `Sender p          -> pp fmt "@[<hov>Sender = %a@]" Address.pp_person p
+    | `ReplyTo l         -> pp fmt "@[<hov>ReplyTo = %a@]" Address.List.pp l
+    | `To l              -> pp fmt "@[<hov>To = %a@]" Address.List.pp l
+    | `Cc l              -> pp fmt "@[<hov>Cc = %a@]" Address.List.pp l
+    | `Bcc l             -> pp fmt "@[<hov>Bcc = %a@]" Address.List.pp l
+    | `Subject p         -> pp fmt "@[<hov>Subject = %a@]" Address.pp_phrase p
+    | `Comments c        -> pp fmt "@[<hov>Comments = %a@]" Address.pp_phrase c
+    | `Keywords l        -> pp fmt "@[<hov>Keywords = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") Address.pp_phrase) l
+    | `MessageID m       -> pp fmt "@[<hov>Messsage-ID = %a@]" MsgID.pp m
+    | `InReplyTo l       -> pp fmt "@[<hov>InReplyTo = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux) l
+    | `References l      -> pp fmt "@[<hov>References = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux) l
     | #Resent.field as x -> Resent.pp_field fmt x
-    | #Trace.field as x -> Trace.pp_field fmt x
-    | `Field (k, v) -> pp fmt "@[<hov>%s = %a@]" (String.capitalize_ascii k) Address.pp_phrase v
-    | `Unsafe (k, v) -> pp fmt "@[<hov>%s ~= %a@]" (String.capitalize_ascii k) Address.pp_phrase v
+    | #Trace.field as x  -> Trace.pp_field fmt x
+    | `Field (k, v)      -> pp fmt "@[<hov>%s = %a@]" (String.capitalize_ascii k) Address.pp_phrase v
+    | `Unsafe (k, v)     -> pp fmt "@[<hov>%s ~= %a@]" (String.capitalize_ascii k) Address.pp_phrase v
   in
 
   pp_field fmt field
