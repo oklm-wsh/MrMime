@@ -247,7 +247,7 @@ let w_encode content k =
 
   let rec loop idx k =
     if idx < len
-    then T.add (String.get content idx) @@ loop (idx + 1) k
+    then T.add (String.get content idx) (fun state -> (loop[@tailcall]) (idx + 1) k state)
     else k
   in
 
