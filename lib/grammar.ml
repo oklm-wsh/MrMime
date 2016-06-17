@@ -123,7 +123,8 @@ let p_message p =
     (fun fields ->
        c_header fields
          (fun header content ->
-            to_end_of_file
+            Rfc822.p_crlf
+            @ to_end_of_file
             (switch content (p_body None)
                 (fun data -> p header (`Discrete (content, data)))
                 (fun data -> p header (`Composite (content, data))))))
