@@ -243,7 +243,7 @@ let p_try_rule success fail rule state =
 
 let ( / ) x y k e = p_try_rule k y x e
 let ok data state = `Ok (data, state)
-let ( @ ) = ( @@ )
+let ( @ ) x y e = x y e
 
 (* See RFC 5234 § 3.6:
 
