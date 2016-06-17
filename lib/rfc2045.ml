@@ -148,10 +148,23 @@ let p_value p =
   / (p_token @ fun token -> p (`Token token))
   @ (fun data -> p (`String data))
 
+(* XXX: from RFC 2045 *)
+let is_bcharsnospace = function
+  | '\'' | '(' | ')' | '+' | '_' | ','
+  | '-' | '.' | '/' | ':' | '=' | '?' -> true
+  | 'a' .. 'z' | 'A' .. 'Z' -> true
+  | '0' .. '9' -> true
+  | _ -> false
+
+let p_boundary p =
+  (Rfc822.p_quoted_string (fun data state -> `Ok (data, state)))
+  / ((p_while is_bcharsnospace) @ fun token -> p (`Token token))
+  @ (fun data -> p (`String data))
+
 let p_parameter p =
   p_attribute
   @ fun name -> p_chr '='
-  @ p_value
+  @ (if name = "boundary" then p_boundary else p_value)
   @ fun value -> p (name, value)
 
 let p_content p =
