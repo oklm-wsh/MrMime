@@ -130,7 +130,7 @@ struct
           $ w_body content body
           $ w (Rfc2046.m_delimiter boundary)
           $ w_crlf $ aux rest
-        | Some (`Composite ((content, fields), body)) :: rest ->
+        | Some (`Composite ((content, fields), lst)) :: rest ->
           Content.Part.E.w (Content.Part.to_field content)
           $ w_fields fields
           $ w_multipart content lst
