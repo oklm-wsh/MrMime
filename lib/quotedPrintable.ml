@@ -60,26 +60,15 @@ struct
     t
 
   let wrap_bigword length k ({ word; _ } as t) =
-    let wrapping =
-      if Buffer.length word >= 76 - length
-      then add_break
-      else noop
-    in
-
-    wrapping
-      (fun ({ state; word; position; } as t) ->
-       w (Buffer.contents word)
-         (fun state ->
-          let len = Buffer.length word in
-          Buffer.clear word;
-          wrapping k { t with state = state; position = position + len; })
-         state)
-      t
+    (if Buffer.length word >= 76 - length
+     then add_break $ commit_word $ add_break
+     else noop) k t
 
   let add_char chr =
     wrap_bigword 1
-    $ fun k ({ state; _ } as t) ->
-      w_char chr (fun state -> k { t with state = state }) state
+    $ fun k ({ word; _ } as t) ->
+      Buffer.add_char word chr;
+      k t
 
   let add_quoted_char chr k =
     wrap_bigword 3
