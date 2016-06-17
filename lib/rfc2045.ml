@@ -39,7 +39,7 @@ type field =
   [ `ContentType of content
   | `ContentEncoding of encoding
   | `ContentID of id
-  | `ContentDescription of string
+  | `ContentDescription of Rfc5322.phrase
   | `Content of string * Rfc5322.phrase
   | `Unsafe of string * Rfc5322.phrase ]
 
@@ -219,7 +219,7 @@ let p_field ?(unsafe = (fun field p -> Rfc5322.p_unstructured @ fun l -> Rfc822.
     | "content-type" -> p_content @ fun c -> Rfc822.p_crlf @ p (`ContentType c)
     | "content-transfer-encoding" -> p_encoding @ fun e -> Rfc822.p_crlf @ p (`ContentEncoding e)
     | "content-id" -> p_id @ fun i -> Rfc822.p_crlf @ p (`ContentID i)
-    | "content-description" -> Rfc822.p_text @ fun _ s -> Rfc822.p_crlf @ p (`ContentDescription s)
+    | "content-description" -> Rfc5322.p_unstructured @ fun l -> Rfc822.p_crlf @ p (`ContentDescription l)
     | field ->
       (* XXX: the optionnal-field [fields] is handle by RFC 822 or RFC 5322.
               in this case, we raise an error. *)

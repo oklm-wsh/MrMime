@@ -9,7 +9,7 @@ sig
     [ `ContentType        of ContentType.t
     | `ContentEncoding    of ContentEncoding.t
     | `ContentID          of MsgID.t
-    | `ContentDescription of string
+    | `ContentDescription of Rfc5322.phrase
     | `Content            of string * Rfc5322.phrase
     | `Unsafe             of string * Rfc5322.phrase ]
 

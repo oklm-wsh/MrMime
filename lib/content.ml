@@ -3,7 +3,7 @@ type t =
   ; encoding    : ContentEncoding.t
   ; version     : MimeVersion.t
   ; id          : MsgID.t option
-  ; description : string option
+  ; description : Rfc5322.phrase option
   ; content     : (string * Rfc5322.phrase) list }
 
 let pp = Format.fprintf
@@ -17,12 +17,12 @@ let pp_lst ~sep pp_data fmt lst =
 
 let pp fmt = function
   | { ty; encoding; version; id = Some id; description; content; } ->
-    pp fmt "{ @[<hov>content-type = %a;@ content-transfer-encoding = %a;@ version = %a;@ content-id: %a;@ description = %s;@ and @[<v>%a@]@] }"
-      ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version MsgID.pp id (Option.value ~default:"<none>" description)
+    pp fmt "{ @[<hov>content-type = %a;@ content-transfer-encoding = %a;@ version = %a;@ content-id: %a;@ description = %a;@ and @[<v>%a@]@] }"
+      ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version MsgID.pp id Address.pp_phrase (Option.value ~default:[`Atom "<none>"] description)
       (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") (fun fmt (field, phrase) -> pp fmt "%s = %a" field Address.pp_phrase phrase)) content
   | { ty; encoding; version; id = None; description; content; } ->
-    pp fmt "{ @[<hov>content-type = %a;@ content-transfer-encoding = %a;@ version = %a;@ description = %s;@ and @[<v>%a@]@] }"
-      ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version (Option.value ~default:"<none>" description)
+    pp fmt "{ @[<hov>content-type = %a;@ content-transfer-encoding = %a;@ version = %a;@ description = %a;@ and @[<v>%a@]@] }"
+      ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version Address.pp_phrase (Option.value ~default:[`Atom "<none>"] description)
       (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") (fun fmt (field, phrase) -> pp fmt "content-%s = %a" field Address.pp_phrase phrase)) content
 
 let ty { ty; _ } = ty
@@ -42,7 +42,7 @@ struct
     [ ContentType.field
     | ContentEncoding.field
     | `ContentID          of MsgID.t
-    | `ContentDescription of string
+    | `ContentDescription of Rfc5322.phrase
     | `Content            of string * Rfc5322.phrase
     | `Unsafe             of string * Rfc5322.phrase ]
 
@@ -60,7 +60,7 @@ struct
     | #ContentType.field as x     -> ContentType.pp_field fmt x
     | #ContentEncoding.field as x -> ContentEncoding.pp_field fmt x
     | `ContentID m                -> pp fmt "@[<hov>Content-ID = %a@]" MsgID.pp m
-    | `ContentDescription s       -> pp fmt "@[<hov>Content-Description = %s@]" s
+    | `ContentDescription s       -> pp fmt "@[<hov>Content-Description = %a@]" Address.pp_phrase s
     | `Content (k, v)             -> pp fmt "@[<hov>Content-%s = %a@]" (String.capitalize_ascii k) Address.pp_phrase v
     | `Unsafe (k, v)              -> pp fmt "@[<hov>%s ~= %a@]" (String.capitalize_ascii k) Address.pp_phrase v
 
@@ -150,10 +150,10 @@ struct
                             $ w_close_box) (unlift k))
           $ w_crlf
         | `ContentDescription s ->
-          w "Content-Description: "
+          w "Content-Description:"
           $ Wrap.lift
-          $ Wrap.(fun k -> (w_hovbox (String.length "Content-Description: ")
-                            $ w_string s
+          $ Wrap.(fun k -> (w_hovbox (String.length "Content-Description:")
+                            $ Address.E.w_phrase s
                             $ w_close_box) (unlift k))
           $ w_crlf
         | `Content (field, value) ->
