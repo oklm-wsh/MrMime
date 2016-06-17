@@ -86,9 +86,9 @@ struct
 
   let add_wsp = function
     | `Space ->
-      add_char ' ' $ commit_word
+      add_char '\x20' $ commit_word
     | `Tab ->
-      add_char '\t' $ commit_word
+      add_char '\x09' $ commit_word
 
   let add_newline chr =
     let rec aux k ({ state; _ } as t) =
