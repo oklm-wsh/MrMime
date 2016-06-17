@@ -2,8 +2,6 @@ S lib/
 
 B _build/lib/
 
-FLAG -safe-string
-
-PKG alcotest ipaddr
+PKG alcotest ipaddr uutf
 PKG cmdliner compiler-libs xmlm ppx_tools.metaquot ppx_tools
-PKG lwt cohttp.lwt uri tls.lwt jackson
+PKG lwt cohttp.lwt uri tls.lwt patience_diff core core_extended pcre
