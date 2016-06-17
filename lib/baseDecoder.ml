@@ -290,7 +290,7 @@ let p_repeat ?a ?b f p state =
 
   let rec loop n state =
     match peek_chr state with
-    | Some chr when f chr && most n ->
+    | Some chr when f chr && most (n + 1) ->
       Buffer.add_char buf chr;
       junk_chr (loop (n + 1)) state
     | Some chr ->
