@@ -85,7 +85,7 @@ let p_close_delimiter boundary p =
 
   p_delimiter boundary
   @ p_str "--"
-  @ (fun state -> [%debug "state: p_close_delimiter match\n%!"]; p state)
+  @ (fun state -> [%debug Printf.printf "state: p_close_delimiter match\n%!"]; p state)
 
 let m_close_delimiter boundary =
   (m_delimiter boundary) ^ "--"
