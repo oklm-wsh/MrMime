@@ -186,7 +186,7 @@ let p_decode stop p state =
 
   let rec to_stop = function
     | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> to_stop @@ safe k i))
+      `Read (buf, off, len, (fun i -> to_stop @@ safe k i))
     | #Error.err as err -> err
     | `Stop state -> p (Buffer.contents buf) state
     | `Continue state -> (junk_chr @ (fun state -> to_stop (stop state))) state
