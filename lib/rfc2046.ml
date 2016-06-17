@@ -3,7 +3,9 @@ open BaseDecoder
 let is_bcharsnospace = function
   | '\'' | '(' | ')' | '+' | '_' | ','
   | '-' | '.' | '/' | ':' | '=' | '?' -> true
-  | chr -> Rfc822.is_alpha chr || Rfc822.is_digit chr
+  | 'a' .. 'z' | 'A' .. 'Z' -> true
+  | '0' .. '9' -> true
+  | _ -> false
 
 let is_bchars = function
   | ' ' -> true
@@ -29,7 +31,7 @@ let m_dash_boundary boundary =
 let p_transport_padding p =
   [%debug Printf.printf "state: p_transport_padding\n%!"];
 
-  (0 * 0) Rfc822.is_lwsp
+  (0 * 0) (function '\x09' | '\x20' -> true | _ -> false)
   @ fun _ state -> [%debug Printf.printf "state: p_transport_padding end\n%!"]; p state
 
 (* See RFC 2046 § 5.1.1:
@@ -198,7 +200,7 @@ let p_multipart_body boundary parent_boundary p_octet p =
             epilogue and nobody cares about the epilogue. *)
     (p_encapsulation boundary p_octet @ fun data state -> `Ok (data, state))
     / (p_close_delimiter boundary
-       @ (u_repeat Rfc822.is_lwsp)
+       @ (u_repeat (function '\x09' | '\x20' -> true | _ -> false))
        @ fun _ ->
          (p_epilogue stop_epilogue
           @ fun _ -> ok ())

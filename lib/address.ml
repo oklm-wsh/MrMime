@@ -190,6 +190,10 @@ struct
       exp (String.length str - 1) []
 
     let w_safe_string str =
+      let is_vchar = function
+        | '\x21' .. '\x7e' -> true
+        | _ -> false
+      in
       List.fold_right
         (function
          | '\x00' -> w_string "\\\000"
@@ -203,10 +207,11 @@ struct
          | '\\'   -> w_string "\\\\"
          | '"'    -> w_string "\\\""
          | ' '    -> w_string " "
-         | chr    ->
-           if Rfc5322.is_vchar chr
+         | '\x00' .. '\x7F' as chr ->
+           if is_vchar chr
            then w_char chr
-           else w_string (sp "\\%c" chr))
+           else w_string (sp "\\%c" chr)
+         | chr -> w_char chr)
         (explode str)
 
     let w_word = function

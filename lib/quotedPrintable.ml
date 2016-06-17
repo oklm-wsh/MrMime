@@ -129,8 +129,9 @@ let is_safe_char = function
                         ; RFC 2049 as "mail-safe".
 *)
 let is_hex_octet = function
+  | '0' .. '9'
   | 'A' .. 'F' -> true
-  | chr        -> Rfc822.is_digit chr
+  | chr -> false
 
 let p_hex_octet p =
   p_chr '='
@@ -199,9 +200,13 @@ let p_qp_part = p_qp_section
                           ; be able to handle padding
                           ; added by message transports.
 
+   See RFC 822 § 3.3:
+
+   LWSP-char   =  SPACE / HTAB                 ; semantics = SPACE
 *)
 let p_transport_padding p =
-  (0 * 0) Rfc822.is_lwsp
+  let is_lwsp_char = function '\x09' | '\x20' -> true | _ -> false in
+  (0 * 0) is_lwsp_char
   @ fun _ -> p
 
 (* See RFC 2045 § 6.7:
@@ -389,6 +394,7 @@ let p_inline_decode stop p state =
           line break in the encoded text.
 *)
 let p_decode stop p state =
+  let is_lwsp_char = function '\x09' | '\x20' -> true | _ -> false in
 
   let buf = Buffer.create 16 in
 
@@ -425,7 +431,7 @@ let p_decode stop p state =
     | Some '\x20' | Some '\x09' ->
       [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
 
-      p_while Rfc822.is_lwsp
+      p_while is_lwsp_char
        (fun lwsp state -> cur_chr (fun chr state -> match chr with
         | '\r' ->
           try_stop

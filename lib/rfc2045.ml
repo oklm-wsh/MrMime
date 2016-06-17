@@ -57,12 +57,16 @@ let is_tspecials = function
   | _ -> false
 
 let is_token chr =
+  let is_ctl = function '\000' .. '\031' -> true | _ -> false in
+  let is_space = (=) ' ' in
   not (is_tspecials chr)
-  && not (Rfc822.is_ctl chr)
-  && not (Rfc822.is_space chr)
+  && not (is_ctl chr)
+  && not (is_space chr)
 
+(* XXX: we don't handle an utf-8 token! *)
 let p_token p state = p_while is_token p state
 
+(* XXX: same as [p_token]. *)
 let p_attribute p state = p_token (fun token -> p (String.lowercase_ascii token)) state
 
 let p_ietf_token p =
@@ -178,11 +182,11 @@ let p_content p =
 
 let p_version p =
   Rfc822.p_cfws
-  @ fun _ -> p_while Rfc822.is_digit
+  @ fun _ -> p_while (function '0' .. '9' -> true | _ -> false)
   @ fun a -> let a = int_of_string a in Rfc822.p_cfws
   @ fun _ -> p_chr '.'
   @ Rfc822.p_cfws
-  @ fun _ -> p_while Rfc822.is_digit
+  @ fun _ -> p_while (function '0' .. '9' -> true | _ -> false)
   @ fun b -> let b = int_of_string b in Rfc822.p_cfws
   @ fun _ -> p (a, b)
 
@@ -241,7 +245,7 @@ let p_entity_headers ?unsafe extend_mime extend p =
 
   let rec loop acc =
     (Rfc822.p_field_name
-     @ fun field -> (0 * 0) Rfc822.is_lwsp
+     @ fun field -> (0 * 0) (function '\x09' | '\x20' -> true | _ -> false)
      @ fun _ -> p_chr ':'
      @ p_field ?unsafe extend_mime extend field
      @ fun data state -> `Ok (data, state))

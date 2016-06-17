@@ -21,14 +21,14 @@ let is_especials = function
 let p_encoding_text p state =
   p_while (function ' ' | '?' -> false | chr -> true) p state
 
+(* TODO: handle utf-8? *)
 let p_token p state =
-  let is chr =
-    if is_especials chr
-       || Rfc822.is_ctl chr
-       || Rfc822.is_space chr
-    then false
-    else true
+  let is_ctl = function
+    | '\000' .. '\031' -> true
+    | _ -> false
   in
+  let is_space = (=) '\x20' in
+  let is chr = not (is_especials chr || is_ctl chr || is_space chr) in
 
   p_while is p state
 

@@ -13,59 +13,23 @@ type msg_id = left * right
 (* See RFC 822 § 3.3:
 
    SPACE       =  <ASCII SP, space>            ; (     40,      32. )
-*)
-let is_space = (=) ' '
 
-(* See RFC 822 § 3.3:
+   See RFC 822 § 3.3:
 
    CTL         =  <any ASCII control           ; (  0- 37,  0.- 31.)
                    character and DEL>          ; (    177,     127.)
-*)
-let is_ctl = function
-  | '\000' .. '\031' -> true
-  | _                -> false
 
-let is_digit = function
-  | '0' .. '9' -> true
-  | _          -> false
-
-let is_lwsp = function
-  | '\x20' | '\x09' -> true
-  | _               -> false
-
-(* See RFC 822 § 3.3:
-
-   text        =  <any CHAR, including bare    ; => atoms, specials,
-                   CR & bare LF, but NOT       ;  comments and
-                   including CRLF>             ;  quoted-strings are
-                                               ;  NOT recognized.
-*)
-let p_text p =
-  let buf = Buffer.create 16 in
-
-  let rec loop has_content has_cr =
-    cur_chr
-    @ function
-    | '\n' when has_cr ->
-      roll_back (p has_content (Buffer.contents buf)) "\r"
-    | '\r' ->
-      if has_cr then Buffer.add_char buf '\r';
-      junk_chr
-      @ loop has_content true
-    | chr ->
-      if has_cr then Buffer.add_char buf '\r';
-      Buffer.add_char buf chr;
-      junk_chr
-      @ loop true false
-  in
-
-  loop false false
-
-(* See RFC 822 § 3.2:
+   See RFC 822 § 3.2:
 
    field-name  =  1*<any CHAR, excluding CTLs, SPACE, and ":">
 *)
 let p_field_name p =
+  let is_space = (=) ' ' in
+  let is_ctl = function
+    | '\000' .. '\031' -> true
+    | _                -> false
+  in
+
   (1 * 0)
   (function ':' -> false | chr -> not (is_ctl chr) && not (is_space chr))
   @ p
@@ -84,13 +48,7 @@ let p_field_name p =
    HTAB        =  <ASCII HT, horizontal-tab>   ; (     11,       9. )
    LWSP-char   =  SPACE / HTAB                 ; semantics = SPACE
 *)
-let is_wsp = function
-  | '\x20' | '\x09' -> true
-  | chr             -> false
-
-let is_d0 = (=) '\000'
-let is_lf = (=) '\n'
-let is_cr = (=) '\r'
+let () = ()
 
 (* See RFC 5322 § 4.1:
 
@@ -100,31 +58,12 @@ let is_cr = (=) '\r'
                      %d14-31 /          ;  return, line feed, and
                      %d127              ;  white space characters
 *)
-let is_obs_no_ws_ctl = function
-  | '\001' .. '\008'
-  | '\011'
-  | '\012'
-  | '\014' .. '\031'
-  | '\127' -> true
-  | chr    -> false
+let () = ()
 
 (* See RFC 5234 § Appendix B.1:
 
    VCHAR           = %x21-7E            ; visible (printing) characters
 *)
-let is_vchar = function
-  | '\x21' .. '\x7e' -> true
-  | chr              -> false
-
-let of_escaped_character = function
-  | 'a' -> '\x07'
-  | 'b' -> '\b'
-  | 't' -> '\t'
-  | 'n' -> '\n'
-  | 'v' -> '\x0b'
-  | 'f' -> '\x0c'
-  | 'r' -> '\r'
-  | chr -> chr
 
 (* See RFC 5322 § 3.2.1:
 
@@ -134,19 +73,55 @@ let of_escaped_character = function
    See RFC 822 § 3.3:
 
    quoted-pair =  "\" CHAR                     ; may quote any char"
+
+   See RFC 6532:
+
+   VCHAR allows RFC 5322/VCHAR,
+                RFC 822/CHAR and
+                RFC 5322/(%d0 / obs-NO-WS-CTL / LF / CR).
 *)
+let o_vchar p state =
+  let is_vchar = function
+    | '\x21' .. '\x7e' -> true
+    | _ -> false
+  in
+  let is_space = (=) ' ' in
+  let is_d0    = (=) '\000' in
+  let is_lf    = (=) '\x0A' in
+  let is_cr    = (=) '\x0D' in
+  let is_obs_no_ws_ctl = function
+    | '\001' .. '\008'
+    | '\011'
+    | '\012'
+    | '\014' .. '\031'
+    | '\127' -> true
+    | _ -> false
+  in
+
+  let rec loop decoder = match Uutf.decode decoder with
+    | `End -> assert false (* TODO! *)
+    | `Uchar uchar -> p uchar
+    | `Malformed _ ->
+      [%debug Printf.printf "stte: p_vchar (RFC 6532) malformer\n%!"];
+      fun state -> raise (Error.Error (Error.err_malformed_sequence state))
+    | `Await ->
+      cur_chr @ function
+      | '\x00' .. '\x7F' as chr ->
+        if is_vchar chr || is_space chr || is_d0 chr || is_lf chr || is_cr chr
+           || is_obs_no_ws_ctl chr
+        then junk_chr @ p (Char.code chr)
+        else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+      | uchr -> Uutf.Manual.src decoder (String.make 1 uchr) 0 1;
+                junk_chr @ loop decoder
+  in
+
+  let decoder = Uutf.decoder ~encoding:`UTF_8 `Manual in
+
+  loop decoder state
+
 let p_quoted_pair p =
-  p_chr '\\'
-  @ cur_chr
-  @ fun chr ->
-    if is_d0 chr
-    || is_obs_no_ws_ctl chr
-    || is_lf chr
-    || is_cr chr
-    || is_vchar chr
-    || is_wsp chr
-    then junk_chr @ p @ of_escaped_character chr
-    else fun state -> raise (Error.Error (Error.err_unexpected chr state))
+  [%debug Printf.printf "state: p_quoted_pair\n%!"];
+  p_chr '\\' @ o_vchar @ of_escaped_character p
 
 (* See RFC 5322 § 3.2.2:
 
@@ -168,6 +143,11 @@ let p_quoted_pair p =
                                               ; CRLF => folding
 *)
 let rec p_fws p state =
+  let is_wsp = function
+    | '\x20' | '\x09' -> true
+    | chr             -> false
+  in
+
   [%debug Printf.printf "state: p_fws\n%!"];
 
   (* verify if we have *WSP CRLF, if it's true,
@@ -278,11 +258,6 @@ let rec p_fws p state =
                    ")", "\" & CR, & including
                    linear-white-space>"
 *)
-let is_ctext = function
-  | '\033' .. '\039'
-  | '\042' .. '\091'
-  | '\093' .. '\126' -> true
-  | chr -> is_obs_no_ws_ctl chr
 
 let rec p_ctext p state = p_while is_ctext p state
 
@@ -364,18 +339,11 @@ let p_cfws p =
    qtext       =  <any CHAR excepting %d42,    ; => may be folded
                    %x5C & CR, and including
                    linear-white-space>
-*)
-let is_qtext = function
-  | '\033'
-  | '\035' .. '\091'
-  | '\093' .. '\126' -> true
-  | chr              -> is_obs_no_ws_ctl chr
 
-(* See RFC 822 § 3.3:
+   See RFC 822 § 3.3:
 
    <">         =  <ASCII quote mark>           ; (     42,      34. )"
 *)
-let is_dquote = (=) '"'
 
 let p_qtext p state = p_while is_qtext p state
 
@@ -385,9 +353,8 @@ let p_qtext p state = p_while is_qtext p state
 *)
 let p_qcontent p =
   cur_chr @ function
-  | '\\'                  -> p_quoted_pair @ fun chr -> p (String.make 1 chr)
-  | chr when is_qtext chr -> p_qtext @ fun text -> p text
-  | chr                   -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
+  | '\\' -> p_quoted_pair @ fun chr -> p (Rfc6532.to_string chr)
+  | uchr -> p_qtext @ fun text -> p text
 
 (* See RFC 5322 § 3.2.4:
 
@@ -428,25 +395,16 @@ let p_quoted_string p =
 
    ALPHA       =  <any ASCII alphabetic character>
                                                ; (101-132, 65.- 90.)
-*)
-let is_alpha = function
-  | '\x41' .. '\x5a'
-  | '\x61' .. '\x7A' -> true
-  | chr              -> false
 
-(* See RFC 5234 § 3.4:
+   See RFC 5234 § 3.4:
 
    DIGIT           = %x30-39
 
    See RFC 822 § 3.3:
 
    DIGIT       =  <any ASCII decimal digit>    ; ( 60- 71, 48.- 57. )
-*)
-let is_digit = function
-  | '\x30' .. '\x39' -> true
-  | chr              -> false
 
-(* See RFC 5322 § 3.2.3:
+   See RFC 5322 § 3.2.3:
 
    atext           = ALPHA / DIGIT /      ; Printable US-ASCII
                      "!" / "#" /          ;  characters not including
@@ -460,19 +418,6 @@ let is_digit = function
                      "|" / "}" /
                      "~"
 *)
-let is_atext = function
-  | '!' | '#'
-  | '$' | '%'
-  | '&' | '\''
-  | '*' | '+'
-  | '-' | '/'
-  | '=' | '?'
-  | '^' | '_'
-  | '`' | '{'
-  | '|' | '}'
-  | '~' -> true
-  | chr -> is_digit chr || is_alpha chr
-
 let p_atext p state = p_while is_atext p state
 
 (* See RFC 5322 § 3.2.3:
@@ -615,10 +560,6 @@ let p_local_part p =
                    "]", %x5C & CR, & including
                    linear-white-space>
 *)
-let is_dtext = function
-  | '\033' .. '\090'
-  | '\094' .. '\126' -> true
-  | chr -> is_obs_no_ws_ctl chr
 
 let p_dtext p =
   let rec loop acc =
@@ -677,9 +618,8 @@ let p_domain_literal p =
       p_chr ']'
       @ p_cfws
       @ fun _ -> p (List.rev acc)
-    | chr when is_dtext chr || chr = '\\' ->
+    | chr ->
       p_dtext @ fun s -> p_fws @ fun _ _ -> loop (s :: acc)
-    | chr -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
   in
 
   p_cfws
