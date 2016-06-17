@@ -51,6 +51,7 @@ depends: [
   "astring"           {test}
   "re"                {test}
   "ipaddr"
+  "uutf"
 ]
 
 available: [ocaml-version >= "4.03.0"]
