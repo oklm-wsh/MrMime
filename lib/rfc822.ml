@@ -242,8 +242,8 @@ let rec p_fws p state =
            @ fun _ -> success true true
          (* … *(CRLF 1*WSP) CRLF e *)
          | chr ->
-           let has_wsp, tmp = trim tmp in
-           roll_back (p has_wsp has_fws) tmp)
+           let has_wsp', tmp = trim tmp in
+           roll_back (p (has_wsp || has_wsp') has_fws) tmp)
       state
     (* … e *)
     | None -> fail has_wsp has_fws state
