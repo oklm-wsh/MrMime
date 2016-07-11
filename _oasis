@@ -37,6 +37,7 @@ Document "mrmime"
 
 Executable maildir
   Path:                 bin
+  Build$:               flag(tests)
   Install:              false
   CompiledObject:       best
   MainIs:               maildir.ml
