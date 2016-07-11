@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Parser.I.html">
+<link rel="Up" href="Parser.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Parser.S</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Parser.html" title="Parser">Up</a>
+&nbsp;<a class="post" href="Parser.I.html" title="Parser.I">Next</a>
+</div>
+<h1>Module type <a href="type_Parser.S.html">Parser.S</a></h1>
+
+<pre><span class="keyword">module type</span> S = <code class="code"><span class="keyword">sig</span></code> <a href="Parser.S.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><code><span id="TYPEs"><span class="keyword">type</span> <code class="type"></code>s</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTs.Complete"><span class="constructor">Complete</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTs.Incomplete"><span class="constructor">Incomplete</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Parser.S.html#TYPEs">s</a> -> unit</code></pre>
+<pre><span id="TYPEerr"><span class="keyword">type</span> <code class="type"></code>err</span> = ..</pre>
+
+
+<pre><code><span id="TYPEstate"><span class="keyword">type</span> <code class="type">('a, 'input)</code> state</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTstate.Read"><span class="constructor">Read</span></span> <span class="keyword">of</span> <code class="type">{<br>        buffer : 'input Input.t;<br>        k : int -> <a href="Parser.S.html#TYPEs">s</a> -> ('a, 'input) <a href="Parser.S.html#TYPEstate">state</a>;<br>     }</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTstate.Done"><span class="constructor">Done</span></span> <span class="keyword">of</span> <code class="type">'a</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTstate.Fail"><span class="constructor">Fail</span></span> <span class="keyword">of</span> <code class="type">string list * <a href="Parser.S.html#TYPEerr">err</a></code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEk"><span class="keyword">type</span> <code class="type">('a, 'input)</code> k</span> = <code class="type">'input Input.t -> <a href="Parser.S.html#TYPEs">s</a> -> 'a</code> </pre>
+
+
+<pre><span id="TYPEfail"><span class="keyword">type</span> <code class="type">('a, 'input)</code> fail</span> = <code class="type">(string list -> <a href="Parser.S.html#TYPEerr">err</a> -> ('a, 'input) <a href="Parser.S.html#TYPEstate">state</a>, 'input)<br>       <a href="Parser.S.html#TYPEk">k</a></code> </pre>
+
+
+<pre><span id="TYPEsuccess"><span class="keyword">type</span> <code class="type">('a, 'r, 'input)</code> success</span> = <code class="type">('a -> ('r, 'input) <a href="Parser.S.html#TYPEstate">state</a>, 'input) <a href="Parser.S.html#TYPEk">k</a></code> </pre>
+
+
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.f">f</span>&nbsp;: <code class="type">'r 'input.<br>         (('r, 'input) <a href="Parser.S.html#TYPEfail">fail</a> -><br>          ('a, 'r, 'input) <a href="Parser.S.html#TYPEsuccess">success</a> -> ('r, 'input) <a href="Parser.S.html#TYPEstate">state</a>, 'input)<br>         <a href="Parser.S.html#TYPEk">k</a></code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALreturn"><span class="keyword">val</span> return</span> : <code class="type">'a -> 'a <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VALfail"><span class="keyword">val</span> fail</span> : <code class="type"><a href="Parser.S.html#TYPEerr">err</a> -> 'a <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VAL(>>=)"><span class="keyword">val</span> (&gt;&gt;=)</span> : <code class="type">'a <a href="Parser.S.html#TYPEt">t</a> -> ('a -> 'b <a href="Parser.S.html#TYPEt">t</a>) -> 'b <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VAL(>>|)"><span class="keyword">val</span> (&gt;&gt;|)</span> : <code class="type">'a <a href="Parser.S.html#TYPEt">t</a> -> ('a -> 'b) -> 'b <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VAL(<|>)"><span class="keyword">val</span> (&lt;|&gt;)</span> : <code class="type">'a <a href="Parser.S.html#TYPEt">t</a> -> 'a <a href="Parser.S.html#TYPEt">t</a> -> 'a <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VAL(<$>)"><span class="keyword">val</span> (&lt;$&gt;)</span> : <code class="type">('a -> 'b) -> 'a <a href="Parser.S.html#TYPEt">t</a> -> 'b <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VAL( <* )"><span class="keyword">val</span> ( &lt;* )</span> : <code class="type">'a <a href="Parser.S.html#TYPEt">t</a> -> 'b <a href="Parser.S.html#TYPEt">t</a> -> 'a <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VAL( *> )"><span class="keyword">val</span> ( *&gt; )</span> : <code class="type">'a <a href="Parser.S.html#TYPEt">t</a> -> 'b <a href="Parser.S.html#TYPEt">t</a> -> 'b <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VAL(<*>)"><span class="keyword">val</span> (&lt;*&gt;)</span> : <code class="type">('a -> 'b) <a href="Parser.S.html#TYPEt">t</a> -> 'a <a href="Parser.S.html#TYPEt">t</a> -> 'b <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VAL(<?>)"><span class="keyword">val</span> (&lt;?&gt;)</span> : <code class="type">'a <a href="Parser.S.html#TYPEt">t</a> -> string -> 'a <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VALfix"><span class="keyword">val</span> fix</span> : <code class="type">('a <a href="Parser.S.html#TYPEt">t</a> -> 'a <a href="Parser.S.html#TYPEt">t</a>) -> 'a <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VALlift"><span class="keyword">val</span> lift</span> : <code class="type">('a -> 'b) -> 'a <a href="Parser.S.html#TYPEt">t</a> -> 'b <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VALlift2"><span class="keyword">val</span> lift2</span> : <code class="type">('a -> 'b -> 'c) -> 'a <a href="Parser.S.html#TYPEt">t</a> -> 'b <a href="Parser.S.html#TYPEt">t</a> -> 'c <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VALlift3"><span class="keyword">val</span> lift3</span> : <code class="type">('a -> 'b -> 'c -> 'd) -><br>       'a <a href="Parser.S.html#TYPEt">t</a> -> 'b <a href="Parser.S.html#TYPEt">t</a> -> 'c <a href="Parser.S.html#TYPEt">t</a> -> 'd <a href="Parser.S.html#TYPEt">t</a></code></pre>
+<pre><span id="VALrun"><span class="keyword">val</span> run</span> : <code class="type">'input Input.t -> 'a <a href="Parser.S.html#TYPEt">t</a> -> ('a, 'input) <a href="Parser.S.html#TYPEstate">state</a></code></pre>
+<pre><span id="VALonly"><span class="keyword">val</span> only</span> : <code class="type">'input Input.t -> 'a <a href="Parser.S.html#TYPEt">t</a> -> ('a, 'input) <a href="Parser.S.html#TYPEstate">state</a></code></pre></body></html>

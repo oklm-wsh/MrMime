@@ -5,67 +5,105 @@
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Header.html">
-<link rel="next" href="Option.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Newline" rel="Chapter" href="Newline.html">
-<link title="Date" rel="Chapter" href="Date.html">
-<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
-<link title="Address" rel="Chapter" href="Address.html">
-<link title="MsgID" rel="Chapter" href="MsgID.html">
-<link title="Resent" rel="Chapter" href="Resent.html">
-<link title="Trace" rel="Chapter" href="Trace.html">
-<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
-<link title="Content" rel="Chapter" href="Content.html">
-<link title="Header" rel="Chapter" href="Header.html">
-<link title="Message" rel="Chapter" href="Message.html">
-<link title="Option" rel="Chapter" href="Option.html">
-<link title="Iana" rel="Chapter" href="Iana.html">
-<link title="Error" rel="Chapter" href="Error.html">
-<link title="Decoder" rel="Chapter" href="Decoder.html">
-<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
 <link title="Encoder" rel="Chapter" href="Encoder.html">
-<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
-<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
-<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
-<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
 <link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
 <link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
-<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Message</title>
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Message</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Header.html" title="Header">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
-&nbsp;<a class="post" href="Option.html" title="Option">Next</a>
-</div>
-<h1>Module <a href="type_Message.html">Message</a></h1>
+&nbsp;</div>
+<h1>Module <a href="type_Message.html">Message</a> (<a href="code_Message.html">.ml</a>)</h1>
 
 <pre><span class="keyword">module</span> Message: <code class="code"><span class="keyword">sig</span></code> <a href="Message.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type"><a href="Grammar.html#TYPEfield">Grammar.field</a></code> </pre>
+<pre><span id="TYPEfield_message"><span class="keyword">type</span> <code class="type"></code>field_message</span> = <code class="type"><a href="Top.html#TYPEfield_message">Top.field_message</a></code> </pre>
 
 
-<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = <code class="type"><a href="Header.html#TYPEunstrict">Header.unstrict</a> *<br>       [ `Composite of <a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEnest">nest</a> option list<br>       | `Discrete of <a href="Content.html#TYPEt">Content.t</a> * string ]</code> </pre>
+<pre><span id="TYPEfield_part"><span class="keyword">type</span> <code class="type"></code>field_part</span> = <code class="type"><a href="Top.html#TYPEfield_part">Top.field_part</a></code> </pre>
 
 
-<pre><span id="TYPEnest"><span class="keyword">type</span> <code class="type"></code>nest</span> = <code class="type">[ `Composite of (<a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield">field</a> list) * 'a option list<br>       | `Discrete of (<a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield">field</a> list) * string ] as 'a</code> </pre>
+<pre><span id="TYPEmessage"><span class="keyword">type</span> <code class="type">'a</code> message</span> = <code class="type">'a <a href="Top.html#TYPEmessage">Top.message</a></code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmessage.Discrete"><span class="constructor">Discrete</span></span> <span class="keyword">of</span> <code class="type"><a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield_message">field_message</a> list * 'a</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmessage.Extension"><span class="constructor">Extension</span></span> <span class="keyword">of</span> <code class="type"><a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield_message">field_message</a> list</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmessage.Composite"><span class="constructor">Composite</span></span> <span class="keyword">of</span> <code class="type"><a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield_message">field_message</a> list<br>        * (<a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield_part">field_part</a> list * 'a <a href="Message.html#TYPEpart">part</a> option) list</code></code></td>
+
+</tr></table>
 
 
-<pre><span class="keyword">module</span> <a href="Message.D.html">D</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Message.D.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span class="keyword">module</span> <a href="Message.E.html">E</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Message.E.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">string -> <a href="Message.html#TYPEt">t</a></code></pre>
-<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="Message.html#TYPEt">t</a> -> string</code></pre>
-<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="Message.html#TYPEt">t</a> -> <a href="Message.html#TYPEt">t</a> -> bool</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Message.html#TYPEt">t</a> -> unit</code></pre></body></html>
+
+<pre><span id="TYPEpart"><span class="keyword">type</span> <code class="type">'a</code> part</span> = <code class="type">'a <a href="Top.html#TYPEpart">Top.part</a></code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpart.PDiscrete"><span class="constructor">PDiscrete</span></span> <span class="keyword">of</span> <code class="type"><a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield_part">field_part</a> list * 'a</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpart.PExtension"><span class="constructor">PExtension</span></span> <span class="keyword">of</span> <code class="type"><a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield_part">field_part</a> list</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpart.PComposite"><span class="constructor">PComposite</span></span> <span class="keyword">of</span> <code class="type"><a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield_part">field_part</a> list<br>        * (<a href="Content.html#TYPEt">Content.t</a> * <a href="Message.html#TYPEfield_part">field_part</a> list * 'a <a href="Message.html#TYPEpart">part</a> option) list</code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEcontent"><span class="keyword">type</span> <code class="type"></code>content</span> = <code class="type"><a href="Top.html#TYPEcontent">Top.content</a></code> = ..</pre>
+
+
+<pre><span class="keyword">module</span> <a href="Message.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Message.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> <a href="code_VALMessage.of_string_raw.html">of_string_raw</a></span> : <code class="type">?chunk:int -><br>       string -><br>       int -> int -> ((<a href="Header.html#TYPEheader">Header.header</a> * <a href="Top.html#TYPEcontent">Top.content</a> <a href="Top.html#TYPEmessage">Top.message</a>) * int) option</code></pre></body></html>

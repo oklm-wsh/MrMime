@@ -5,69 +5,87 @@
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
 <link rel="previous" href="Resent.html">
-<link rel="next" href="MimeVersion.html">
+<link rel="next" href="Header.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Newline" rel="Chapter" href="Newline.html">
-<link title="Date" rel="Chapter" href="Date.html">
-<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
-<link title="Address" rel="Chapter" href="Address.html">
-<link title="MsgID" rel="Chapter" href="MsgID.html">
-<link title="Resent" rel="Chapter" href="Resent.html">
-<link title="Trace" rel="Chapter" href="Trace.html">
-<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
-<link title="Content" rel="Chapter" href="Content.html">
-<link title="Header" rel="Chapter" href="Header.html">
-<link title="Message" rel="Chapter" href="Message.html">
-<link title="Option" rel="Chapter" href="Option.html">
-<link title="Iana" rel="Chapter" href="Iana.html">
-<link title="Error" rel="Chapter" href="Error.html">
-<link title="Decoder" rel="Chapter" href="Decoder.html">
-<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
 <link title="Encoder" rel="Chapter" href="Encoder.html">
-<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
-<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
-<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
-<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
 <link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
 <link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
-<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Trace</title>
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Trace</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Resent.html" title="Resent">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
-&nbsp;<a class="post" href="MimeVersion.html" title="MimeVersion">Next</a>
+&nbsp;<a class="post" href="Header.html" title="Header">Next</a>
 </div>
-<h1>Module <a href="type_Trace.html">Trace</a></h1>
+<h1>Module <a href="type_Trace.html">Trace</a> (<a href="code_Trace.html">.ml</a>)</h1>
 
 <pre><span class="keyword">module</span> Trace: <code class="code"><span class="keyword">sig</span></code> <a href="Trace.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="TYPEword"><span class="keyword">type</span> <code class="type"></code>word</span> = <code class="type">[ `Word of <a href="Rfc5322.html#TYPEword">Rfc5322.word</a> ]</code> </pre>
+<pre><span id="TYPElocal"><span class="keyword">type</span> <code class="type"></code>local</span> = <code class="type"><a href="Rfc822.html#TYPElocal">Rfc822.local</a></code> </pre>
 
 
-<pre><span id="TYPEreceived"><span class="keyword">type</span> <code class="type"></code>received</span> = <code class="type">[ `Domain of <a href="Address.html#TYPEdomain">Address.domain</a><br>       | `Mailbox of <a href="Address.html#TYPEmailbox">Address.mailbox</a><br>       | `Word of <a href="Rfc5322.html#TYPEword">Rfc5322.word</a> ]</code> </pre>
+<pre><span id="TYPEdomain"><span class="keyword">type</span> <code class="type"></code>domain</span> = <code class="type"><a href="Rfc5322.html#TYPEdomain">Rfc5322.domain</a></code> </pre>
 
 
-<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+<pre><span id="TYPEword"><span class="keyword">type</span> <code class="type"></code>word</span> = <code class="type"><a href="Rfc822.html#TYPEword">Rfc822.word</a></code> </pre>
 
 
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Received of <a href="Trace.html#TYPEreceived">received</a> list * <a href="Date.html#TYPEt">Date.t</a> option<br>       | `ReturnPath of <a href="Address.html#TYPEmailbox">Address.mailbox</a> option ]</code> </pre>
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type"><a href="Rfc5322.html#TYPEtrace">Rfc5322.trace</a></code> </pre>
 
 
-<pre><span id="VALfield_of_lexer"><span class="keyword">val</span> field_of_lexer</span> : <code class="type"><a href="Rfc5322.html#TYPEtrace">Rfc5322.trace</a> -> <a href="Trace.html#TYPEfield">field</a></code></pre>
-<pre><span id="VALto_field"><span class="keyword">val</span> to_field</span> : <code class="type"><a href="Trace.html#TYPEt">t</a> -> <a href="Trace.html#TYPEfield">field</a> list</code></pre>
-<pre><span class="keyword">module</span> <a href="Trace.D.html">D</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Trace.D.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALpp_field"><span class="keyword">val</span> pp_field</span> : <code class="type">Format.formatter -> <a href="Trace.html#TYPEfield">field</a> -> unit</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Trace.html#TYPEt">t</a> -> unit</code></pre></body></html>
+<pre><span id="TYPEreceived"><span class="keyword">type</span> <code class="type"></code>received</span> = <code class="type">[ `Addr of <a href="Trace.html#TYPElocal">local</a> * (<a href="Trace.html#TYPEdomain">domain</a> * <a href="Trace.html#TYPEdomain">domain</a> list)<br>       | `Domain of <a href="Trace.html#TYPEdomain">domain</a><br>       | `Word of <a href="Trace.html#TYPEword">word</a> ]</code> </pre>
+
+
+<pre><code><span id="TYPEtrace"><span class="keyword">type</span> <code class="type"></code>trace</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtrace.trace">trace</span>&nbsp;: <code class="type">(<a href="Trace.html#TYPElocal">local</a> * (<a href="Trace.html#TYPEdomain">domain</a> * <a href="Trace.html#TYPEdomain">domain</a> list)) option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtrace.received">received</span>&nbsp;: <code class="type">(<a href="Trace.html#TYPEreceived">received</a> list * <a href="Date.html#TYPEdate">Date.date</a> option) list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALTrace.pp.html">pp</a></span> : <code class="type">Format.formatter -> <a href="Trace.html#TYPEtrace">trace</a> -> unit</code></pre>
+<pre><span id="VALpp_lst"><span class="keyword">val</span> <a href="code_VALTrace.pp_lst.html">pp_lst</a></span> : <code class="type">sep:(Format.formatter -> unit -> unit) -><br>       (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a list -> unit</code></pre>
+<pre><span id="VALpp_path"><span class="keyword">val</span> <a href="code_VALTrace.pp_path.html">pp_path</a></span> : <code class="type">Format.formatter -><br>       <a href="Address.html#TYPElocal">Address.local</a> * (<a href="Address.html#TYPEdomain">Address.domain</a> * <a href="Address.html#TYPEdomain">Address.domain</a> list) -> unit</code></pre>
+<pre><span id="VALpp_received"><span class="keyword">val</span> <a href="code_VALTrace.pp_received.html">pp_received</a></span> : <code class="type">Format.formatter -><br>       [< `Addr of <a href="Address.html#TYPElocal">Address.local</a> * (<a href="Address.html#TYPEdomain">Address.domain</a> * <a href="Address.html#TYPEdomain">Address.domain</a> list)<br>        | `Domain of <a href="Address.html#TYPEdomain">Address.domain</a><br>        | `Word of <a href="Address.html#TYPEword">Address.word</a> ]<br>       list * <a href="Date.html#TYPEdate">Date.date</a> option -> unit</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALTrace.pp.html">pp</a></span> : <code class="type">Format.formatter -> <a href="Trace.html#TYPEtrace">trace</a> -> unit</code></pre>
+<pre><span class="keyword">module</span> <a href="Trace.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Trace.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALdecoder"><span class="keyword">val</span> <a href="code_VALTrace.decoder.html">decoder</a></span> : <code class="type">([> <a href="Trace.html#TYPEfield">field</a> ] as 'a) list -> (<a href="Trace.html#TYPEtrace">trace</a> list * 'a list) Parser.t</code></pre></body></html>

@@ -4,63 +4,118 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="previous" href="Rfc822.html">
+<link rel="previous" href="Rfc2047.html">
 <link rel="next" href="Rfc5322.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Newline" rel="Chapter" href="Newline.html">
-<link title="Date" rel="Chapter" href="Date.html">
-<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
-<link title="Address" rel="Chapter" href="Address.html">
-<link title="MsgID" rel="Chapter" href="MsgID.html">
-<link title="Resent" rel="Chapter" href="Resent.html">
-<link title="Trace" rel="Chapter" href="Trace.html">
-<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
-<link title="Content" rel="Chapter" href="Content.html">
-<link title="Header" rel="Chapter" href="Header.html">
-<link title="Message" rel="Chapter" href="Message.html">
-<link title="Option" rel="Chapter" href="Option.html">
-<link title="Iana" rel="Chapter" href="Iana.html">
-<link title="Error" rel="Chapter" href="Error.html">
-<link title="Decoder" rel="Chapter" href="Decoder.html">
-<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
 <link title="Encoder" rel="Chapter" href="Encoder.html">
-<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
-<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
-<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
-<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
 <link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
 <link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
-<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Rfc5321</title>
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Rfc5321</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="Rfc822.html" title="Rfc822">Previous</a>
+<div class="navbar"><a class="pre" href="Rfc2047.html" title="Rfc2047">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
 &nbsp;<a class="post" href="Rfc5322.html" title="Rfc5322">Next</a>
 </div>
-<h1>Module <a href="type_Rfc5321.html">Rfc5321</a> (<a href="code_Rfc5321.html">.ml</a>)</h1>
+<h1>Module <a href="type_Rfc5321.html">Rfc5321</a></h1>
 
 <pre><span class="keyword">module</span> Rfc5321: <code class="code"><span class="keyword">sig</span></code> <a href="Rfc5321.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><code><span class="keyword">type</span> <code class="type"></code>Parser.err += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONInvalid_ipv4">Invalid_ipv4</span></code></td>
 
-<pre><span id="TYPEliteral_domain"><span class="keyword">type</span> <code class="type"></code>literal_domain</span> = <code class="type">[ `General of string * string | `IPv4 of Ipaddr.V4.t | `IPv6 of Ipaddr.V6.t ]</code> </pre>
+</tr></table>
 
 
-<pre><span id="VALp_ipv4_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ipv4_address_literal.html">p_ipv4_address_literal</a></span> : <code class="type">(Ipaddr.V4.t -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a) -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
-<pre><span id="VALp_ipv6_addr"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ipv6_addr.html">p_ipv6_addr</a></span> : <code class="type">(Ipaddr.V6.t -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a) -> <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
-<pre><span id="VALp_ipv6_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ipv6_address_literal.html">p_ipv6_address_literal</a></span> : <code class="type">(Ipaddr.V6.t -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
-<pre><span id="VALp_ldh_str"><span class="keyword">val</span> <a href="code_VALRfc5321.p_ldh_str.html">p_ldh_str</a></span> : <code class="type">(string -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
-<pre><span id="VALis_dcontent"><span class="keyword">val</span> <a href="code_VALRfc5321.is_dcontent.html">is_dcontent</a></span> : <code class="type">char -> bool</code></pre>
-<pre><span id="VALp_general_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_general_address_literal.html">p_general_address_literal</a></span> : <code class="type">(Iana.Set.elt * string -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of Bytes.t * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre>
-<pre><span id="VALp_address_literal"><span class="keyword">val</span> <a href="code_VALRfc5321.p_address_literal.html">p_address_literal</a></span> : <code class="type">([> `General of Iana.Set.elt * string<br>         | `IPv4 of Ipaddr.V4.t<br>         | `IPv6 of Ipaddr.V6.t ] -><br>        <a href="Decoder.html#TYPEt">Decoder.t</a> -><br>        ([> `Error of <a href="Error.html#TYPEerror">Error.error</a> * string * int * int<br>          | `Read of bytes * int * int * (int -> 'a) ]<br>         as 'a)) -><br>       <a href="Decoder.html#TYPEt">Decoder.t</a> -> 'a</code></pre></body></html>
+<pre><code><span class="keyword">type</span> <code class="type"></code>Parser.err += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONInvalid_ipv6">Invalid_ipv6</span></code></td>
+
+</tr></table>
+
+
+<pre><code><span class="keyword">type</span> <code class="type"></code>Parser.err += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONInvalid_address_literal">Invalid_address_literal</span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr></table>
+
+
+<pre><code><span class="keyword">type</span> <code class="type"></code>Parser.err += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONUnknown_tag">Unknown_tag</span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEliteral_domain"><span class="keyword">type</span> <code class="type"></code>literal_domain</span> = ..</pre>
+
+<pre><code><span class="keyword">type</span> <code class="type"></code><a href="Rfc5321.html#TYPEliteral_domain">literal_domain</a> += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONIPv4">IPv4</span> <span class="keyword">of</span> <code class="type">Ipaddr.V4.t</code></code></td>
+
+</tr></table>
+
+
+<pre><code><span class="keyword">type</span> <code class="type"></code><a href="Rfc5321.html#TYPEliteral_domain">literal_domain</a> += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONIPv6">IPv6</span> <span class="keyword">of</span> <code class="type">Ipaddr.V6.t</code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALis_dcontent"><span class="keyword">val</span> is_dcontent</span> : <code class="type">char -> bool</code></pre>
+<pre><span id="VALipv4_address_literal"><span class="keyword">val</span> ipv4_address_literal</span> : <code class="type">Ipaddr.V4.t Parser.t</code></pre>
+<pre><span id="VALipv6_addr"><span class="keyword">val</span> ipv6_addr</span> : <code class="type">Ipaddr.V6.t Parser.t</code></pre>
+<pre><span id="VALipv6_address_literal"><span class="keyword">val</span> ipv6_address_literal</span> : <code class="type">Ipaddr.V6.t Parser.t</code></pre>
+<pre><span id="VALlet_dig"><span class="keyword">val</span> let_dig</span> : <code class="type">char Parser.t</code></pre>
+<pre><span id="VALldh_str"><span class="keyword">val</span> ldh_str</span> : <code class="type">string Parser.t</code></pre>
+<pre><span id="VALgeneral_address_literal"><span class="keyword">val</span> general_address_literal</span> : <code class="type"><a href="Rfc5321.html#TYPEliteral_domain">literal_domain</a> Parser.t</code></pre>
+<pre><span id="VALaddress_literal"><span class="keyword">val</span> address_literal</span> : <code class="type"><a href="Rfc5321.html#TYPEliteral_domain">literal_domain</a> Parser.t</code></pre></body></html>

@@ -1,0 +1,49 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Rfc2046.multipart_body</title>
+</head>
+<body>
+<code class="code"><span class="keyword">let</span>&nbsp;multipart_body&nbsp;parent&nbsp;boundary&nbsp;octet&nbsp;=
+&nbsp;&nbsp;option&nbsp;()&nbsp;(preamble&nbsp;boundary)
+&nbsp;&nbsp;*&gt;&nbsp;dash_boundary&nbsp;boundary
+&nbsp;&nbsp;*&gt;&nbsp;transport_padding
+&nbsp;&nbsp;*&gt;&nbsp;<span class="constructor">Rfc822</span>.crlf
+&nbsp;&nbsp;*&gt;&nbsp;body_part&nbsp;octet
+&nbsp;&nbsp;&gt;&gt;=&nbsp;<span class="keyword">fun</span>&nbsp;x&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;many&nbsp;(encapsulation&nbsp;boundary&nbsp;octet)
+&nbsp;&nbsp;&gt;&gt;=&nbsp;<span class="keyword">fun</span>&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;(close_delimiter&nbsp;boundary
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&gt;&nbsp;transport_padding
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&gt;&nbsp;option&nbsp;()&nbsp;(<span class="constructor">Rfc822</span>.crlf&nbsp;*&gt;&nbsp;(epilogue&nbsp;parent))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&gt;&nbsp;return&nbsp;(x&nbsp;::&nbsp;r))&nbsp;&lt;|&gt;&nbsp;(return&nbsp;(x&nbsp;::&nbsp;r))</code></body></html>

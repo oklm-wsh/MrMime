@@ -1,0 +1,135 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Top</title>
+</head>
+<body>
+<code class="code"><span class="keyword">type</span>&nbsp;field_message&nbsp;=
+&nbsp;&nbsp;[&nbsp;<span class="constructor">Rfc5322</span>.field&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Rfc2045</span>.field&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Rfc2045</span>.field_version&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Rfc5322</span>.skip&nbsp;]
+<span class="keyword">type</span>&nbsp;field_part&nbsp;=
+&nbsp;&nbsp;[&nbsp;<span class="constructor">Rfc5322</span>.field&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Rfc2045</span>.field&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Rfc5322</span>.skip&nbsp;]
+
+<span class="keyword">type</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;message&nbsp;=
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Discrete</span>&nbsp;&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Content</span>.t&nbsp;*&nbsp;field_message&nbsp;list&nbsp;*&nbsp;<span class="keywordsign">'</span>a
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Extension</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Content</span>.t&nbsp;*&nbsp;field_message&nbsp;list
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Composite</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Content</span>.t&nbsp;*&nbsp;field_message&nbsp;list&nbsp;*&nbsp;(<span class="constructor">Content</span>.t&nbsp;*&nbsp;field_part&nbsp;list&nbsp;*&nbsp;<span class="keywordsign">'</span>a&nbsp;part&nbsp;option)&nbsp;list
+<span class="keyword">and</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;part&nbsp;=
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PDiscrete</span>&nbsp;&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Content</span>.t&nbsp;*&nbsp;field_part&nbsp;list&nbsp;*&nbsp;<span class="keywordsign">'</span>a
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PExtension</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Content</span>.t&nbsp;*&nbsp;field_part&nbsp;list
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PComposite</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Content</span>.t&nbsp;*&nbsp;field_part&nbsp;list&nbsp;*&nbsp;(<span class="constructor">Content</span>.t&nbsp;*&nbsp;field_part&nbsp;list&nbsp;*&nbsp;<span class="keywordsign">'</span>a&nbsp;part&nbsp;option)&nbsp;list
+
+<span class="keyword">type</span>&nbsp;content&nbsp;=&nbsp;..
+
+<span class="keyword">include</span>&nbsp;<span class="constructor">Parser</span>
+<span class="keyword">include</span>&nbsp;<span class="constructor">Parser</span>.<span class="constructor">Convenience</span>
+
+<span class="keyword">type</span>&nbsp;err&nbsp;+=&nbsp;<span class="constructor">Expected_boundary</span>
+
+<span class="keyword">let</span>&nbsp;message_headers&nbsp;=
+&nbsp;&nbsp;<span class="constructor">Rfc5322</span>.header
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Rfc2045</span>.message_field
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;fail&nbsp;<span class="constructor">Rfc5322</span>.<span class="constructor">Nothing_to_do</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">fun</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;fail&nbsp;<span class="constructor">Rfc5322</span>.<span class="constructor">Nothing_to_do</span>))
+&nbsp;&nbsp;&gt;&gt;=&nbsp;<span class="constructor">Header</span>.decoder&nbsp;&gt;&gt;=&nbsp;<span class="keyword">fun</span>&nbsp;(header,&nbsp;rest)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Content</span>.message&nbsp;rest
+&nbsp;&nbsp;&gt;&gt;=&nbsp;<span class="keyword">fun</span>&nbsp;(content,&nbsp;rest)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;return&nbsp;(header,&nbsp;content,&nbsp;rest)
+&nbsp;&nbsp;<span class="comment">(*&nbsp;Rfc2045.mime_message_headers
+&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;(fun&nbsp;_&nbsp;-&gt;&nbsp;fail&nbsp;Rfc5322.Nothing_to_do)&nbsp;mime-extension
+&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;(Rfc5322.field&nbsp;(fun&nbsp;_&nbsp;-&gt;&nbsp;fail&nbsp;Rfc5322.Nothing_to_do))&nbsp;*)</span>
+
+<span class="keyword">let</span>&nbsp;boundary&nbsp;content&nbsp;=
+&nbsp;&nbsp;<span class="keyword">try</span>&nbsp;<span class="constructor">List</span>.assoc&nbsp;<span class="string">"boundary"</span>&nbsp;content.<span class="constructor">Content</span>.ty.<span class="constructor">ContentType</span>.parameters
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&gt;&nbsp;<span class="keyword">function</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Token</span>&nbsp;s&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;s&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Some</span>&nbsp;s
+&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Not_found</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">None</span>
+
+<span class="keyword">type</span>&nbsp;content&nbsp;+=&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Base64</span>.result
+<span class="keyword">type</span>&nbsp;content&nbsp;+=&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+<span class="keyword">type</span>&nbsp;content&nbsp;+=&nbsp;<span class="constructor">Raw</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+
+<span class="keyword">let</span>&nbsp;octet&nbsp;boundary&nbsp;content&nbsp;fields&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;boundary,&nbsp;rollback&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;boundary&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;boundary&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc2046</span>.delimiter&nbsp;boundary,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;f&nbsp;=&nbsp;<span class="keyword">fun</span>&nbsp;i&nbsp;s&nbsp;fail&nbsp;succ&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Input</span>.rollback&nbsp;i&nbsp;(<span class="constructor">Internal_buffer</span>.from_string&nbsp;~proof:(<span class="constructor">Input</span>.proof&nbsp;i)&nbsp;@@&nbsp;&nbsp;(<span class="string">"\r\n--"</span>&nbsp;^&nbsp;boundary));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;succ&nbsp;i&nbsp;s&nbsp;()&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;return&nbsp;(),&nbsp;return&nbsp;()
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;content.<span class="constructor">Content</span>.encoding&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">QuotedPrintable</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">QuotedPrintable</span>.decode&nbsp;boundary&nbsp;rollback
+&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;|&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;v
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Base64</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Base64</span>.decode&nbsp;boundary&nbsp;rollback
+&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;|&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Base64</span>&nbsp;v
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc5322</span>.decode&nbsp;boundary&nbsp;rollback
+&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;|&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Raw</span>&nbsp;v
+
+<span class="keyword">let</span>&nbsp;body&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;fix'&nbsp;f&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;u&nbsp;a&nbsp;b&nbsp;c&nbsp;=&nbsp;<span class="keyword">lazy</span>&nbsp;(f&nbsp;r&nbsp;a&nbsp;b&nbsp;c)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;r&nbsp;a&nbsp;b&nbsp;c&nbsp;=&nbsp;{&nbsp;f&nbsp;=&nbsp;<span class="keyword">fun</span>&nbsp;i&nbsp;s&nbsp;fail&nbsp;succ&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Lazy</span>.(force&nbsp;(u&nbsp;a&nbsp;b&nbsp;c)).f&nbsp;i&nbsp;s&nbsp;fail&nbsp;succ&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;r
+&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;fix'&nbsp;@@&nbsp;<span class="keyword">fun</span>&nbsp;m&nbsp;parent&nbsp;content&nbsp;fields&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;content.<span class="constructor">Content</span>.ty.<span class="constructor">ContentType</span>.ty&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.extension&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;return&nbsp;(<span class="constructor">PExtension</span>&nbsp;(content,&nbsp;fields))
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.discrete&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;octet&nbsp;parent&nbsp;content&nbsp;fields
+&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;|&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">PDiscrete</span>&nbsp;(content,&nbsp;fields,&nbsp;v)
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.composite&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;boundary&nbsp;content&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;boundary&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc2046</span>.multipart_body&nbsp;parent&nbsp;boundary&nbsp;(m&nbsp;(<span class="constructor">Some</span>&nbsp;boundary))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;|&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">PComposite</span>&nbsp;(content,&nbsp;fields,&nbsp;v)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;fail&nbsp;<span class="constructor">Expected_boundary</span>
+
+<span class="keyword">let</span>&nbsp;message&nbsp;=
+&nbsp;&nbsp;message_headers
+&nbsp;&nbsp;&lt;*&nbsp;<span class="constructor">Rfc822</span>.crlf
+&nbsp;&nbsp;&gt;&gt;=&nbsp;<span class="keyword">fun</span>&nbsp;(header,&nbsp;content,&nbsp;fields)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">match</span>&nbsp;content.<span class="constructor">Content</span>.ty.<span class="constructor">ContentType</span>.ty&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.extension&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;return&nbsp;(header,&nbsp;<span class="constructor">Extension</span>&nbsp;(content,&nbsp;fields))
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.discrete&nbsp;&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;octet&nbsp;<span class="constructor">None</span>&nbsp;content&nbsp;fields
+&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;|&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;header,&nbsp;<span class="constructor">Discrete</span>&nbsp;(content,&nbsp;fields,&nbsp;v)
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">#</span><span class="constructor">Rfc2045</span>.composite&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;boundary&nbsp;content&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Some</span>&nbsp;boundary&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc2046</span>.multipart_body&nbsp;<span class="constructor">None</span>&nbsp;boundary&nbsp;(body&nbsp;(<span class="constructor">Some</span>&nbsp;boundary))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;|&nbsp;<span class="keyword">fun</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;header,&nbsp;<span class="constructor">Composite</span>&nbsp;(content,&nbsp;fields,&nbsp;v)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;fail&nbsp;<span class="constructor">Expected_boundary</span>
+</code></body></html>

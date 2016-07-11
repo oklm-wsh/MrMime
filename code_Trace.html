@@ -1,0 +1,146 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Trace</title>
+</head>
+<body>
+<code class="code"><span class="keyword">type</span>&nbsp;local&nbsp;&nbsp;=&nbsp;<span class="constructor">Rfc822</span>.local
+<span class="keyword">type</span>&nbsp;domain&nbsp;=&nbsp;<span class="constructor">Rfc5322</span>.domain
+<span class="keyword">type</span>&nbsp;word&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">Rfc822</span>.word
+<span class="keyword">type</span>&nbsp;field&nbsp;&nbsp;=&nbsp;<span class="constructor">Rfc5322</span>.trace
+
+<span class="keyword">type</span>&nbsp;received&nbsp;=
+&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Addr</span>&nbsp;&nbsp;&nbsp;<span class="keyword">of</span>&nbsp;local&nbsp;*&nbsp;(domain&nbsp;*&nbsp;domain&nbsp;list)
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;<span class="keyword">of</span>&nbsp;domain
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Word</span>&nbsp;&nbsp;&nbsp;<span class="keyword">of</span>&nbsp;word&nbsp;]
+
+<span class="keyword">type</span>&nbsp;trace&nbsp;=
+&nbsp;&nbsp;{&nbsp;trace&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;(local&nbsp;*&nbsp;(domain&nbsp;*&nbsp;domain&nbsp;list))&nbsp;option
+&nbsp;&nbsp;;&nbsp;received&nbsp;:&nbsp;(received&nbsp;list&nbsp;*&nbsp;<span class="constructor">Date</span>.date&nbsp;option)&nbsp;list&nbsp;}
+
+<span class="keyword">let</span>&nbsp;pp&nbsp;=&nbsp;<span class="constructor">Format</span>.fprintf
+
+<span class="keyword">let</span>&nbsp;pp_lst&nbsp;~sep&nbsp;pp_data&nbsp;fmt&nbsp;lst&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;()
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[&nbsp;x&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp_data&nbsp;fmt&nbsp;x
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;x&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"%a%a"</span>&nbsp;pp_data&nbsp;x&nbsp;sep&nbsp;();&nbsp;aux&nbsp;r
+&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;aux&nbsp;lst
+
+<span class="keyword">let</span>&nbsp;pp_path&nbsp;=&nbsp;<span class="constructor">Address</span>.pp_mailbox'
+<span class="keyword">let</span>&nbsp;pp_received&nbsp;fmt&nbsp;r&nbsp;=
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;pp_elem&nbsp;fmt&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Addr</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.pp_mailbox'&nbsp;fmt&nbsp;v
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.pp_domain&nbsp;fmt&nbsp;v
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Word</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.pp_word&nbsp;fmt&nbsp;v
+&nbsp;&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;r&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(l,&nbsp;<span class="constructor">Some</span>&nbsp;date)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"Received&nbsp;=&nbsp;{&nbsp;@[&lt;hov&gt;%a;@&nbsp;date&nbsp;=&nbsp;%a@]&nbsp;}"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(pp_lst&nbsp;~sep:(<span class="keyword">fun</span>&nbsp;fmt&nbsp;()&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"@&nbsp;"</span>)&nbsp;pp_elem)&nbsp;l
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Date</span>.pp&nbsp;date
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;(l,&nbsp;<span class="constructor">None</span>)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"Received&nbsp;=&nbsp;@[&lt;hov&gt;%a@]"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(pp_lst&nbsp;~sep:(<span class="keyword">fun</span>&nbsp;fmt&nbsp;()&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"@&nbsp;"</span>)&nbsp;pp_elem)&nbsp;l
+
+<span class="keyword">let</span>&nbsp;pp&nbsp;fmt&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;{&nbsp;trace&nbsp;=&nbsp;<span class="constructor">Some</span>&nbsp;p
+&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;received&nbsp;=&nbsp;r&nbsp;}&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"@[&lt;hov&gt;Return-Path&nbsp;=&nbsp;%a@]@\n&amp;&nbsp;%a"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pp_path&nbsp;p
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(pp_lst&nbsp;~sep:(<span class="keyword">fun</span>&nbsp;fmt&nbsp;()&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"@\n&amp;&nbsp;"</span>)&nbsp;pp_received)&nbsp;r
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;{&nbsp;trace&nbsp;=&nbsp;<span class="constructor">None</span>
+&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;received&nbsp;=&nbsp;r&nbsp;}&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"%a"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(pp_lst&nbsp;~sep:(<span class="keyword">fun</span>&nbsp;fmt&nbsp;()&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;pp&nbsp;fmt&nbsp;<span class="string">"@\n&amp;&nbsp;"</span>)&nbsp;pp_received)&nbsp;r
+
+<span class="keyword">module</span>&nbsp;<span class="constructor">Encoder</span>&nbsp;=
+<span class="keyword">struct</span>
+&nbsp;&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Encoder</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_crlf&nbsp;k&nbsp;e&nbsp;=&nbsp;string&nbsp;<span class="string">"\r\n"</span>&nbsp;k&nbsp;e
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;w_lst&nbsp;w_sep&nbsp;w_data&nbsp;l&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Wrap</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[&nbsp;x&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_data&nbsp;x
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;x&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_data&nbsp;x&nbsp;$&nbsp;w_sep&nbsp;$&nbsp;aux&nbsp;r
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;aux&nbsp;l
+
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_field&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;(l,&nbsp;<span class="constructor">Some</span>&nbsp;date)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_data&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Word</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_word&nbsp;word
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_domain&nbsp;domain
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Addr</span>&nbsp;addr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox'&nbsp;addr
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Received:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;w_lst&nbsp;space&nbsp;w_data&nbsp;l&nbsp;$&nbsp;close_box
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;hovbox&nbsp;0&nbsp;$&nbsp;string&nbsp;<span class="string">";"</span>&nbsp;$&nbsp;space&nbsp;$&nbsp;<span class="constructor">Date</span>.<span class="constructor">Encoder</span>.w_date&nbsp;date&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;(l,&nbsp;<span class="constructor">None</span>)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_data&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Word</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_word&nbsp;word
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_domain&nbsp;domain
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Addr</span>&nbsp;addr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox'&nbsp;addr
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Received:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;w_lst&nbsp;space&nbsp;w_data&nbsp;l&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;(<span class="constructor">Some</span>&nbsp;m)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;&nbsp;<span class="string">"Return-Path:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox'&nbsp;m&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Return-Path:&nbsp;&lt;&nbsp;&gt;"</span>&nbsp;$&nbsp;w_crlf
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_trace&nbsp;{&nbsp;trace;&nbsp;received;&nbsp;}&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;trace)
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;<span class="constructor">List</span>.fold_right&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;acc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;x)&nbsp;$&nbsp;acc)&nbsp;received&nbsp;noop
+<span class="keyword">end</span>
+
+<span class="keyword">let</span>&nbsp;decoder&nbsp;(fields&nbsp;:&nbsp;[&gt;&nbsp;field&nbsp;]&nbsp;list)&nbsp;=
+&nbsp;&nbsp;{&nbsp;<span class="constructor">Parser</span>.f&nbsp;=&nbsp;<span class="keyword">fun</span>&nbsp;i&nbsp;s&nbsp;fail&nbsp;succ&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;catch&nbsp;garbage&nbsp;acc&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Trace</span>&nbsp;(trace,&nbsp;received)&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch&nbsp;garbage&nbsp;({&nbsp;trace;&nbsp;received;&nbsp;}&nbsp;::&nbsp;acc)&nbsp;r
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;field&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catch&nbsp;(field&nbsp;::&nbsp;garbage)&nbsp;acc&nbsp;r
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;acc,&nbsp;<span class="constructor">List</span>.rev&nbsp;garbage&nbsp;<span class="comment">(*&nbsp;keep&nbsp;the&nbsp;order&nbsp;*)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;succ&nbsp;i&nbsp;s&nbsp;(catch&nbsp;[]&nbsp;[]&nbsp;fields)&nbsp;}
+</code></body></html>

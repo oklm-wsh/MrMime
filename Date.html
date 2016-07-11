@@ -4,62 +4,318 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="previous" href="Newline.html">
-<link rel="next" href="LiteralDomain.html">
+<link rel="previous" href="Top.html">
+<link rel="next" href="MsgID.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Newline" rel="Chapter" href="Newline.html">
-<link title="Date" rel="Chapter" href="Date.html">
-<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
-<link title="Address" rel="Chapter" href="Address.html">
-<link title="MsgID" rel="Chapter" href="MsgID.html">
-<link title="Resent" rel="Chapter" href="Resent.html">
-<link title="Trace" rel="Chapter" href="Trace.html">
-<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
-<link title="Content" rel="Chapter" href="Content.html">
-<link title="Header" rel="Chapter" href="Header.html">
-<link title="Message" rel="Chapter" href="Message.html">
-<link title="Option" rel="Chapter" href="Option.html">
-<link title="Iana" rel="Chapter" href="Iana.html">
-<link title="Error" rel="Chapter" href="Error.html">
-<link title="Decoder" rel="Chapter" href="Decoder.html">
-<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
 <link title="Encoder" rel="Chapter" href="Encoder.html">
-<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
-<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
-<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
-<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
 <link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
 <link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
-<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Date</title>
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Date</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="Newline.html" title="Newline">Previous</a>
+<div class="navbar"><a class="pre" href="Top.html" title="Top">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
-&nbsp;<a class="post" href="LiteralDomain.html" title="LiteralDomain">Next</a>
+&nbsp;<a class="post" href="MsgID.html" title="MsgID">Next</a>
 </div>
 <h1>Module <a href="type_Date.html">Date</a></h1>
 
 <pre><span class="keyword">module</span> Date: <code class="code"><span class="keyword">sig</span></code> <a href="Date.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+<pre><span id="TYPEday"><span class="keyword">type</span> <code class="type"></code>day</span> = <code class="type"><a href="Rfc5322.html#TYPEday">Rfc5322.day</a></code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTday.Mon"><span class="constructor">Mon</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTday.Tue"><span class="constructor">Tue</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTday.Wed"><span class="constructor">Wed</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTday.Thu"><span class="constructor">Thu</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTday.Fri"><span class="constructor">Fri</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTday.Sat"><span class="constructor">Sat</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTday.Sun"><span class="constructor">Sun</span></span></code></td>
+
+</tr></table>
 
 
-<pre><span class="keyword">module</span> <a href="Date.D.html">D</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Date.D.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span class="keyword">module</span> <a href="Date.E.html">E</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Date.E.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">string -> <a href="Date.html#TYPEt">t</a></code></pre>
-<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="Date.html#TYPEt">t</a> -> string</code></pre>
-<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="Date.html#TYPEt">t</a> -> <a href="Date.html#TYPEt">t</a> -> bool</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Date.html#TYPEt">t</a> -> unit</code></pre></body></html>
+
+<pre><span id="TYPEmonth"><span class="keyword">type</span> <code class="type"></code>month</span> = <code class="type"><a href="Rfc5322.html#TYPEmonth">Rfc5322.month</a></code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Jan"><span class="constructor">Jan</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Feb"><span class="constructor">Feb</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Mar"><span class="constructor">Mar</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Apr"><span class="constructor">Apr</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.May"><span class="constructor">May</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Jun"><span class="constructor">Jun</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Jul"><span class="constructor">Jul</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Aug"><span class="constructor">Aug</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Sep"><span class="constructor">Sep</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Oct"><span class="constructor">Oct</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Nov"><span class="constructor">Nov</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTmonth.Dec"><span class="constructor">Dec</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEzone"><span class="keyword">type</span> <code class="type"></code>zone</span> = <code class="type"><a href="Rfc5322.html#TYPEzone">Rfc5322.zone</a></code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.UT"><span class="constructor">UT</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.GMT"><span class="constructor">GMT</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.EST"><span class="constructor">EST</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.EDT"><span class="constructor">EDT</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.CST"><span class="constructor">CST</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.CDT"><span class="constructor">CDT</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.MST"><span class="constructor">MST</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.MDT"><span class="constructor">MDT</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.PST"><span class="constructor">PST</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.PDT"><span class="constructor">PDT</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.Military_zone"><span class="constructor">Military_zone</span></span> <span class="keyword">of</span> <code class="type">char</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTzone.TZ"><span class="constructor">TZ</span></span> <span class="keyword">of</span> <code class="type">int</code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEdate"><span class="keyword">type</span> <code class="type"></code>date</span> = <code class="type"><a href="Rfc5322.html#TYPEdate">Rfc5322.date</a></code> = {</pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdate.day">day</span>&nbsp;: <code class="type"><a href="Date.html#TYPEday">day</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdate.date">date</span>&nbsp;: <code class="type">int * <a href="Date.html#TYPEmonth">month</a> * int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdate.time">time</span>&nbsp;: <code class="type">int * int * int option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdate.zone">zone</span>&nbsp;: <code class="type"><a href="Date.html#TYPEzone">zone</a></code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALpp_zone"><span class="keyword">val</span> pp_zone</span> : <code class="type">Format.formatter -> <a href="Date.html#TYPEzone">zone</a> -> unit</code></pre>
+<pre><span id="VALpp_month"><span class="keyword">val</span> pp_month</span> : <code class="type">Format.formatter -> <a href="Date.html#TYPEmonth">month</a> -> unit</code></pre>
+<pre><span id="VALpp_day"><span class="keyword">val</span> pp_day</span> : <code class="type">Format.formatter -> <a href="Date.html#TYPEday">day</a> -> unit</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Date.html#TYPEdate">date</a> -> unit</code></pre>
+<pre><span class="keyword">module</span> <a href="Date.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Date.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="Date.html#TYPEdate">date</a> -> string</code></pre>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="Date.html#TYPEdate">date</a> option</code></pre>
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -> string -> int -> int -> (<a href="Date.html#TYPEdate">date</a> * int) option</code></pre>
+<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="Date.html#TYPEdate">date</a> -> <a href="Date.html#TYPEdate">date</a> -> bool</code></pre></body></html>

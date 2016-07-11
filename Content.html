@@ -4,61 +4,123 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="previous" href="ContentEncoding.html">
-<link rel="next" href="Header.html">
+<link rel="previous" href="ContentType.html">
+<link rel="next" href="Address.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Newline" rel="Chapter" href="Newline.html">
-<link title="Date" rel="Chapter" href="Date.html">
-<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
-<link title="Address" rel="Chapter" href="Address.html">
-<link title="MsgID" rel="Chapter" href="MsgID.html">
-<link title="Resent" rel="Chapter" href="Resent.html">
-<link title="Trace" rel="Chapter" href="Trace.html">
-<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
-<link title="Content" rel="Chapter" href="Content.html">
-<link title="Header" rel="Chapter" href="Header.html">
-<link title="Message" rel="Chapter" href="Message.html">
-<link title="Option" rel="Chapter" href="Option.html">
-<link title="Iana" rel="Chapter" href="Iana.html">
-<link title="Error" rel="Chapter" href="Error.html">
-<link title="Decoder" rel="Chapter" href="Decoder.html">
-<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
 <link title="Encoder" rel="Chapter" href="Encoder.html">
-<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
-<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
-<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
-<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
 <link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
 <link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
-<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Content</title>
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Content</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="ContentEncoding.html" title="ContentEncoding">Previous</a>
+<div class="navbar"><a class="pre" href="ContentType.html" title="ContentType">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
-&nbsp;<a class="post" href="Header.html" title="Header">Next</a>
+&nbsp;<a class="post" href="Address.html" title="Address">Next</a>
 </div>
 <h1>Module <a href="type_Content.html">Content</a></h1>
 
 <pre><span class="keyword">module</span> Content: <code class="code"><span class="keyword">sig</span></code> <a href="Content.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+<pre><span class="keyword">module</span> <a href="Content.Map.html">Map</a>: <code class="type">module type of Map.Make(String)</code></pre>
+<pre><span id="TYPEunstructured"><span class="keyword">type</span> <code class="type"></code>unstructured</span> = <code class="type"><a href="Rfc5322.html#TYPEunstructured">Rfc5322.unstructured</a></code> </pre>
 
 
-<pre><span id="VALty"><span class="keyword">val</span> ty</span> : <code class="type"><a href="Content.html#TYPEt">t</a> -> <a href="ContentType.html#TYPEt">ContentType.t</a></code></pre>
-<pre><span id="VALencoding"><span class="keyword">val</span> encoding</span> : <code class="type"><a href="Content.html#TYPEt">t</a> -> <a href="ContentEncoding.html#TYPEt">ContentEncoding.t</a></code></pre>
-<pre><span class="keyword">module</span> <a href="Content.Part.html">Part</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Part.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span class="keyword">module</span> <a href="Content.Message.html">Message</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Message.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Content.html#TYPEt">t</a> -> unit</code></pre></body></html>
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * <a href="Rfc5322.html#TYPEunstructured">Rfc5322.unstructured</a><br>       | `ContentDescription of <a href="Rfc5322.html#TYPEunstructured">Rfc5322.unstructured</a><br>       | `ContentEncoding of <a href="Rfc2045.html#TYPEmechanism">Rfc2045.mechanism</a><br>       | `ContentID of <a href="Rfc822.html#TYPEmsg_id">Rfc822.msg_id</a><br>       | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>       | `MimeVersion of <a href="Rfc2045.html#TYPEversion">Rfc2045.version</a><br>       | `Skip of string ]</code> </pre>
+
+
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.ty">ty</span>&nbsp;: <code class="type"><a href="ContentType.html#TYPEcontent">ContentType.content</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.encoding">encoding</span>&nbsp;: <code class="type"><a href="ContentEncoding.html#TYPEmechanism">ContentEncoding.mechanism</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.version">version</span>&nbsp;: <code class="type"><a href="MimeVersion.html#TYPEversion">MimeVersion.version</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.id">id</span>&nbsp;: <code class="type"><a href="MsgID.html#TYPEmsg_id">MsgID.msg_id</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.description">description</span>&nbsp;: <code class="type"><a href="Content.html#TYPEunstructured">unstructured</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.content">content</span>&nbsp;: <code class="type"><a href="Content.html#TYPEunstructured">unstructured</a> list Map.t</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.unsafe">unsafe</span>&nbsp;: <code class="type"><a href="Content.html#TYPEunstructured">unstructured</a> list Map.t</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.skip">skip</span>&nbsp;: <code class="type">string list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALpp_raw"><span class="keyword">val</span> pp_raw</span> : <code class="type">Format.formatter -> <a href="Rfc2047.html#TYPEraw">Rfc2047.raw</a> -> unit</code></pre>
+<pre><span id="VALpp_unstructured"><span class="keyword">val</span> pp_unstructured</span> : <code class="type">Format.formatter -> <a href="Content.html#TYPEunstructured">unstructured</a> -> unit</code></pre>
+<pre><span id="VALpp_field"><span class="keyword">val</span> pp_field</span> : <code class="type">Format.formatter -> <a href="Content.html#TYPEfield">field</a> -> unit</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="Content.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="Content.html#TYPEt">t</a></code></pre>
+<pre><span class="keyword">module</span> <a href="Content.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="Content.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALmessage"><span class="keyword">val</span> message</span> : <code class="type">([> `Content of string * <a href="Rfc5322.html#TYPEunstructured">Rfc5322.unstructured</a><br>         | `ContentDescription of <a href="Rfc5322.html#TYPEunstructured">Rfc5322.unstructured</a><br>         | `ContentEncoding of <a href="Rfc2045.html#TYPEmechanism">Rfc2045.mechanism</a><br>         | `ContentID of <a href="Rfc822.html#TYPEmsg_id">Rfc822.msg_id</a><br>         | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>         | `MimeVersion of <a href="Rfc2045.html#TYPEversion">Rfc2045.version</a> ]<br>        as 'a)<br>       list -> (<a href="Content.html#TYPEt">t</a> * 'a list) Parser.t</code></pre>
+<pre><span id="VALpart"><span class="keyword">val</span> part</span> : <code class="type">([> `Content of string * <a href="Rfc5322.html#TYPEunstructured">Rfc5322.unstructured</a><br>         | `ContentDescription of <a href="Rfc5322.html#TYPEunstructured">Rfc5322.unstructured</a><br>         | `ContentEncoding of <a href="Rfc2045.html#TYPEmechanism">Rfc2045.mechanism</a><br>         | `ContentID of <a href="Rfc822.html#TYPEmsg_id">Rfc822.msg_id</a><br>         | `ContentType of <a href="Rfc2045.html#TYPEcontent">Rfc2045.content</a><br>         | `Skip of string<br>         | `Unsafe of string * <a href="Rfc5322.html#TYPEunstructured">Rfc5322.unstructured</a> ]<br>        as 'a)<br>       list -> (<a href="Content.html#TYPEt">t</a> * 'a list) Parser.t</code></pre></body></html>

@@ -4,49 +4,43 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="previous" href="BaseEncoder.html">
+<link rel="previous" href="Encoder.html">
 <link rel="next" href="Rfc6532.html">
 <link rel="Up" href="index.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
 <link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
-<link title="MrMime" rel="Chapter" href="MrMime.html">
-<link title="Newline" rel="Chapter" href="Newline.html">
-<link title="Date" rel="Chapter" href="Date.html">
-<link title="LiteralDomain" rel="Chapter" href="LiteralDomain.html">
-<link title="Address" rel="Chapter" href="Address.html">
-<link title="MsgID" rel="Chapter" href="MsgID.html">
-<link title="Resent" rel="Chapter" href="Resent.html">
-<link title="Trace" rel="Chapter" href="Trace.html">
-<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
-<link title="ContentType" rel="Chapter" href="ContentType.html">
-<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
-<link title="Content" rel="Chapter" href="Content.html">
-<link title="Header" rel="Chapter" href="Header.html">
-<link title="Message" rel="Chapter" href="Message.html">
-<link title="Option" rel="Chapter" href="Option.html">
-<link title="Iana" rel="Chapter" href="Iana.html">
-<link title="Error" rel="Chapter" href="Error.html">
-<link title="Decoder" rel="Chapter" href="Decoder.html">
-<link title="BaseDecoder" rel="Chapter" href="BaseDecoder.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
 <link title="Encoder" rel="Chapter" href="Encoder.html">
-<link title="BaseEncoder" rel="Chapter" href="BaseEncoder.html">
 <link title="Wrap" rel="Chapter" href="Wrap.html">
 <link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
 <link title="Rfc822" rel="Chapter" href="Rfc822.html">
-<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
-<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
-<link title="Rfc6854" rel="Chapter" href="Rfc6854.html">
 <link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
 <link title="Base64" rel="Chapter" href="Base64.html">
 <link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
-<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
 <link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
-<link title="Grammar" rel="Chapter" href="Grammar.html"><title>Wrap</title>
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Wrap</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="BaseEncoder.html" title="BaseEncoder">Previous</a>
+<div class="navbar"><a class="pre" href="Encoder.html" title="Encoder">Previous</a>
 &nbsp;<a class="up" href="index.html" title="Index">Up</a>
 &nbsp;<a class="post" href="Rfc6532.html" title="Rfc6532">Next</a>
 </div>
@@ -66,21 +60,21 @@
 <pre><span id="TYPEk2"><span class="keyword">type</span> <code class="type">('a, 'b, 'r)</code> k2</span> = <code class="type">'a -> 'b -> (<a href="Wrap.html#TYPEt">t</a> -> 'r) -> <a href="Wrap.html#TYPEt">t</a> -> 'r</code> </pre>
 
 
-<pre><span id="VALw_string"><span class="keyword">val</span> w_string</span> : <code class="type">(string,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
-<pre><span id="VALw_close_box"><span class="keyword">val</span> w_close_box</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
-<pre><span id="VALw_hbox"><span class="keyword">val</span> w_hbox</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
-<pre><span id="VALw_vbox"><span class="keyword">val</span> w_vbox</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
-<pre><span id="VALw_hvbox"><span class="keyword">val</span> w_hvbox</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
-<pre><span id="VALw_hovbox"><span class="keyword">val</span> w_hovbox</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
-<pre><span id="VALw_box"><span class="keyword">val</span> w_box</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
-<pre><span id="VALw_newline"><span class="keyword">val</span> w_newline</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
-<pre><span id="VALw_flush"><span class="keyword">val</span> w_flush</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
-<pre><span id="VALw_force_newline"><span class="keyword">val</span> w_force_newline</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
-<pre><span id="VALw_if_newline"><span class="keyword">val</span> w_if_newline</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
-<pre><span id="VALw_break"><span class="keyword">val</span> w_break</span> : <code class="type">(int, int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk2">k2</a></code></pre>
-<pre><span id="VALw_space"><span class="keyword">val</span> w_space</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
-<pre><span id="VALw_cut"><span class="keyword">val</span> w_cut</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
-<pre><span id="VALw_char"><span class="keyword">val</span> w_char</span> : <code class="type">(char,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
-<pre><span id="VALw_limit"><span class="keyword">val</span> w_limit</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
+<pre><span id="VALstring"><span class="keyword">val</span> string</span> : <code class="type">(string,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
+<pre><span id="VALclose_box"><span class="keyword">val</span> close_box</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
+<pre><span id="VALhbox"><span class="keyword">val</span> hbox</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
+<pre><span id="VALvbox"><span class="keyword">val</span> vbox</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
+<pre><span id="VALhvbox"><span class="keyword">val</span> hvbox</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
+<pre><span id="VALhovbox"><span class="keyword">val</span> hovbox</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
+<pre><span id="VALbox"><span class="keyword">val</span> box</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
+<pre><span id="VALnewline"><span class="keyword">val</span> newline</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
+<pre><span id="VALflush"><span class="keyword">val</span> flush</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
+<pre><span id="VALforce_newline"><span class="keyword">val</span> force_newline</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
+<pre><span id="VALif_newline"><span class="keyword">val</span> if_newline</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
+<pre><span id="VALbreak"><span class="keyword">val</span> break</span> : <code class="type">(int, int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk2">k2</a></code></pre>
+<pre><span id="VALspace"><span class="keyword">val</span> space</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
+<pre><span id="VALcut"><span class="keyword">val</span> cut</span> : <code class="type">([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a><br>       <a href="Wrap.html#TYPEk0">k0</a></code></pre>
+<pre><span id="VALchar"><span class="keyword">val</span> char</span> : <code class="type">(char,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
+<pre><span id="VALlimit"><span class="keyword">val</span> limit</span> : <code class="type">(int,<br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>)<br>       <a href="Wrap.html#TYPEk1">k1</a></code></pre>
 <pre><span id="VALlift"><span class="keyword">val</span> lift</span> : <code class="type">?margin:int -> (<a href="Wrap.html#TYPEt">t</a> -> 'a) -> <a href="Encoder.html#TYPEt">Encoder.t</a> -> 'a</code></pre>
 <pre><span id="VALunlift"><span class="keyword">val</span> unlift</span> : <code class="type">(<a href="Encoder.html#TYPEt">Encoder.t</a> -><br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) <a href="Encoder.html#TYPEpartial">Encoder.partial</a>) -><br>       <a href="Wrap.html#TYPEt">t</a> -> 'a <a href="Encoder.html#TYPEpartial">Encoder.partial</a></code></pre></body></html>
