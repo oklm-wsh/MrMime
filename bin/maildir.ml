@@ -1,9 +1,8 @@
-open Lwt.Infix
 open Astring
 
 let () = Fmt.set_style_renderer Fmt.stdout `Ansi_tty
 
-type newline = CRLF | CR | LF
+type newline = CRLF | LF
 
 let with_process_in cmd f =
   let ic = Unix.open_process_in cmd in
@@ -57,7 +56,7 @@ let yellow_s fmt = color `Yellow fmt
 let bold_s fmt = color `Bold fmt
 let cyan_s fmt = color `Cyan fmt
 
-let read_into' ?(newline = LF) channel buf off len =
+let read_into ?(newline = LF) channel buf off len =
   if len + off > Bytes.length buf
      || off < 0
      || len < 0
@@ -67,24 +66,6 @@ let read_into' ?(newline = LF) channel buf off len =
 
   match newline with
   | CRLF -> input channel buf off len
-  | CR ->
-    let rec read_char has_cr remaining =
-      assert (remaining >= 0);
-
-      if remaining = 0 then len
-      else match input_char channel with
-           | '\n' when has_cr ->
-             read_char false remaining
-           | '\r' ->
-             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
-             read_char true  (remaining - 2)
-           | chr  ->
-             Bytes.set buf (last - remaining) chr;
-             read_char false (pred remaining)
-           | exception End_of_file -> (len - remaining)
-    in
-
-    read_char false len
   | LF ->
     let rec read_char has_cr remaining =
       assert (remaining >= 0);
@@ -109,38 +90,30 @@ let read_into' ?(newline = LF) channel buf off len =
 
     read_char false len
 
-let rec of_flow' (ch, decoder) newline =
-  let max = in_channel_length ch in
-  let go_to_end = ref false in
-  let rec aux = function
-    | `Read (buff, off, len, k) ->
-      let n = read_into' ~newline ch buff off len in
-      if n = 0 && pos_in ch = max
-      then begin
-        if !go_to_end = true
-        then raise (Invalid_argument "Unterminated message")
-        else (go_to_end := true; aux (k n))
-      end else aux (k n)
-    | `Error (err, buff, off, len) ->
-      raise (Error.Error (`Error (err, buff, off, len)))
-    | `Ok message -> close_in ch; (message : Message.t)
-  in
-
-  aux
-
-let of_filename' filename =
+let of_filename filename =
   open_in filename
 
-let to_filename' filename content =
+let to_filename filename content =
   let ch = open_out filename in
   output_string ch content;
   close_out ch
 
-let message' ?(newline = LF) input =
-  let state = Decoder.make () in
-  of_flow' (input, state) newline
-    (Grammar.p_message
-    (fun header message _ -> `Ok (header, message)) state)
+let message ?(chunk = 1024) ?(newline = LF) input =
+  let i = Input.create_bytes chunk in
+  let t = Bytes.create chunk in
+
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = read_into ~newline input t 0 chunk in
+      Input.write buffer (Internal_buffer.from_bytes t) 0 n;
+      aux (consumed + n)
+      @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some v
+  in
+
+  let v = aux 0 @@ Parser.run i Top.message in
+  close_in input; v
 
 open Cmdliner
 
@@ -171,46 +144,17 @@ let do_cmd path newline =
        (left left_c yellow_s) "..."
        (left 20 cyan_s) filename;
 
-     try let m1 = message' ~newline @@ of_filename' filename in
-         let s1 = Message.to_string m1 in
-         begin try let m2 = Message.of_string s1 in
-                   if m1 = m2
-                   then begin
-                     print (fun ppf -> Fmt.string ppf "\r");
-                     Fmt.pf Fmt.stdout "%a%a\n%!"
-                       (left left_c green_s) "[OK]"
-                       (left 20 cyan_s) filename;
-                   end else begin
-                     print (fun ppf -> Fmt.string ppf "\r");
-                     Fmt.pf Fmt.stdout "%a%a\n%!"
-                       (left left_c yellow_s) "[DIFF]"
-                       (left 20 cyan_s) filename;
-                   end
-               with Error.Error _ as exn ->
-                    print (fun ppf -> Fmt.string ppf "\r");
-                    Fmt.pf Fmt.stdout "%a%a %a\n%!"
-                      (left left_c red_s) "[ERROR]"
-                      cyan_s filename
-                      yellow_s (Printexc.to_string exn)
-                  | exn ->
-                    print (fun ppf -> Fmt.string ppf "\r");
-                    Fmt.pf Fmt.stdout "%a%a %a\n%!"
-                      (left left_c red_s) "[UNKNOW]"
-                      cyan_s filename
-                      yellow_s (Printexc.to_string exn)
-        end
-     with Error.Error _ as exn ->
+     match message ~newline @@ of_filename filename with
+     | Some v ->
+         print (fun ppf -> Fmt.string ppf "\r");
+         Fmt.pf Fmt.stdout "%a%a\n%!"
+           (left left_c green_s) "[OK]"
+           (left 20 cyan_s) filename;
+     | None ->
           print (fun ppf -> Fmt.string ppf "\r");
-          Fmt.pf Fmt.stdout "%a%a %a\n%!"
+          Fmt.pf Fmt.stdout "%a%a\n%!"
             (left left_c red_s) "[ERROR]"
             cyan_s filename
-            yellow_s (Printexc.to_string exn)
-        | exn ->
-          print (fun ppf -> Fmt.string ppf "\r");
-          Fmt.pf Fmt.stdout "%a%a %a\n%!"
-            (left left_c red_s) "[UNKNOW]"
-            cyan_s filename
-            yellow_s (Printexc.to_string exn)
   in
 
   List.iter one files
@@ -223,20 +167,18 @@ let newline =
   let parse s =
     match Bytes.uppercase_ascii s with
     | "CRLF" -> `Ok CRLF
-    | "CR" -> `Ok CR
     | "LF" -> `Ok LF
     | _ -> `Error "Invalid newline."
   in
   let pp fmt = function
     | CRLF -> Format.fprintf fmt "CRLF"
-    | CR -> Format.fprintf fmt "CR"
     | LF -> Format.fprintf fmt "LF"
   in
   parse, pp
 
 let newline =
   let doc = "Specify a specific newline." in
-  Arg.(value & opt newline CRLF & info ["n"; "newline"] ~doc)
+  Arg.(value & opt newline LF & info ["n"; "newline"] ~doc)
 
 let cmd =
   let doc = "Scan mail directory and try to parse emails." in

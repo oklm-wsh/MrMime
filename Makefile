@@ -4,8 +4,6 @@ PKG_TARBALL = $(PKG_NAME)-$(PKG_VERSION).tar.gz
 
 DISTFILES = $(shell git ls-files)
 
-CONFIGUREFLAGS = --enable-tests --enable-mtype --enable-tag
-
 # OASIS_START
 # DO NOT EDIT (digest: a3c674b4239234cbbe53afe090018954)
 

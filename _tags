@@ -1,5 +1,3 @@
 # OASIS_START
 # OASIS_STOP
-<lib/iana.ml{,i}>: ppx_mtype, ppx_tag
-<lib/*.ml{,i}>: ppx_debug
 true: color(always)

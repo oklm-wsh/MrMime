@@ -1,14 +1,22 @@
-type atom     = Rfc5322.atom
-type word     = Rfc5322.word
-type domain   = [ `Domain of atom list | `Literal of string list | LiteralDomain.t ]
-type local    = Rfc5322.local
-type encoding = Rfc2047.encoding = QuotedPrintable | Base64
-type phrase   = Rfc5322.phrase
+type word           = Rfc822.word
+type local          = Rfc822.local
+type raw            = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.result
+type phrase         = Rfc5322.phrase
+type domain         = Rfc5322.domain
+type literal_domain = Rfc5321.literal_domain = ..
+
+type mailbox = Rfc5322.mailbox =
+  { name    : phrase option
+  ; local   : Rfc822.local
+  ; domain  : domain * domain list }
+
+type group = Rfc5322.group =
+  { name    : phrase
+  ; mailbox : mailbox list }
+
+type address = [ `Group of group | `Mailbox of mailbox ]
 
 let pp = Format.fprintf
-
-let pp_atom fmt = function
-  | `Atom x -> pp fmt "%s" x
 
 let pp_lst ~sep pp_data fmt lst =
   let rec aux = function
@@ -21,433 +29,348 @@ let pp_word fmt = function
   | `Atom x -> pp fmt "%s" x
   | `String s -> pp fmt "%S" s
 
-let pp_domain fmt = function
-  | `Domain lst -> pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt ".") pp_atom) lst
-  | `Literal lst -> pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") (fun fmt s -> pp fmt "%s" s)) lst
-  | #LiteralDomain.t as x -> LiteralDomain.pp fmt x
+let pp_domain fmt (x : domain) = match x with
+  | `Domain lst ->
+    pp fmt "@[<hov>%a@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt ".") Format.pp_print_string) lst
+  | `Literal (Rfc5321.IPv4 ipv4) ->
+    pp fmt "[@[<hov>%s@]]" (Ipaddr.V4.to_string ipv4)
+  | `Literal (Rfc5321.IPv6 ipv6) ->
+    pp fmt "[@[<hov>%s@]]" (Ipaddr.V6.to_string ipv6)
+
+let pp_raw fmt = function
+  | Rfc2047.QuotedPrintable raw -> pp fmt "quoted-printable:%s" raw
+  | Rfc2047.Base64 (`Clean raw) -> pp fmt "base64:%s" raw
+  | Rfc2047.Base64 (`Dirty raw) -> pp fmt "base64:%S" raw
+  | Rfc2047.Base64 `Wrong_padding -> pp fmt "base64:wrong-padding"
+
+let pp_phrase fmt =
+  let rec aux fmt = function
+    | `Dot    -> pp fmt "."
+    | `Word x -> pp_word fmt x
+    | `Encoded (charset, raw) ->
+        pp fmt "{ @[<hov> charset = %s;@ raw = %a@] }" charset pp_raw raw
+  in
+  pp fmt "@[<hov>%a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux)
 
 let pp_local =
   pp_lst ~sep:(fun fmt () -> pp fmt ".") pp_word
 
-let pp_encoding fmt = function
-  | QuotedPrintable -> pp fmt "Q"
-  | Base64 -> pp fmt "B"
-
-let pp_phrase fmt =
-  let make f n =
-    let rec aux acc = function
-      | 0 -> List.rev acc
-      | n -> aux (f n :: acc) (n - 1)
-    in aux [] n
-  in
-
-  let rec aux fmt = function
-    | `Atom x -> pp fmt "%s" x
-    | `CR n -> pp fmt "%s" (String.concat "" (make (fun _ -> "\r") n))
-    | `Dot -> pp fmt "."
-    | `Encoded (charset, encoding, data) ->
-      pp fmt "{ @[<hov> charset = %s;@ encoding = %a;@ data = %S@] }"
-        charset pp_encoding encoding data
-    | `FWS -> pp fmt "<fws>"
-    | `LF n -> pp fmt "%s" (String.concat "" (make (fun _ -> "\n") n))
-    | `String s -> pp fmt "%S" s
-    | `WSP -> pp fmt "@ "
-  in
-
-  pp fmt "@[<hov>%a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@,") aux)
-
-let size_of_local =
-  List.fold_left (fun acc -> function
-    | `Atom s -> String.length s + acc
-    | `String s -> String.length s + acc) 0
-
-let size_of_domain domain =
-  let aux = List.fold_left (fun acc -> function `Atom s -> String.length s + acc) 0 in
-  match domain with
-  | `Domain l -> aux l
-  | `Literal l -> List.fold_left (fun acc x -> acc + (String.length x)) 0 l
-  | #LiteralDomain.t as l -> LiteralDomain.size l
-
-type mailbox =
-  { local   : local
-  ; domain  : domain * domain list }
-
-type person =
-  { name    : phrase option
-  ; mailbox : mailbox }
-
-type group =
-  { name    : phrase
-  ; persons : person list }
-
-type t = [ `Group of group | `Person of person ]
-
-let pp_mailbox fmt { local; domain = (first, rest) } =
+let pp_mailbox' fmt (local, (first, rest)) =
   match rest with
-  | [] -> pp fmt "{ @[<hov>%a;@ %a@] }" pp_local local pp_domain first
-  | lst -> pp fmt "{ @[<hov>%a;@ @[<hov>%a@ |@ %a@]@] }"
-    pp_local local pp_domain first (pp_lst ~sep:(fun fmt () -> pp fmt "@ |@ ") pp_domain) lst
+  | [] ->
+    pp fmt "{ @[<hov>%a;@ %a@] }"
+      pp_local local
+      pp_domain first
+  | lst ->
+    pp fmt "{ @[<hov>%a;@ [@[<hov>%a@ |@ %a@]]@] }"
+      pp_local local
+      pp_domain first
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@ |@ ") pp_domain) lst
 
-let pp_person fmt = function
-  | { name = Some name; mailbox; } ->
-      pp fmt "@[<hov>%a:@ %a@]" pp_phrase name pp_mailbox mailbox
-  | { name = None; mailbox; } ->
-      pp fmt "@[<hov>%a@]" pp_mailbox mailbox
+let pp_mailbox fmt = function
+  | { Rfc5322.name = Some name; local; domain; } ->
+    pp fmt "@[<hov>%a:@ %a@]"
+      pp_phrase name
+      pp_mailbox' (local, domain)
+  | { Rfc5322.name = None; local; domain;} ->
+    pp fmt "@[<hov>%a@]"
+      pp_mailbox' (local, domain)
 
-let pp_group fmt { name; persons; } =
+let pp_group fmt { Rfc5322.name; mailbox; } =
   pp fmt "@[<hov>%a:@ %a;@]"
-    pp_phrase name (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") pp_person) persons
+    pp_phrase name
+    (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") pp_mailbox) mailbox
 
 let pp fmt = function
-  | `Group grp -> pp_group fmt grp
-  | `Person prs -> pp_person fmt prs
+  | `Group g -> pp_group fmt g
+  | `Mailbox m -> pp_mailbox fmt m
 
-module D =
+module Encoder =
 struct
-  let domain_of_lexer x = (x :> domain)
+  include Encoder
+  open Wrap
 
-  let mailbox_of_lexer (local, domains) =
-    let domains = List.map domain_of_lexer domains in
+  let w_atom = function
+    | `Atom s -> hovbox 0 $ string s $ close_box
 
-    let first, rest = match domains with
-      | first :: rest -> first, rest
-      | _ -> raise (Invalid_argument "Address.mailbox_of_lexer")
-    in
-
-    if size_of_local local > 0
-    && size_of_domain first > 0
-    && List.for_all (fun x -> x > 0) (List.map size_of_domain rest)
-    then { local; domain = (first, rest); }
-    else raise (Invalid_argument "Address.mailbox_of_lexer")
-
-  let person_of_lexer (name, mailbox) =
-    { name; mailbox = mailbox_of_lexer mailbox; }
-
-  let group_of_lexer (name, persons) =
-    { name; persons = List.map person_of_lexer persons; }
-
-  let of_lexer = function
-    | `Group group -> `Group (group_of_lexer group)
-    | `Person person -> `Person (person_of_lexer person)
-
-  open BaseDecoder
-
-  let of_decoder state =
-    let rec loop = function
-      | `Error (exn, buf, off, len) ->
-        let tmp = Buffer.create 16 in
-        let fmt = Format.formatter_of_buffer tmp in
-
-        Format.fprintf fmt "%a (buf: %S)%!"
-          Error.pp exn (Bytes.sub buf off (len - off));
-
-        raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
-      | `Read (buf, off, len, k) ->
-        raise (Invalid_argument "Address.of_string: unterminated string")
-      | `Ok data -> of_lexer data
-    in
-
-    let rule =
-      Rfc5322.p_address
-      @ fun data -> Rfc822.p_crlf
-      @ Rfc822.p_crlf
-      @ fun _ -> `Ok data
-    in
-
-    loop @@ safe rule state
-end
-
-module E =
-struct
-  module Internal =
-  struct
-    open BaseEncoder
-    open Wrap
-
-    let w_atom = function
-      | `Atom s -> w_hovbox 1 $ w_string s $ w_close_box
-
-    let w_domain = function
-      | `Domain lst ->
-        let rec aux = function
-          | [] -> noop
-          | [ x ] -> w_atom x
-          | x :: r -> w_atom x $ w_hovbox 1 $ w_string "." $ aux r $ w_close_box
-        in w_hovbox 1 $ aux lst $ w_close_box
-      | `Literal l ->
-        w_hovbox 1
-        $ w_string "["
-          (* TODO: may be we must use LiteralDomain.E.w_safe_string to escape ]
-                   character *)
-        $ List.fold_right (fun x k -> w_hovbox 1 $ w_string x $ w_close_box $ k) l noop
-        $ w_string "]"
-        $ w_close_box
-      | #Rfc5321.literal_domain as x -> LiteralDomain.E.w x
-
-    let explode str =
-      let rec exp i l =
-        if i < 0 then l else exp (i - 1) (str.[i] :: l) in
-      exp (String.length str - 1) []
-
-    let w_safe_string str =
-      let is_vchar = function
-        | '\x21' .. '\x7e' -> true
-        | _ -> false
-      in
-      List.fold_right
-        (function
-         | '\x00' -> w_string "\\\000"
-         | '\x07' -> w_string "\\a"
-         | '\x08' -> w_string "\\b"
-         | '\x09' -> w_string "\\t"
-         | '\x0A' -> w_string "\\n"
-         | '\x0B' -> w_string "\\v"
-         | '\x0C' -> w_string "\\f"
-         | '\x0D' -> w_string "\\r"
-         | '\\'   -> w_string "\\\\"
-         | '"'    -> w_string "\\\""
-         | ' '    -> w_string " "
-         | '\x00' .. '\x7F' as chr ->
-           if is_vchar chr
-           then w_char chr
-           else w_string (sp "\\%c" chr)
-         | chr -> w_char chr)
-        (explode str)
-
-    let w_word = function
-      | #Rfc5322.atom as atom -> w_atom atom
-      | `String str ->
-        w_hovbox 1
-        $ w_char '"'
-        $ w_safe_string str
-        $ w_char '"'
-        $ w_close_box
-
-    let w_encoding = function
-      | Rfc2047.QuotedPrintable -> w_char 'Q'
-      | Rfc2047.Base64 -> w_char 'B'
-
-    let wrap a =
-      let buf = Buffer.create 16 in
-
-      let rec loop = function
-        | `Partial (s, i, l, k) ->
-          Buffer.add_subbytes buf s i l;
-          loop @@ (k l)
-        | `Ok -> w_string (Buffer.contents buf)
-      in
-
-      loop @@ (a (fun _ -> `Ok) (Encoder.make ()))
-
-    let w_phrase phrase =
-      List.fold_right
-          (function
-           | #Rfc5322.atom as atom -> w_atom atom
-           | `String str -> w_hovbox 1 $ w_char '"' $ w_safe_string str $ w_char '"' $ w_close_box
-           | `Dot -> w_char '.'
-           | `WSP -> w_space
-           | `FWS -> w_force_newline $ w_space
-           | `CR n -> w_string (String.make n '\r')
-           | `LF n -> w_string (String.make n '\n')
-           | `Encoded (charset, encoding, data) ->
-             w_hovbox 1
-             $ wrap (Rfc2047.w_decoded_word charset encoding data $ BaseEncoder.flush)
-             $ w_close_box)
-          phrase
-
-    let rec w_local = function
-      | [] -> noop
-      | [ x ] -> w_word x
-      | x :: r -> w_word x $ w_string "." $ w_local r
-
-    let w_mailbox { local; domain = (domain, rest); } =
-      match rest with
-      | [] ->
-        w_hovbox 1
-        $ w_hovbox 1
-        $ w_local local
-        $ w_close_box
-        $ w_string "@"
-        $ w_hovbox 1
-        $ w_domain domain
-        $ w_close_box
-        $ w_close_box
-      | domains ->
-        let rec aux = function
-          | [] -> noop
-          | [ x ] -> w_domain x
-          | x :: r -> w_domain x $ w_string "," $ aux r
-        in
-        w_hovbox 1
-        $ w_string "@"
-        $ w_hovbox 1
-        $ aux domains
-        $ w_close_box
-        $ w_string ":"
-        $ w_hovbox 1
-        $ w_local local
-        $ w_close_box
-        $ w_string "@"
-        $ w_hovbox 1
-        $ w_domain domain
-        $ w_close_box
-        $ w_close_box
-
-    let w_person { name; mailbox; } =
-      match name with
-      | Some name ->
-        w_hovbox 1
-        $ w_hovbox 1
-        $ w_phrase name
-        $ w_close_box
-        $ w_space
-        $ w_hovbox 1
-        $ w_string "<"
-        $ w_mailbox mailbox
-        $ w_string ">"
-        $ w_close_box
-        $ w_close_box
-      | None ->
-        w_hovbox 1
-        $ w_mailbox mailbox
-        $ w_close_box
-
-    let w_group { name; persons; } =
+  let w_domain = function
+    | `Domain lst ->
       let rec aux = function
         | [] -> noop
-        | [ x ] -> w_person x
-        | x :: r -> w_hovbox 1 $ w_person x $ w_close_box $ w_string "," $ w_space $ aux r
-      in
-      w_hovbox 1
-      $ w_hovbox 1
-      $ w_phrase name
-      $ w_close_box
-      $ w_string ":"
-      $ w_space
-      $ w_hovbox 1
-      $ aux persons
-      $ w_close_box
-      $ w_string ";"
-      $ w_close_box
+        | [ x ] -> string x
+        | x :: r -> string x $ hovbox 0 $ string "." $ aux r $ close_box
+      in hovbox 0 $ aux lst $ close_box
+    | `Literal (Rfc5321.IPv4 ipv4) ->
+      hovbox 0
+      $ string "["
+      $ string (Ipaddr.V4.to_string ipv4)
+      $ string "]"
+      $ close_box
+    | `Literal (Rfc5321.IPv6 ipv6) ->
+      hovbox 0
+      $ string "[IPv6:"
+      $ string (Ipaddr.V6.to_string ipv6)
+      $ string "]"
+      $ close_box
 
-    let w_address = function
-      | `Group g -> w_group g
-      | `Person p -> w_person p
-  end
+  let explode str =
+    let rec exp i l =
+      if i < 0 then l else exp (i - 1) (str.[i] :: l) in
+    exp (String.length str - 1) []
 
-  let w         = Internal.w_address
-  let w_word    = Internal.w_word
-  let w_local   = Internal.w_local
-  let w_domain  = Internal.w_domain
-  let w_phrase  = Internal.w_phrase
-  let w_person  = Internal.w_person
-  let w_mailbox = Internal.w_mailbox
-  let w_safe_string = Internal.w_safe_string
+  let w_safe_string str =
+    let is_vchar = function
+      | '\x21' .. '\x7e' -> true
+      | _ -> false
+    in
+    List.fold_right
+      (function
+       | '\x00' -> string "\\\000"
+       | '\x07' -> string "\\a"
+       | '\x08' -> string "\\b"
+       | '\x09' -> string "\\t"
+       | '\x0A' -> string "\\n"
+       | '\x0B' -> string "\\v"
+       | '\x0C' -> string "\\f"
+       | '\x0D' -> string "\\r"
+       | '\\'   -> string "\\\\"
+       | '"'    -> string "\\\""
+       | ' '    -> string " "
+       | '\x00' .. '\x7F' as chr ->
+         if is_vchar chr
+         then char chr
+         else string (sp "\\%c" chr)
+       | chr -> char chr)
+      (explode str)
 
-  let to_buffer t state =
+  let w_word = function
+    | `Atom str -> w_atom (`Atom str)
+    | `String str ->
+      hovbox 1
+      $ char '"'
+      $ w_safe_string str
+      $ char '"'
+      $ close_box
+
+  let wrap a =
     let buf = Buffer.create 16 in
 
     let rec loop = function
       | `Partial (s, i, l, k) ->
         Buffer.add_subbytes buf s i l;
         loop @@ (k l)
-      | `Ok -> buf
+      | `Ok -> string (Buffer.contents buf)
     in
 
-    let rule =
-      let open BaseEncoder in
-      let ok = flush (fun _ -> `Ok) in
-      Wrap.lift Wrap.(Internal.w_address t (unlift ok))
-    in
+    loop @@ (a (fun _ -> `Ok) (Encoder.make ()))
 
-    loop @@ rule state
+  let w_raw = function
+    | Rfc2047.QuotedPrintable s ->
+      string "Q?" $ (wrap (QuotedPrintable.w_inline_encode s $ Encoder.flush))
+    | Rfc2047.Base64 (`Clean raw)
+    | Rfc2047.Base64 (`Dirty raw) -> string "B?" $ (wrap (Base64.w_inline_encode raw $ Encoder.flush))
+    | Rfc2047.Base64 `Wrong_padding -> string "B?"
+
+  let rec w_lst w_sep w_data l =
+    let open Wrap in
+      let rec aux = function
+      | [] -> noop
+      | [ x ] -> w_data x
+      | x :: r -> w_data x $ w_sep $ aux r
+    in aux l
+
+  let w_phrase phrase =
+    let w_element = function
+       | `Dot -> char '.'
+       | `Word x -> w_word x
+       | `Encoded (charset, raw) ->
+          hovbox 0
+          $ string "=?" $ string charset $ string "?"
+          $ w_raw raw $ string "?="
+          $ close_box
+    in
+    w_lst space w_element phrase
+
+  let rec w_local = function
+    | [] -> noop
+    | [ x ] -> w_word x
+    | x :: r -> w_word x $ string "." $ w_local r
+
+  let w_mailbox' (local, (domain, rest)) =
+    match rest with
+    | [] ->
+      hovbox 0
+      $ hovbox 0
+      $ w_local local
+      $ close_box
+      $ string "@"
+      $ hovbox 0
+      $ w_domain domain
+      $ close_box
+      $ close_box
+    | domains ->
+      let rec aux = function
+        | [] -> noop
+        | [ x ] -> w_domain x
+        | x :: r -> w_domain x $ string "," $ aux r
+      in
+      hovbox 0
+      $ string "@"
+      $ hovbox 0
+      $ aux domains
+      $ close_box
+      $ string ":"
+      $ hovbox 0
+      $ w_local local
+      $ close_box
+      $ string "@"
+      $ hovbox 0
+      $ w_domain domain
+      $ close_box
+      $ close_box
+
+  let w_mailbox { name; local; domain; } =
+    match name with
+    | Some name ->
+      hovbox 0
+      $ hovbox 0
+      $ w_phrase name
+      $ close_box
+      $ space
+      $ hovbox 0
+      $ string "<"
+      $ w_mailbox' (local, domain)
+      $ string ">"
+      $ close_box
+      $ close_box
+    | None ->
+      hovbox 0
+      $ w_mailbox' (local, domain)
+      $ close_box
+
+  let w_group { name; mailbox; } =
+    let rec aux = function
+      | [] -> noop
+      | [ x ] -> w_mailbox x
+      | x :: r -> hovbox 0 $ w_mailbox x $ close_box $ string "," $ space $ aux r
+    in
+    hovbox 0
+    $ hovbox 0
+    $ w_phrase name
+    $ close_box
+    $ string ":"
+    $ space
+    $ hovbox 0
+    $ aux mailbox
+    $ close_box
+    $ string ";"
+    $ close_box
+
+  let w_address = function
+    | `Group g -> w_group g
+    | `Mailbox m -> w_mailbox m
+
+  let w_addresses lst =
+    let rec aux = function
+      | [] -> noop
+      | [ x ] -> w_address x
+      | x :: r -> w_address x $ string "," $ hovbox 0 $ space $ aux r $ close_box
+    in hovbox 0 $ aux lst $ close_box
 end
 
-let of_string s = D.of_decoder (Decoder.of_string (s ^ "\r\n\r\n"))
-let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
+let to_string t =
+  let buf   = Buffer.create 16 in
+  let state = Encoder.make () in
+
+  let rec loop = function
+    | `Partial (s, i, l, k) ->
+      Buffer.add_subbytes buf s i l;
+      loop @@ (k l)
+    | `Ok -> Buffer.contents buf
+  in
+
+  loop @@ (Wrap.lift Wrap.(Encoder.w_address t (unlift (Encoder.flush (fun _ -> `Ok))))) state
+
+let of_string ?(chunk = 1024) s =
+  let s' = s ^ "\r\n" in
+  let l = String.length s' in
+  let i = Input.create_bytes chunk in
+
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min chunk (l - consumed) in
+      Input.write_string buffer s' consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some v
+  in
+
+  aux 0 @@ Parser.run i Parser.(Rfc5322.address <* Rfc822.crlf)
+
+let of_string_raw ?(chunk = 1024) s off len =
+  let i = Input.create_bytes chunk in
+
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min chunk (len - (consumed - off)) in
+      Input.write_string buffer s consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some (v, consumed - off)
+  in
+
+  aux off @@ Parser.run i Rfc5322.address
 
 let equal = (=)
 
 module List =
 struct
-  module D =
-  struct
-    let of_lexer = List.map D.of_lexer
+  let pp fmt =
+    pp_lst ~sep:(fun fmt () -> Format.fprintf fmt ",@ ") pp fmt
 
-    open BaseDecoder
+  let to_string t =
+    let buf   = Buffer.create 16 in
+    let state = Encoder.make () in
 
-    let of_decoder state =
-      let rec loop = function
-        | `Error (exn, buf, off, len) ->
-          let tmp = Buffer.create 16 in
-          let fmt = Format.formatter_of_buffer tmp in
+    let rec loop = function
+      | `Partial (s, i, l, k) ->
+        Buffer.add_subbytes buf s i l;
+        loop @@ (k l)
+      | `Ok -> Buffer.contents buf
+    in
 
-          Format.fprintf fmt "%a (buf: %S)%!"
-            Error.pp exn (Bytes.sub buf off (len - off));
+    loop @@ (Wrap.lift Wrap.(Encoder.w_addresses t (unlift (Encoder.flush (fun v -> `Ok))))) state
 
-          raise (Invalid_argument ("Address.List.of_string: "
-                                   ^ (Buffer.contents tmp)))
-        | `Read (buf, off, len, k) ->
-          raise (Invalid_argument "Address.List.of_string: unterminated string")
-        | `Ok data -> of_lexer data
-      in
+  let of_string ?(chunk = 1024) s =
+    let s' = s ^ "\r\n" in
+    let l = String.length s' in
+    let i = Input.create_bytes chunk in
 
-      let rule =
-        Rfc5322.p_address_list
-        @ fun data -> Rfc822.p_crlf
-        @ Rfc822.p_crlf
-        @ fun _ -> `Ok data
-      in
+    let rec aux consumed = function
+      | Parser.Fail _ -> None
+      | Parser.Read { buffer; k; } ->
+        let n = min chunk (l - consumed) in
+        Input.write_string buffer s' consumed n;
+        aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+      | Parser.Done v -> Some v
+    in
 
-      loop @@ safe rule state
-  end
+    aux 0 @@ Parser.run i Parser.(Rfc5322.address_list <* Rfc822.crlf)
 
-  module E =
-  struct
-    module Internal =
-    struct
-      open BaseEncoder
-      open Wrap
+  let of_string_raw ?(chunk = 1024) s off len =
+    let i = Input.create_bytes chunk in
 
-      let w_lst w_sep w_data lst =
-        let rec aux = function
-          | [] -> noop
-          | [ x ] -> w_data x
-          | x :: r -> w_data x $ w_sep $ aux r
-        in aux lst
+    let rec aux consumed = function
+      | Parser.Fail _ -> None
+      | Parser.Read { buffer; k; } ->
+        let n = min chunk (len - (consumed - off)) in
+        Input.write_string buffer s consumed n;
+        aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+      | Parser.Done v -> Some (v, consumed - off)
+    in
 
-      let w_addresses lst =
-        w_hovbox 1
-        $ w_lst (w_string "," $ w_space) E.w lst
-        $ w_close_box
-    end
-
-    let w = Internal.w_addresses
-
-    let to_buffer t state =
-      let buf = Buffer.create 16 in
-
-      let rec loop = function
-        | `Partial (s, i, l, k) ->
-          Buffer.add_subbytes buf s i l;
-          loop @@ (k l)
-        | `Ok -> buf
-      in
-
-      let rule =
-        let open BaseEncoder in
-        let ok = flush (fun _ -> `Ok) in
-        Wrap.lift Wrap.(Internal.w_addresses t (unlift ok))
-      in
-
-      loop @@ rule state
-  end
-
-  let of_string s = D.of_decoder (Decoder.of_string (s ^ "\r\n\r\n"))
-  let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
+    aux off @@ Parser.run i Rfc5322.address_list
 
   let equal = (=)
-
-  let pp fmt lst =
-    pp_lst ~sep:(fun fmt () -> Format.fprintf fmt ",@ ") pp fmt lst
 end

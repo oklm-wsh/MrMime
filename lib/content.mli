@@ -1,52 +1,35 @@
-type t
+module Map          : (module type of Map.Make(String))
 
-val ty : t -> ContentType.t
-val encoding : t -> ContentEncoding.t
+type unstructured   = Rfc5322.unstructured
+type field          = [ Rfc2045.field | Rfc2045.field_version | Rfc2045.skip ]
 
-module Part :
+type t =
+  { ty              : ContentType.content
+  ; encoding        : ContentEncoding.mechanism
+  ; version         : MimeVersion.version
+  ; id              : MsgID.msg_id option
+  ; description     : unstructured option
+  ; content         : unstructured list Map.t
+  ; unsafe          : unstructured list Map.t
+  ; skip            : string list }
+
+val pp_raw          : Format.formatter -> Rfc2047.raw -> unit
+val pp_unstructured : Format.formatter -> unstructured -> unit
+val pp_field        : Format.formatter -> field -> unit
+val pp              : Format.formatter -> t -> unit
+
+val default         : t
+
+module Encoder :
 sig
-  type field =
-    [ `ContentType        of ContentType.t
-    | `ContentEncoding    of ContentEncoding.t
-    | `ContentID          of MsgID.t
-    | `ContentDescription of Rfc5322.phrase
-    | `Content            of string * Rfc5322.phrase
-    | `Unsafe             of string * Rfc5322.phrase ]
+  val w_field         : (Rfc2045.field, 'r Encoder.partial) Encoder.k1
+  val w_field_version : (Rfc2045.field_version, 'r Encoder.partial) Encoder.k1
+  val w_unsafe        : (Rfc2045.unsafe, 'r Encoder.partial) Encoder.k1
+  val w_skip          : (Rfc2045.skip, 'r Encoder.partial) Encoder.k1
 
-  val field_of_lexer : Rfc2045.field -> field
-  val to_field       : t -> field list
-
-  val pp_field       : Format.formatter -> field -> unit
-
-  module D :
-  sig
-    val of_lexer : ([> Rfc2045.field ] as 'content) list -> (t, 'content list, 'r) Decoder.k2
-  end
-
-  module E :
-  sig
-    val w_field : (field, 'r Encoder.partial) Encoder.k1
-    val w : (field list, 'r Encoder.partial) Encoder.k1
-  end
+  val w_message       : (t, 'r Encoder.partial) Encoder.k1
+  val w_part          : (t, 'r Encoder.partial) Encoder.k1
 end
 
-module Message :
-sig
-  type field = [ Part.field | MimeVersion.field ]
-
-  val field_of_lexer : [ Rfc2045.field | Rfc2045.mime_field ] -> field
-  val to_field       : t -> field list
-
-  module D :
-  sig
-    val of_lexer : ([> Rfc2045.field | Rfc2045.mime_field ] as 'content) list -> (t, 'content list, 'r) Decoder.k2
-  end
-
-  module E :
-  sig
-    val w_field : (field, 'r Encoder.partial) Encoder.k1
-    val w : (field list, 'r Encoder.partial) Encoder.k1
-  end
-end
-
-val pp : Format.formatter -> t -> unit
+val message         : ([> Rfc2045.field | Rfc2045.field_version ] as 'a) list -> (t * 'a list) Parser.t
+val part            : ([> Rfc2045.field | Rfc2045.unsafe | Rfc2045.skip ] as 'a) list -> (t * 'a list) Parser.t

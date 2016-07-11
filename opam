@@ -40,12 +40,7 @@ remove: ["ocamlfind" "remove" "mrmime"]
 
 depends: [
   "oasis"             {build}
-  "cmdliner"          {build}
-  "xmlm"              {build}
-  "ppx_tools"         {build}
-  "lwt"               {build}
-  "uri"               {build}
-  "cohttp"            {build}
+  "cmdliner"          {test}
   "alcotest"          {test}
   "fmt"               {test}
   "astring"           {test}

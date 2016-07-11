@@ -1,19 +1,41 @@
-type t
+type day   = Rfc5322.day =
+  | Mon | Tue | Wed
+  | Thu | Fri | Sat
+  | Sun
+type month = Rfc5322.month =
+  | Jan | Feb | Mar | Apr | May | Jun
+  | Jul | Aug | Sep | Oct | Nov | Dec
+type zone  = Rfc5322.zone =
+  | UT  | GMT
+  | EST | EDT
+  | CST | CDT
+  | MST | MDT
+  | PST | PDT
+  | Military_zone of char
+  | TZ of int
 
-module D :
+type date = Rfc5322.date =
+  { day  : day option
+  ; date : int * month * int
+  ; time : int * int * int option
+  ; zone : zone }
+
+val pp_zone       : Format.formatter -> zone -> unit
+val pp_month      : Format.formatter -> month -> unit
+val pp_day        : Format.formatter -> day -> unit
+val pp            : Format.formatter -> date -> unit
+
+module Encoder :
 sig
-  val of_lexer   : Rfc5322.date_time -> t
-  val of_decoder : Decoder.t -> t
+  val w_day       : (day, 'r Encoder.partial) Wrap.k1
+  val w_date      : (date, 'r Encoder.partial) Wrap.k1
+  val w_time      : ((int * int * int option), 'r Encoder.partial) Wrap.k1
+  val w_zone      : (zone, 'r Encoder.partial) Wrap.k1
+  val w_date      : (date, 'r Encoder.partial) Wrap.k1
 end
 
-module E :
-sig
-  val to_buffer  : t -> Encoder.t -> Buffer.t
-  val w          : (t, 'r Encoder.partial) Wrap.k1
-end
+val to_string     : date -> string
+val of_string     : ?chunk:int -> string -> date option
+val of_string_raw : ?chunk:int -> string -> int -> int -> (date * int) option
 
-val of_string : string -> t
-val to_string : t -> string
-
-val equal     : t -> t -> bool
-val pp        : Format.formatter -> t -> unit
+val equal         : date -> date -> bool

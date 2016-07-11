@@ -1,48 +1,4 @@
-module A =
-struct
-  type t = Address.address
-
-  let pp = Address.pp
-  let equal = Address.equal
-end
-
-module L =
-struct
-  type t = Address.address list
-
-  let pp = Address.List.pp
-  let equal = Address.List.equal
-end
-
-let address      = (module A : Alcotest.TESTABLE with type t = Address.address)
-let address_list = (module L : Alcotest.TESTABLE with type t = Address.address list)
-
-let make_compute_test s =
-  Printf.sprintf "%S" s,
-  `Slow,
-  (fun () -> match Address.List.of_string s with
-   | None -> failwith "Invalid address"
-   | Some v -> ())
-
-let make_pp_test s =
-  Printf.sprintf "%S" s,
-  `Slow,
-  (fun () -> match Address.List.of_string s with
-   | None -> failwith "Invalid address"
-   | Some v ->
-     Alcotest.(check address_list) "pp" v (match Address.List.of_string @@ Address.List.to_string v with
-                                           | None -> failwith "Invalid address"
-                                           | Some v -> v))
-
-exception Expect_exception
-exception Invalid_exception
-
-let make_exn_test s =
-  Printf.sprintf "%S" s,
-  `Slow,
-  (fun () ->
-   try ignore (Address.List.of_string s); raise Expect_exception
-   with exn -> ())
+#load "message.cma";;
 
 let tests =
   [ "Mary Smith <mary@example.net>"
@@ -217,6 +173,8 @@ let tests =
   ; "first.last@[IPv6:::a2:a3:a4:b1:ffff:11.22.33.44]"
   ; "test@test.com"
   ; "test@xn--example.com"
+  ; "=?utf-8?B?Um9tYWlu?= <romain.calascibetta@gmail.com>"
+  ; "=?us-ascii?Q?Chri's_Smith?= =?us-ascii?Q?Henry?= <@gmail.com,@hotmail.fr:henry.chris+porno@(Chris's host.)public.example> (je suis un connard en puissance)" 
   ; "test@example.com" ]
 
 let err_tests =
@@ -274,7 +232,7 @@ let err_tests =
   ; "\"first\"last\"@iana.org"
   ; "\"\"\"@iana.org"
   ; "\"\\\"@iana.org"
-  ; "\"\"@iana.org"
+  (* ; "\"\"@iana.org" *)
   ; "first\\@last@iana.org"
   ; "first.last@"
   ; "first.last@[.12.34.56.78]"
@@ -382,14 +340,271 @@ let err_tests =
   ; "first.last@[IPv6:a1:a2:a3:a4:b1:b2:b3:]"
   ; "first.last@[IPv6::a2:a3:a4:b1:b2:b3:b4]"
   ; "first.last@[IPv6:a1:a2:a3:a4::b1:b2:b3:b4]"
-  ; "=?us-ascii?Q?Chri's_Smith?= =?us-ascii?Q?Henry?= <.@gmail.com,@hotmail.fr:henry.chris+porno@(Chris's host.)public.example> (je suis un connard en puissance)" 
   ; "jdoe@[RFC-5322-\\a-domain-literal]"
   ; "jdoe@[RFC-5322-\\t-domain-literal]"
   ; "jdoe@[RFC-5322-\\]-domain-literal]"
   ; "jdoe@[RFC-5322-domain-literal] (comment)" ]
 
 let () =
-  Alcotest.run "Address test"
-  [ "compute", List.map make_compute_test tests
-  ; "pp", List.map make_pp_test tests
-  ; "exn", List.map make_exn_test err_tests ]
+  List.iter
+    (fun s -> match Address.List.of_string s with
+     | Some v -> ()
+     | None -> assert false)
+    tests
+
+let () =
+  List.iter
+    (fun s -> match Address.List.of_string s with
+     | Some v -> Format.printf "%a\n%!" Address.List.pp v
+     | None -> ())
+    err_tests
+
+let tests =
+  [ "Fri, 21 Nov 1997 09:55:06 -0600"
+  ; "Tue, 1 Jul 2003 10:52:37 +0200"
+  ; "Thu, 13 Feb 1969 23:32:54 -0330"
+  ; "Mon, 24 Nov 1997 14:22:01 -0800"
+  ; "Thu,\r\n 13\r\n   Feb\r\n     1969\r\n 23:32\r\n          -0330 (Newfoundland Time)"
+  ; "21 Nov 97 09:55:06 GMT"
+  ; "Fri, 21 Nov 1997 09(comment):   55  :  06 -0600" ]
+
+let () =
+  List.iter
+    (fun s -> match Date.of_string s with
+     | Some v -> ()
+     | None -> assert false)
+    tests
+
+let tests =
+  [
+(* See RFC 5322 § Appendix A.1.1 *)
+{|From: John Doe <jdoe@machine.example>
+To: Mary Smith <mary@example.net>
+Subject: Saying Hello
+Date: Fri, 21 Nov 1997 09:55:06 -0600
+Message-ID: <1234@local.machine.example>
+|};
+
+(* See RFC 5322 § Appendix A.1.2 *)
+{|From: "Joe Q. Public" <john.q.public@example.com>
+To: Mary Smith <mary@x.test>, jdoe@example.org, Who? <one@y.test>
+Cc: <boss@nil.test>, "Giant; \"Big\" Box" <sysservices@example.net>
+Date: Tue, 1 Jul 2003 10:52:37 +0200
+Message-ID: <5678.21-Nov-1997@example.com>
+|};
+
+(* See RFC 5322 § Appendix A.1.3 *)
+{|From: Pete <pete@silly.example>
+To: A Group:Ed Jones <c@a.test>,joe@where.test,John <jdoe@one.test>;
+Cc: Undisclosed recipients:;
+Date: Thu, 13 Feb 1969 23:32:54 -0330
+Message-ID: <testabcd.1234@silly.example>
+|};
+
+(* See RFC 5322 § Appendix A.2 *)
+{|From: Mary Smith <mary@example.net>
+To: John Doe <jdoe@machine.example>
+Reply-To: "Mary Smith: Personal Account" <smith@home.example>
+Subject: Re: Saying Hello
+Date: Fri, 21 Nov 1997 10:01:10 -0600
+Message-ID: <3456@example.net>
+In-Reply-To: <1234@local.machine.example>
+References: <1234@local.machine.example>
+|};
+
+(* See RFC 5322 § Appendix A.3 *)
+{|Resent-From: Mary Smith <mary@example.net>
+Resent-To: Jane Brown <j-brown@other.example>
+Resent-Date: Mon, 24 Nov 1997 14:22:01 -0800
+Resent-Message-ID: <78910@example.net>
+From: John Doe <jdoe@machine.example>
+To: Mary Smith <mary@example.net>
+Subject: Saying Hello
+Date: Fri, 21 Nov 1997 09:55:06 -0600
+Message-ID: <1234@local.machine.example>
+|};
+
+(* See RFC 5322 § Appendix A.4 *)
+{|Received: from x.y.test
+   by example.net
+   via TCP
+   with ESMTP
+   id ABC12345
+   for <mary@example.net>;  21 Nov 1997 10:05:43 -0600
+Received: from node.example by x.y.test; 21 Nov 1997 10:01:22 -0600
+From: John Doe <jdoe@node.example>
+To: Mary Smith <mary@example.net>
+Subject: Saying Hello
+Date: Fri, 21 Nov 1997 09:55:06 -0600
+Message-ID: <1234@local.node.example>
+|};
+
+(* See RFC 5322 § Appendix A.5 *)
+{|From: Pete(A nice \) chap) <pete(his account)@silly.test(his host)>
+To:A Group(Some people)
+     :Chris Jones <c@(Chris's host.)public.example>,
+         joe@example.org,
+  John <jdoe@one.test> (my dear friend); (the end of the group)
+Cc:(Empty list)(start)Hidden recipients  :(nobody(that I know))  ;
+Date: Thu,
+      13
+        Feb
+          1969
+      23:32
+               -0330 (Newfoundland Time)
+Message-ID:              <testabcd.1234@silly.test>
+|};
+
+(* See RFC 5322 § Appendix A.6.1 *)
+{|From: Joe Q. Public <john.q.public@example.com>
+To: Mary Smith <@node.test:mary@example.net>, , jdoe@test  . example
+Date: Tue, 1 Jul 2003 10:52:37 +0200
+Message-ID: <5678.21-Nov-1997@example.com>
+|};
+
+(* See RFC 5322 § Appendix A.6.2 *)
+{|From: John Doe <jdoe@machine.example>
+To: Mary Smith <mary@example.net>
+Subject: Saying Hello
+Date: 21 Nov 97 09:55:06 GMT
+Message-ID: <1234@local.machine.example>
+|};
+
+(* See RFC 5322 § Appendix A.6.3 *)
+{|From  : John Doe <jdoe@machine(comment).  example>
+To    : Mary Smith
+  
+          <mary@example.net>
+Subject     : Saying Hello
+Date  : Fri, 21 Nov 1997 09(comment):   55  :  06 -0600
+Message-ID  : <1234   @   local(blah)  .machine .example>
+|};
+
+(* See RFC 822 § A.3.1 *)
+{|Date:     26 Aug 76 14:29 EDT
+From:     Jones@Registry.Org
+Bcc:
+|};
+
+(* See RFC 822 § A.3.2 *)
+{|Date:     26 Aug 76 14:30 EDT
+From:     George Jones<Group@Host>
+Sender:   Secy@SHOST
+To:       "Al Neuman"@Mad-Host,
+          Sam.Irving@Other-Host
+Message-ID:  <some.string@SHOST>
+|};
+
+(* See RFC 822 § A.3.3 *)
+{|Date     :  27 Aug 76 09:32 PDT
+From     :  Ken Davis <KDavis@This-Host.This-net>
+Subject  :  Re: The Syntax in the RFC
+Sender   :  KSecy@Other-Host
+Reply-To :  Sam.Irving@Reg.Organization
+To       :  George Jones <Group@Some-Reg.An-Org>,
+            Al.Neuman@MAD.Publisher
+cc       :  Important folk:
+              Tom Softwood <Balsa@Tree.Root>,
+              "Sam Irving"@Other-Host;,
+            Standard Distribution:
+              /main/davis/people/standard@Other-Host,
+              "<Jones>standard.dist.3"@Tops-20-Host>;
+Comment  : Sam is away on business. He asked me to handle
+           his mail for him.  He'll be able to provide  a
+           more  accurate  explanation  when  he  returns
+           next week.
+In-Reply-To: <some.string@DBM.Group>, George's message
+X-Special-action:  This is a sample of user-defined field-
+            names.  There could also be a field-name
+            "Special-action", but its name might later be
+            preempted
+Message-ID: <4231.629.XYzi-What@Other-Host>
+|};
+
+(* See RFC 2047 § 8 *)
+{|From: =?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>
+Date     :  27 Aug 76 09:32 PDT
+To: =?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>
+CC: =?ISO-8859-1?Q?Andr=E9?= Pirard <PIRARD@vm1.ulg.ac.be>
+Subject: =?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
+ =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=
+|};
+  ]
+
+let () =
+  List.iter
+    (fun s -> match Header.of_string s with
+     | Some v -> ()
+     | None -> assert false)
+    tests
+
+type newline = CRLF | LF | CR
+
+let read_into ?(newline = LF) channel buf off len =
+  if len + off > Bytes.length buf
+     || off < 0
+     || len < 0
+  then raise (Invalid_argument "index out of bound");
+
+  let last = len + off in
+
+  match newline with
+  | CRLF -> input channel buf off len
+  | CR ->
+    let rec read_char has_cr remaining =
+      assert (remaining >= 0);
+
+      if remaining = 0 then len
+      else match input_char channel with
+           | '\n' when has_cr ->
+             read_char false remaining
+           | '\r' ->
+             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
+             read_char true  (remaining - 2)
+           | chr  ->
+             Bytes.set buf (last - remaining) chr;
+             read_char false (pred remaining)
+           | exception End_of_file -> (len - remaining)
+    in
+
+    read_char false len
+  | LF ->
+    let rec read_char has_cr remaining =
+      assert (remaining >= 0);
+
+      if remaining = 0 then len
+      else match input_char channel with
+           | '\n' when not has_cr && remaining >= 2 ->
+             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
+             read_char false (remaining - 2)
+           | '\n' when not has_cr && remaining = 1 ->
+             let pos = pos_in channel in
+             seek_in channel (pred pos);
+             (len - remaining)
+           | '\r' ->
+             Bytes.set buf (last - remaining) '\r';
+             read_char true  (pred remaining)
+           | chr  ->
+             Bytes.set buf (last - remaining) chr;
+             read_char false (pred remaining)
+           | exception End_of_file -> (len - remaining)
+    in
+
+    read_char false len
+
+let message ?(chunk = 1024) ?(newline = LF) input =
+  let i = Input.create_bytes chunk in
+  let t = Bytes.create chunk in
+
+  let rec aux consumed = function
+    | Parser.Fail (marks, e) -> Error (marks, e)
+    | Parser.Read { buffer; k; } ->
+      let n = read_into ~newline input t 0 chunk in
+      Input.write_string buffer t 0 n;
+      aux (consumed + n)
+      @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Ok v
+  in
+
+  let v = aux 0 @@ Parser.run i Top.message in
+  close_in input; v

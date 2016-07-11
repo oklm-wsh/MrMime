@@ -1,51 +1,64 @@
-type t = (int * int)
+type version = Rfc2045.version
+type field   = [ `MimeVersion of version ]
 
-type field = [ `MimeVersion of (int * int) ]
+let pp = Format.fprintf
 
-let field_of_lexer x = x
-
-let make a b = (a, b)
+let pp fmt (a, b) =
+  pp fmt "%d.%d" a b
 
 let default = (1, 0)
 
-let equal (a, b) (x, y) =
-  a = x && b = y
-
-module D =
+module Encoder =
 struct
-  let of_lexer v p state = p v state
-  let of_lexer' x = x
+  open Encoder
+
+  let w_version (a, b) =
+    let open Wrap in
+    hovbox 0
+    $ string (string_of_int a)
+    $ close_box
+    $ string "."
+    $ hovbox 0
+    $ string (string_of_int b)
+    $ close_box
+
+  let w_crlf k e = string "\r\n" k e
+
+  let w_field = function
+    | `MimeVersion v ->
+      string "MIME-Version: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_version v $ close_box) (unlift k))))
+      $ w_crlf
 end
 
-module E =
-struct
-  module Internal =
-  struct
-    open BaseEncoder
-    open Wrap
+let of_string ?(chunk = 1024) s =
+  let s' = s ^ "\r\n" in
+  let l = String.length s' in
+  let i = Input.create_bytes chunk in
 
-    let w_version (a, b) =
-      w_hovbox 1
-      $ w_string (string_of_int a)
-      $ w_close_box
-      $ w_char '.'
-      $ w_hovbox 1
-      $ w_string (string_of_int b)
-      $ w_close_box
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min chunk (l - consumed) in
+      Input.write_string buffer s' consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some v
+  in
 
-    let w_crlf k e = w "\r\n" k e
+  aux 0 @@ Parser.run i Parser.(Rfc2045.version <* Rfc822.crlf)
 
-    let w_field = function
-      | `MimeVersion x ->
-        w "MIME-Version: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "MIME-Version: ")
-                          $ w_version x
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-  end
+let of_string_raw ?(chunk = 1024) s off len =
+  let i = Input.create_bytes chunk in
 
-  let w = Internal.w_field
-end
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min chunk (len - (consumed - off)) in
+      Input.write_string buffer s consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some (v, consumed - off)
+  in
 
-let pp fmt (a, b) = Format.fprintf fmt "%d.%d" a b
+  aux off @@ Parser.run i Rfc2045.version
+
+let decoder = Rfc2045.version

@@ -1,54 +1,67 @@
-open BaseDecoder
-
 type discrete =
-  [ `Application
-  | `Audio
+  [ `Text
   | `Image
-  | `Text
-  | `Video ]
+  | `Audio
+  | `Video
+  | `Application ]
 type composite =
   [ `Message
   | `Multipart ]
-type other =
+type extension =
   [ `Ietf_token of string
-  | `X_token of string ]
-type ty = [ discrete | composite | other ]
+  | `X_token    of string ]
+
+type ty = [ discrete | composite | extension ]
 
 type subty =
   [ `Ietf_token of string
   | `Iana_token of string
-  | `X_token of string ]
+  | `X_token    of string ]
 
-type value =
-  [ `String of string
-  | `Token of string ]
-
-type content = ty * subty * (string * value) list
-type version = int * int
-type encoding =
-  [ `Base64
-  | `Bit7
+type mechanism =
+  [ `Bit7
   | `Bit8
   | `Binary
   | `QuotedPrintable
+  | `Base64
   | `Ietf_token of string
-  | `X_token of string ]
-type id = Rfc822.msg_id
+  | `X_token    of string ]
+
+type value = [ `String of string | `Token of string ]
+
+type content =
+  { ty         : ty
+  ; subty      : subty
+  ; parameters : (string * value) list }
+
+type version = (int * int)
 
 type field =
-  [ `ContentType of content
-  | `ContentEncoding of encoding
-  | `ContentID of id
-  | `ContentDescription of Rfc5322.phrase
-  | `Content of string * Rfc5322.phrase
-  | `Unsafe of string * Rfc5322.phrase ]
+  [ `ContentType        of content
+  | `ContentEncoding    of mechanism
+  | `ContentID          of Rfc822.msg_id
+  | `ContentDescription of Rfc5322.unstructured
+  | `Content            of (string * Rfc5322.unstructured) ]
+type unsafe =
+  [ `Unsafe             of (string * Rfc5322.unstructured) ]
+type skip =
+  [ `Skip               of string ]
 
-type mime_field =
-  [ `MimeVersion of int * int ]
+type field_version =
+  [ `MimeVersion of version ]
 
-let value_to_string = function
-  | `String s -> s
-  | `Token s  -> s
+open Parser
+open Parser.Convenience
+
+let of_string s a =
+  let len = String.length s in
+  let buf = Input.create_bytes len in
+
+  Input.write buf (Internal_buffer.from_bytes (Bytes.of_string s)) 0 len;
+
+  match only buf a with
+  | Read _ | Fail _ -> None
+  | Done v -> Some v
 
 let is_tspecials = function
   | '(' | ')' | '<' | '>'  | '@'
@@ -56,226 +69,168 @@ let is_tspecials = function
   | '/' | '[' | ']' | '?'  | '=' -> true
   | _ -> false
 
-let is_token chr =
-  let is_ctl = function '\000' .. '\031' -> true | _ -> false in
-  let is_space = (=) ' ' in
-  not (is_tspecials chr)
-  && not (is_ctl chr)
-  && not (is_space chr)
+let is_ctl = function
+  | '\000' .. '\031' -> true
+  | _ -> false
 
-(* XXX: we don't handle an utf-8 token! *)
-let p_token p state = p_while is_token p state
+let is_space = (=) ' '
 
-(* XXX: same as [p_token]. *)
-let p_attribute p state = p_token (fun token -> p (String.lowercase_ascii token)) state
+let is_token c =
+  not (is_tspecials c) && not (is_ctl c) && not (is_space c)
 
-let p_ietf_token p =
-  p_token
-  @ fun token -> p (`Ietf_token token)
-
-let p_iana_token p =
-  p_token
-  @ fun token -> p (`Iana_token token)
-
-let p_x_token p =
-  p_set ['X'; 'x']
-  @ p_chr '-'
-  @ p_token
-  @ fun token -> p (`X_token token)
-
-let p_extension_token p =
-  cur_chr @ function
-  | 'X' | 'x' -> p_x_token p
-  | chr       -> p_ietf_token p
-
-let p_composite_type p =
-  p_token @ function
-  | "message"   -> p `Message
-  | "multipart" -> p `Multipart
-  | extension_token ->
-    roll_back (p_extension_token p) extension_token
-
-let p_discrete_type p =
-  p_token @ function
-  | "text"  -> p `Text
-  | "image" -> p `Image
-  | "audio" -> p `Audio
-  | "video" -> p `Video
-  | "application" -> p `Application
-  | extension_token ->
-    roll_back (p_extension_token p) extension_token
-
-let p_msg_id = Rfc822.p_msg_id
-
-let p_type p =
-  p_token @ fun token -> match String.lowercase_ascii token with
-  (* discrete-type *)
-  | "text" -> p `Text
-  | "image" -> p `Image
-  | "audio" -> p `Audio
-  | "video" -> p `Video
-  | "application" -> p `Application
-  (* composite-type *)
-  | "message"   -> p `Message
-  | "multipart" -> p `Multipart
-  (* extension-type *)
-  | extension_token ->
-    roll_back (p_extension_token p) extension_token
-
-let ty_to_string = function
-  | `Text -> "text"
-  | `Image -> "image"
-  | `Audio -> "audio"
-  | `Video -> "video"
-  | `Application -> "application"
-  | `Message -> "message"
-  | `Multipart -> "multipart"
-  | `X_token s | `Ietf_token s -> s
-
-let p_subtype ty p =
-  cur_chr @ function
-  | 'X' | 'x' -> p_extension_token p
-  | chr       ->
-    p_token
-    @ fun token ->
-      try Iana.Map.find ty Iana.mtype
-          |> Iana.Set.find token
-          |> fun value -> p (`Iana_token value)
-      with exn -> p (`X_token token)
-
-let p_value p =
-  (Rfc822.p_quoted_string (fun data state -> `Ok (data, state)))
-  / (p_token @ fun token -> p (`Token token))
-  @ (fun data -> p (`String data))
-
-(* XXX: from RFC 2045 *)
-let is_bcharsnospace = function
-  | '\'' | '(' | ')' | '+' | '_' | ','
-  | '-' | '.' | '/' | ':' | '=' | '?' -> true
-  | 'a' .. 'z' | 'A' .. 'Z' -> true
+let is_digit = function
   | '0' .. '9' -> true
   | _ -> false
 
-let p_boundary p =
-  (Rfc822.p_quoted_string (fun data state -> `Ok (data, state)))
-  / ((p_while is_bcharsnospace) @ fun token -> p (`Token token))
-  @ (fun data -> p (`String data))
+let token = repeat (Some 1) None is_token
 
-let p_parameter p =
-  p_attribute
-  @ fun name -> p_chr '='
-  @ (if name = "boundary" then p_boundary else p_value)
-  @ fun value -> p (name, value)
+let attribute = token >>| String.lowercase_ascii
 
-let p_content p =
-  let rec loop p =
-    let rec aux acc =
-      cur_chr @ function
-      | ';' ->
-        junk_chr
-        @ Rfc822.p_fws
-        @ fun _ _ -> p_parameter
-        @ fun parameter -> Rfc822.p_fws
-        @ fun _ _ -> aux (parameter :: acc)
-      | chr -> p (List.rev acc)
-    in
+let ietf_token = token
 
-    aux []
-  in
-  Rfc822.p_cfws
-  @ fun _ -> p_type
-  @ fun ty -> p_chr '/'
-  @ Rfc822.p_cfws
-  @ fun _ -> p_subtype (ty_to_string ty)
-  @ fun subty -> Rfc822.p_cfws
-  @ fun _ -> cur_chr
-  @ function
-    | ';' -> loop @ fun parameters -> Rfc822.p_cfws @ fun _ -> p (ty, subty, parameters)
-    | chr -> p (ty, subty, [])
+let iana_token = token
 
-let p_version p =
-  Rfc822.p_cfws
-  @ fun _ -> p_while (function '0' .. '9' -> true | _ -> false)
-  @ fun a -> let a = int_of_string a in Rfc822.p_cfws
-  @ fun _ -> p_chr '.'
-  @ Rfc822.p_cfws
-  @ fun _ -> p_while (function '0' .. '9' -> true | _ -> false)
-  @ fun b -> let b = int_of_string b in Rfc822.p_cfws
-  @ fun _ -> p (a, b)
+let x_token =
+  satisfy (function 'x' | 'X' -> true | _ -> false)
+  *> char '-'
+  *> token
 
-let p_mechanism p =
-  p_token @ fun token -> match String.lowercase_ascii token with
-  | "7bit" -> p `Bit7
-  | "8bit" -> p `Bit8
-  | "binary" -> p `Binary
-  | "quoted-printable" -> p `QuotedPrintable
-  | "base64" -> p `Base64
-  | extension_token ->
-    [%debug Printf.printf "state: p_mechanism (ext token): %S\n%!" extension_token];
-    roll_back (p_extension_token p) extension_token
+type err += Invalid_token of string
 
-let p_encoding p =
-  Rfc822.p_cfws
-  @ fun _ -> p_mechanism
-  @ fun e -> Rfc822.p_cfws
-  @ fun _ -> p e
+let extension_token =
+  peek_chr >>= function
+  | Some 'X' | Some 'x' -> x_token >>| fun v -> `X_token v
+  | _ -> ietf_token >>| fun v -> `Ietf_token v
 
-let p_id p =
-  Rfc822.p_cfws
-  @ fun _ -> Rfc822.p_msg_id
-  @ fun m -> Rfc822.p_cfws
-  @ fun _ -> p m
+let composite_ty =
+  token >>= fun s -> match String.lowercase_ascii s with
+  | "message"   -> return `Message
+  | "multipart" -> return `Multipart
+  | _ -> match of_string s extension_token with
+         | Some v -> return v
+         | None -> fail (Invalid_token s)
 
-let p_field ?(unsafe = (fun field p -> Rfc5322.p_unstructured @ fun l -> Rfc822.p_crlf @ p (`Unsafe (field, l)))) extend_mime extend field p =
-  [%debug Printf.printf "state: p_field (RFC 2045) %s\n%!" field];
+let ty =
+  token >>= fun s -> match String.lowercase_ascii s with
+  | "text"        -> return `Text
+  | "image"       -> return `Image
+  | "audio"       -> return `Audio
+  | "video"       -> return `Video
+  | "application" -> return `Application
+  | "message"     -> return `Message
+  | "multipart"   -> return `Multipart
+  | _ -> match of_string s extension_token with
+         | Some v -> return v
+         | None -> fail (Invalid_token s)
 
-  let field = String.lowercase_ascii field in
+let subty ty =
+  (peek_chr >>= function
+   | Some 'X' | Some 'x' -> extension_token
+   | _ -> token >>| fun v -> `Iana_token v) (* check iana *)
+  >>| fun subty -> (ty, subty)
 
-  let rule p =
-    match field with
-    | "content-type" -> p_content @ fun c -> Rfc822.p_crlf @ p (`ContentType c)
-    | "content-transfer-encoding" -> p_encoding @ fun e -> Rfc822.p_crlf @ p (`ContentEncoding e)
-    | "content-id" -> p_id @ fun i -> Rfc822.p_crlf @ p (`ContentID i)
-    | "content-description" -> Rfc5322.p_unstructured @ fun l -> Rfc822.p_crlf @ p (`ContentDescription l)
-    | field ->
-      (* XXX: the optionnal-field [fields] is handle by RFC 822 or RFC 5322.
-              in this case, we raise an error. *)
-      if String.length field >= 8 && String.sub field 0 8 = "content-"
-      then let field = String.sub field 8 (String.length field - 8) in
-           (extend_mime field @ ok)
-           / (Rfc5322.p_unstructured @ fun value ->
-              Rfc822.p_crlf @ p (`Content (field, value)))
-           @ p
-      else extend field p
-  in
+let value =
+  (Rfc822.quoted_string >>| fun v -> `String v)
+  <|> (token >>| fun v -> `Token v)
 
-  (rule @ fun field state -> `Ok (field, state))
-  / (unsafe field p)
-  @ p
+let parameter =
+  attribute
+  >>= fun attribute -> char '='
+  *> value
+  >>| fun value -> (attribute, value)
 
-let p_entity_headers ?unsafe extend_mime extend p =
-  [%debug Printf.printf "state: p_entity_header\n%!"];
+let content =
+  option () Rfc822.cfws
+  *> ty
+  <* option () Rfc822.cfws
+  <* char '/'
+  <* option () Rfc822.cfws
+  >>= subty
+  <* option () Rfc822.cfws
+  >>= fun (ty, subty) ->
+    many (char ';' *> option () Rfc822.cfws *> parameter)
+  >>| fun parameters -> { ty; subty; parameters; }
 
-  let rec loop acc =
-    (Rfc822.p_field_name
-     @ fun field -> (0 * 0) (function '\x09' | '\x20' -> true | _ -> false)
-     @ fun _ -> p_chr ':'
-     @ p_field ?unsafe extend_mime extend field
-     @ fun data state -> `Ok (data, state))
-    / (p (List.rev acc))
-    @ (fun field -> loop (field :: acc))
-  in
+let version =
+  option () Rfc822.cfws
+  *> repeat (Some 1) None is_digit
+  >>| int_of_string
+  <* option () Rfc822.cfws
+  <* char '.'
+  <* option () Rfc822.cfws
+  >>= fun a -> repeat (Some 1) None is_digit
+  >>| int_of_string
+  <* option () Rfc822.cfws
+  >>| fun b -> (a, b)
 
-  loop []
+let mechanism =
+  token >>= fun s -> match String.lowercase_ascii s with
+  | "7bit" -> return `Bit7
+  | "8bit" -> return `Bit8
+  | "binary" -> return `Binary
+  | "quoted-printable" -> return `QuotedPrintable
+  | "base64" -> return `Base64
+  | _ -> match of_string s extension_token with
+         | Some v -> return v
+         | None -> fail (Invalid_token s)
 
-let p_mime_message_headers ?unsafe extend_mime extend field p =
-  [%debug Printf.printf "state: p_mime_message_header\n%!"];
+let encoding =
+  option () Rfc822.cfws
+  *> mechanism
+  <* option () Rfc822.cfws
 
-  match field with
-  | "mime-version" -> p_version @ fun v -> Rfc822.p_crlf @ p (`MimeVersion v)
-  | field -> p_field ?unsafe extend_mime extend field p
+let id =
+  option () Rfc822.cfws
+  *> Rfc822.msg_id
+  <* option () Rfc822.cfws
 
-let p_mime_part_headers = p_entity_headers
+let field extend_mime extend field_name =
+  match String.lowercase_ascii field_name with
+  | "content-type"              -> content <* Rfc822.crlf >>| fun v              -> `ContentType v
+  | "content-transfer-encoding" -> encoding <* Rfc822.crlf >>| fun v             -> `ContentEncoding v
+  | "content-id"                -> id <* Rfc822.crlf >>| fun v                   -> `ContentID v
+  | "content-description"       -> Rfc5322.unstructured <* Rfc822.crlf >>| fun v -> `ContentDescription v
+  | _ ->
+    if String.length field_name >= (String.length "Content-")
+       && String.lowercase_ascii
+          @@ String.sub field_name 0 (String.length "Content-") = "content-"
+    then let field_name = String.sub field_name (String.length "Content-")
+               (String.length field_name - String.length "Content-") in
+         (extend_mime field_name)
+         <|> (Rfc5322.unstructured <* Rfc822.crlf >>| fun v -> `Content (field_name, v))
+    else extend field_name
 
-module Base64 = Base64
-module QuotedPrintable = QuotedPrintable
+let sp = Format.sprintf
+
+let part_field extend_mime extend field_name =
+  (field extend_mime extend field_name)
+  <|> ((Rfc5322.unstructured <* Rfc822.crlf
+        >>| fun v -> `Unsafe (field_name, v)) <?> (sp "Unsafe %s" field_name))
+
+let message_field extend_mime extend field_name =
+  field extend_mime extend field_name
+
+let entity_part_headers extend_mime extend =
+  many ((Rfc5322.field_name
+         <* (many (satisfy (function '\x09' | '\x20' -> true | _ -> false)))
+         <* char ':'
+         >>= fun field_name -> part_field extend_mime extend field_name)
+        <|> (Rfc5322.skip >>| fun v -> `Skip v))
+
+let entity_message_headers extend_mime extend =
+  many (Rfc5322.field_name
+        <* (many (satisfy (function '\x09' | '\x20' -> true | _ -> false)))
+        <* char ':'
+        >>= fun field_name -> message_field extend_mime extend field_name)
+
+let mime_message_headers extend_mime extend =
+  entity_message_headers
+    extend_mime
+    (fun field_name -> match String.lowercase_ascii field_name with
+     | "mime-version" -> version <* Rfc822.crlf >>| fun v -> `MimeVersion v
+     | _ -> extend field_name)
+
+let mime_part_headers extend =
+  entity_part_headers
+    (fun _ -> fail Rfc5322.Nothing_to_do)
+    extend

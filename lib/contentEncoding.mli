@@ -1,31 +1,15 @@
-type t =
-  [ `Base64
-  | `Bit7
-  | `Bit8
-  | `Binary
-  | `QuotedPrintable
-  | `Ietf_token of string
-  | `X_token of string ]
+type mechanism = Rfc2045.mechanism
+type field     = [ `ContentEncoding of mechanism ]
 
-val default : t
+val pp            : Format.formatter -> mechanism -> unit
 
-type field = [ `ContentEncoding of t ]
+val default       : mechanism
 
-val field_of_lexer : [ `ContentEncoding of t ] -> field
-
-module D :
+module Encoder :
 sig
-  val of_lexer  : Rfc2045.encoding -> (t, 'r) Decoder.k1
-  val of_lexer' : Rfc2045.encoding -> t
+  val w_encoding  : (mechanism, 'r Encoder.partial) Encoder.k1
+  val w_field     : (field, 'r Encoder.partial) Encoder.k1
 end
 
-module E :
-sig
-  val w : (field, 'r Encoder.partial) Encoder.k1
-end
-
-val to_string : t -> string
-
-val equal : t -> t -> bool
-val pp    : Format.formatter -> t -> unit
-val pp_field : Format.formatter -> field -> unit
+val of_string     : ?chunk:int -> string -> mechanism option
+val of_string_raw : ?chunk:int -> string -> int -> int -> (mechanism * int) option

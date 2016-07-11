@@ -1,10 +1,17 @@
+module Map = Map.Make(String)
+
+type unstructured = Rfc5322.unstructured
+type field        = [ Rfc2045.field | Rfc2045.field_version | Rfc2045.skip ]
+
 type t =
-  { ty          : ContentType.t
-  ; encoding    : ContentEncoding.t
-  ; version     : MimeVersion.t
-  ; id          : MsgID.t option
-  ; description : Rfc5322.phrase option
-  ; content     : (string * Rfc5322.phrase) list }
+  { ty          : ContentType.content
+  ; encoding    : ContentEncoding.mechanism
+  ; version     : MimeVersion.version
+  ; id          : MsgID.msg_id option
+  ; description : unstructured option
+  ; content     : unstructured list Map.t
+  ; unsafe      : unstructured list Map.t
+  ; skip        : string list }
 
 let pp = Format.fprintf
 
@@ -15,207 +22,179 @@ let pp_lst ~sep pp_data fmt lst =
     | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
   in aux lst
 
-let pp fmt = function
-  | { ty; encoding; version; id = Some id; description; content; } ->
-    pp fmt "{ @[<hov>content-type = %a;@ content-transfer-encoding = %a;@ version = %a;@ content-id: %a;@ description = %a;@ and @[<v>%a@]@] }"
-      ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version MsgID.pp id Address.pp_phrase (Option.value ~default:[`Atom "<none>"] description)
-      (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") (fun fmt (field, phrase) -> pp fmt "%s = %a" field Address.pp_phrase phrase)) content
-  | { ty; encoding; version; id = None; description; content; } ->
-    pp fmt "{ @[<hov>content-type = %a;@ content-transfer-encoding = %a;@ version = %a;@ description = %a;@ and @[<v>%a@]@] }"
-      ContentType.pp ty ContentEncoding.pp encoding MimeVersion.pp version Address.pp_phrase (Option.value ~default:[`Atom "<none>"] description)
-      (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") (fun fmt (field, phrase) -> pp fmt "content-%s = %a" field Address.pp_phrase phrase)) content
+let pp_option ?(none = (fun fmt () -> pp fmt "<none>")) pp_data fmt = function
+  | None -> none fmt ()
+  | Some v -> pp_data fmt v
 
-let ty { ty; _ } = ty
-let encoding { encoding; _ } = encoding
+let pp_raw fmt = function
+  | Rfc2047.QuotedPrintable raw -> pp fmt "quoted-printable:%s" raw
+  | Rfc2047.Base64 (`Clean raw) -> pp fmt "base64:%s" raw
+  | Rfc2047.Base64 (`Dirty raw) -> pp fmt "base64:%S" raw
+  | Rfc2047.Base64 `Wrong_padding -> pp fmt "base64:wrong-padding"
 
-let make
-  ?(ty = ContentType.default)
-  ?(encoding = ContentEncoding.default)
-  ?(version = MimeVersion.default)
-  ?id ?description
-  ?(extension = []) () =
-  { ty; encoding; version; id; description; content = extension; }
+let pp_unstructured fmt lst =
+  let rec aux fmt = function
+    | `Text s -> pp fmt "%s" s
+    | `WSP    -> pp fmt "@ "
+    | `CR i   -> pp fmt "<cr %d>" i
+    | `LF i   -> pp fmt "<lf %d>" i
+    | `CRLF   -> pp fmt "<crlf>@\n"
+    | `Encoded (charset, raw) ->
+      pp fmt "{ @[<hov>charset = %s;@ raw = %a@] }"
+        charset pp_raw raw
+  in
+  pp fmt "@[<hov>%a@]"
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@,") aux) lst
 
-module Part =
+let pp_field fmt = function
+  | `Content (k, v)       -> pp fmt "@[<hov>%s = %a@]" (String.capitalize_ascii k) pp_unstructured v
+  | `ContentDescription v -> pp fmt "@[<hov>Content-Description = %a@]" pp_unstructured v
+  | `ContentType v        -> pp fmt "@[<hov>Content-Type = %a@]" ContentType.pp v
+  | `ContentEncoding v    -> pp fmt "@[<hov>Content-Encoding = %a@]" ContentEncoding.pp v
+  | `ContentID v          -> pp fmt "@[<hov>Content-ID = %a@]" MsgID.pp v
+  | `MimeVersion v        -> pp fmt "@[<hov>MIME-Version = %a@]" MimeVersion.pp v
+  | `Unsafe (k, v)        -> pp fmt "@[<hov>%s # %a@]" (String.capitalize_ascii k) pp_unstructured v
+  | `Skip line            -> pp fmt "@[<hov># %S@]" line
+
+let pp fmt { ty; encoding; version; id; description; content; unsafe; skip; } =
+    pp fmt "{ @[<hov>content-type = %a;@ \
+                     content-transfer-encoding = %a;@ \
+                     version = %a;@ \
+                     content-id = %a;@ \
+                     content-description = %a;@ \
+                     and @[<v>%a@]@] }"
+      ContentType.pp ty
+      ContentEncoding.pp encoding
+      MimeVersion.pp version
+      (pp_option MsgID.pp) id
+      (pp_option pp_unstructured) description
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") (fun fmt (k, v) -> pp fmt "@[<hov>%s = %a@]" k pp_unstructured v))
+        (Map.fold (fun k v acc -> (List.map (fun e -> (k, e)) v) @ acc) content [])
+
+
+let default =
+  { ty          = ContentType.default
+  ; encoding    = ContentEncoding.default
+  ; version     = MimeVersion.default
+  ; id          = None
+  ; description = None
+  ; content     = Map.empty
+  ; unsafe      = Map.empty
+  ; skip        = [] }
+
+module Encoder =
 struct
-  type field =
-    [ ContentType.field
-    | ContentEncoding.field
-    | `ContentID          of MsgID.t
-    | `ContentDescription of Rfc5322.phrase
-    | `Content            of string * Rfc5322.phrase
-    | `Unsafe             of string * Rfc5322.phrase ]
+  open Encoder
 
-  let field_of_lexer = function
-    | `Content p                -> `Content p
-    | `ContentDescription s     -> `ContentDescription s
-    | (`ContentType _) as x     -> (ContentType.field_of_lexer x :> field)
-    | (`ContentEncoding _) as x -> (ContentEncoding.field_of_lexer x :> field)
-    | `ContentID i              -> `ContentID (MsgID.D.of_lexer i)
-    | `Unsafe (field, value)    -> `Unsafe (field, value)
+  let w_crlf k e = string "\r\n" k e
+  let w_unstructured _ = Wrap.string "lol"
 
-  let pp = Format.fprintf
+  let w_field = function
+    | #ContentType.field as x -> ContentType.Encoder.w_field x
+    | #ContentEncoding.field as x -> ContentEncoding.Encoder.w_field x
+    | `ContentID v ->
+      string "Content-ID: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ MsgID.Encoder.w_msg_id v $ close_box) (unlift k))))
+      $ w_crlf
+    | `ContentDescription v ->
+      string "Content-Description: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_unstructured v $ close_box) (unlift k))))
+      $ w_crlf
+    | `Content (field, v) ->
+      string ("Content-" ^ field)
+      $ string ":"
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_unstructured v $ close_box) (unlift k))))
+      $ w_crlf
 
-  let pp_field fmt = function
-    | #ContentType.field as x     -> ContentType.pp_field fmt x
-    | #ContentEncoding.field as x -> ContentEncoding.pp_field fmt x
-    | `ContentID m                -> pp fmt "@[<hov>Content-ID = %a@]" MsgID.pp m
-    | `ContentDescription s       -> pp fmt "@[<hov>Content-Description = %a@]" Address.pp_phrase s
-    | `Content (k, v)             -> pp fmt "@[<hov>Content-%s = %a@]" (String.capitalize_ascii k) Address.pp_phrase v
-    | `Unsafe (k, v)              -> pp fmt "@[<hov>%s ~= %a@]" (String.capitalize_ascii k) Address.pp_phrase v
+  let w_field_version = function
+    | #MimeVersion.field as x -> MimeVersion.Encoder.w_field x
 
-  let to_field t : field list =
-    let ( >>= ) o f = match o with Some x -> Some (f x) | None -> None in
-    let ( @:@ ) o r = match o with Some x -> x :: r | None -> r in
+  let w_unsafe = function
+    | `Unsafe (field, v) ->
+      string field
+      $ string ":"
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_unstructured v $ close_box) (unlift k))))
+      $ w_crlf
 
-    (t.id >>= fun m -> `ContentID m)
-    @:@ (t.description >>= fun s -> `ContentDescription s)
-    @:@ (`ContentType t.ty) :: (`ContentEncoding t.encoding) :: []
-    @ (List.map (fun (key, value) -> `Content (key, value)) t.content)
-    @ (List.map (fun (key, value) -> `Unsafe (key, value)) [])
+  let w_skip = function
+    | `Skip line -> string line $ w_crlf
 
-  module D =
-  struct
-    let of_lexer' extend fields p state =
-      [%debug Printf.printf "state: of_lexer (content)\n%!"];
+  let w_message { ty; encoding; version; id; description; content; _ } =
+    w_field (`ContentType ty)
+    $ w_field (`ContentEncoding encoding)
+    $ w_field_version (`MimeVersion version)
+    $ (match id          with Some v -> w_field (`ContentID v) | None -> noop)
+    $ (match description with Some v -> w_field (`ContentDescription v) | None -> noop)
+    $ (Map.fold (fun field value acc -> w_field (`Content (field, value)) $ acc) content noop)
 
-      let ty          = ref None in
-      let encoding    = ref None in
-      let id          = ref None in
-      let description = ref None in
-      let content     = ref [] in
-
-      let sanitize fields =
-        p ({ ty          = Option.value ~default:ContentType.default !ty
-           ; encoding    = Option.value ~default:ContentEncoding.default !encoding
-           ; version     = MimeVersion.default
-           ; id          = !id
-           ; description = !description
-           ; content     = !content }) fields state
-      in
-
-      let rec loop garbage fields = match fields with
-        | [] -> sanitize (List.rev garbage)
-        | field :: rest ->
-          match field with
-          | `ContentType c ->
-            (match !ty with
-             | None   -> ty := Some (ContentType.D.of_lexer' c);
-                         loop garbage rest
-             | Some _ -> loop (field :: garbage) rest)
-          | `ContentEncoding e ->
-            (match !encoding with
-             | None   -> encoding := Some (ContentEncoding.D.of_lexer' e);
-                         loop garbage rest
-             | Some _ -> loop (field :: garbage) rest)
-          | `ContentID e ->
-            (match !id with
-             | None   -> id := Some (MsgID.D.of_lexer e);
-                         loop garbage rest
-             | Some _ -> loop (field :: garbage) rest)
-          | `ContentDescription s ->
-            (match !description with
-             | None   -> description := Some s;
-                         loop garbage rest
-             | Some _ -> loop (field :: garbage) rest)
-          | `Content (field, value) ->
-            content := (field, value) :: !content;
-            loop garbage rest
-          | field -> extend loop field garbage rest
-      in
-
-      loop [] fields
-
-    let of_lexer fields p state =
-      of_lexer' (fun self field garbage rest -> self (field :: garbage) rest) fields p state
-  end
-
-  module E =
-  struct
-    module Internal =
-    struct
-      open BaseEncoder
-      open Wrap
-
-      let w_crlf k e = w "\r\n" k e
-
-      let w_content = function
-        | #ContentType.field as x -> ContentType.E.w x
-        | #ContentEncoding.field as x -> ContentEncoding.E.w x
-        | `ContentID m ->
-          w "Content-ID: "
-          $ Wrap.lift
-          $ Wrap.(fun k -> (w_hovbox (String.length "Content-ID: ")
-                            $ MsgID.E.w m
-                            $ w_close_box) (unlift k))
-          $ w_crlf
-        | `ContentDescription s ->
-          w "Content-Description:"
-          $ Wrap.lift
-          $ Wrap.(fun k -> (w_hovbox (String.length "Content-Description:")
-                            $ Address.E.w_phrase s
-                            $ w_close_box) (unlift k))
-          $ w_crlf
-        | `Content (field, value) ->
-          w ("Content-" ^ field) $ w ":"
-          $ Wrap.lift
-          $ Wrap.(fun k -> (w_hovbox (String.length field + 10)
-                            $ Address.E.w_phrase value
-                            $ w_close_box) (unlift k))
-          $ w_crlf
-        | `Unsafe (key, value) ->
-          w key $ w ":"
-          $ Wrap.lift
-          $ Wrap.(fun k -> (w_hovbox (String.length key + 2)
-                            $ Address.E.w_phrase value
-                            $ w_close_box) (unlift k))
-          $ w_crlf
-    end
-
-    let w_field = Internal.w_content
-    let w fields = List.fold_right Internal.w_content fields
-  end
+  let w_part { ty; encoding; id; description; content; unsafe; skip; _ } =
+    w_field (`ContentType ty)
+    $ w_field (`ContentEncoding encoding)
+    $ (match id          with Some v -> w_field (`ContentID v) | None -> noop)
+    $ (match description with Some v -> w_field (`ContentDescription v) | None -> noop)
+    $ (Map.fold (fun field value acc -> w_field (`Content (field, value)) $ acc) content noop)
+    $ (Map.fold (fun field value acc -> w_unsafe (`Unsafe (field, value)) $ acc) content noop)
 end
 
-module Message =
-struct
-  type field = [ Part.field | MimeVersion.field ]
+open Parser
 
-  let field_of_lexer = function
-    | #Rfc2045.field as x -> (Part.field_of_lexer x :> field)
-    | #Rfc2045.mime_field as x -> (MimeVersion.field_of_lexer x :> field)
+let message (fields : [> Rfc2045.field | Rfc2045.field_version ] list) =
+  { f = fun i s fail succ ->
+    let rec catch garbage acc = function
+      | `ContentType content :: r ->
+        catch garbage { acc with ty = content } r
+      | `ContentEncoding mechanism :: r ->
+        catch garbage { acc with encoding = mechanism } r
+      | `ContentID id :: r ->
+        catch garbage { acc with id = Some id } r
+      | `ContentDescription desc :: r ->
+        catch garbage { acc with description = Some desc } r
+      | `MimeVersion version :: r ->
+        catch garbage { acc with version = version } r
+      | `Content (field_name, value) :: r ->
+        let content =
+          try let old = Map.find field_name acc.content in
+              Map.add field_name (value :: old) acc.content
+          with Not_found -> Map.add field_name [value] acc.content
+        in
+        catch garbage { acc with content = content } r
+      | field :: r ->
+        catch (field :: garbage) acc r
+      | [] -> acc, List.rev garbage (* keep the order *)
+    in
 
-  let to_field t =
-    (`MimeVersion t.version :> field) :: (Part.to_field t :> field list)
+    succ i s (catch [] default fields) }
 
-  module D =
-  struct
-    let of_lexer fields p =
-      let version = ref None in
+let part (fields : [> Rfc2045.field | Rfc2045.unsafe | Rfc2045.skip ] list) =
+  { f = fun i s fail succ ->
+    let rec catch garbage acc = function
+      | `ContentType content :: r ->
+        catch garbage { acc with ty = content } r
+      | `ContentEncoding mechanism :: r ->
+        catch garbage { acc with encoding = mechanism } r
+      | `ContentID id :: r ->
+        catch garbage { acc with id = Some id } r
+      | `ContentDescription desc :: r ->
+        catch garbage { acc with description = Some desc } r
+      | `Content (field_name, value) :: r ->
+        let content =
+          try let old = Map.find field_name acc.content in
+              Map.add field_name (value :: old) acc.content
+          with Not_found -> Map.add field_name [value] acc.content
+        in
+        catch garbage { acc with content = content } r
+      | `Unsafe (field_name, value) :: r ->
+        let unsafe =
+          try let old = Map.find field_name acc.unsafe in
+              Map.add field_name (value :: old) acc.unsafe
+          with Not_found -> Map.add field_name [value] acc.unsafe
+        in
+        catch garbage { acc with unsafe = unsafe } r
+      | `Skip line :: r ->
+        catch garbage { acc with skip = line :: acc.skip } r
+      | field :: r ->
+        catch (field :: garbage) acc r
+      | [] -> acc, List.rev garbage
+    in
 
-      Part.D.of_lexer'
-        (fun self field garbage rest ->
-         match field with
-         | `MimeVersion x ->
-           (match !version with
-            | None -> version := Some (MimeVersion.D.of_lexer' x);
-                      self garbage rest
-            | Some _ -> self (field :: garbage) rest)
-         | field -> self (field :: garbage) rest)
-        fields
-        (fun content -> p { content with version = Option.value !version ~default:MimeVersion.default })
-  end
-
-  module E =
-  struct
-    module Internal =
-    struct
-      let w_content = function
-        | #Part.field as x -> Part.E.w_field x
-        | #MimeVersion.field as x -> MimeVersion.E.w x
-    end
-
-    let w_field = Internal.w_content
-    let w fields = List.fold_right Internal.w_content fields
-  end
-end
+    succ i s (catch [] default fields) }

@@ -1,9 +1,7 @@
-type 'a t = 'a option
+let value ~default = function
+  | Some v -> v
+  | None -> default
 
-let value a ~default = match a with
-  | Some x -> x
-  | _      -> default
-
-let bind f = function
-  | Some x -> Some (f x)
-  | None   -> None
+let is_some = function
+  | Some v -> true
+  | None -> false

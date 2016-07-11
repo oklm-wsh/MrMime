@@ -1,12 +1,9 @@
-type left  = Rfc5322.left
-type right = Rfc5322.right
-type t     = { left : left; right : right; }
+type local  = Rfc822.local
+type word   = Rfc822.word
+type domain = Rfc822.domain
+type msg_id = Rfc822.msg_id
 
 let pp = Format.fprintf
-
-let pp_left fmt = function
-  | `String s -> pp fmt "%S" s
-  | `Atom s -> pp fmt "%s" s
 
 let pp_lst ~sep pp_data fmt lst =
   let rec aux = function
@@ -15,85 +12,81 @@ let pp_lst ~sep pp_data fmt lst =
     | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
   in aux lst
 
-let pp_right fmt = function
-  | `Domain lst -> pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt ".") (fun fmt -> function `Atom s -> pp fmt "%s" s)) lst
-  | `Literal lst -> pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") (fun fmt s -> pp fmt "%s" s)) lst
+let pp_word = Address.pp_word
+let pp_local = Address.pp_local
 
-let pp fmt { left; right } =
-  pp fmt "{ @[<hov>%a;@ %a@] }" (pp_lst ~sep:(fun fmt () -> pp fmt ".") pp_left) left pp_right right
+let pp_domain fmt (x : domain) = match x with
+  | `Domain lst ->
+    pp fmt "@[<hov>%a@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt ".") Format.pp_print_string) lst
+  | `Literal s -> pp fmt "[@[<hov>%s@]]" s
 
-module D =
+let pp fmt (local, domain) =
+  pp fmt "{ @[<hov>%a;@ %a@] }"
+    pp_local local
+    pp_domain domain
+
+module Encoder =
 struct
-  let of_lexer (left, right) =
-    { left; right; }
+  open Encoder
+  open Wrap
 
-  open BaseDecoder
+  let w_left = Address.Encoder.w_local
 
-  let of_decoder state =
-    let rec loop = function
-      | `Error (exn, buf, off, len) ->
-        let tmp = Buffer.create 16 in
-        let fmt = Format.formatter_of_buffer tmp in
+  let w_right = function
+    | `Domain lst ->
+      let rec aux = function
+        | [] -> noop
+        | [ x ] -> string x
+        | x :: r -> string x $ hovbox 0 $ string "." $ aux r $ close_box
+      in hovbox 0 $ aux lst $ close_box
+    | `Literal lit ->
+      hovbox 0
+      $ string "["
+      $ string lit
+      $ string "]"
+      $ close_box
 
-        Format.fprintf fmt "%a (buf: %S)%!"
-          Error.pp exn (Bytes.sub buf off (len - off));
-
-        raise (Invalid_argument ("Address.of_string: " ^ (Buffer.contents tmp)))
-      | `Read (buf, off, len, k) ->
-        raise (Invalid_argument "Address.of_string: unterminated string")
-      | `Ok data -> of_lexer data
-    in
-
-    let rule = Rfc5322.p_msg_id (fun data state -> `Ok data) in
-    loop @@ safe rule state
+  let w_msg_id (local, domain) =
+    hovbox 0
+    $ char '<'
+    $ hovbox 1
+    $ w_left local
+    $ close_box
+    $ char '@'
+    $ hovbox 1
+    $ w_right domain
+    $ close_box
+    $ char '>'
+    $ close_box
 end
 
-module E =
-struct
-  module Internal =
-  struct
-    open BaseEncoder
-    open Wrap
+let of_string ?(chunk = 1024) s =
+  let s' = s ^ "\r\n" in
+  let l = String.length s' in
+  let i = Input.create_bytes chunk in
 
-    let w_left = Address.E.w_local
-    let w_right = Address.E.w_domain
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min chunk (l - consumed) in
+      Input.write_string buffer s' consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some v
+  in
 
-    let w_msg_id { left; right; } =
-      w_hovbox 1
-      $ w_char '<'
-      $ w_hovbox 1
-      $ w_left left
-      $ w_close_box
-      $ w_char '@'
-      $ w_hovbox 1
-      $ w_right (right :> Address.domain)
-      $ w_close_box
-      $ w_char '>'
-      $ w_close_box
-  end
+  aux 0 @@ Parser.run i Parser.(Rfc822.msg_id <* Rfc822.crlf)
 
-  let w = Internal.w_msg_id
+let of_string_raw ?(chunk = 1024) s off len =
+  let i = Input.create_bytes chunk in
 
-  let to_buffer t state =
-    let buf = Buffer.create 16 in
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min chunk (len - (consumed - off)) in
+      Input.write_string buffer s consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some (v, consumed - off)
+  in
 
-    let rec loop = function
-      | `Partial (s, i, l, k) ->
-        Buffer.add_subbytes buf s i l;
-        loop @@ (k l)
-      | `Ok -> buf
-    in
-
-    let rule =
-      let open BaseEncoder in
-      let ok = flush (fun _ -> `Ok) in
-      Wrap.lift Wrap.(Internal.w_msg_id t (unlift ok))
-    in
-
-    loop @@ rule state
-end
-
-let of_string s = D.of_decoder (Decoder.of_string s)
-let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
-
-let equal = (=)
+  aux off @@ Parser.run i Rfc822.msg_id

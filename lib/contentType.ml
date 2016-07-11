@@ -1,168 +1,147 @@
-type ty    = Rfc2045.ty
-type subty = Rfc2045.subty
-type value = Rfc2045.value
+type ty      = Rfc2045.ty
+type subty   = Rfc2045.subty
+type value   = Rfc2045.value
+type field   = [ `ContentType of Rfc2045.content ]
+
+type content = Rfc2045.content =
+  { ty         : Rfc2045.ty
+  ; subty      : Rfc2045.subty
+  ; parameters : (string * Rfc2045.value) list }
 
 let pp = Format.fprintf
 
 let pp_ty fmt = function
-  | `Audio        -> pp fmt "audio"
-  | `Ietf_token s -> pp fmt "ietf-token:%s" s
-  | `Application  -> pp fmt "application"
-  | `X_token s    -> pp fmt "x-token:%s" s
-  | `Message      -> pp fmt "message"
-  | `Image        -> pp fmt "image"
-  | `Video        -> pp fmt "video"
-  | `Multipart    -> pp fmt "multipart"
   | `Text         -> pp fmt "text"
+  | `Image        -> pp fmt "image"
+  | `Audio        -> pp fmt "audio"
+  | `Video        -> pp fmt "video"
+  | `Application  -> pp fmt "application"
+  | `Message      -> pp fmt "message"
+  | `Multipart    -> pp fmt "multipart"
+  | `Ietf_token s -> pp fmt "ietf:%s" s
+  | `X_token s    -> pp fmt "x:%s" s
 
 let pp_subty fmt = function
-  | `Ietf_token s -> pp fmt "ietf-token:%s" s
-  | `X_token s    -> pp fmt "x-token:%s" s
-  | `Iana_token s -> pp fmt "iana-token:%s" s
+  | `Ietf_token s -> pp fmt "ietf:%s" s
+  | `X_token s    -> pp fmt "x:%s" s
+  | `Iana_token s -> pp fmt "iana:%s" s
 
 let pp_value fmt = function
   | `String s -> pp fmt "%S" s
-  | `Token s -> pp fmt "%s" s
+  | `Token s  -> pp fmt "%s" s
 
-type t =
-  { ty         : ty
-  ; subty      : subty
-  ; parameters : (string * value) list }
-
-let pp_lst pp_data fmt lst =
+let pp_lst ~sep pp_data fmt lst =
   let rec aux = function
     | [] -> ()
     | [ x ] -> pp_data fmt x
-    | x :: r -> pp fmt "%a;@ " pp_data x; aux r
-  in
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
 
-  pp fmt "[@[<hov>"; aux lst; pp fmt "@]]"
+let pp_parameter fmt (key, value) =
+  pp fmt "%s = %a" key pp_value value
 
-let pp fmt { ty; subty; parameters } =
-  pp fmt "{ @[<hov>type = %a/%a;@ parameters = %a@] }"
-    pp_ty ty pp_subty subty (pp_lst (fun fmt (key, value) -> pp fmt "%s = %a" key pp_value value)) parameters
-
-let ty { ty; _ } = ty
-let subty { subty; _ } = subty
-let parameters { parameters; _ } = parameters
+let pp fmt { ty; subty; parameters; } =
+  pp fmt "{ @[<hov>type = %a/%a;@ parameters = [@[<hov>%a@]]@] }"
+    pp_ty ty
+    pp_subty subty
+    (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") pp_parameter) parameters
 
 let make ?(parameters = []) ty subty =
-  (* See RFC 2045 § Appendix A
+  let parameters = List.map (fun (k, v) -> (String.lowercase_ascii k, v)) parameters in
+  { ty; subty; parameters }
 
-     content := "Content-Type" ":" type "/" subtype
-                *(";" parameter)
-                ; Matching of media type and subtype
-                ; is ALWAYS case-insensitive.
-
-     parameter := attribute "=" value
-
-     attribute := token
-                  ; Matching of attributes
-                  ; is ALWAYS case-insensitive.
-
-     See RFC 2045 § 5.1:
-
-     The type, subtype, and parameter names are not case sensitive. For example,
-     TEXT,  Text,  and TeXt are all equivalent top-level media types.  Parameter
-     values are  normally case  sensitive,  but sometimes  are interpreted  in a
-     case-insensitive  fashion,  depending on  the intended  use.  (For example,
-     multipart boundaries  are case-sensitive,  but the  "access-type" parameter
-     for message/External-body is not case-sensitive.)
-  *)
-  let parameters =
-    List.map (fun (k, v) -> (String.lowercase_ascii k, v)) parameters in
-  { ty; subty; parameters; }
-
-(* See RFC 2045 § 5.2 *)
 let default =
-  { ty = `Text; subty = `Iana_token "plain"
-  ; parameters = ["charset", `Token "us-ascii"] }
+  { ty = `Text
+  ; subty = `Iana_token "plain"
+  ; parameters = ["charsert", `Token "us-ascii"] }
 
-type field = [ `ContentType of t ]
-
-let field_of_lexer = function
-  | `ContentType (ty, subty, parameters ) -> `ContentType { ty; subty; parameters; }
-
-let pp_field fmt = function
-  | `ContentType t ->
-    Format.fprintf fmt "@[<hov>Content-Type = %a@]" pp t
-
-module D =
+module Encoder =
 struct
-  let of_lexer (ty, subty, parameters) p state =
-    p { ty; subty; parameters; } state
-  let of_lexer' (ty, subty, parameters) =
-    { ty; subty; parameters; }
+  open Encoder
+
+  let w_type = function
+    | `Text         -> Wrap.string "text"
+    | `Image        -> Wrap.string "image"
+    | `Audio        -> Wrap.string "audio"
+    | `Video        -> Wrap.string "video"
+    | `Application  -> Wrap.string "application"
+    | `Message      -> Wrap.string "message"
+    | `Multipart    -> Wrap.string "multipart"
+    | `Ietf_token s | `X_token s -> Wrap.string s
+
+  let w_subtype = function
+    | `X_token s
+    | `Iana_token s
+    | `Ietf_token s -> Wrap.string s
+
+  let w_value = function
+    | `String v -> Wrap.char '"' $ Address.Encoder.w_safe_string v $ Wrap.char '"'
+    | `Token s -> Wrap.string s
+
+  let w_parameter (key, value) =
+    let open Wrap in
+    hovbox 0
+    $ string key
+    $ close_box
+    $ char '='
+    $ hovbox 0
+    $ w_value value
+    $ close_box
+
+  let w_content { ty; subty; parameters; } =
+    let open Wrap in
+    let rec w_lst w_sep w_data l =
+      let rec aux = function
+        | [] -> noop
+        | x :: r -> w_sep $ hovbox 0 $ w_data x $ close_box $ aux r
+      in aux l
+    in
+    hovbox 0
+    $ w_type ty
+    $ close_box
+    $ char '/'
+    $ hovbox 0
+    $ w_subtype subty
+    $ close_box
+    $ hovbox 0
+    $ w_lst (char ';' $ space) w_parameter parameters
+    $ close_box
+
+  let w_crlf k e = string "\r\n" k e
+
+  let w_field = function
+    | `ContentType t ->
+      string "Content-Type: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_content t $ close_box) (unlift k))))
+      $ w_crlf
 end
 
-module E =
-struct
-  module Internal =
-  struct
-    open BaseEncoder
-    open Wrap
+let of_string ?(chunk = 1024) s =
+  let s' = s ^ "\r\n" in
+  let l = String.length s' in
+  let i = Input.create_bytes chunk in
 
-    let w_ty = function
-      | `Application  -> w_string "application"
-      | `Audio        -> w_string "audio"
-      | `Ietf_token s -> w_string s
-      | `Image        -> w_string "image"
-      | `Message      -> w_string "message"
-      | `Multipart    -> w_string "multipart"
-      | `Text         -> w_string "text"
-      | `Video        -> w_string "video"
-      | `X_token s    -> w_string s
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min chunk (l - consumed) in
+      Input.write_string buffer s' consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some v
+  in
 
-    let w_subty = function
-      | `Ietf_token s -> w_string s
-      | `Iana_token s -> w_string s
-      | `X_token s    -> w_string s
+  aux 0 @@ Parser.run i Parser.(Rfc2045.content <* Rfc822.crlf)
 
-    let w_value = function
-      | `String s -> w_char '"' $ Address.E.w_safe_string s $ w_char '"'
-      | `Token s  -> w_string s
+let of_string_raw ?(chunk = 1024) s off len =
+  let i = Input.create_bytes chunk in
 
-    let w_parameter (key, value) =
-      w_hovbox 1
-      $ w_string key
-      $ w_close_box
-      $ w_char '='
-      $ w_hovbox 1
-      $ w_value value
-      $ w_close_box
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min chunk (len - (consumed - off)) in
+      Input.write_string buffer s consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some (v, consumed - off)
+  in
 
-    let w_content { ty; subty; parameters; } =
-      let w_lst w_sep w_data l =
-        let rec aux = function
-          | [] -> noop
-          | x :: r -> w_sep $ w_hovbox 1 $ w_data x $ w_close_box $ aux r
-        in aux l
-      in
-      w_hovbox 1
-      $ w_ty ty
-      $ w_close_box
-      $ w_char '/'
-      $ w_hovbox 1
-      $ w_subty subty
-      $ w_close_box
-      $ w_hovbox 1
-      $ w_lst (w_char ';' $ w_space) w_parameter parameters
-      $ w_close_box
-      $ w_close_box
-
-    let w_crlf k e = w "\r\n" k e
-
-    let w_field = function
-      | `ContentType t ->
-        w "Content-Type: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Content-Type: ")
-                          $ w_content t
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-  end
-
-  let w = Internal.w_field
-end
-
-let equal = (=)
+  aux off @@ Parser.run i Rfc2045.content

@@ -1,8 +1,167 @@
-open BaseDecoder
+type result = [ `Dirty of string | `Clean of string | `Wrong_padding ]
+
+open Parser
+open Parser.Convenience
+
+module F =
+struct
+  type t = { mutable contents : int * int } (* quantum x size *)
+
+  let table =
+    "\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
+     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
+     \255\255\255\255\255\255\255\255\255\255\255\062\255\255\255\063\
+     \052\053\054\055\056\057\058\059\060\061\255\255\255\255\255\255\
+     \255\000\001\002\003\004\005\006\007\008\009\010\011\012\013\014\
+     \015\016\017\018\019\020\021\022\023\024\025\255\255\255\255\255\
+     \255\026\027\028\029\030\031\032\033\034\035\036\037\038\039\040\
+     \041\042\043\044\045\046\047\048\049\050\051\255\255\255\255\255"
+
+  let make () = { contents = (0, 0) }
+
+  let add ({ contents = (quantum, size) } as t) chr buffer =
+    let code = Char.code (String.get table (Char.code chr)) in
+
+    match size with
+    | 0 -> t.contents <- (code, 1)
+    | 1 -> t.contents <- ((quantum lsl 6) lor code, 2)
+    | 2 -> t.contents <- ((quantum lsl 6) lor code, 3)
+    | 3 ->
+      let a = (quantum lsr 10) land 255 in
+      let b = (quantum lsr 2)  land 255 in
+      let c = ((quantum lsl 6) lor code) land 255 in
+
+      Buffer.add_char buffer (Char.chr a);
+      Buffer.add_char buffer (Char.chr b);
+      Buffer.add_char buffer (Char.chr c);
+
+      t.contents <- (0, 0)
+    | _ -> assert false
+
+  let flush { contents = (quantum, size) } buffer =
+    match size with
+    | 0 | 1 -> ()
+    | 2 ->
+      let quantum = quantum lsr 4 in
+      Buffer.add_char buffer (Char.chr (quantum land 255))
+    | 3 ->
+      let quantum = quantum lsr 2 in
+      let a = (quantum lsr 8) land 255 in
+      let b =  quantum        land 255 in
+
+      Buffer.add_char buffer (Char.chr a);
+      Buffer.add_char buffer (Char.chr b)
+    | _ -> assert false
+
+  let padding { contents = (quantum, size) } padding =
+    match size, padding with
+    | 0, 0 -> true
+    | 1, _ -> false
+    | 2, 2 -> true
+    | 3, 1 -> true
+    | _    -> false
+end
+
+let is_b64 = function
+  | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '+' | '/' -> true
+  | _ -> false
+
+let decode_chunk t buffer =
+  { f = fun i s fail succ ->
+    let decode t buff off len =
+      let rec loop idx =
+        if idx < len && is_b64 (Internal_buffer.get buff (off + idx))
+        then (F.add t (Internal_buffer.get buff (off + idx)) buffer; loop (idx + 1))
+        else idx
+      in
+
+      loop 0
+    in
+
+    let consumed = Input.transmit i (decode t) in
+
+    succ i s consumed }
+
+let crlf = char '\r' *> char '\n' *> return ()
+
+let decode boundary rollback t buffer =
+  let fix' f =
+    let rec u a b = lazy (f r a b)
+    and r a b = { f = fun i s fail succ ->
+              Lazy.(force (u a b)).f i s fail succ }
+    in r
+  in
+
+  (fix' @@ fun m padding dirty ->
+     peek_chr >>= function
+     | None ->
+       F.flush t buffer;
+       if F.padding t padding
+       then return (match dirty with
+                    | `Dirty -> false, `Dirty (Buffer.contents buffer)
+                    | `Clean -> false, `Clean (Buffer.contents buffer))
+       else return (false, `Wrong_padding)
+     | Some chr when is_b64 chr ->
+       if padding = 0
+       then decode_chunk t buffer >>= fun consumed -> m padding dirty
+       else (F.flush t buffer; return (false, `Dirty (Buffer.contents buffer)))
+     | Some '=' ->
+       advance 1 >>= fun () -> m (padding + 1) dirty
+     | Some '\x20'
+     | Some '\x09' ->
+       advance 1 >>= fun () -> m padding dirty
+     | Some '\x0D' ->
+       (boundary >>= fun () ->
+        F.flush t buffer;
+        if F.padding t padding
+        then return (match dirty with
+                     | `Dirty -> true, `Dirty (Buffer.contents buffer)
+                     | `Clean -> true, `Clean (Buffer.contents buffer))
+        else return (true, `Wrong_padding))
+       <|> (crlf >>= fun () -> m padding dirty)
+     | Some chr -> advance 1 >>= fun () -> m padding `Dirty)
+
+let inline t buffer =
+  let fix' f =
+    let rec u a b = lazy (f r a b)
+    and r a b = { f = fun i s fail succ ->
+              Lazy.(force (u a b)).f i s fail succ }
+    in r
+  in
+
+  fix' @@ fun m padding dirty ->
+    peek_chr >>= function
+    | None | Some '?' ->
+      F.flush t buffer;
+      if F.padding t padding
+      then return (match dirty with
+                   | `Dirty -> `Dirty (Buffer.contents buffer)
+                   | `Clean -> `Clean (Buffer.contents buffer))
+      else return `Wrong_padding
+    | Some chr when is_b64 chr ->
+      if padding = 0
+      then decode_chunk t buffer >>= fun consumed -> m padding dirty
+      else (F.flush t buffer; return (`Dirty (Buffer.contents buffer)))
+
+    | Some '=' ->
+      advance 1 >>= fun () -> m (padding + 1) dirty
+    | Some '\x20'
+    | Some '\x09' ->
+      advance 1 >>= fun () -> m padding dirty
+    | Some chr -> advance 1 >>= fun () -> m padding `Dirty
+
+let decode boundary rollback =
+  decode boundary rollback (F.make ()) (Buffer.create 16) 0 `Clean
+  >>= function
+    | true, content  -> rollback *> return content
+    | false, content -> return content
+
+let inline () =
+  inline (F.make ()) (Buffer.create 16) 0 `Clean
 
 module T =
 struct
-  open BaseEncoder
+  open Encoder
 
   let _to =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
@@ -23,7 +182,7 @@ struct
 
   let wrap k ({ state; cnum; _ } as t) =
     if cnum + 4 > 76
-    then w "\r\n" (fun state -> k { t with state = state; cnum = 4; }) state
+    then string "\r\n" (fun state -> k { t with state = state; cnum = 4; }) state
     else k { t with cnum = cnum + 4 }
 
   let add chr k ({ state; buffer; seek; _ } as t) =
@@ -45,10 +204,10 @@ struct
        let c = (quantum lsr 6 ) land 63 in
        let d =  quantum         land 63 in
 
-       (w_char _to.[a]
-        $ w_char _to.[b]
-        $ w_char _to.[c]
-        $ w_char _to.[d])
+       (char _to.[a]
+        $ char _to.[b]
+        $ char _to.[c]
+        $ char _to.[d])
        (fun state -> k { t with state = state; seek = 0 })
        state)
       t
@@ -77,10 +236,10 @@ struct
        let c = (quantum lsr 6 ) land 63 in
        let d =  quantum         land 63 in
 
-       (w_char _to.[b]
-        $ w_char _to.[c]
-        $ w_char _to.[d]
-        $ w_char '=')
+       (char _to.[b]
+        $ char _to.[c]
+        $ char _to.[d]
+        $ char '=')
        (fun state -> k { t with state = state; seek = 0 })
        state
      | 1 ->
@@ -95,10 +254,10 @@ struct
        let c = (quantum lsr 6) land 63 in
        let d =  quantum        land 63 in
 
-       (w_char _to.[c]
-        $ w_char _to.[d]
-        $ w_char '='
-        $ w_char '=')
+       (char _to.[c]
+        $ char _to.[d]
+        $ char '='
+        $ char '=')
        (fun state -> k { t with state = state; seek = 0 })
        state
      | 0 -> k t
@@ -108,130 +267,6 @@ struct
   let unlift k t =
     flush (fun { state; _ } -> k state) t
 end
-
-module F =
-struct
-  type t = int * int
-  (* quantum x size *)
-
-  let _of =
-    "\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-     \255\255\255\255\255\255\255\255\255\255\255\062\255\255\255\063\
-     \052\053\054\055\056\057\058\059\060\061\255\255\255\255\255\255\
-     \255\000\001\002\003\004\005\006\007\008\009\010\011\012\013\014\
-     \015\016\017\018\019\020\021\022\023\024\025\255\255\255\255\255\
-     \255\026\027\028\029\030\031\032\033\034\035\036\037\038\039\040\
-     \041\042\043\044\045\046\047\048\049\050\051\255\255\255\255\255"
-
-  (* XXX: paranoid mode *)
-  let () =
-    String.iteri
-      (fun idx chr ->
-        if idx = Char.code _of.[Char.code chr]
-        then ()
-        else assert false)
-      T._to
-
-  let default = (0, 0)
-
-  let add (quantum, size) chr buf =
-    let code = Char.code (_of.[Char.code chr]) in
-
-    assert (code < 64);
-
-    match size with
-    | 0 -> (code, 1)
-    | 1 -> ((quantum lsl 6) lor code, 2)
-    | 2 -> ((quantum lsl 6) lor code, 3)
-    | 3 ->
-      let a =  (quantum lsr 10)           land 255 in
-      let b =  (quantum lsr 2)            land 255 in
-      let c = ((quantum lsl 6)  lor code) land 255 in
-
-      Buffer.add_char buf (Char.chr a);
-      Buffer.add_char buf (Char.chr b);
-      Buffer.add_char buf (Char.chr c);
-
-      (0, 0)
-    | _ -> assert false
-
-  let flush (quantum, size) buf =
-    match size with
-    | 0 | 1 -> ()
-    | 2 ->
-      let quantum = quantum lsr 4 in
-      Buffer.add_char buf (Char.chr (quantum land 255))
-    | 3 ->
-      let quantum = quantum lsr 2 in
-      let a = (quantum lsr 8) land 255 in
-      let b =  quantum        land 255 in
-      Buffer.add_char buf (Char.chr a);
-      Buffer.add_char buf (Char.chr b)
-    | _ -> assert false
-
-  let padding (quantum, size) padding =
-    match size, padding with
-    | 0, 0 -> true
-    | 1, _ -> false
-    | 2, 2 -> true
-    | 3, 1 -> true
-    | _    -> false
-end
-
-let p_decode stop p state =
-  [%debug Printf.printf "state: p_decode (Base64)\n%!"];
-
-  let buf = Buffer.create 16 in
-
-  let rec to_stop = function
-    | `Read (buf, off, len, k) ->
-      `Read (buf, off, len, (fun i -> to_stop @@ safe k i))
-    | #Error.err as err -> err
-    | `Stop state -> p (Buffer.contents buf) state
-    | `Continue state -> (junk_chr @ fun state -> to_stop (stop state)) state
-  in
-
-  let rec decode base64 padding state =
-    match peek_chr state with
-    | Some (('A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '+' | '/') as chr) ->
-      [%debug Printf.printf "state: p_decode (Base64) data\n%!"];
-
-      if padding = 0 then begin
-        state.Decoder.pos <- state.Decoder.pos + 1;
-        (decode[@tailcall]) (F.add base64 chr buf) padding state;
-      end else begin
-        F.flush base64 buf;
-        raise (Error.Error (Error.err_unexpected chr state))
-      end
-    | Some '=' ->
-      [%debug Printf.printf "state: p_decode (Base64) =\n%!"];
-
-      state.Decoder.pos <- state.Decoder.pos + 1;
-      (decode[@tailcall]) base64 (padding + 1) state
-    | Some ('\x20' | '\x09') ->
-      [%debug Printf.printf "state: p_decode (Base64) space\n%!"];
-
-      state.Decoder.pos <- state.Decoder.pos + 1;
-      (decode[@tailcall]) base64 padding state
-    | Some '\r' ->
-      [%debug Printf.printf "state: p_decode (Base64) CLRF\n%!"];
-
-      (p_chr '\r' @ p_chr '\n' @ (decode[@taillcall]) base64 padding) state
-    | Some chr ->
-      [%debug Printf.printf "state: p_decode (Base64) stop\n%!"];
-
-      F.flush base64 buf;
-      if F.padding base64 padding
-      then roll_back (fun state -> to_stop (stop state)) "\r\n" state
-           (* XXX: this decoder consume all CRLF needed by {close_}delimiter. *)
-      else raise (Error.Error (Error.err_wrong_padding state))
-    | None -> p (Buffer.contents buf) state
-  in
-
-  decode F.default 0 state
-
-open BaseEncoder
 
 let explode str =
   let rec exp i l =

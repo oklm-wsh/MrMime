@@ -1,40 +1,18 @@
-(* TODO: implement RFC 5321 § 4.4 *)
-
-type word = [ `Word of Rfc5322.word ]
+type local  = Rfc822.local
+type domain = Rfc5322.domain
+type word   = Rfc822.word
+type field  = Rfc5322.trace
 
 type received =
-  [ word
-  | `Domain  of Address.domain
-  | `Mailbox of Address.mailbox ]
+  [ `Addr   of local * (domain * domain list)
+  | `Domain of domain
+  | `Word   of word ]
 
-type t =
-  { received : (received list * Date.t option) list
-  ; path     : Address.mailbox option }
-
-type field =
-  [ `Received of received list * Date.t option
-  | `ReturnPath of Address.mailbox option ]
-
-let field_of_lexer : Rfc5322.trace -> field = function
-  | `Received (l, d) ->
-    let l = List.map (function
-                      | `Domain d  -> `Domain (Address.D.domain_of_lexer d)
-                      | `Mailbox a -> `Mailbox (Address.D.mailbox_of_lexer a)
-                      | #word as x -> x) l in
-    let d = Option.bind Date.D.of_lexer d in
-    `Received (l, d)
-  | `ReturnPath a -> `ReturnPath (Option.bind Address.D.mailbox_of_lexer a)
-
-let to_field trace =
-  [`ReturnPath trace.path ]
-  @ (List.map (fun x -> `Received x) trace.received)
+type trace =
+  { trace    : (local * (domain * domain list)) option
+  ; received : (received list * Date.date option) list }
 
 let pp = Format.fprintf
-
-let pp_received fmt = function
-  | `Word x -> Address.pp_word fmt x
-  | `Domain domain -> Address.pp_domain fmt domain
-  | `Mailbox mailbox -> Address.pp_mailbox fmt mailbox
 
 let pp_lst ~sep pp_data fmt lst =
   let rec aux = function
@@ -43,54 +21,88 @@ let pp_lst ~sep pp_data fmt lst =
     | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
   in aux lst
 
-let pp_field fmt = function
-  | `Received (l, Some date) ->
-    pp fmt "@[<hov>Received = { @[<hov>token = %a;@ date = %a@] }@]"
-      (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_received) l Date.pp date
-  | `Received (l, None) ->
-    pp fmt "@[<hov>Received = %a@]"
-      (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_received) l
-  | `ReturnPath (Some m) ->
-    pp fmt "@[<hov>Return-Path = %a@]" Address.pp_mailbox m
-  | `ReturnPath None ->
-    pp fmt "@[<hov>Return-Path = <none>@]"
+let pp_path = Address.pp_mailbox'
+let pp_received fmt r =
+  let pp_elem fmt = function
+    | `Addr v -> Address.pp_mailbox' fmt v
+    | `Domain v -> Address.pp_domain fmt v
+    | `Word v -> Address.pp_word fmt v
+  in
+  match r with
+  | (l, Some date) ->
+    pp fmt "Received = { @[<hov>%a;@ date = %a@] }"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_elem) l
+      Date.pp date
+  | (l, None) ->
+    pp fmt "Received = @[<hov>%a@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_elem) l
 
-let pp fmt t =
-  pp fmt "@[<v>%a@]"
-    (pp_lst ~sep:(fun fmt () -> pp fmt "\n") pp_field) (to_field t)
+let pp fmt = function
+  | { trace = Some p
+    ; received = r } ->
+    pp fmt "@[<hov>Return-Path = %a@]@\n& %a"
+      pp_path p
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@\n& ") pp_received) r
+  | { trace = None
+    ; received = r } ->
+    pp fmt "%a"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@\n& ") pp_received) r
 
-module D =
+module Encoder =
 struct
-  let of_lexer fields p state =
-    let received = ref [] in
-    let path     = ref None in
+  open Encoder
 
-    let sanitize fields =
-      match !received, !path with
-      | [], None -> p None fields state
-      | _ -> p (Some { received = List.rev !received
-                     ; path = Option.value ~default:None !path; }) fields state
-    in
+  let w_crlf k e = string "\r\n" k e
 
-    let rec loop garbage fields = match fields with
-      | [] -> sanitize (List.rev garbage)
-      | field :: rest ->
-        match field with
-        | `Received (l, d) ->
-          let l = List.map (function
-                            | `Domain d  -> `Domain (Address.D.domain_of_lexer d)
-                            | `Mailbox a -> `Mailbox (Address.D.mailbox_of_lexer a)
-                            | #word as x -> x) l in
-          let d = Option.bind Date.D.of_lexer d in
-          received := (l, d) :: !received; loop garbage rest
-        | `ReturnPath a ->
-          (match !path with
-           | None   ->
-             path := Some (Option.bind Address.D.mailbox_of_lexer a);
-             loop garbage rest
-           | Some _ -> sanitize (List.rev (field :: garbage) @ rest))
-        | field -> loop (field :: garbage) rest
-    in
+  let rec w_lst w_sep w_data l =
+    let open Wrap in
+      let rec aux = function
+      | [] -> noop
+      | [ x ] -> w_data x
+      | x :: r -> w_data x $ w_sep $ aux r
+    in aux l
 
-    loop [] fields
+
+  let w_field = function
+    | `Received (l, Some date) ->
+      let w_data = function
+        | `Word word -> Address.Encoder.w_word word
+        | `Domain domain -> Address.Encoder.w_domain domain
+        | `Addr addr -> Address.Encoder.w_mailbox' addr
+      in
+      string "Received: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_lst space w_data l $ close_box
+                               $ hovbox 0 $ string ";" $ space $ Date.Encoder.w_date date $ close_box) (unlift k))))
+      $ w_crlf
+    | `Received (l, None) ->
+      let w_data = function
+        | `Word word -> Address.Encoder.w_word word
+        | `Domain domain -> Address.Encoder.w_domain domain
+        | `Addr addr -> Address.Encoder.w_mailbox' addr
+      in
+      string "Received: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_lst space w_data l $ close_box) (unlift k))))
+      $ w_crlf
+    | `ReturnPath (Some m) ->
+      string  "Return-Path: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_mailbox' m $ close_box) (unlift k))))
+      $ w_crlf
+    | `ReturnPath None ->
+      string "Return-Path: < >" $ w_crlf
+
+  let w_trace { trace; received; } =
+    w_field (`ReturnPath trace)
+    $ List.fold_right (fun x acc -> w_field (`Received x) $ acc) received noop
 end
+
+let decoder (fields : [> field ] list) =
+  { Parser.f = fun i s fail succ ->
+    let rec catch garbage acc = function
+      | `Trace (trace, received) :: r ->
+        catch garbage ({ trace; received; } :: acc) r
+      | field :: r ->
+        catch (field :: garbage) acc r
+      | [] -> acc, List.rev garbage (* keep the order *)
+    in
+
+    succ i s (catch [] [] fields) }

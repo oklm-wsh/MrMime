@@ -12,69 +12,18 @@ BuildTools:             ocamlbuild
 OCamlVersion:           >= 4.02
 AlphaFeatures:          ocamlbuild_more_args
 
-Flag mtype
-  Description:          Media types IANA Database
-  Default:              true
-
-Flag tag
-  Description:          Address Literal Tags IANA Database
-  Default:              true
-
-Flag update
-  Description:          Get Media types and Address Literal Tags IANA Database
-  Default:              true
-
-Flag trace
-  Description:          Trace all compute of decompress
-  Default:              false
-
 Library mrmime
   Path:                 lib
-  Modules:              MrMime, Newline, Date, LiteralDomain, Address, MsgID, Resent, Trace, MimeVersion, ContentType, ContentEncoding, Content, Header, Message,
-                        Option, Iana, Error, Decoder, BaseDecoder, Encoder, BaseEncoder, Wrap,
-                        Rfc6532, Rfc822, Rfc5321, Rfc5322, Rfc6854, Rfc2045, Base64, QuotedPrintable, Rfc2046, Rfc2047, Grammar
+  InternalModules:      Internal_buffer, Option, RingBuffer
+  Modules:              Input, Parser, Encoder, Wrap,
+                        Rfc6532, Rfc822, Rfc2045, Base64, QuotedPrintable, Rfc2047, Rfc5321, Rfc5322, Rfc2046, Top,
+                        Date, MsgID, MimeVersion, ContentEncoding, ContentType, Content, Address, Resent, Trace, Header, Message
   BuildDepends:         ipaddr, uutf
 
 SourceRepository master
   Type:                 git
   Location:             https://github.com/oklm-wsh/MrMime.git
   Browser:              https://github.com/oklm-wsh/MrMime
-
-Executable ppx_mtype
-  Path:                 ppx
-  Install:              false
-  MainIs:               ppx_mtype.ml
-  BuildDepends:         compiler-libs.common, cmdliner, xmlm, ppx_tools, ppx_tools.metaquot
-  CompiledObject:       byte
-
-Executable ppx_tag
-  Path:                 ppx
-  Install:              false
-  MainIs:               ppx_tag.ml
-  BuildDepends:         compiler-libs.common, cmdliner, xmlm, ppx_tools, ppx_tools.metaquot
-  CompiledObject:       byte
-
-Executable ppx_debug
-  Path:                 ppx
-  Install:              false
-  Build$:               flag(trace)
-  MainIs:               ppx_debug.ml
-  BuildDepends:         compiler-libs.common
-  CompiledObject:       byte
-
-Executable get_mtype
-  Path:                 ppx
-  Install:              false
-  MainIs:               get_mtype.ml
-  BuildDepends:         lwt, cohttp.lwt, cmdliner
-  CompiledObject:       byte
-
-Executable get_tag
-  Path:                 ppx
-  Install:              false
-  MainIs:               get_tag.ml
-  BuildDepends:         lwt, cohttp.lwt, cmdliner
-  CompiledObject:       byte
 
 Document "mrmime"
   Type:                 ocamlbuild (0.4)
@@ -88,11 +37,10 @@ Document "mrmime"
 
 Executable maildir
   Path:                 bin
-  Build$:               flag(tests)
   Install:              false
   CompiledObject:       best
   MainIs:               maildir.ml
-  BuildDepends:         mrmime, lwt, lwt.unix, astring, fmt, cmdliner, re.str
+  BuildDepends:         mrmime, astring, fmt, cmdliner, re.str
 
 Executable test_address
   Path:                 lib_test
@@ -112,19 +60,11 @@ Executable test_date
 
 Executable test_header
   Path:                 lib_test
-  Build$:               flag(tests)
+  Build$:               false
   Install:              false
   CompiledObject:       best
   MainIs:               header_test.ml
   BuildDepends:         mrmime, alcotest
-
-# Executable test_message
-#   Path:                 lib_test
-#   Build$:               flag(tests)
-#   Install:              false
-#   CompiledObject:       best
-#   MainIs:               message_test.ml
-#   BuildDepends:         cmdliner, jackson, lwt, tls.lwt, mrmime, alcotest, re.str
 
 Test test_address
   Run$:                 flag(tests)
@@ -139,7 +79,7 @@ Test test_date
   WorkingDirectory:     .
 
 Test test_header
-  Run$:                 flag(tests)
+  Run$:                 false
   TestTools:            test_header
   Command:              $test_header
   WorkingDirectory:     .

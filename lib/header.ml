@@ -1,114 +1,7 @@
-type phrase = [ `Phrase of Rfc5322.phrase ]
-
-type ('date, 'from) t =
-  { date          : 'date
-  ; from          : 'from
-  ; sender        : Address.person option
-  ; reply_to      : Address.t list option
-  ; target        : Address.t list option
-  ; cc            : Address.t list option
-  ; bcc           : Address.t list option
-  ; subject       : Rfc5322.phrase option
-  ; msg_id        : MsgID.t option
-  ; in_reply_to   : [ phrase | `MsgID of MsgID.t ] list
-  ; references    : [ phrase | `MsgID of MsgID.t ] list
-  ; resents       : Resent.t list
-  ; traces        : Trace.t list
-  ; comments      : Rfc5322.phrase list
-  ; keywords      : Rfc5322.phrase list
-  ; others        : (string * Rfc5322.phrase) list
-  ; unsafe        : (string * Rfc5322.phrase) list }
-
-type strict = (Date.t, Address.person list) t
-type unstrict = (Date.t option, Address.person list option) t
-
-type field =
-  [ `From        of Address.person list
-  | `Date        of Date.t
-  | `Sender      of Address.person
-  | `ReplyTo     of Address.t list
-  | `To          of Address.t list
-  | `Cc          of Address.t list
-  | `Bcc         of Address.t list
-  | `Subject     of Rfc5322.phrase
-  | `Comments    of Rfc5322.phrase
-  | `Keywords    of Rfc5322.phrase list
-  | `MessageID   of MsgID.t
-  | `InReplyTo   of [ phrase | `MsgID of MsgID.t ] list
-  | `References  of [ phrase | `MsgID of MsgID.t ] list
-  | Resent.field
-  | Trace.field
-  | `Field       of string * Rfc5322.phrase
-  | `Unsafe      of string * Rfc5322.phrase ]
-
-module Relax =
-struct
-  exception Expected_date
-  exception Expected_from
-
-  type ('date, 'from) t =
-    { date : Date.t option -> 'date
-    ; from : Address.person list option -> 'from }
-
-  let strict =
-    { date =
-      (function Some date -> date
-              | None -> raise Expected_date)
-    ; from =
-      (function Some l -> l
-              | None -> raise Expected_from) }
-
-  let unstrict =
-    { date = (fun x -> x)
-    ; from = (fun x -> x) }
-end
-
-let field_of_lexer : Rfc5322.field -> field = function
-  | `From l              -> `From (List.map Address.D.person_of_lexer l)
-  | `Date d              -> `Date (Date.D.of_lexer d)
-  | `Sender p            -> `Sender (Address.D.person_of_lexer p)
-  | `ReplyTo l           -> `ReplyTo (Address.List.D.of_lexer l)
-  | `To l                -> `To (Address.List.D.of_lexer l)
-  | `Cc l                -> `Cc (Address.List.D.of_lexer l)
-  | `Bcc l               -> `Bcc (Address.List.D.of_lexer l)
-  | `Subject p           -> `Subject p
-  | `Comments c          -> `Comments c
-  | `Keywords l          -> `Keywords l
-  | `MessageID m         -> `MessageID (MsgID.D.of_lexer m)
-  | `InReplyTo l         ->
-    let l = List.map (function `MsgID m     -> `MsgID (MsgID.D.of_lexer m)
-                             | #phrase as x -> x) l
-    in `InReplyTo l
-  | `References l        ->
-    let l = List.map (function `MsgID m     -> `MsgID (MsgID.D.of_lexer m)
-                             | #phrase as x -> x) l
-    in `References l
-  | #Rfc5322.resent as x -> (Resent.field_of_lexer x :> field)
-  | #Rfc5322.trace as x  -> (Trace.field_of_lexer x :> field)
-  | `Field v             -> `Field v
-  | `Unsafe v            -> `Unsafe v
-
-let to_field header =
-  let ( >>= ) o f = match o with Some x -> Some (f x) | None -> None in
-  let ( @:@ ) o r = match o with Some x -> x :: r | None -> r in
-  let ( >|= ) l f = match l with [] -> None | l -> Some (f l) in
-
-  (header.date            >>= fun d -> `Date d)
-  @:@ (header.from        >>= fun f -> `From f)
-  @:@ (header.sender      >>= fun p -> `Sender p)
-  @:@ (header.reply_to    >>= fun l -> `ReplyTo l)
-  @:@ (header.target      >>= fun l -> `To l)
-  @:@ (header.cc          >>= fun l -> `Cc l)
-  @:@ (header.bcc         >>= fun l -> `Bcc l)
-  @:@ (header.subject     >>= fun p -> `Subject p)
-  @:@ (header.msg_id      >>= fun m -> `MessageID m)
-  @:@ (header.in_reply_to >|= fun l -> `InReplyTo l)
-  @:@ (header.references  >|= fun l -> `References l)
-  @:@ []
-  @ (List.map (fun (key, value) -> `Unsafe (key, value)) header.unsafe)
-  @ (List.map (fun (key, value) -> `Field (key, value)) header.others)
-  @ (List.concat @@ ((List.map Resent.to_field header.resents) :> field list list))
-  @ (List.concat @@ ((List.map Trace.to_field header.traces) :> field list list))
+type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.result
+type unstructured     = Rfc5322.unstructured
+type phrase_or_msg_id = Rfc5322.phrase_or_msg_id
+type field            = [ Rfc5322.field | Rfc5322.skip ]
 
 let pp = Format.fprintf
 
@@ -119,505 +12,297 @@ let pp_lst ~sep pp_data fmt lst =
     | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
   in aux lst
 
-let pp_field fmt field =
+let pp_raw fmt = function
+  | Rfc2047.QuotedPrintable raw -> pp fmt "quoted-printable:%s" raw
+  | Rfc2047.Base64 (`Clean raw) -> pp fmt "base64:%s" raw
+  | Rfc2047.Base64 (`Dirty raw) -> pp fmt "base64:%S" raw
+  | Rfc2047.Base64 `Wrong_padding -> pp fmt "base64:wrong-padding"
+
+let pp_unstructured fmt lst =
   let rec aux fmt = function
-    | `MsgID m -> MsgID.pp fmt m
-    | `Phrase p -> Address.pp_phrase fmt p
+    | `Text s -> pp fmt "%s" s
+    | `WSP    -> pp fmt "@ "
+    | `CR i   -> pp fmt "<cr %d>" i
+    | `LF i   -> pp fmt "<lf %d>" i
+    | `CRLF   -> pp fmt "<crlf>@\n"
+    | `Encoded (charset, raw) ->
+      pp fmt "{ @[<hov>charset = %s;@ raw = %a@] }"
+        charset pp_raw raw
   in
+  pp fmt "@[<hov>%a@]"
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@,") aux) lst
 
-  let rec pp_field fmt = function
-    | `From l            -> pp fmt "@[<hov>From = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_person) l
-    | `Date d            -> pp fmt "@[<hov>Date = %a@]" Date.pp d
-    | `Sender p          -> pp fmt "@[<hov>Sender = %a@]" Address.pp_person p
-    | `ReplyTo l         -> pp fmt "@[<hov>ReplyTo = %a@]" Address.List.pp l
-    | `To l              -> pp fmt "@[<hov>To = %a@]" Address.List.pp l
-    | `Cc l              -> pp fmt "@[<hov>Cc = %a@]" Address.List.pp l
-    | `Bcc l             -> pp fmt "@[<hov>Bcc = %a@]" Address.List.pp l
-    | `Subject p         -> pp fmt "@[<hov>Subject = %a@]" Address.pp_phrase p
-    | `Comments c        -> pp fmt "@[<hov>Comments = %a@]" Address.pp_phrase c
-    | `Keywords l        -> pp fmt "@[<hov>Keywords = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") Address.pp_phrase) l
-    | `MessageID m       -> pp fmt "@[<hov>Messsage-ID = %a@]" MsgID.pp m
-    | `InReplyTo l       -> pp fmt "@[<hov>InReplyTo = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux) l
-    | `References l      -> pp fmt "@[<hov>References = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux) l
-    | #Resent.field as x -> Resent.pp_field fmt x
-    | #Trace.field as x  -> Trace.pp_field fmt x
-    | `Field (k, v)      -> pp fmt "@[<hov>%s = %a@]" (String.capitalize_ascii k) Address.pp_phrase v
-    | `Unsafe (k, v)     -> pp fmt "@[<hov>%s ~= %a@]" (String.capitalize_ascii k) Address.pp_phrase v
+let pp_phrase_or_msg_id fmt = function
+  | `Phrase p -> pp fmt "%a" Address.pp_phrase p
+  | `MsgID m  -> pp fmt "%a" MsgID.pp m
+
+let pp_path = Address.pp_mailbox'
+let pp_received fmt r =
+  let pp_elem fmt = function
+    | `Addr v -> Address.pp_mailbox' fmt v
+    | `Domain v -> Address.pp_domain fmt v
+    | `Word v -> Address.pp_word fmt v
   in
+  match r with
+  | (l, Some date) ->
+    pp fmt "Received = { @[<hov>%a;@ date = %a@] }"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_elem) l
+      Date.pp date
+  | (l, None) ->
+    pp fmt "Received = @[<hov>%a@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_elem) l
 
-  pp_field fmt field
+let pp_field fmt = function
+  | `Date v            -> pp fmt "@[<hov>Date = %a@]" Date.pp v
+  | `From v            -> pp fmt "@[<hov>From = @[<v>%a@]@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_mailbox) v
+  | `Sender v          -> pp fmt "@[<hov>Sender = %a@]" Address.pp_mailbox v
+  | `ReplyTo v         -> pp fmt "@[<hov>Reply-To = %a@]" Address.List.pp v
+  | `To v              -> pp fmt "@[<hov>To = %a@]" Address.List.pp v
+  | `Cc v              -> pp fmt "@[<hov>Cc = %a@]" Address.List.pp v
+  | `Bcc v             -> pp fmt "@[<hov>Bcc = %a@]" Address.List.pp v
+  | `MessageID v       -> pp fmt "@[<hov>Message-ID = %a@]" MsgID.pp v
+  | `InReplyTo v       -> pp fmt "@[<hov>In-Reply-To = @[<v>%a@]@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_phrase_or_msg_id) v
+  | `References v      -> pp fmt "@[<hov>References = @[<v>%a@]@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_phrase_or_msg_id) v
+  | `Subject v         -> pp fmt "@[<hov>Subject = %a@]" pp_unstructured v
+  | `Comments v        -> pp fmt "@[<hov>Comments = %a@]" pp_unstructured v
+  | `Keywords v        -> pp fmt "@[<hov>Keywords = @[<v>%a@]@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") Address.pp_phrase) v
+  | `ResentDate v      -> pp fmt "@[<hov>Resent-Date = %a@]" Date.pp v
+  | `ResentFrom v      -> pp fmt "@[<hov>Resent-From = @[<v>%a@]@]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_mailbox) v
+  | `ResentSender v    -> pp fmt "@[<hov>Resent-Sender = %a@]" Address.pp_mailbox v
+  | `ResentReplyTo v   -> pp fmt "@[<hov>Resent-Reply-To = %a@]" Address.List.pp v
+  | `ResentTo v        -> pp fmt "@[<hov>Resent-To = %a@]" Address.List.pp v
+  | `ResentCc v        -> pp fmt "@[<hov>Resent-Cc = %a@]" Address.List.pp v
+  | `ResentBcc v       -> pp fmt "@[<hov>Resent-Bcc = %a@]" Address.List.pp v
+  | `ResentMessageID v -> pp fmt "@[<hov>Resent-Message-ID = %a@]" MsgID.pp v
+  | `Field (k, v)      -> pp fmt "@[<hov>%s = %a@]" (String.capitalize_ascii k) pp_unstructured v
+  | `Unsafe (k, v)     -> pp fmt "@[<hov>%s # %a@]" (String.capitalize_ascii k) pp_unstructured v
+  | `Trace (Some p, r) ->
+    pp fmt "@[<hov>Return-Path = %a@]@\n& %a"
+      Trace.pp_path p
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@\n& ") Trace.pp_received) r
+  | `Trace (None, r)   ->
+    pp fmt "%a"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@\n& ") Trace.pp_received) r
+  | `Skip line         -> pp fmt "@[<hov># %S@]" line
 
-let pp fmt t =
-  pp fmt "@[<v>%a]" (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_field) (to_field t)
+module Map = Map.Make(String)
 
-module D =
+type header =
+  { date        : Date.date option
+  ; from        : Address.mailbox list
+  ; sender      : Address.mailbox option
+  ; reply_to    : Address.address list
+  ; to'         : Address.address list
+  ; cc          : Address.address list
+  ; bcc         : Address.address list
+  ; subject     : unstructured option
+  ; msg_id      : MsgID.msg_id option
+  ; in_reply_to : phrase_or_msg_id list
+  ; references  : phrase_or_msg_id list
+  ; comments    : unstructured list
+  ; keywords    : Address.phrase list list
+  ; resents     : Resent.resent list
+  ; traces      : Trace.trace list
+  ; fields      : unstructured list Map.t
+  ; unsafe      : unstructured list Map.t
+  ; skip        : string list }
+
+let default =
+  { date        = None
+  ; from        = []
+  ; sender      = None
+  ; reply_to    = []
+  ; to'         = []
+  ; cc          = []
+  ; bcc         = []
+  ; subject     = None
+  ; msg_id      = None
+  ; in_reply_to = []
+  ; references  = []
+  ; comments    = []
+  ; keywords    = []
+  ; resents     = []
+  ; traces      = []
+  ; fields      = Map.empty
+  ; unsafe      = Map.empty
+  ; skip        = [] }
+
+module Internal =
 struct
-  let of_lexer relax fields p state =
-    let from          = ref None in
-    let date          = ref None in
-    let sender        = ref None in
-    let reply_to      = ref None in
-    let target        = ref None in
-    let cc            = ref None in
-    let bcc           = ref None in
-    let subject       = ref None in
-    let msg_id        = ref None in
-    let in_reply_to   = ref None in
-    let references    = ref None in
-    let resents       = ref [] in
-    let traces        = ref [] in
-    let comments      = ref [] in
-    let keywords      = ref [] in
-    let others        = ref [] in
-    let unsafe        = ref [] in
+  open Encoder
 
-    let sanitize fields =
-      let date = relax.Relax.date !date in
-      let from = relax.Relax.from !from in
-      p ({ date; from
-         ; sender      = !sender
-         ; reply_to    = !reply_to
-         ; target      = !target
-         ; cc          = !cc
-         ; bcc         = !bcc
-         ; subject     = !subject
-         ; msg_id      = !msg_id
-         ; in_reply_to = Option.value ~default:[] !in_reply_to
-         ; references  = Option.value ~default:[] !references
-         ; resents     = List.rev !resents
-         ; traces      = List.rev !traces
-         ; comments    = List.rev !comments
-         ; keywords    = List.rev !keywords
-         ; others      = List.rev !others
-         ; unsafe      = List.rev !unsafe })
-        fields state
-    in
+  let w_crlf k e = string "\r\n" k e
 
-    (* See RFC 5322 § 3.6:
+  let rec w_lst w_sep w_data l =
+    let open Wrap in
+      let rec aux = function
+      | [] -> noop
+      | [ x ] -> w_data x
+      | x :: r -> w_data x $ w_sep $ aux r
+    in aux l
 
-       +----------------+--------+------------+----------------------------+
-       | Field          | Min    | Max number | Notes                      |
-       |                | number |            |                            |
-       +-------------------------------------------------------------------+
-       | orig-date      | 1      | 1          |                            |
-       | from           | 1      | 1          | See sender and 3.6.2       |
-       | sender         | 0*     | 1          | MUST occur with            |
-       |                |        |            | multi-address from - see   |
-       |                |        |            | 3.6.2                      |
-       | reply-to       | 0      | 1          |                            |
-       | to             | 0      | 1          |                            |
-       | cc             | 0      | 1          |                            |
-       | bcc            | 0      | 1          |                            |
-       | message-id     | 0*     | 1          | SHOULD be present - see    |
-       |                |        |            | 3.6.4                      |
-       | in-reply-to    | 0*     | 1          | SHOULD occur in some       |
-       |                |        |            | replies - see 3.6.4        |
-       | references     | 0*     | 1          | SHOULD occur in some       |
-       |                |        |            | replies - see 3.6.4        |
-       | subject        | 0      | 1          |                            |
-       | comments       | 0      | unlimited  |                            |
-       | keywords       | 0      | unlimited  |                            |
-       | optional-field | 0      | unlimited  |                            |
-       +----------------+--------+------------+----------------------------+
-    *)
-    let rec loop garbage fields = match fields with
-      | [] -> sanitize (List.rev garbage)
-      | field :: rest ->
-        match field with
-        | `Date d ->
-          (match !date with
-           | None   -> date := Some (Date.D.of_lexer d);
-                       loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "Date" state)))
-        | `From f ->
-          (match !from with
-           | None   -> from := Some (List.map Address.D.person_of_lexer f);
-                       loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "From" state)))
-        | `Sender c ->
-          (match !sender with
-           | None   -> sender := Some (Address.D.person_of_lexer c); loop garbage rest
-           | Some _ -> loop garbage rest)
-           (* XXX: some email can have multiple sender, it's illegal but fuck the
-                   world! *)
-        | `ReplyTo r ->
-          (match !reply_to with
-           | None   -> reply_to := Some (Address.List.D.of_lexer r); loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "Reply-To" state)))
-        | `To l ->
-          (match !target with
-           | None   -> target := Some (Address.List.D.of_lexer l); loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "To" state)))
-        | `Cc l ->
-          (match !cc with
-           | None   -> cc := Some (Address.List.D.of_lexer l); loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "Cc" state)))
-        | `Bcc l ->
-          (match !bcc with
-           | None   -> bcc := Some (Address.List.D.of_lexer l); loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "Bcc" state)))
-        | `MessageID m ->
-          (match !msg_id with
-           | None   -> msg_id := Some (MsgID.D.of_lexer m); loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "Message-ID" state)))
-        | `InReplyTo l ->
-          let func = List.map (function `MsgID m -> `MsgID (MsgID.D.of_lexer m)
-                                      | #phrase as x -> x)
-          in
-          (match !in_reply_to with
-           | None   -> in_reply_to := Some (func l); loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "In-Reply-To" state)))
-        | `References l ->
-          let f = List.map (function `MsgID m -> `MsgID (MsgID.D.of_lexer m)
-                                   | #phrase as x -> x)
-          in
-          (match !references with
-           | None   -> references := Some (f l); loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "References" state)))
-        | `Subject s ->
-          (match !subject with
-           | None   -> subject := Some s; loop garbage rest
-           | Some _ -> raise (Error.Error (Error.err_unexpected_field "Subject" state)))
-        | `Comments c ->
-          comments := c :: !comments;
-          loop garbage rest
-        | `Keywords l ->
-          keywords := l @ !keywords; loop garbage rest
+  let w_unstructured _ = Wrap.string "lol"
 
-        (* See RFC 5322 § 3.6:
-
-           +----------------+--------+------------+----------------------------+
-           | Field          | Min    | Max number | Notes                      |
-           |                | number |            |                            |
-           +-------------------------------------------------------------------+
-           | resent-date    | 0*     | unlimited* | One per block, required if |
-           |                |        |            | other resent fields are    |
-           |                |        |            | present - see 3.6.6        |
-           | resent-from    | 0      | unlimited* | One per block - see 3.6.6  |
-           | resent-sender  | 0*     | unlimited* | One per block, MUST occur  |
-           |                |        |            | with multi-address         |
-           |                |        |            | resent-from - see 3.6.6    |
-           | resent-to      | 0      | unlimited* | One per block - see 3.6.6  |
-           | resent-cc      | 0      | unlimited* | One per block - see 3.6.6  |
-           | resent-bcc     | 0      | unlimited* | One per block - see 3.6.6  |
-           | resent-msg-id  | 0      | unlimited* | One per block - see 3.6.6  |
-           +-------------------------------------------------------------------+
-        *)
-        | #Rfc5322.resent ->
-          Resent.D.of_lexer
-            (field :: rest)
-            (function
-             | Some resent -> fun fields state -> resents := resent :: !resents;
-                                                  loop garbage fields
-             | None        -> fun fields state -> loop garbage fields)
-            state
-
-        (* See RFC 5322 § 3.6:
-
-           +----------------+--------+------------+----------------------------+
-           | Field          | Min    | Max number | Notes                      |
-           |                | number |            |                            |
-           +----------------+--------+------------+----------------------------+
-           | trace          | 0      | unlimited  | Block prepended - see      |
-           |                |        |            | 3.6.7                      |
-           +-------------------------------------------------------------------+
-        *)
-        | #Rfc5322.trace ->
-          Trace.D.of_lexer
-            (field :: rest)
-            (function
-             | Some trace -> fun fields state -> traces := trace :: !traces;
-                                                 loop garbage fields
-             | None       -> fun fields state -> loop garbage fields)
-            state
-
-        | `Field (field_name, value) ->
-          others := (field_name, value) :: !others;
-          loop garbage rest
-        | `Unsafe (field, value) ->
-          unsafe := (field, value) :: !unsafe;
-          loop garbage rest
-        | field -> loop (field :: garbage) rest
-    in
-
-    loop [] fields
-
-  open BaseDecoder
-
-  let of_decoder state =
-    let rec loop = function
-      | `Error (exn, buf, off, len) ->
-        let tmp = Buffer.create 16 in
-        let fmt = Format.formatter_of_buffer tmp in
-
-        Format.fprintf fmt "%a (buf: %S)%!"
-          Error.pp exn (Bytes.sub buf off (len - off));
-
-        raise (Invalid_argument ("Header.of_string: " ^ (Buffer.contents tmp)))
-      | `Read (buf, off, len, k) ->
-        raise (Invalid_argument "Header.of_string: unterminated string")
-      | `Ok (data, state) -> of_lexer Relax.unstrict data (fun x rest state -> x) state
-    in
-
-    let rule = Rfc5322.p_header
-      (fun field p state -> raise (Error.Error (Error.err_nothing_to_do state)))
-      @ fun fields -> Rfc822.p_crlf
-      @ Rfc822.p_crlf
-      @ fun state -> `Ok (fields, state)
-    in
-
-    loop @@ safe rule state
+  let w_field = function
+    | `Bcc l ->
+      string "Bcc: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
+      $ w_crlf
+    | `Cc l ->
+      string "Cc: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
+      $ w_crlf
+    | `Subject p ->
+      string "Subject:"
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_phrase p $ close_box) (unlift k))))
+      $ w_crlf
+    | `To l ->
+      string "To: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
+      $ w_crlf
+    | `References l ->
+      let w_data = function
+        | `Phrase p -> Address.Encoder.w_phrase p
+        | `MsgID m -> MsgID.Encoder.w_msg_id m
+      in
+      string "References: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_lst space w_data l $ close_box) (unlift k))))
+      $ w_crlf
+    | `Field (key, value) ->
+      string key $ string ":"
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_phrase value $ close_box) (unlift k))))
+      $ w_crlf
+    | `Date d ->
+      string "Date: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Date.Encoder.w_date d $ close_box) (unlift k))))
+      $ w_crlf
+    | `InReplyTo l ->
+      let w_data = function
+        | `Phrase p -> Address.Encoder.w_phrase p
+        | `MsgID m -> MsgID.Encoder.w_msg_id m
+      in
+      string "In-Reply-To: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_lst space w_data l $ close_box) (unlift k))))
+      $ w_crlf
+    | `MessageID m ->
+      string "Message-ID: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ MsgID.Encoder.w_msg_id m $ close_box) (unlift k))))
+      $ w_crlf
+    | `Comments p ->
+      string "Comments:"
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_phrase p $ close_box) (unlift k))))
+      $ w_crlf
+    | `From l ->
+      string "From: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_lst (string "," $ space) Address.Encoder.w_mailbox l $ close_box) (unlift k))))
+      $ w_crlf
+    | `Sender p ->
+      string "Sender: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_mailbox p $ close_box) (unlift k))))
+      $ w_crlf
+    | `Unsafe (key, value) ->
+      string key $ string ":"
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_unstructured value $ close_box) (unlift k))))
+      $ w_crlf
+    | `Keywords l ->
+      string "Keywords:"
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_lst (string "," $ space) Address.Encoder.w_phrase l $ close_box) (unlift k))))
+      $ w_crlf
+    | `ReplyTo l ->
+      string "Reply-To: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
+      $ w_crlf
 end
 
-module E =
-struct
-  module Internal =
-  struct
-    open BaseEncoder
-    open Wrap
+open Parser
 
-    let w_crlf k e = w "\r\n" k e
-
-    let rec w_lst w_sep w_data l =
-      let open Wrap in
-        let rec aux = function
-        | [] -> noop
-        | [ x ] -> w_data x
-        | x :: r -> w_data x $ w_sep $ aux r
-      in aux l
-
-    let w_field = function
-      | `ResentCc l ->
-        w "Resent-Cc: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Cc: ")
-                          $ Address.List.E.w l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ResentMessageID m ->
-        w "Resent-Message-ID: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Message-ID: ")
-                          $ MsgID.E.w m
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Bcc l ->
-        w "Bcc: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Bcc: ")
-                          $ Address.List.E.w l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Cc l ->
-        w "Cc: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Cc: ")
-                          $ Address.List.E.w l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ReturnPath (Some m) ->
-        w  "Return-Path: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Return-Path: ")
-                          $ Address.E.w_mailbox m
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ReturnPath None ->
-        w "Return-Path: < >" $ w_crlf
-      | `ResentTo l ->
-        w "Resent-To: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-To: ")
-                          $ Address.List.E.w l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Subject p ->
-        w "Subject:"
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Subject:")
-                          $ Address.E.w_phrase p
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `To l ->
-        w "To: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "To: ")
-                          $ Address.List.E.w l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `References l ->
-        let w_data = function
-          | `Phrase p -> Address.E.w_phrase p
-          | `MsgID m -> MsgID.E.w m
+let decoder (fields : [> field ] list) =
+  { f = fun i s fail succ ->
+    let rec catch garbage acc = function
+      | `Date date :: r ->
+        catch garbage { acc with date = Some date } r
+      | `From lst :: r ->
+        catch garbage { acc with from = lst @ acc.from } r
+      | `Sender mail :: r ->
+        catch garbage { acc with sender = Some mail } r
+      | `ReplyTo lst :: r ->
+        catch garbage { acc with reply_to = lst @ acc.reply_to } r
+      | `To lst :: r ->
+        catch garbage { acc with to' = lst @ acc.to' } r
+      | `Cc lst :: r ->
+        catch garbage { acc with cc = lst @ acc.cc } r
+      | `Bcc lst :: r ->
+        catch garbage { acc with bcc = lst @ acc.bcc } r
+      | `Subject subject :: r ->
+        catch garbage { acc with subject = Some subject } r
+      | `MessageID msg_id :: r ->
+        catch garbage { acc with msg_id = Some msg_id } r
+      | `InReplyTo lst :: r->
+        catch garbage { acc with in_reply_to = lst @ acc.in_reply_to } r
+      | `References lst :: r ->
+        catch garbage { acc with references = lst @ acc.references } r
+      | `Comments lst :: r ->
+        catch garbage { acc with comments = lst :: acc.comments } r
+      | `Keywords lst :: r ->
+        catch garbage { acc with keywords = lst :: acc.keywords } r
+      | `Field (field_name, value) :: r ->
+        let fields =
+          try let old = Map.find field_name acc.fields in
+              Map.add field_name (value :: old) acc.fields
+          with Not_found -> Map.add field_name [value] acc.fields
         in
-        w "References: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "References: ")
-                          $ w_lst w_space w_data l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ResentSender p ->
-        w "Resent-Sender: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Sender: ")
-                          $ Address.E.w_person p
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Field (key, value) ->
-        w key $ w ":"
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length key + 2)
-                          $ Address.E.w_phrase value
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Date d ->
-        w "Date: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Date: ")
-                          $ Date.E.w d
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `InReplyTo l ->
-        let w_data = function
-          | `Phrase p -> Address.E.w_phrase p
-          | `MsgID m -> MsgID.E.w m
+        catch garbage { acc with fields = fields } r
+      | `Unsafe (field_name, value) :: r ->
+        let unsafe =
+          try let old = Map.find field_name acc.unsafe in
+              Map.add field_name (value :: old) acc.unsafe
+          with Not_found -> Map.add field_name [value] acc.unsafe
         in
-        w "In-Reply-To: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "In-Reply-To: ")
-                          $ w_lst w_space w_data l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Received (l, Some date) ->
-        let w_data = function
-          | `Word word -> Address.E.w_word word
-          | `Domain domain -> Address.E.w_domain domain
-          | `Mailbox mailbox -> Address.E.w_mailbox mailbox
-        in
-        w "Received: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Received: ")
-                          $ w_hovbox 1 $ w_lst w_space w_data l $ w_close_box
-                          $ w_hovbox 1 $ w_string ";" $ w_space $ Date.E.w date $ w_close_box
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Received (l, None) ->
-        let w_data = function
-          | `Word word -> Address.E.w_word word
-          | `Domain domain -> Address.E.w_domain domain
-          | `Mailbox mailbox -> Address.E.w_mailbox mailbox
-        in
-        w "Received: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Received: ")
-                          $ w_hovbox 1 $ w_lst w_space w_data l $ w_close_box
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `MessageID m ->
-        w "Message-ID: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Message-ID: ")
-                          $ MsgID.E.w m
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Comments p ->
-        w "Comments:"
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Comments: ")
-                          $ Address.E.w_phrase p
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ResentBcc l ->
-        w "Resent-Bcc: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Bcc: ")
-                          $ Address.List.E.w l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `From l ->
-        w "From: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "From: ")
-                          $ w_lst (w_string "," $ w_space) Address.E.w_person l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ResentFrom l ->
-        w "Resent-From: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-From: ")
-                          $ w_lst (w_string "," $ w_space) Address.E.w_person l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Sender p ->
-        w "Sender: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Sender: ")
-                          $ Address.E.w_person p
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ResentReplyTo l ->
-        w "Resent-Reply-To: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Reply-To: ")
-                          $ Address.List.E.w l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Unsafe (key, value) ->
-        w key $ w ":"
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length key + 2)
-                          $ Address.E.w_phrase value
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `Keywords l ->
-        w "Keywords:"
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Keywords: ")
-                          $ w_lst (w_string "," $ w_space) Address.E.w_phrase l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ReplyTo l ->
-        w "Reply-To: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Reply-To: ")
-                          $ Address.List.E.w l
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-      | `ResentDate d ->
-        w "Resent-Date: "
-        $ Wrap.lift
-        $ Wrap.(fun k -> (w_hovbox (String.length "Resent-Date: ")
-                          $ Date.E.w d
-                          $ w_close_box) (unlift k))
-        $ w_crlf
-
-    let w_unstrict_header fields =
-      List.fold_right w_field fields
-  end
-
-  let w_field = Internal.w_field
-  let w = Internal.w_unstrict_header
-
-  let to_buffer t state =
-    let buf = Buffer.create 16 in
-
-    let rec loop = function
-      | `Partial (s, i, l, k) ->
-        Buffer.add_subbytes buf s i l;
-        loop @@ (k l)
-      | `Ok -> buf
+        catch garbage { acc with unsafe = unsafe } r
+      | `Skip line :: r ->
+        catch garbage { acc with skip = line :: acc.skip } r
+      | field :: r ->
+        catch (field :: garbage) acc r
+      | [] -> acc, List.rev garbage (* keep the order *)
     in
 
-    let rule =
-      let open BaseEncoder in
-      let ok = flush (fun _ -> `Ok) in
-      Internal.w_unstrict_header (to_field t) ok
-    in
+    succ i s (catch [] default fields) }
+  >>= fun (header, fields) -> Trace.decoder fields
+  >>= fun (traces, fields) -> return ({ header with traces = traces }, fields)
+  >>= fun (header, fields) -> Resent.decoder fields
+  >>= fun (resents, fields) -> return ({ header with resents = resents }, fields)
 
-    loop @@ rule state
-end
+let of_string ?(chunk = 1024) s =
+  let s' = s ^ "\r\n" in
+  let l = String.length s' in
+  let i = Input.create_bytes chunk in
 
-let of_string s = D.of_decoder (Decoder.of_string (s ^ "\r\n\r\n"))
-let to_string t = Buffer.contents @@ E.to_buffer t (Encoder.make ())
+  let rec aux consumed = function
+    | Fail _ -> None
+    | Read { buffer; k; } ->
+      let n = min chunk (l - consumed) in
+      Input.write_string buffer s' consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Complete else Incomplete)
+    | Done v -> Some v
+  in
 
-let equal = (=)
+  aux 0 @@ run i (Rfc5322.header (fun _ -> fail Rfc5322.Nothing_to_do) >>= decoder <* Rfc822.crlf)
+
+let of_string_raw ?(chunk = 1024) s off len =
+  let i = Input.create_bytes chunk in
+
+  let rec aux consumed = function
+    | Fail _ -> None
+    | Read { buffer; k; } ->
+      let n = min chunk (len - (consumed - off)) in
+      Input.write_string buffer s consumed n;
+      aux (consumed + n) @@ k n (if (consumed + n - off) = len then Complete else Incomplete)
+    | Done v -> Some (v, consumed - off)
+  in
+
+  aux off @@ run i (Rfc5322.header (fun _ -> fail Rfc5322.Nothing_to_do) >>= decoder)

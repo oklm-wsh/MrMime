@@ -1,4 +1,12 @@
-open BaseDecoder
+let locate buff off len f =
+  let idx = ref 0 in
+  while !idx < len && f (Internal_buffer.get buff (off + !idx))
+  do incr idx done;
+
+  !idx
+
+open Parser
+open Parser.Convenience
 
 let is_bcharsnospace = function
   | '\'' | '(' | ')' | '+' | '_' | ','
@@ -9,210 +17,129 @@ let is_bcharsnospace = function
 
 let is_bchars = function
   | ' ' -> true
-  | chr -> is_bcharsnospace chr
+  | c -> is_bcharsnospace c
 
-let is_valid_bchars str =
-  let i = ref 0 in
-
-  while !i < String.length str
-        && is_bchars (String.get str !i)
-  do incr i done;
-
-  !i = String.length str
-
-let p_dash_boundary boundary p =
-  p_str "--"
-  @ p_str boundary
-  @ p
-
-let m_dash_boundary boundary =
+let make_dash_boundary boundary =
   "--" ^ boundary
 
-let p_transport_padding p =
-  [%debug Printf.printf "state: p_transport_padding\n%!"];
+let make_delimiter boundary =
+  "\r\n" ^ (make_dash_boundary boundary)
 
-  (0 * 0) (function '\x09' | '\x20' -> true | _ -> false)
-  @ fun _ state -> [%debug Printf.printf "state: p_transport_padding end\n%!"]; p state
+let make_close_delimiter boundary =
+  (make_delimiter boundary) ^ "--"
 
-(* See RFC 2046 § 5.1.1:
+(* XXX: you can rollback just after. *)
+let dash_boundary boundary =
+  let string s = string (fun x -> x) s in
+  string ("--" ^ boundary) *> return ()
 
-   discard-text := *( *text CRLF) *text
-                   ; May be ignored or discarded.
+let discard_to_dash_boundary boundary =
+  (fix @@ fun m ->
+   { f = fun i s fail succ ->
+     let discard buff off len = locate buff off len ((<>) '-') in
 
-   and RFC 822 § 3.3:
+     let n = Input.transmit i discard in
+     succ i s n } *> peek_chr >>= function
+   | Some '-' -> (dash_boundary boundary
+                  *> return true) <|> (advance 1 *> m)
+   | Some chr -> m
+   | None -> return false)
+  >>= fun has_boundary ->
+     { f = fun i s fail succ ->
 
-   text        =  <any CHAR, including bare    ; => atoms, specials,
-                   CR & bare LF, but NOT       ;  comments and
-                   including CRLF>             ;  quoted-strings are
-                                               ;  NOT recognized.
-*)
-let p_discard_text stop p =
-  let rec text has_text state =
-    let rec aux = function
-      | `Stop state -> p has_text state
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err ->  err
-      | `Continue state ->
-        (cur_chr @ function
-         | chr -> junk_chr @ text true)
-        state
-    in aux @@ safe (stop has_text) state
-  in
+       if has_boundary
+       then Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) @@ "--" ^ boundary);
+       succ i s () }
 
-  text false
 
-(* See RFC 2046 § 5.1.1:
+let transport_padding =
+  repeat None None (function '\x09' | '\x20' -> true | _ -> false)
 
-   preamble := discard-text
-   epilogue := discard-text
-*)
-let p_preamble stop p state = p_discard_text stop p state
-let p_epilogue stop p state = p_discard_text stop p state
+let text =
+  fix @@ fun m ->
+    { f = fun i s fail succ ->
+      let discard buff off len = locate buff off len ((=) '\r') in
 
-(* See RFC 2046 § 5.1.1:
+      let n = Input.transmit i discard in
+      succ i s n } *> peek_chr >>= function
+    | None -> return ()
+    | Some '\r' ->
+      (advance 1 *> peek_chr >>= function
+       | None -> return ()
+       | Some '\n' ->
+         { f = fun i s fail succ ->
+           Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) "\r");
 
-   delimiter := CRLF dash-boundary
+           succ i s () }
+       | _ -> m)
+    | _ -> m
 
-   XXX: need to be compose with [dash-boundary]
-*)
-let p_delimiter boundary p =
-  Rfc822.p_crlf @ p_dash_boundary boundary p
+let discard_text =
+  let many p = fix (fun m -> (p *> m) <|> return ()) in
+  many (many text *> Rfc822.crlf) *> many text
 
-let m_delimiter boundary =
-  "\r\n" ^ (m_dash_boundary boundary)
+(* XXX: you can rollback just after. *)
+let delimiter boundary =
+  let string s = string (fun x -> x) s in
+  string ("\r\n--" ^ boundary) *> return ()
 
-let p_close_delimiter boundary p =
-  [%debug Printf.printf "state: p_close_delimiter %s\n%!" boundary];
+(* XXX: you can rollback just after. *)
+let close_delimiter boundary =
+  delimiter (boundary ^ "--") *> return ()
 
-  p_delimiter boundary
-  @ p_str "--"
-  @ (fun state -> [%debug Printf.printf "state: p_close_delimiter match\n%!"]; p state)
+let discard_to_delimiter boundary =
+  (fix @@ fun m ->
+   { f = fun i s fail succ ->
+     let discard buff off len = locate buff off len ((<>) '\r') in
+     let n = Input.transmit i discard in
+     succ i s n } *> peek_chr >>= function
+   | Some '\r' -> (delimiter boundary
+                   *> return true) <|> (advance 1 *> m)
+   | Some chr -> m
+   | None -> return false)
+  >>= fun has_boundary ->
+     let f
+       : 'r 'input. (('r, 'input) fail -> ('a, 'r, 'input) success -> ('r, 'input) state, 'input) k
+       = fun i s fail succ ->
 
-let m_close_delimiter boundary =
-  (m_delimiter boundary) ^ "--"
+         if has_boundary
+         then Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) ("\r\n--" ^ boundary));
+         succ i s ()
+     in { f }
 
-(* See RFC 2046 § 5.1:
+let body_part octet =
+  Rfc2045.mime_part_headers
+    (Rfc5322.field (fun _ -> fail Rfc5322.Nothing_to_do))
+  >>= Content.part >>= fun (content, fields) ->
+    option None (Rfc822.crlf *> octet content fields >>| fun v -> Some v)
+  >>| fun octets -> (content, fields, octets)
 
-   body-part := MIME-part-headers [CRLF *OCTET]
-                ; Lines in a body-part must not start
-                ; with the specified dash-boundary and
-                ; the delimiter must not appear anywhere
-                ; in the body part.  Note that the
-                ; semantics of a body-part differ from
-                ; the semantics of a message, as
-                ; described in the text.
+let encapsulation boundary octet =
+  delimiter boundary
+  *> transport_padding
+  *> Rfc822.crlf
+  *> body_part octet
 
-   XXX: [p_octet] must be stop to the boundary
-*)
-let p_body_part (type data) boundary p_octet p =
-  [%debug Printf.printf "state: p_body_part\n%!"];
+let preamble boundary = discard_to_dash_boundary boundary
+let epilogue parent = match parent with
+  | Some boundary -> discard_to_delimiter boundary
+  | None ->
+    fix @@ fun m ->
+    { f = fun i s fail succ ->
+      let _ = Input.transmit i (fun _ _ len -> len) in
+      succ i s () } *> peek_chr >>= function
+    | None -> return ()
+    | Some _ -> m
 
-  let next fields =
-    (Rfc822.p_crlf
-     @ p_octet fields
-     @ fun data state -> `Ok ((data : data), state))
-    / (p None)
-    @ (fun data -> p (Some (data : data)))
-  in
-
-  (Rfc2045.p_mime_part_headers
-     (fun field next state -> raise (Error.Error (Error.err_invalid_field field state)))
-     (Rfc5322.p_field @ fun field _ state -> raise (Error.Error (Error.err_invalid_field field state)))
-     (fun fields state -> `Ok (fields, state)))
-  / (next [])
-  @ next
-
-(* See RFC 2046 § 5.1.1:
-
-   encapsulation := delimiter transport-padding
-                    CRLF body-part
-*)
-let p_encapsulation boundary p_octet p state =
-  [%debug Printf.printf "state: p_encapsulation\n%!"];
-
-  (p_delimiter boundary
-   @ p_transport_padding @ Rfc822.p_crlf @ p_body_part boundary p_octet p)
-  state
-
-(* See RFC 2046 § 5.1.1:
-
-   multipart-body := [preamble CRLF]
-                     dash-boundary transport-padding CRLF
-                     body-part *encapsulation
-                     close-delimiter
-                     transport-padding
-                     [CRLF epilogue]
-*)
-let p_multipart_body boundary parent_boundary p_octet p =
-  [%debug Printf.printf "state: p_multipart [boundary: %s and parent boundary: %s]\n%!"
-   boundary
-   (match parent_boundary with Some x -> x | None -> "<none>")];
-
-  let stop_preamble has_text =
-    let dash_boundary = m_dash_boundary boundary in
-    p_try_rule
-      (fun () state ->
-       roll_back
-         (fun state -> `Stop state)
-         dash_boundary
-         state)
-      (fun state -> `Continue state)
-      (p_dash_boundary boundary (fun state-> `Ok ((), state)))
-  in
-  let stop_epilogue state =
-    [%debug Printf.printf "state: p_multipart (stop epilogue)\n%!"];
-
-    match parent_boundary with
-    | None ->
-      [%debug Printf.printf "state: p_multipart (stop epilogue) to end\n%!"];
-
-      (fun state -> match peek_chr state with
-       | None -> `Ok ((), state)
-       | Some chr -> raise (Error.Error (Error.err_unexpected chr state)))
-      / (fun state -> `Continue state)
-      @ (fun () state -> `Stop state)
-    | Some boundary ->
-      let delimiter = m_delimiter boundary in
-      let close_delimiter = m_close_delimiter boundary in
-      p_try_rule
-        (fun () -> roll_back (fun state -> `Stop state) close_delimiter)
-        (p_try_rule
-           (fun () -> roll_back (fun state -> `Stop state) delimiter)
-           (fun state -> `Continue state)
-           (p_delimiter boundary (fun state -> `Ok ((), state))))
-        (p_close_delimiter boundary (fun state -> [%debug Printf.printf "state: p_multipart (stop epilogue) close delimiter\n%!"]; `Ok ((), state)))
-  in
-  let rec next acc =
-    [%debug Printf.printf "state: p_multipart/next\n%!"];
-
-    (* XXX: according to RFC 2046, we have a CRLF rule just before epilogue.
-            but we can have a parent boundary just after the current boundary
-            like that:
-
-            CRLF
-            --foo--CRLF
-            --barCRLF
-
-            so if we force the CRLF just before epilogue, we consume the CRLF
-            needed by the parent delimiter and we consider [--bar] as the
-            epilogue. It's false, so we don't check the required CRLF of
-            epilogue and nobody cares about the epilogue. *)
-    (p_encapsulation boundary p_octet @ fun data state -> `Ok (data, state))
-    / (p_close_delimiter boundary
-       @ (u_repeat (function '\x09' | '\x20' -> true | _ -> false))
-       @ fun _ ->
-         (p_epilogue stop_epilogue
-          @ fun _ -> ok ())
-         / (p (List.rev acc))
-         @ fun () -> p (List.rev acc))
-    @ fun data -> next (data :: acc)
-  in
-
-  p_preamble stop_preamble
-  @ fun has_preamble ->
-    p_dash_boundary boundary
-    @ p_transport_padding
-    @ Rfc822.p_crlf
-    @ p_body_part boundary p_octet
-    @ fun data -> next [data]
+let multipart_body parent boundary octet =
+  option () (preamble boundary)
+  *> dash_boundary boundary
+  *> transport_padding
+  *> Rfc822.crlf
+  *> body_part octet
+  >>= fun x -> many (encapsulation boundary octet)
+  >>= fun r ->
+    (close_delimiter boundary
+     *> transport_padding
+     *> option () (Rfc822.crlf *> (epilogue parent))
+     *> return (x :: r)) <|> (return (x :: r))

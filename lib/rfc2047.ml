@@ -1,11 +1,11 @@
-open BaseDecoder
+type raw =
+  | QuotedPrintable of string
+  | Base64 of Base64.result
 
-type encoding =
-  | QuotedPrintable
-  | Base64
+open Parser
+open Parser.Convenience
 
-type encoded =
-  [ `Encoded of string * encoding * string ]
+type err += Invalid_charset
 
 let is_especials = function
   | '(' | ')'
@@ -16,63 +16,37 @@ let is_especials = function
   | '[' | ']'
   | '?' | '.'
   | '=' -> true
-  | chr -> false
+  | _ -> false
 
-let p_encoding_text p state =
-  p_while (function ' ' | '?' -> false | chr -> true) p state
+let is_ctl = function
+  | '\000' .. '\031' -> true
+  | _ -> false
 
-(* TODO: handle utf-8? *)
-let p_token p state =
-  let is_ctl = function
-    | '\000' .. '\031' -> true
-    | _ -> false
-  in
-  let is_space = (=) '\x20' in
-  let is chr = not (is_especials chr || is_ctl chr || is_space chr) in
+let is_space = (=) ' '
 
-  p_while is p state
+let token =
+  recognize (fun chr -> not (is_especials chr || is_ctl chr || is_space chr))
+  >>= fun token ->
+    { f = fun i s fail succ ->
 
-let p_charset  = p_token
-let p_encoding = p_token
+      if String.length token > 0
+      then succ i s token
+      else fail i s [] Invalid_charset }
 
-let p_encoded_word p =
-  p_str "=?"
-  @ p_charset
-  @ fun charset -> p_chr '?'
-  @ p_encoding
-  @ fun encoding -> p_chr '?'
-  @ match String.uppercase_ascii encoding with
-    | "Q" ->
-      QuotedPrintable.p_inline_decode
-        ((p_str "?=" @ fun state -> `Ok ((), state))
-         / (fun state -> `Continue state)
-         @ (fun () state -> `Stop state))
-        (p charset QuotedPrintable)
-    | "B" ->
-      Base64.p_decode
-        ((p_str "?=" @ fun state -> `Ok ((), state))
-         / (fun state -> `Continue state)
-         @ (fun () state -> `Stop state))
-        (p charset Base64)
-    | enc -> fun state -> raise (Error.Error (Error.err_unexpected_encoding enc state))
+external id : 'a -> 'a = "%identity"
 
-let p_try_rule p rule =
-  (p_encoded_word
-   @ fun charset encoding data state -> `Ok ((charset, encoding, data), state))
-  / (rule p)
-  @ (fun encoded -> p (`Encoded encoded))
-
-open BaseEncoder
-
-let w_decoded_word charset encoding content =
-  w "=?"
-  $ w charset
-  $ w "?"
-  $ (match encoding with
-     | QuotedPrintable -> w "Q"
-     | Base64          -> w "B")
-  $ w "?"
-  $ (match encoding with
-     | QuotedPrintable -> QuotedPrintable.w_inline_encode content
-     | Base64 -> Base64.w_inline_encode content)
-  $ w "?="
+let inline_encoded_string =
+  string id "=?"
+  *> token
+  >>= fun charset -> char '?'
+  *> satisfy (function 'Q' | 'B' -> true | _ -> false)
+  >>= (function
+    | 'Q' -> return `Q
+    | 'B' -> return `B
+    | _   -> assert false)
+  >>= fun encoding -> char '?'
+  >>= fun _ -> (match encoding with
+    | `B -> Base64.inline () >>| fun v -> Base64 v
+    | `Q -> QuotedPrintable.inline () >>| fun v -> QuotedPrintable v)
+  >>= fun decoded -> string id "?="
+  *> return (charset, decoded)

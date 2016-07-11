@@ -1,34 +1,91 @@
-module F =
-struct
-  let add_newline buf =
-    Buffer.add_string buf Newline.newline
+let locate buff off len f =
+  let idx = ref 0 in
+  while !idx < len && f (Internal_buffer.get buff (off + !idx))
+  do incr idx done;
 
-  let hex a b =
-    let aux code = match code with
-      | '0'..'9' -> (Char.code code) - (Char.code '0') + 0
-      | 'A'..'F' -> (Char.code code) - (Char.code 'A') + 10
-      | 'a'..'f' -> (Char.code code) - (Char.code 'a') + 10
-      | _ -> raise (Invalid_argument "QuotedPrintable.F.hex")
-    in Char.chr (((aux a) * 16) + (aux b))
+  !idx
 
-  let hex s =
-    let aux code = match code with
-      | '0'..'9' -> (Char.code code) - (Char.code '0') + 0
-      | 'A'..'F' -> (Char.code code) - (Char.code 'A') + 10
-      | 'a'..'f' -> (Char.code code) - (Char.code 'a') + 10
-      | _ -> raise (Invalid_argument "QuotedPrintable.F.hex")
-    in Char.chr ((aux (String.get s 0) * 16) + (aux (String.get s 1)))
+open Parser
+open Parser.Convenience
 
-  let add_char buf chr =
-    Buffer.add_char buf chr
+let is_hex = function
+  | '0' .. '9'
+  | 'a' .. 'f'
+  | 'A' .. 'F' -> true
+  | _ -> false
 
-  let add_string buf str =
-    Buffer.add_string buf str
-end
+let hex a b =
+  let aux code = match code with
+    | '0' .. '9' -> (Char.code code) - (Char.code '0') + 0
+    | 'a' .. 'f' -> (Char.code code) - (Char.code 'a') + 10
+    | 'A' .. 'F' -> (Char.code code) - (Char.code 'A') + 10
+    | _ -> assert false
+  in Char.chr (((aux a) * 16) + (aux b))
+
+let hex =
+  char '='
+  *> satisfy is_hex
+  >>= fun a -> satisfy is_hex
+  >>= fun b -> return (hex a b)
+
+let decode boundary rollback buffer =
+  let is_ = function
+    | '=' | '\r' | '\x09' | '\x20' -> false
+    | _ -> true
+  in
+  (fix @@ fun m ->
+   { f = fun i s fail succ ->
+     let n = Input.transmit i @@ fun buff off len ->
+       let len' = locate buff off len is_ in
+       Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
+       len'
+     in
+
+     succ i s n } *> peek_chr >>= function
+   | None -> return (false, Buffer.contents buffer)
+   | Some '=' ->
+     (hex >>= fun chr ->
+      Buffer.add_char buffer chr; m)
+     <|> (char '=' *> ((boundary *> return (true, Buffer.contents buffer))
+                       <|> (Rfc822.crlf *> m)))
+   | Some '\r' ->
+     (boundary *> return (true, Buffer.contents buffer))
+     <|> (Rfc822.crlf >>= fun () -> Buffer.add_char buffer '\n'; m)
+   | Some ('\x20' | '\x09') ->
+     repeat (Some 1) None Rfc822.is_wsp
+     >>= fun lwsp ->
+       (boundary *> return (true, Buffer.contents buffer))
+       <|> (Rfc822.crlf >>= fun () -> Buffer.add_char buffer '\n';
+                                      m)
+       <|> ({ f = fun i s fail succ ->
+              Buffer.add_string buffer lwsp;
+
+              succ i s () } *> m)
+   | Some chr -> m)
+  >>= function
+    | true, content  ->
+      rollback *> return content
+    | false, content ->
+      return content
+
+let inline buffer =
+  fix @@ fun m ->
+    peek_chr >>= function
+    | None
+    | Some '?' -> return (Buffer.contents buffer)
+    | Some '=' -> hex >>= fun chr -> Buffer.add_char buffer chr; m
+    | Some '_' -> advance 1 >>= fun () -> Buffer.add_char buffer ' '; m
+    | Some chr -> advance 1 >>= fun () -> Buffer.add_char buffer chr; m
+
+let inline () =
+  inline (Buffer.create 16)
+
+let decode boundary rollback =
+  decode boundary rollback (Buffer.create 16)
 
 module T =
 struct
-  open BaseEncoder
+  open Encoder
 
   let _to = "0123456789ABCDEF"
 
@@ -44,7 +101,7 @@ struct
 
   let add_break k ({ state; position; _ } as t) =
     if position > 0
-    then w "=\r\n" (fun state -> k { t with position = 0; state = state }) state
+    then string "=\r\n" (fun state -> k { t with position = 0; state = state }) state
     else k t
 
   let commit_word k ({ position; word; } as t) =
@@ -52,7 +109,8 @@ struct
      then add_break
      else noop)
     (fun ({ state; word; position; } as t) ->
-     w (Buffer.contents word)
+     string
+       (Buffer.contents word)
        (fun state ->
         let len = Buffer.length word in
         Buffer.clear word; k { t with state = state; position = position + len; })
@@ -92,7 +150,7 @@ struct
 
   let add_newline chr =
     let rec aux k ({ state; _ } as t) =
-      w "\r\n" (fun state -> k { t with state = state; position = 0 }) state
+      string "\r\n" (fun state -> k { t with state = state; position = 0 }) state
     in
     (match chr with
      | Some chr -> add_quoted_char chr
@@ -106,368 +164,10 @@ struct
     flush (fun { state; _ } -> k state) t
 end
 
-open BaseDecoder
-
-(* See RFC 2045 § 6.7:
-
-   safe-char       := <any octet with decimal value of 33 through
-                       60 inclusive, and 62 through 126>
-                       ; Characters not listed as "mail-safe" in
-                       ; RFC 2049 are also not recommended.
-*)
 let is_safe_char = function
   | '\033' .. '\060'
   | '\062' .. '\126' -> true
   | _                -> false
-
-(* See RFC 2045 § 6.7:
-
-   hex-octet       := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
-                        ; Octet must be used for characters > 127, =,
-                        ; SPACEs or TABs at the ends of lines, and is
-                        ; recommended for any character not listed in
-                        ; RFC 2049 as "mail-safe".
-*)
-let is_hex_octet = function
-  | '0' .. '9'
-  | 'A' .. 'F' -> true
-  | chr -> false
-
-let p_hex_octet p =
-  p_chr '='
-  @ (2 * 2) is_hex_octet
-  @ fun s -> p (F.hex s)
-
-(* See RFC 2045 § 6.7:
-
-   ptext           := hex-octet / safe-char
-*)
-let p_ptext p state =
-  let buf = Buffer.create 16 in
-
-  let rec loop () =
-    cur_chr
-    @ function
-      | '=' ->
-        p_hex_octet
-        @ fun chr -> Buffer.add_char buf chr; loop ()
-      | chr when is_safe_char chr ->
-        fun state -> Buffer.add_char buf chr; loop () state
-      | chr -> fun state -> raise (Error.Error (Error.err_unexpected chr state))
-  in
-
-  loop () state
-
-(* See RFC 2045 § 6.7:
-
-   qp-section      := [*(ptext / SPACE / TAB) ptext]
-*)
-let p_qp_section p state =
-  let rec loop acc =
-    (p_ptext (fun data state -> `Ok (data, state)))
-    / (cur_chr @ function
-       | '\x20' | '\x09' -> junk_chr @ loop acc
-       | chr -> p (String.concat " " @@ List.rev acc))
-    @ (fun data -> loop (data :: acc))
-  in
-
-  loop [] state
-
-(* See RFC 2045 § 6.7:
-
-   qp-segment      := qp-section *(SPACE / TAB) "="
-                        ; Maximum length of 76 characters
-*)
-let p_qp_segment p =
-  p_qp_section
-  @ fun s -> (0 * 0) (function '\x20' | '\x09' -> true | _ -> false)
-  @ fun _ -> p_chr '='
-  @ p s
-
-(* See RFC 2045 § 6.7:
-
-   qp-part         := qp-section
-                        ; Maximum length of 76 characters
-*)
-let p_qp_part = p_qp_section
-
-(* See RFC 2045 § 6.7:
-
-   transport-padding := *LWSP-char
-                          ; Composers MUST NOT generate
-                          ; non-zero length transport
-                          ; padding, but receivers MUST
-                          ; be able to handle padding
-                          ; added by message transports.
-
-   See RFC 822 § 3.3:
-
-   LWSP-char   =  SPACE / HTAB                 ; semantics = SPACE
-*)
-let p_transport_padding p =
-  let is_lwsp_char = function '\x09' | '\x20' -> true | _ -> false in
-  (0 * 0) is_lwsp_char
-  @ fun _ -> p
-
-(* See RFC 2045 § 6.7:
-
-   qp-line         := *(qp-segment transport-padding CRLF)
-                      qp-part transport-padding
-*)
-let p_qp_line p state =
-  let rec loop acc =
-    (p_qp_segment
-     @ fun seg -> p_transport_padding
-     @ p_chr '\r'
-     @ p_chr '\n'
-     @ fun state -> `Ok (seg, state))
-    / (p_qp_part
-       @ fun seg -> p_transport_padding
-       @ p (List.rev @@ seg :: acc))
-    @ (fun seg -> loop (seg :: acc))
-  in
-
-  loop [] state
-
-(* See RFC 2045 § 6.7:
-
-   quoted-printable := qp-line *(CRLF qp-line)
-*)
-let p_quoted_printable p =
-  let rec loop acc =
-    (p_chr '\r'
-     @ p_chr '\n'
-     @ p_qp_line
-     @ fun line state -> `Ok (line, state))
-    / (p (List.rev acc))
-    @ (fun line -> loop (line :: acc))
-  in
-
-  p_qp_line @ fun line -> loop [line]
-
-(* See RFC 2047 § 4.2:
-
-   The   "Q"   encoding   is   similar   to   the   "Quoted-Printable"  content-
-   transfer-encoding  defined  in  RFC  2045.  It  is  designed  to  allow  text
-   containing mostly  ASCII characters to  be decipherable on  an ASCII terminal
-   without decoding.
-
-   (1) Any 8-bit value  may be represented by a "="  followed by two hexadecimal
-       digits. For example, if the character set in use were ISO-8859-1, the "="
-       character would thus be encoded  as "=3D",  and a SPACE by "=20".  (Upper
-       case should be used for hexadecimal digits "A" through "F".)
-
-   (2) The  8-bit  hexadecimal  value   20  (e.g.,   ISO-8859-1  SPACE)  may  be
-       represented as "_" (underscore, ASCII 95.).  (This character may not pass
-       through some internetwork mail gateways, but its use will greatly enhance
-       readability of  "Q" encoded data with  mail readers  that do  not support
-       this encoding.) Note that the "_" always represents hexadecimal 20,  even
-       if  the  SPACE  character  occupies  a  different  code  position  in the
-       character set in use.
-
-   (3) 8-bit values  which correspond to  printable ASCII characters  other than
-       "=",  "?",  and "_" (underscore), MAY be represented as those characters.
-       (But see section 5 for  restrictions.) In particular,  SPACE and TAB MUST
-       NOT be represented as themselves within encoded words.
-
-*)
-let p_inline_decode stop p state =
-  let buf = Buffer.create 16 in
-
-  let rec decode state =
-    let rec aux = function
-      | `Read (buf, off, len, k) ->
-        `Read (buf, off, len, (fun i -> aux @@ safe k i))
-      | #Error.err as err -> err
-      | `Stop state -> p (Buffer.contents buf) state
-      | `Continue state ->
-        (cur_chr
-         @ function
-         | '=' ->
-           junk_chr
-           @ (2 * 2) is_hex_octet
-           @ fun s ->
-             F.add_char buf (F.hex s);
-             decode
-         | '_' ->
-           junk_chr
-           @ fun state -> Buffer.add_char buf ' '; decode state
-         | '?' ->
-           fun state -> raise (Error.Error (Error.err_unexpected '?' state))
-         | chr ->
-           junk_chr
-           @ fun state -> Buffer.add_char buf chr; decode state)
-        state
-    in aux @@ safe stop state
-  in
-
-  decode state
-
-(* See RFC 2045 § 6.7:
-
-   The Quoted-Printable encoding is intended to represent data that
-   largely consists of octets that correspond to printable characters in
-   the US-ASCII character set.  It encodes the data in such a way that
-   the resulting octets are unlikely to be modified by mail transport.
-   If the data being encoded are mostly US-ASCII text, the encoded form
-   of the data remains largely recognizable by humans.  A body which is
-   entirely US-ASCII may also be encoded in Quoted-Printable to ensure
-   the integrity of the data should the message pass through a
-   character-translating, and/or line-wrapping gateway.
-
-   In this encoding, octets are to be represented as determined by the
-   following rules:
-
-    (1)   (General 8bit representation) Any octet, except a CR or
-          LF that is part of a CRLF line break of the canonical
-          (standard) form of the data being encoded, may be
-          represented by an "=" followed by a two digit
-          hexadecimal representation of the octet's value.  The
-          digits of the hexadecimal alphabet, for this purpose,
-          are "0123456789ABCDEF".  Uppercase letters must be
-          used; lowercase letters are not allowed.  Thus, for
-          example, the decimal value 12 (US-ASCII form feed) can
-          be represented by "=0C", and the decimal value 61 (US-
-          ASCII EQUAL SIGN) can be represented by "=3D".  This
-          rule must be followed except when the following rules
-          allow an alternative encoding.
-
-    (2)   (Literal representation) Octets with decimal values of
-          33 through 60 inclusive, and 62 through 126, inclusive,
-          MAY be represented as the US-ASCII characters which
-          correspond to those octets (EXCLAMATION POINT through
-          LESS THAN, and GREATER THAN through TILDE,
-          respectively).
-
-    (3)   (White Space) Octets with values of 9 and 32 MAY be
-          represented as US-ASCII TAB (HT) and SPACE characters,
-          respectively, but MUST NOT be so represented at the end
-          of an encoded line.  Any TAB (HT) or SPACE characters
-          on an encoded line MUST thus be followed on that line
-          by a printable character.  In particular, an "=" at the
-          end of an encoded line, indicating a soft line break
-          (see rule #5) may follow one or more TAB (HT) or SPACE
-          characters.  It follows that an octet with decimal
-          value 9 or 32 appearing at the end of an encoded line
-          must be represented according to Rule #1.  This rule is
-          necessary because some MTAs (Message Transport Agents,
-          programs which transport messages from one user to
-          another, or perform a portion of such transfers) are
-          known to pad lines of text with SPACEs, and others are
-          known to remove "white space" characters from the end
-          of a line.  Therefore, when decoding a Quoted-Printable
-          body, any trailing white space on a line must be
-          deleted, as it will necessarily have been added by
-          intermediate transport agents.
-
-    (4)   (Line Breaks) A line break in a text body, represented
-          as a CRLF sequence in the text canonical form, must be
-          represented by a (RFC 822) line break, which is also a
-          CRLF sequence, in the Quoted-Printable encoding.  Since
-          the canonical representation of media types other than
-          text do not generally include the representation of
-          line breaks as CRLF sequences, no hard line breaks
-          (i.e. line breaks that are intended to be meaningful
-          and to be displayed to the user) can occur in the
-          quoted-printable encoding of such types.  Sequences
-          like "=0D", "=0A", "=0A=0D" and "=0D=0A" will routinely
-          appear in non-text data represented in quoted-
-          printable, of course.
-
-          Note that many implementations may elect to encode the
-          local representation of various content types directly
-          rather than converting to canonical form first,
-          encoding, and then converting back to local
-          representation.  In particular, this may apply to plain
-          text material on systems that use newline conventions
-          other than a CRLF terminator sequence.  Such an
-          implementation optimization is permissible, but only
-          when the combined canonicalization-encoding step is
-          equivalent to performing the three steps separately.
-
-    (5)   (Soft Line Breaks) The Quoted-Printable encoding
-          REQUIRES that encoded lines be no more than 76
-          characters long.  If longer lines are to be encoded
-          with the Quoted-Printable encoding, "soft" line breaks
-          must be used.  An equal sign as the last character on a
-          encoded line indicates such a non-significant ("soft")
-          line break in the encoded text.
-*)
-let p_decode stop p state =
-  let is_lwsp_char = function '\x09' | '\x20' -> true | _ -> false in
-
-  let buf = Buffer.create 16 in
-
-  let rec try_stop k' = function
-    | `Stop state -> p (Buffer.contents buf) state
-    | `Continue state -> k' state
-    | `Read (buf, off, len, k) ->
-      `Read (buf, off, len, (fun i -> try_stop k' (safe k i)))
-    | #Error.err as err -> err
-  in
-
-  let rec decode state =
-    match peek_chr state with
-    | Some '=' ->
-      [%debug Printf.printf "state: p_decode (QuotedPrintable) equal\n%!"];
-
-      junk_chr
-       (fun state -> p_try is_hex_octet
-         (fun n state ->
-          if n >= 2
-          then (2 * 2) is_hex_octet
-                (fun s state ->
-                 [%debug Printf.printf "state: p_decode (QuotedPrintable) [=%s]\n%!" s];
-                 F.add_char buf (F.hex s); (decode[@tailcall]) state)
-                state
-          else try_stop
-                 (fun state ->
-                  p_chr '\r' (* soft line-breaks *)
-                   (fun state -> p_chr '\n' (fun state -> (decode[@tailcall]) state) state)
-                    state)
-                 (stop state))
-        state)
-      state
-    | Some '\x20' | Some '\x09' ->
-      [%debug Printf.printf "state: p_decode (QuotedPrintable) space\n%!"];
-
-      p_while is_lwsp_char
-       (fun lwsp state -> cur_chr (fun chr state -> match chr with
-        | '\r' ->
-          try_stop
-            (fun state ->
-             p_chr '\r' (* line-breaks *)
-              (fun state -> p_chr '\n' (fun state -> F.add_newline buf; (decode[@tailcall]) state) state)
-               state)
-            (stop state)
-        | chr  -> F.add_string buf lwsp; (decode[@tailcall]) state) state)
-      state
-    | Some '\r' ->
-      [%debug Printf.printf "state: p_decode (QuotedPrintable) CRLF\n%!"];
-
-      try_stop
-       (fun state ->
-        p_chr '\r' (* line-breaks *)
-         (fun state -> p_chr '\n' (fun state -> F.add_newline buf; (decode[@tailcall]) state) state)
-          state)
-       (stop state)
-    | Some chr when is_safe_char chr  ->
-      [%debug Printf.printf "state: p_decode (QuotedPrintable) [%S]\n%!" (String.make 1 chr)];
-
-      F.add_char buf chr; junk_chr (fun state -> (decode[@tailcall]) state) state
-    | Some chr ->
-      [%debug Printf.printf "state: p_decode (QuotedPrintable) unsafe char\n%!"];
-
-      junk_chr (fun state -> (decode[@tailcall]) state) state
-    | None ->
-      [%debug Printf.printf "state: p_decode (QuotedPrintable) end\n%!"];
-
-      p (Buffer.contents buf) state
-  in
-
-  decode state
-
-open BaseEncoder
 
 let explode str =
   let rec exp i l =
@@ -475,32 +175,33 @@ let explode str =
   exp (String.length str - 1) []
 
 let w_inline_encode str =
+  let open Encoder in
   List.fold_right
     (function
-     | '\x20' -> w_char '_'
-     | '\x09' -> w "=09"
-     | '?'    -> w "=3F"
-     | '_'    -> w "=5F"
-     | '='    -> w "=3D"
+     | '\x20' -> char '_'
+     | '\x09' -> string "=09"
+     | '?'    -> string "=3F"
+     | '_'    -> string "=5F"
+     | '='    -> string "=3D"
      | chr    ->
        if is_safe_char chr
-       then w_char chr
+       then char chr
        else let code = Char.code chr in
             let h    = (code lsr 4) land (16 - 1) in
             let l    = code land (16 - 1) in
-            w_char '=' $ w_char (String.get T._to h) $ w_char (String.get T._to l))
+            char '=' $ char (String.get T._to h) $ char (String.get T._to l))
     (explode str)
 
 let w_encode content k =
   let len = String.length content in
 
   let recognize_newline idx =
-    if idx < len && idx + (String.length Newline.newline) <= len
+    if idx < len && idx + (String.length "\n") <= len
     then let n = ref 0 in
          let r = ref true in
          while idx + !n < len
-               && !n < String.length Newline.newline
-         do if String.get Newline.newline !n <> String.get content (idx + !n)
+               && !n < String.length "\n"
+         do if String.get "\n" !n <> String.get content (idx + !n)
             then r := false;
 
             incr n;
@@ -522,10 +223,10 @@ let w_encode content k =
            then T.add_newline (Some '\x09') @@ loop (idx + 2) k
            else T.add_wsp `Tab @@ loop (idx + 1) k
          (* Unix newline encoder *)
-         | '\n' when Newline.is_lf ->
+         | '\n' when true -> (* is LF *)
            T.add_newline None @@ loop (idx + 1) k
          (* Windows newline encoder *)
-         | '\r' when Newline.is_crlf && (idx + 1 < len) && String.get content (idx + 1) = '\n' ->
+         | '\r' when false && (idx + 1 < len) && String.get content (idx + 1) = '\n' -> (* is CRLF *)
            T.add_newline None @@ loop (idx + 2) k
          | chr when is_safe_char chr ->
            T.add_char chr @@ loop (idx + 1) k

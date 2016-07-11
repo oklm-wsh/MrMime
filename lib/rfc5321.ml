@@ -1,67 +1,86 @@
-open BaseDecoder
+type literal_domain = ..
+type literal_domain += IPv4 of Ipaddr.V4.t
+type literal_domain += IPv6 of Ipaddr.V6.t
 
-type literal_domain =
-  [ `IPv4 of Ipaddr.V4.t
-  | `IPv6 of Ipaddr.V6.t
-  | `General of (string * string) ]
+open Parser
+open Parser.Convenience
 
-let p_ipv4_address_literal p state =
-  let pos = ref state.Decoder.pos in
+type err += Invalid_ipv4
 
-  try let ip = Ipaddr.V4.of_string_raw state.Decoder.buffer pos in
+let ipv4_address_literal =
+  { f = fun i s fail succ ->
+    let r = ref None in
+    let _ = Input.transmit i
+      (fun buff off len ->
+       let i = ref off in
+       try r := Some (Ipaddr.V4.of_string_raw (Internal_buffer.to_string buff) i);
+           (!i - off)
+       with Ipaddr.Parse_error _ -> 0) in
 
-      state.Decoder.pos <- !pos;
-      p ip state
-  with exn -> raise (Error.Error (Error.err_invalid_ipv4 state))
+    match !r, Input.ravailable i with
+    | Some ipv4, 0 -> succ i s ipv4
+    | _ -> fail i s [] Invalid_ipv4 }
 
-let p_ipv6_addr p state =
-  let pos = ref state.Decoder.pos in
+type err += Invalid_ipv6
 
-  try
-    let ip  = Ipaddr.V6.of_string_raw state.Decoder.buffer pos in
+let ipv6_addr =
+  { f = fun i s fail succ ->
+    let r = ref None in
+    let _ = Input.transmit i
+      (fun buff off len ->
+       let i = ref off in
+       try r := Some (Ipaddr.V6.of_string_raw (Internal_buffer.to_string buff) i);
+           (!i - off)
+       with Ipaddr.Parse_error _ -> 0) in
 
-    state.Decoder.pos <- !pos;
-    p ip state
-  with exn -> raise (Error.Error (Error.err_invalid_ipv6 state))
+    match !r, Input.ravailable i with
+    | Some ipv6, 0 -> succ i s ipv6
+    | _ -> fail i s [] Invalid_ipv6 }
 
-let p_ipv6_address_literal p =
-  p_str "IPv6:"
-  @ p_ipv6_addr p
+let ipv6_address_literal =
+  let string s = string (fun x -> x) s in
+  string "IPv6:" *> ipv6_addr
 
-let p_ldh_str p =
-  p_while
-    (function 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '-' -> true | _ -> false)
-  @ fun s ->
-    if String.get s (String.length s - 1) = '-'
-    then fun state -> raise (Error.Error (Error.err_unexpected '-' state))
-    else p s
+let implode l =
+  let s = Bytes.create (List.length l) in
+  let rec aux i = function
+    | [] -> s
+    | x :: r -> Bytes.set s i x; aux (i + 1) r
+  in
+  aux 0 l
+
+let let_dig = satisfy (function 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' -> true | _ -> false)
+
+let ldh_str =
+  many (satisfy (function 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '-' -> true | _ -> false))
+  >>= fun lst -> let_dig >>| fun rst -> implode (lst @ [ rst ])
 
 let is_dcontent = function
   | '\033' .. '\090'
   | '\094' .. '\126' -> true
   | _ -> false
 
-let p_general_address_literal p =
-  p_ldh_str
-  @ fun tag -> p_chr ':'
-  @ p_while is_dcontent
-  @ fun content ->
-    (* XXX:  we already try to parse IPv6 tag, so if we are in this
-             case, we have an invalid IPv6 data.
-       TODO: may be it's useful to associate a Decoder with the tag
-             and try this. I have no time for that.
-    *)
-    if Iana.Set.exists ((=) tag) Iana.tag && tag <> "IPv6"
-    then p (tag, content)
-    else if tag = "IPv6"
-    then fun state -> raise (Error.Error (Error.err_invalid_ipv6 state))
-    else fun state -> raise (Error.Error (Error.err_invalid_tag tag state))
+type err += Invalid_address_literal of string | Unknown_tag of string
 
-let p_address_literal p =
-  (p_ipv4_address_literal (fun v4 state -> `Ok (v4, state)))
-  / ((p_ipv6_address_literal (fun v6 state -> `Ok (v6, state)))
-     / (p_general_address_literal
-        @ fun (tag, content) -> p (`General (tag, content)))
-     @ (fun ipv6 -> p (`IPv6 ipv6)))
-  @ (fun ipv4 -> p (`IPv4 ipv4))
+let iana : (string, literal_domain t) Hashtbl.t = Hashtbl.create 16
+let () = Hashtbl.add iana "IPv6" (ipv6_addr >>| fun v -> IPv6 v)
 
+let general_address_literal =
+  ldh_str
+  >>= fun tag -> char ':'
+  *> one (satisfy is_dcontent) >>| implode
+  >>= fun content ->
+    { f = fun i s fail succ ->
+      try let p = Hashtbl.find iana tag in
+          let b = Input.create_by ~proof:(Input.proof i) (String.length content) in
+
+          Input.write b (Internal_buffer.from_string ~proof:(Input.proof i) content) 0 (String.length content);
+          match only b p with
+          | Read _ | Fail _ -> fail i s [] (Invalid_address_literal tag)
+          | Done v -> succ i s v
+      with Not_found -> fail i s [] (Unknown_tag tag) }
+
+let address_literal =
+  (ipv4_address_literal >>| fun v -> IPv4 v)
+  <|> (ipv6_address_literal >>| fun v -> IPv6 v)
+  <|> general_address_literal

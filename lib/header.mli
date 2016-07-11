@@ -1,56 +1,36 @@
-type ('date, 'from) t
-type strict   = (Date.t, Address.person list) t
-type unstrict = (Date.t option, Address.person list option) t
+type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.result
+type unstructured     = Rfc5322.unstructured
+type phrase_or_msg_id = Rfc5322.phrase_or_msg_id
+type field            = [ Rfc5322.field | Rfc5322.skip ]
 
-module Relax :
-sig
-  type ('date, 'from) t
+module Map      : (module type of Map.Make(String))
 
-  exception Expected_date
-  exception Expected_from
+type header =
+  { date        : Date.date option
+  ; from        : Address.mailbox list
+  ; sender      : Address.mailbox option
+  ; reply_to    : Address.address list
+  ; to'         : Address.address list
+  ; cc          : Address.address list
+  ; bcc         : Address.address list
+  ; subject     : unstructured option
+  ; msg_id      : MsgID.msg_id option
+  ; in_reply_to : phrase_or_msg_id list
+  ; references  : phrase_or_msg_id list
+  ; comments    : unstructured list
+  ; keywords    : Address.phrase list list
+  ; resents     : Resent.resent list
+  ; traces      : Trace.trace list
+  ; fields      : unstructured list Map.t
+  ; unsafe      : unstructured list Map.t
+  ; skip        : string list }
 
-  val strict   : (Date.t, Address.person list) t
-  val unstrict : (Date.t option, Address.person list option) t
-end
+val pp_raw              : Format.formatter -> raw -> unit
+val pp_unstructured     : Format.formatter -> unstructured -> unit
+val pp_phrase_or_msg_id : Format.formatter -> phrase_or_msg_id -> unit
+val pp_field            : Format.formatter -> field -> unit
 
-type field =
-  [ `From            of Address.person list
-  | `Date            of Date.t
-  | `Sender          of Address.person
-  | `ReplyTo         of Address.t list
-  | `To              of Address.t list
-  | `Cc              of Address.t list
-  | `Bcc             of Address.t list
-  | `Subject         of Rfc5322.phrase
-  | `Comments        of Rfc5322.phrase
-  | `Keywords        of Rfc5322.phrase list
-  | `MessageID       of MsgID.t
-  | `InReplyTo       of [ `Phrase of Rfc5322.phrase | `MsgID of MsgID.t ] list
-  | `References      of [ `Phrase of Rfc5322.phrase | `MsgID of MsgID.t ] list
-  | `Field           of string * Rfc5322.phrase
-  | Resent.field
-  | Trace.field
-  | `Unsafe          of string * Rfc5322.phrase ]
+val of_string           : ?chunk:int -> string -> (header * [> field ] list) option
+val of_string_raw       : ?chunk:int -> string -> int -> int -> ((header * [> field ] list) * int) option
 
-val field_of_lexer : Rfc5322.field -> field
-val to_field       : unstrict -> field list
-
-module D :
-sig
-  val of_lexer     : ('date, 'from) Relax.t -> ([> Rfc5322.field ] as 'field) list -> (('date, 'from) t, 'field list, 'r) Decoder.k2
-  val of_decoder   : Decoder.t -> unstrict
-end
-
-module E :
-sig
-  val w_field      : (field, 'r Encoder.partial) Encoder.k1
-  val w            : (field list, 'r Encoder.partial) Encoder.k1
-  val to_buffer    : unstrict -> Encoder.t -> Buffer.t
-end
-
-val of_string      : string -> unstrict
-val to_string      : unstrict -> string
-
-val equal          : ('date, 'from) t -> ('date, 'from) t -> bool
-val pp_field       : Format.formatter -> field -> unit
-val pp             : Format.formatter -> unstrict -> unit
+val decoder : ([> field ] as 'a) list -> (header * 'a list) Parser.t

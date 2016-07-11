@@ -1,4 +1,4 @@
-open BaseEncoder
+open Encoder
 
 module Queue =
 struct
@@ -116,13 +116,13 @@ let clear_queue state =
   Queue.clear state.queue
 
 let output_string s k ({ state; _ } as fmt) =
-  w s (fun state -> k { fmt with state = state }) state
+  string s (fun state -> k { fmt with state = state }) state
 
 let output_newline k ({ state; _ } as fmt) =
-  w "\r\n" (fun state -> k { fmt with state = state }) state
+  string "\r\n" (fun state -> k { fmt with state = state }) state
 
 let output_spaces n k ({ state; _ } as fmt) =
-  w (String.make n ' ') (fun state -> k { fmt with state = state }) state
+  string (String.make n ' ') (fun state -> k { fmt with state = state }) state
 
 let ( $ ) x y k e = x (y k) e
 
@@ -332,7 +332,7 @@ let flush newline k fmt =
        advance_left (if newline then output_newline (rinit k) else rinit k) fmt)
     fmt
 
-let w_min_space n k fmt =
+let min_space n k fmt =
   if n >= 1
   then let n = if n < infinity then n else pred infinity in
        fmt.min_space_left <- n;
@@ -340,10 +340,10 @@ let w_min_space n k fmt =
        rinit k fmt
   else noop k fmt
 
-let w_max_indent n k fmt =
-  w_min_space (fmt.margin - n) k fmt
+let max_indent n k fmt =
+  min_space (fmt.margin - n) k fmt
 
-let w_limit n k fmt =
+let limit n k fmt =
   if n >= 1
   then let limit = if n < infinity then n else pred infinity in
        begin
@@ -354,53 +354,53 @@ let w_limit n k fmt =
            else max (max (fmt.margin - fmt.min_space_left) (fmt.margin / 2)) 1
          in
 
-         w_max_indent new_max_indent k fmt
+         max_indent new_max_indent k fmt
        end
   else noop k fmt
 
-let w_as_size size str k fmt =
+let as_size size str k fmt =
   enqueue_string_as size str k fmt
 
-let w_string str k fmt =
-  w_as_size (String.length str) str k fmt
+let string str k fmt =
+  as_size (String.length str) str k fmt
 
-let w_close_box k fmt =
+let close_box k fmt =
   close_box k fmt
 
-let w_hbox k fmt =
+let hbox k fmt =
   open_box_gen 0 HBox k fmt
 
-let w_vbox indent k fmt =
+let vbox indent k fmt =
   open_box_gen indent VBox k fmt
 
-let w_hvbox indent k fmt =
+let hvbox indent k fmt =
   open_box_gen indent HVBox k fmt
 
-let w_hovbox indent k fmt =
+let hovbox indent k fmt =
   open_box_gen indent HOVBox k fmt
 
-let w_box indent k fmt =
+let box indent k fmt =
   open_box_gen indent Box k fmt
 
-let w_newline k fmt =
+let newline k fmt =
   flush true k fmt
 
-let w_flush k fmt =
+let flush k fmt =
   flush false k fmt
 
-let w_force_newline k fmt =
+let force_newline k fmt =
   enqueue_advance (make_element 0 Newline 0) k fmt
 
-let w_if_newline k fmt =
+let if_newline k fmt =
   enqueue_advance (make_element 0 IfNewline 0) k fmt
 
-let w_break width offset k fmt =
+let break width offset k fmt =
   let e = make_element (- fmt.right_total) (Break (width, offset)) width in
   push true e k fmt
 
-let w_space k fmt = w_break 1 0 k fmt
-let w_cut k fmt = w_break 0 0 k fmt
-let w_char chr k fmt = w_string (String.make 1 chr) k fmt
+let space k fmt = break 1 0 k fmt
+let cut k fmt = break 0 0 k fmt
+let char chr k fmt = string (String.make 1 chr) k fmt
 
 let lift ?(margin = 998) k state =
   let queue = Queue.make () in
@@ -423,4 +423,4 @@ let lift ?(margin = 998) k state =
     ; queue }
 
 let unlift k fmt =
-  w_flush (fun { state; _ } -> k state) fmt
+  flush (fun { state; _ } -> k state) fmt

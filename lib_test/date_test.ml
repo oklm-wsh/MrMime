@@ -1,4 +1,12 @@
-let date = (module Date : Alcotest.TESTABLE with type t = Date.t)
+module D =
+struct
+  type t = Date.date
+
+  let pp = Date.pp
+  let equal = Date.equal
+end
+
+let date = (module D : Alcotest.TESTABLE with type t = Date.date)
 
 let make_compute_test s =
   Printf.sprintf "%S" s,
@@ -8,10 +16,12 @@ let make_compute_test s =
 let make_pp_test s =
   Printf.sprintf "%S" s,
   `Slow,
-  (fun () -> let a = Date.of_string s in
-   Printf.eprintf "%s\n%!" s;
-   Printf.eprintf "%s\n%!" (Date.to_string a);
-   Alcotest.(check date) "pp" a (Date.of_string @@ Date.to_string a))
+  (fun () -> match Date.of_string s with
+   | None -> failwith "Invalid date"
+   | Some v ->
+     Alcotest.(check date) "pp" v (match Date.of_string @@ Date.to_string v with
+                                   | None -> failwith "Invalid date"
+                                   | Some v -> v))
 
 let tests =
   [ "Fri, 21 Nov 1997 09:55:06 -0600"

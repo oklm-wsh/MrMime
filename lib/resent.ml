@@ -1,136 +1,112 @@
-type t =
-  { date     : Date.t
-  ; from     : Address.person list
-  ; sender   : Address.person option
-  ; target   : Address.t list option
-  ; cc       : Address.t list option
-  ; bcc      : Address.t list option
-  ; msg_id   : MsgID.t option
-  ; reply_to : Address.t list option }
+type field = Rfc5322.resent
 
-type field =
-  [ `ResentDate      of Date.t
-  | `ResentFrom      of Address.person list
-  | `ResentSender    of Address.person
-  | `ResentTo        of Address.t list
-  | `ResentCc        of Address.t list
-  | `ResentBcc       of Address.t list
-  | `ResentMessageID of MsgID.t
-  | `ResentReplyTo   of Address.t list ]
+type resent =
+  { date     : Date.date option
+  ; from     : Address.mailbox list
+  ; sender   : Address.mailbox option
+  ; to'      : Address.address list
+  ; cc       : Address.address list
+  ; bcc      : Address.address list
+  ; msg_id   : MsgID.msg_id option
+  ; reply_to : Address.address list }
 
-let field_of_lexer : Rfc5322.resent -> field = function
-  | `ResentDate d      -> `ResentDate (Date.D.of_lexer d)
-  | `ResentFrom l      -> `ResentFrom (List.map Address.D.person_of_lexer l)
-  | `ResentSender p    -> `ResentSender (Address.D.person_of_lexer p)
-  | `ResentTo l        -> `ResentTo (Address.List.D.of_lexer l)
-  | `ResentCc l        -> `ResentCc (Address.List.D.of_lexer l)
-  | `ResentBcc l       -> `ResentBcc (Address.List.D.of_lexer l)
-  | `ResentMessageID m -> `ResentMessageID (MsgID.D.of_lexer m)
-  | `ResentReplyTo l   -> `ResentReplyTo (Address.List.D.of_lexer l)
+let default =
+  { date     = None
+  ; from     = []
+  ; sender   = None
+  ; to'      = []
+  ; cc       = []
+  ; bcc      = []
+  ; msg_id   = None
+  ; reply_to = [] }
 
-let to_field resent =
-  let ( >>= ) o f = match o with Some x -> Some (f x) | None -> None in
-  let ( @:@ ) o r = match o with Some x -> x :: r | None -> r in
-
-  (resent.sender       >>= fun p -> `ResentSender p)
-  @:@ (resent.target   >>= fun l -> `ResentTo l)
-  @:@ (resent.cc       >>= fun l -> `ResentCc l)
-  @:@ (resent.bcc      >>= fun l -> `ResentBcc l)
-  @:@ (resent.msg_id   >>= fun m -> `ResentMessageID m)
-  @:@ (resent.reply_to >>= fun l -> `ResentReplyTo l)
-  @:@ (`ResentDate resent.date) :: (`ResentFrom resent.from) :: []
-
-let pp = Format.fprintf
-
-let pp_lst ~sep pp_data fmt lst =
-  let rec aux = function
-    | [] -> ()
-    | [ x ] -> pp_data fmt x
-    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
-  in aux lst
-
-let pp_field fmt = function
-  | `ResentDate d      -> pp fmt "@[<hov>Resent-Date = %a@]" Date.pp d
-  | `ResentFrom l      -> pp fmt "@[<hov>Resent-From = %a@]" (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_person) l
-  | `ResentSender p    -> pp fmt "@[<hov>Resent-Sender = %a@]" Address.pp_person p
-  | `ResentTo l        -> pp fmt "@[<hov>Resent-To = %a@]" Address.List.pp l
-  | `ResentCc l        -> pp fmt "@[<hov>Resent-Cc = %a@]" Address.List.pp l
-  | `ResentBcc l       -> pp fmt "@[<hov>Resent-Bcc = %a@]" Address.List.pp l
-  | `ResentMessageID m -> pp fmt "@[<hov>Resent-Message-ID = %a@]" MsgID.pp m
-  | `ResentReplyTo l   -> pp fmt "@[<hov>Resent-Reply-To = %a@]" Address.List.pp l
-
-let pp fmt t =
-  pp fmt "@[<v>%a]" (pp_lst ~sep:(fun fmt () -> pp fmt "\n") pp_field) (to_field t)
-
-module D =
+module Encoder =
 struct
-  let of_lexer fields p state =
-    let date     = ref None in
-    let from     = ref None in
-    let sender   = ref None in
-    let target   = ref None in
-    let cc       = ref None in
-    let bcc      = ref None in
-    let msg_id   = ref None in
-    let reply_to = ref None in
+  open Encoder
 
-    let sanitize fields =
-      match !date, !from with
-      | Some date, Some from ->
-        p (Some { date; from
-                ; sender   = !sender
-                ; target   = !target
-                ; cc       = !cc
-                ; bcc      = !bcc
-                ; msg_id   = !msg_id
-                ; reply_to = !reply_to })
-          fields state
-      | _ -> p None fields state
-    in
+  let rec w_lst w_sep w_data l =
+    let open Wrap in
+      let rec aux = function
+      | [] -> noop
+      | [ x ] -> w_data x
+      | x :: r -> w_data x $ w_sep $ aux r
+    in aux l
 
-    let rec loop garbage fields = match fields with
-      | [] -> sanitize (List.rev garbage)
-      | field :: rest ->
-        match field with
-        | `ResentDate d ->
-          (match !date with
-           | None   -> date := Some (Date.D.of_lexer d); loop garbage rest
-           | Some _ -> sanitize (List.rev (field :: garbage) @ rest))
-        | `ResentFrom f ->
-          (match !from with
-           | None   -> from := Some (List.map Address.D.person_of_lexer f); loop garbage rest
-           | Some _ -> sanitize (List.rev (field :: garbage) @ rest))
-        | `ResentSender p ->
-          (match !sender with
-           | None   -> sender := Some (Address.D.person_of_lexer p); loop garbage rest
-           | Some _ -> loop (field :: garbage) rest)
-        | `ResentTo t ->
-          (match !target with
-           | None   -> target := Some (Address.List.D.of_lexer t); loop garbage rest
-           | Some _ -> loop (field :: garbage) rest)
-        | `ResentCc c ->
-          (match !cc with
-           | None   -> cc := Some (Address.List.D.of_lexer c); loop garbage rest
-           | Some _ -> loop (field :: garbage) rest)
-        | `ResentBcc c ->
-          (match !bcc with
-           | None   -> bcc := Some (Address.List.D.of_lexer c); loop garbage rest
-           | Some _ -> loop (field :: garbage) rest)
-        | `ResentMessageID m ->
-          (match !msg_id with
-           | None   -> msg_id := Some (MsgID.D.of_lexer m); loop garbage rest
-           | Some _ -> loop (field :: garbage) rest)
-        | `ResentReplyTo l ->
-          (match !reply_to with
-           | None   -> reply_to := Some (Address.List.D.of_lexer l); loop garbage rest
-           | Some _ -> loop (field :: garbage) rest)
-        | field -> loop (field :: garbage) rest
-    in
+  let w_crlf k e = string "\r\n" k e
 
-    loop [] fields
+  let w_field = function
+    | `ResentCc l ->
+      string "Resent-Cc: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
+      $ w_crlf
+    | `ResentMessageID m ->
+      string "Resent-Message-ID: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ MsgID.Encoder.w_msg_id m $ close_box) (unlift k))))
+      $ w_crlf
+    | `ResentSender p ->
+      string "Resent-Sender: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_mailbox p $ close_box) (unlift k))))
+      $ w_crlf
+    | `ResentBcc l ->
+      string "Resent-Bcc: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
+      $ w_crlf
+    | `ResentFrom l ->
+      string "Resent-From: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_lst (string "," $ space) Address.Encoder.w_mailbox l $ close_box) (unlift k))))
+      $ w_crlf
+    | `ResentReplyTo l ->
+      string "Resent-Reply-To: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
+      $ w_crlf
+    | `ResentDate d ->
+      string "Resent-Date: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Date.Encoder.w_date d $ close_box) (unlift k))))
+      $ w_crlf
+    | `ResentTo l ->
+      string "Resent-To: "
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
+      $ w_crlf
+
+  let w_resent { date; from; sender; to'; cc; bcc; msg_id; reply_to; } =
+    (match date with Some v -> w_field (`ResentDate v) | None -> noop)
+    $ (match from with [] -> noop | v -> w_field (`ResentFrom v))
+    $ (match sender with Some v -> w_field (`ResentSender v) | None -> noop)
+    $ (match to' with [] -> noop | v -> w_field (`ResentTo v))
+    $ (match cc with [] -> noop | v -> w_field (`ResentCc v))
+    $ (match bcc with [] -> noop | v -> w_field (`ResentBcc v))
+    $ (match msg_id with Some v -> w_field (`ResentMessageID v) | None -> noop)
+    $ (match reply_to with [] -> noop | v -> w_field (`ResentReplyTo v))
 end
 
-module E =
-struct
+let decoder (fields : [> field ] list) =
+  { Parser.f = fun i s fail succ ->
+    let rec catch garbage acc lst = match lst, acc with
+      | `ResentDate date :: r, ([] as r')
+      | `ResentDate date :: r, (({ date = Some _; _ } :: _)  as r') ->
+        catch garbage ({ default with date = Some date } :: r') r
+      | `ResentDate date :: r, x :: r' ->
+        catch garbage ({ x with date = Some date } :: r') r
+      | `ResentFrom from :: r, ([] as r')
+      | `ResentFrom from :: r, (({ from = _ :: _; _ } :: _) as r') ->
+        catch garbage ({ default with from = from } :: r') r
+      | `ResentFrom from :: r, x :: r' ->
+        catch garbage ({ x with from = x.from @ from } :: r') r
+      | `ResentSender v :: r, x :: r' ->
+        catch garbage ({ x with sender = Some v } :: r') r
+      | `ResentTo v :: r, x :: r' ->
+        catch garbage ({ x with to' = x.to' @ v } :: r') r
+      | `ResentCc v :: r, x :: r' ->
+        catch garbage ({ x with cc = x.cc @ v } :: r') r
+      | `ResentBcc v :: r, x :: r' ->
+        catch garbage ({ x with bcc = x.bcc @ v } :: r') r
+      | `ResentMessageID v :: r, x :: r' ->
+        catch garbage ({ x with msg_id = Some v } :: r') r
+      | `ResentReplyTo v :: r, x :: r' ->
+        catch garbage ({ x with reply_to = x.reply_to @ v } :: r') r
+      | field :: r, acc ->
+        catch (field :: garbage) acc r
+      | [], acc -> acc, List.rev garbage (* keep the order *)
+    in
 
-end
+    succ i s (catch [] [] fields) }
