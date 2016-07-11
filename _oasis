@@ -18,7 +18,7 @@ Library mrmime
   Modules:              Input, Parser, Encoder, Wrap,
                         Rfc6532, Rfc822, Rfc2045, Base64, QuotedPrintable, Rfc2047, Rfc5321, Rfc5322, Rfc2046, Top,
                         Date, MsgID, MimeVersion, ContentEncoding, ContentType, Content, Address, Resent, Trace, Header, Message
-  BuildDepends:         ipaddr, uutf
+  BuildDepends:         ipaddr, uutf, bigarray
 
 SourceRepository master
   Type:                 git
@@ -41,7 +41,7 @@ Executable maildir
   Install:              false
   CompiledObject:       best
   MainIs:               maildir.ml
-  BuildDepends:         mrmime, astring, fmt, cmdliner, re.str
+  BuildDepends:         mrmime, unix, astring, fmt, cmdliner, re.str
 
 Executable test_address
   Path:                 lib_test
