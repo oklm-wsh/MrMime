@@ -11,8 +11,6 @@ license:      "MIT"
 build: [
   ["./configure"
     "--disable-tests"
-    "--enable-mtype"
-    "--enable-tag"
     "--prefix=%{prefix}%"]
   [make]
 ]
@@ -20,8 +18,6 @@ build: [
 build-test: [
   ["./configure"
     "--enable-tests"
-    "--enable-mtype"
-    "--enable-tag"
     "--prefix=%{prefix}%"]
   [make "test"]
 ]
@@ -29,8 +25,6 @@ build-test: [
 build-doc: [
   ["./configure"
     "--enable-docs"
-    "--enable-mtype"
-    "--enable-tag"
     "--prefix=%{prefix}%"]
   [make "test"]
 ]
