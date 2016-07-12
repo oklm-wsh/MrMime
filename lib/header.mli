@@ -30,6 +30,14 @@ val pp_unstructured     : Format.formatter -> unstructured -> unit
 val pp_phrase_or_msg_id : Format.formatter -> phrase_or_msg_id -> unit
 val pp_field            : Format.formatter -> field -> unit
 
+module Encoder :
+sig
+  val w_unstructured : (unstructured, 'r Encoder.partial) Wrap.k1
+  val w_field        : ([ Rfc5322.field_header | Rfc5322.skip ], 'r Encoder.partial) Encoder.k1
+  val w_header       : (header, 'r Encoder.partial) Encoder.k1
+end
+
+val to_string           : header -> string
 val of_string           : ?chunk:int -> string -> (header * [> field ] list) option
 val of_string_raw       : ?chunk:int -> string -> int -> int -> ((header * [> field ] list) * int) option
 

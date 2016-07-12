@@ -132,9 +132,25 @@ let default =
   ; unsafe      = Map.empty
   ; skip        = [] }
 
-module Internal =
+module Encoder =
 struct
-  open Encoder
+  include Encoder
+
+  let w_unstructured (l : Rfc5322.unstructured) =
+    let open Wrap in
+    let w_elem = function
+      | `Text s -> string s
+      | `CR n -> string (String.make n '\r')
+      | `LF n -> string (String.make n '\n')
+      | `CRLF -> string "\r\n"
+      | `WSP  -> space
+      | `Encoded (charset, raw) ->
+        string "=?"
+        $ string charset
+        $ string "?"
+        $ Address.Encoder.w_raw raw
+        $ string "?="
+    in List.fold_right w_elem l
 
   let w_crlf k e = string "\r\n" k e
 
@@ -146,9 +162,7 @@ struct
       | x :: r -> w_data x $ w_sep $ aux r
     in aux l
 
-  let w_unstructured _ = Wrap.string "lol"
-
-  let w_field = function
+  let w_field (field : [ Rfc5322.field_header | Rfc5322.skip ]) = match field with
     | `Bcc l ->
       string "Bcc: "
       $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
@@ -159,7 +173,7 @@ struct
       $ w_crlf
     | `Subject p ->
       string "Subject:"
-      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_phrase p $ close_box) (unlift k))))
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_unstructured p $ close_box) (unlift k))))
       $ w_crlf
     | `To l ->
       string "To: "
@@ -175,7 +189,7 @@ struct
       $ w_crlf
     | `Field (key, value) ->
       string key $ string ":"
-      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_phrase value $ close_box) (unlift k))))
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_unstructured value $ close_box) (unlift k))))
       $ w_crlf
     | `Date d ->
       string "Date: "
@@ -195,7 +209,7 @@ struct
       $ w_crlf
     | `Comments p ->
       string "Comments:"
-      $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_phrase p $ close_box) (unlift k))))
+      $ (fun k -> Wrap.(lift ((hovbox 0 $ w_unstructured p $ close_box) (unlift k))))
       $ w_crlf
     | `From l ->
       string "From: "
@@ -217,7 +231,43 @@ struct
       string "Reply-To: "
       $ (fun k -> Wrap.(lift ((hovbox 0 $ Address.Encoder.w_addresses l $ close_box) (unlift k))))
       $ w_crlf
+    | `Skip l ->
+      string l $ w_crlf
+
+  let w_header { date; from; sender; reply_to; to'; cc; bcc; subject;
+                 msg_id; in_reply_to; references; comments; keywords;
+                 resents; traces; fields; unsafe; skip; } =
+    (match date        with Some v -> w_field (`Date v) | None -> noop)
+    $ (match from        with [] -> noop | v -> w_field (`From v))
+    $ (match sender      with Some v -> w_field (`Sender v) | None -> noop)
+    $ (match reply_to    with [] -> noop | v -> w_field (`ReplyTo v))
+    $ (match to'         with [] -> noop | v -> w_field (`To v))
+    $ (match cc          with [] -> noop | v -> w_field (`Cc v))
+    $ (match bcc         with [] -> noop | v -> w_field (`Bcc v))
+    $ (match subject     with Some v -> w_field (`Subject v) | None -> noop)
+    $ (match msg_id      with Some v -> w_field (`MessageID v) | None -> noop)
+    $ (match in_reply_to with [] -> noop | v -> w_field (`InReplyTo v))
+    $ (match references  with [] -> noop | v -> w_field (`References v))
+    $ List.fold_right (fun v -> w_field (`Comments v)) comments
+    $ List.fold_right (fun v -> w_field (`Keywords v)) keywords
+    $ List.fold_right Resent.Encoder.w_resent resents
+    $ List.fold_right Trace.Encoder.w_trace traces
+    $ (Map.fold (fun field values acc -> List.fold_right (fun value -> w_field (`Field (field, value))) values $ acc) fields noop)
+    $ (Map.fold (fun field values acc -> List.fold_right (fun value -> w_field (`Unsafe (field, value))) values $ acc) unsafe noop)
 end
+
+let to_string t =
+  let buf   = Buffer.create 16 in
+  let state = Encoder.make () in
+
+  let rec loop = function
+    | `Partial (s, i, l, k) ->
+      Buffer.add_subbytes buf s i l;
+      loop @@ (k l)
+    | `Ok -> Buffer.contents buf
+  in
+
+  loop @@ Encoder.w_header t (Encoder.flush (fun _ -> `Ok)) state
 
 open Parser
 

@@ -87,7 +87,22 @@ struct
   open Encoder
 
   let w_crlf k e = string "\r\n" k e
-  let w_unstructured _ = Wrap.string "lol"
+
+  let w_unstructured (l : Rfc5322.unstructured) =
+    let open Wrap in
+    let w_elem = function
+      | `Text s -> string s
+      | `CR n -> string (String.make n '\r')
+      | `LF n -> string (String.make n '\n')
+      | `CRLF -> string "\r\n"
+      | `WSP  -> space
+      | `Encoded (charset, raw) ->
+        string "=?"
+        $ string charset
+        $ string "?"
+        $ Address.Encoder.w_raw raw
+        $ string "?="
+    in List.fold_right w_elem l
 
   let w_field = function
     | #ContentType.field as x -> ContentType.Encoder.w_field x
@@ -125,15 +140,15 @@ struct
     $ w_field_version (`MimeVersion version)
     $ (match id          with Some v -> w_field (`ContentID v) | None -> noop)
     $ (match description with Some v -> w_field (`ContentDescription v) | None -> noop)
-    $ (Map.fold (fun field value acc -> w_field (`Content (field, value)) $ acc) content noop)
+    $ (Map.fold (fun field values acc -> List.fold_right (fun value -> w_field (`Content (field, value))) values $ acc) content noop)
 
   let w_part { ty; encoding; id; description; content; unsafe; skip; _ } =
     w_field (`ContentType ty)
     $ w_field (`ContentEncoding encoding)
     $ (match id          with Some v -> w_field (`ContentID v) | None -> noop)
     $ (match description with Some v -> w_field (`ContentDescription v) | None -> noop)
-    $ (Map.fold (fun field value acc -> w_field (`Content (field, value)) $ acc) content noop)
-    $ (Map.fold (fun field value acc -> w_unsafe (`Unsafe (field, value)) $ acc) content noop)
+    $ (Map.fold (fun field values acc -> List.fold_right (fun value -> w_field (`Content (field, value))) values $ acc) content noop)
+    $ (Map.fold (fun field values acc -> List.fold_right (fun value -> w_unsafe (`Unsafe (field, value))) values $ acc) unsafe noop)
 end
 
 open Parser
