@@ -1,0 +1,69 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Header.Encoder</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_unstructured&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Header</span>.unstructured,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Partial</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bytes</span>.t&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Wrap</span>.k1
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_field&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;([&nbsp;<span class="keywordsign">`</span><span class="constructor">Bcc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Cc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Comments</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.unstructured
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Date</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.date
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Field</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.unstructured
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">From</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.mailbox&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">InReplyTo</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.phrase_or_msg_id&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Keywords</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">MessageID</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc822</span>.msg_id
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">References</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.phrase_or_msg_id&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ReplyTo</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Sender</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.mailbox
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Skip</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Subject</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.unstructured
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">To</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.unstructured&nbsp;],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Partial</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bytes</span>.t&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.k1
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_header&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Header</span>.header,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Partial</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bytes</span>.t&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.k1
+<span class="keyword">end</span></code></body></html>

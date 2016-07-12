@@ -57,6 +57,8 @@
 &nbsp;&nbsp;;&nbsp;msg_id&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">None</span>
 &nbsp;&nbsp;;&nbsp;reply_to&nbsp;=&nbsp;[]&nbsp;}
 
+<span class="keyword">let</span>&nbsp;pp&nbsp;fmt&nbsp;_&nbsp;=&nbsp;<span class="constructor">Format</span>.pp_print_string&nbsp;fmt&nbsp;<span class="string">"#resent"</span>
+
 <span class="keyword">module</span>&nbsp;<span class="constructor">Encoder</span>&nbsp;=
 <span class="keyword">struct</span>
 &nbsp;&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Encoder</span>
@@ -147,4 +149,6 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
 
 &nbsp;&nbsp;&nbsp;&nbsp;succ&nbsp;i&nbsp;s&nbsp;(catch&nbsp;[]&nbsp;[]&nbsp;fields)&nbsp;}
+
+<span class="keyword">let</span>&nbsp;equal&nbsp;=&nbsp;(=)
 </code></body></html>
