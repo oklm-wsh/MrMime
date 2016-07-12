@@ -59,7 +59,7 @@ type trace =
                * ([ `Addr   of Rfc822.local * (domain * domain list)
                   | `Domain of domain
                   | `Word   of Rfc822.word ] list * date option) list) ]
-type field =
+type field_header =
   [ `Date       of date
   | `From       of mailbox list
   | `Sender     of mailbox
@@ -73,12 +73,12 @@ type field =
   | `Subject    of unstructured
   | `Comments   of unstructured
   | `Keywords   of phrase list
-  | resent
-  | trace
   | `Field      of string * unstructured
   | `Unsafe     of string * unstructured ]
 type skip =
   [ `Skip       of string ]
+type field =
+  [ field_header | resent | trace | skip ]
 
 open Parser
 open Parser.Convenience
