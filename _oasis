@@ -61,7 +61,7 @@ Executable test_date
 
 Executable test_header
   Path:                 lib_test
-  Build$:               false
+  Build$:               flag(tests)
   Install:              false
   CompiledObject:       best
   MainIs:               header_test.ml
@@ -80,7 +80,7 @@ Test test_date
   WorkingDirectory:     .
 
 Test test_header
-  Run$:                 false
+  Run$:                 flag(tests)
   TestTools:            test_header
   Command:              $test_header
   WorkingDirectory:     .

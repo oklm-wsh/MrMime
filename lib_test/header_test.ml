@@ -1,25 +1,34 @@
-module UnstrictHeader =
+module H =
 struct
-  type t = Header.unstrict
+  type t = Header.header
 
-  let pp = Header.pp
-  let equal : t -> t -> bool = Header.equal
+  let pp    = Header.pp
+  let equal = Header.equal
 end
 
-let header = (module UnstrictHeader : Alcotest.TESTABLE with type t = UnstrictHeader.t)
+let header = (module H : Alcotest.TESTABLE with type t = Header.header)
 
 let make_compute_test s =
   Printf.sprintf "header",
   `Slow,
-  (fun () -> let _ = Header.of_string s in ())
+  (fun () -> match Header.of_string s with
+   | Some v -> ()
+   | None -> failwith "Invalid header")
 
 let make_pp_test s =
   Printf.sprintf "header",
   `Slow,
-  (fun () -> let a = Header.of_string s in
-   Format.eprintf "%s\n----------\n%!" s;
-   Format.eprintf "%s\n----------\n%!" (Header.to_string a);
-   Alcotest.(check header) "pp" a (Header.of_string @@ Header.to_string a))
+  (fun () -> match Header.of_string s with
+   | None -> failwith "Invalid header"
+   | Some (v, _) ->
+     Printf.printf "--------------------\n%!";
+     Printf.printf "%s\n" s;
+     Printf.printf "--------------------\n%!";
+     Printf.printf "%s\n" (Header.to_string v);
+     Printf.printf "--------------------\n%!";
+     Alcotest.(check header) "pp" v (match Header.of_string @@ Header.to_string v with
+                                     | None -> failwith "Invalid address"
+                                     | Some (v, _) -> v))
 
 let tests =
   [
