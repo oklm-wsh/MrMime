@@ -1,7 +1,7 @@
 type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.result
 type unstructured     = Rfc5322.unstructured
 type phrase_or_msg_id = Rfc5322.phrase_or_msg_id
-type field            = [ Rfc5322.field | Rfc5322.skip ]
+type field            = Rfc5322.field
 
 module Map      : (module type of Map.Make(String))
 
@@ -29,6 +29,7 @@ val pp_raw              : Format.formatter -> raw -> unit
 val pp_unstructured     : Format.formatter -> unstructured -> unit
 val pp_phrase_or_msg_id : Format.formatter -> phrase_or_msg_id -> unit
 val pp_field            : Format.formatter -> field -> unit
+val pp                  : Format.formatter -> header -> unit
 
 module Encoder :
 sig
@@ -42,3 +43,5 @@ val of_string           : ?chunk:int -> string -> (header * [> field ] list) opt
 val of_string_raw       : ?chunk:int -> string -> int -> int -> ((header * [> field ] list) * int) option
 
 val decoder : ([> field ] as 'a) list -> (header * 'a list) Parser.t
+
+val equal               : header -> header -> bool

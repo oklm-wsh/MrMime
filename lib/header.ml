@@ -1,7 +1,7 @@
 type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.result
 type unstructured     = Rfc5322.unstructured
 type phrase_or_msg_id = Rfc5322.phrase_or_msg_id
-type field            = [ Rfc5322.field | Rfc5322.skip ]
+type field            = Rfc5322.field
 
 let pp = Format.fprintf
 
@@ -37,6 +37,7 @@ let pp_phrase_or_msg_id fmt = function
   | `MsgID m  -> pp fmt "%a" MsgID.pp m
 
 let pp_path = Address.pp_mailbox'
+
 let pp_received fmt r =
   let pp_elem fmt = function
     | `Addr v -> Address.pp_mailbox' fmt v
@@ -51,6 +52,10 @@ let pp_received fmt r =
   | (l, None) ->
     pp fmt "Received = @[<hov>%a@]"
       (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_elem) l
+
+let pp_option pp_data fmt = function
+  | Some v -> pp_data fmt v
+  | None -> Format.pp_print_string fmt "<none>"
 
 let pp_field fmt = function
   | `Date v            -> pp fmt "@[<hov>Date = %a@]" Date.pp v
@@ -111,6 +116,52 @@ type header =
   ; fields      : unstructured list Map.t
   ; unsafe      : unstructured list Map.t
   ; skip        : string list }
+
+let pp_map fmt map =
+  Map.iter
+    (fun key value -> pp fmt "%s -> [@[<hov>%a@]]@\n" key (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") pp_unstructured) value)
+    map
+
+let pp fmt { date; from; sender; reply_to; to'; cc; bcc; subject;
+             msg_id; in_reply_to; references; comments; keywords;
+             resents; traces; fields; unsafe; skip; } =
+  pp fmt "{ @[<hov>date = @[<hov>%a@];@ \
+                   from = @[<v>%a@];@ \
+                   sender = @[<hov>%a@];@ \
+                   reply-to = @[<hov>%a@];@ \
+                   to = @[<hov>%a@];@ \
+                   cc = @[<hov>%a@];@ \
+                   bcc = @[<hov>%a@];@ \
+                   subject = @[<hov>%a@];@ \
+                   msg-id = @[<hov>%a@];@ \
+                   in-reply-to = @[<hov>%a@];@ \
+                   references = @[<hov>%a@];@ \
+                   comments = @[<hov>%a@];@ \
+                   keywords = @[<hov>%a@];@ \
+                   resents = @[<hov>%a@];@ \
+                   traces = @[<hov>%a@];@ \
+                   fields = @[<hov>%a@];@ \
+                   unsafe = @[<hov>%a@];@ \
+                   skip = %a;@] }"
+    (pp_option Date.pp) date
+    (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_mailbox) from
+    (pp_option Address.pp_mailbox) sender
+    Address.List.pp reply_to
+    Address.List.pp to'
+    Address.List.pp cc
+    Address.List.pp bcc
+    (pp_option pp_unstructured) subject
+    (pp_option MsgID.pp) msg_id
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_phrase_or_msg_id) in_reply_to
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_phrase_or_msg_id) references
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") pp_unstructured) comments
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@\n")
+     (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_phrase)) keywords
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") Resent.pp) resents
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") Trace.pp) traces
+    pp_map fields
+    pp_map unsafe
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") Format.pp_print_string) skip
 
 let default =
   { date        = None
@@ -356,3 +407,23 @@ let of_string_raw ?(chunk = 1024) s off len =
   in
 
   aux off @@ run i (Rfc5322.header (fun _ -> fail Rfc5322.Nothing_to_do) >>= decoder)
+
+let equal a b =
+  a.date = b.date
+  && a.from = b.from
+  && a.sender = b.sender
+  && a.reply_to = b.reply_to
+  && a.to' = b.to'
+  && a.cc = b.cc
+  && a.bcc = b.bcc
+  && a.subject = b.subject
+  && a.msg_id = b.msg_id
+  && a.in_reply_to = b.in_reply_to
+  && a.references = b.references
+  && a.comments = b.comments
+  && a.keywords = b.keywords
+  && (List.fold_left (&&) true (List.map2 Resent.equal a.resents b.resents))
+  && (List.fold_left (&&) true (List.map2 Trace.equal a.traces b.traces))
+  && Map.equal (=) a.fields b.fields
+  && Map.equal (=) a.unsafe b.unsafe
+  && a.skip = b.skip

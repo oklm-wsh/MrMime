@@ -106,3 +106,5 @@ let decoder (fields : [> field ] list) =
     in
 
     succ i s (catch [] [] fields) }
+
+let equal = (=)

@@ -20,6 +20,8 @@ let default =
   ; msg_id   = None
   ; reply_to = [] }
 
+let pp fmt _ = Format.pp_print_string fmt "#resent"
+
 module Encoder =
 struct
   open Encoder
@@ -110,3 +112,5 @@ let decoder (fields : [> field ] list) =
     in
 
     succ i s (catch [] [] fields) }
+
+let equal = (=)
