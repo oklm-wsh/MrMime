@@ -1,0 +1,91 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Input" rel="Chapter" href="Input.html">
+<link title="Parser" rel="Chapter" href="Parser.html">
+<link title="Encoder" rel="Chapter" href="Encoder.html">
+<link title="Wrap" rel="Chapter" href="Wrap.html">
+<link title="Rfc6532" rel="Chapter" href="Rfc6532.html">
+<link title="Rfc822" rel="Chapter" href="Rfc822.html">
+<link title="Rfc2045" rel="Chapter" href="Rfc2045.html">
+<link title="Base64" rel="Chapter" href="Base64.html">
+<link title="QuotedPrintable" rel="Chapter" href="QuotedPrintable.html">
+<link title="Fast_qp" rel="Chapter" href="Fast_qp.html">
+<link title="Rfc2047" rel="Chapter" href="Rfc2047.html">
+<link title="Rfc5321" rel="Chapter" href="Rfc5321.html">
+<link title="Rfc5322" rel="Chapter" href="Rfc5322.html">
+<link title="Rfc2046" rel="Chapter" href="Rfc2046.html">
+<link title="Top" rel="Chapter" href="Top.html">
+<link title="Date" rel="Chapter" href="Date.html">
+<link title="MsgID" rel="Chapter" href="MsgID.html">
+<link title="MimeVersion" rel="Chapter" href="MimeVersion.html">
+<link title="ContentEncoding" rel="Chapter" href="ContentEncoding.html">
+<link title="ContentType" rel="Chapter" href="ContentType.html">
+<link title="Content" rel="Chapter" href="Content.html">
+<link title="Address" rel="Chapter" href="Address.html">
+<link title="Resent" rel="Chapter" href="Resent.html">
+<link title="Trace" rel="Chapter" href="Trace.html">
+<link title="Header" rel="Chapter" href="Header.html">
+<link title="Message" rel="Chapter" href="Message.html"><title>Fast_qp.__ocaml_lex_decode_rec</title>
+</head>
+<body>
+<code class="code"><span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;decode&nbsp;buffer&nbsp;k_done&nbsp;k_eof&nbsp;lexbuf&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_decode_rec&nbsp;buffer&nbsp;k_done&nbsp;k_eof&nbsp;lexbuf&nbsp;0
+<span class="keyword">and</span>&nbsp;__ocaml_lex_decode_rec&nbsp;buffer&nbsp;k_done&nbsp;k_eof&nbsp;lexbuf&nbsp;__ocaml_lex_state&nbsp;=
+&nbsp;&nbsp;<span class="keyword">match</span>&nbsp;<span class="constructor">Lexing</span>.engine&nbsp;__ocaml_lex_tables&nbsp;__ocaml_lex_state&nbsp;lexbuf&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;0&nbsp;<span class="keywordsign">-&gt;</span>
+#&nbsp;19&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;(&nbsp;k_done&nbsp;<span class="keywordsign">`</span><span class="constructor">Hard</span>&nbsp;buffer&nbsp;lexbuf&nbsp;)
+#&nbsp;189&nbsp;"lib/fast_qp.ml"
+
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;1&nbsp;<span class="keywordsign">-&gt;</span>
+#&nbsp;21&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;(&nbsp;k_done&nbsp;<span class="keywordsign">`</span><span class="constructor">Soft</span>&nbsp;buffer&nbsp;lexbuf&nbsp;)
+#&nbsp;194&nbsp;"lib/fast_qp.ml"
+
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;2&nbsp;<span class="keywordsign">-&gt;</span>
+<span class="keyword">let</span>
+#&nbsp;22&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a
+#&nbsp;200&nbsp;"lib/fast_qp.ml"
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;1)
+<span class="keyword">and</span>
+#&nbsp;22&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b
+#&nbsp;205&nbsp;"lib/fast_qp.ml"
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme_char&nbsp;lexbuf&nbsp;(lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;+&nbsp;2)&nbsp;<span class="keyword">in</span>
+#&nbsp;23&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Buffer</span>.add_char&nbsp;buffer&nbsp;(hex&nbsp;a&nbsp;b);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buffer&nbsp;k_done&nbsp;k_eof&nbsp;lexbuf&nbsp;)
+#&nbsp;210&nbsp;"lib/fast_qp.ml"
+
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;3&nbsp;<span class="keywordsign">-&gt;</span>
+<span class="keyword">let</span>
+#&nbsp;25&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;str
+#&nbsp;216&nbsp;"lib/fast_qp.ml"
+=&nbsp;<span class="constructor">Lexing</span>.sub_lexeme&nbsp;lexbuf&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_start_pos&nbsp;lexbuf.<span class="constructor">Lexing</span>.lex_curr_pos&nbsp;<span class="keyword">in</span>
+#&nbsp;26&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;(&nbsp;<span class="constructor">Buffer</span>.add_string&nbsp;buffer&nbsp;str;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decode&nbsp;buffer&nbsp;k_done&nbsp;k_eof&nbsp;lexbuf&nbsp;)
+#&nbsp;221&nbsp;"lib/fast_qp.ml"
+
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;4&nbsp;<span class="keywordsign">-&gt;</span>
+#&nbsp;29&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;(&nbsp;decode&nbsp;buffer&nbsp;k_done&nbsp;k_eof&nbsp;lexbuf&nbsp;)
+#&nbsp;226&nbsp;"lib/fast_qp.ml"
+
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;5&nbsp;<span class="keywordsign">-&gt;</span>
+#&nbsp;30&nbsp;"lib/fast_qp.mll"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(&nbsp;k_eof&nbsp;buffer&nbsp;lexbuf&nbsp;)
+#&nbsp;231&nbsp;"lib/fast_qp.ml"
+
+&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;__ocaml_lex_state&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;lexbuf.<span class="constructor">Lexing</span>.refill_buff&nbsp;lexbuf;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;__ocaml_lex_decode_rec&nbsp;buffer&nbsp;k_done&nbsp;k_eof&nbsp;lexbuf&nbsp;__ocaml_lex_state</code></body></html>
