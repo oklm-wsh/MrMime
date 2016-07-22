@@ -28,40 +28,104 @@ let hex =
   >>= fun a -> satisfy is_hex
   >>= fun b -> return (hex a b)
 
-let decode boundary rollback buffer =
+let from_input input = Lexing.from_function
+  (fun lexbuf n ->
+   Input.transmit input @@ fun buff off len ->
+     let m = min n len in
+     Internal_buffer.blit_bytes buff off lexbuf 0 m; m)
+
+let ensure_line =
+  let rec loop i s fail succ =
+    let has_crlf = ref false in
+
+    let _ = Input.transmit i (fun buff off len ->
+      let has_cr = ref false in
+      let i      = ref 0 in
+
+      while !i < len && not (!has_cr && Internal_buffer.get buff (off + !i) = '\n')
+      do if Internal_buffer.get buff (off + !i) = '\r'
+         then has_cr := true
+         else has_cr := false;
+
+         incr i
+      done;
+
+      if !i < len && !has_cr && Internal_buffer.get buff (off + !i) = '\n'
+      then has_crlf := true;
+
+      0)
+    in
+
+    if !has_crlf
+    then succ i s ()
+    else if s = Complete then fail i s [] IO.End_of_flow
+    else let succ' i' s' = loop i' s' fail succ in
+         let fail' i' s' = fail i' s' [] IO.End_of_flow in
+         IO.prompt i succ' fail'
+  in
+
+  { f = loop }
+
+let fast_qp buffer =
+  (ensure_line
+   *> { f = fun i s fail succ ->
+        let k_eof buffer lexbuf = fail i s [] IO.End_of_flow in
+        let k_done line_breaks buffer lexbuf = succ i s line_breaks in
+
+        let lexbuf = from_input i in
+
+        Fast_qp.decode buffer k_done k_eof lexbuf }
+   <* { f = fun i s fail succ ->
+        Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) "\r\n");
+        succ i s () })
+
+let line buffer boundary m =
   let is_ = function
-    | '=' | '\r' | '\x09' | '\x20' -> false
+    | '=' | ' ' | '\r' | '\t' -> false
     | _ -> true
   in
-  (fix @@ fun m ->
-   { f = fun i s fail succ ->
-     let n = Input.transmit i @@ fun buff off len ->
-       let len' = locate buff off len is_ in
-       Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
-       len'
-     in
+  (fast_qp buffer >>= function
+   | `Hard -> (boundary *> return (true, Buffer.contents buffer))
+              <|> (Rfc822.crlf
+                   *> { f = fun i s fail succ -> Buffer.add_char buffer '\n';
+                                                 succ i s () }
+                   *> m)
+   | `Soft -> (boundary *> return (true, Buffer.contents buffer))
+              <|> (Rfc822.crlf *> m))
+  <|> ({ f = fun i s fail succ ->
+         let n = Input.transmit i @@ fun buff off len ->
 
-     succ i s n } *> peek_chr >>= function
-   | None -> return (false, Buffer.contents buffer)
-   | Some '=' ->
-     (hex >>= fun chr ->
-      Buffer.add_char buffer chr; m)
-     <|> (char '=' *> ((boundary *> return (true, Buffer.contents buffer))
-                       <|> (Rfc822.crlf *> m)))
-   | Some '\r' ->
-     (boundary *> return (true, Buffer.contents buffer))
-     <|> (Rfc822.crlf >>= fun () -> Buffer.add_char buffer '\n'; m)
-   | Some ('\x20' | '\x09') ->
-     repeat (Some 1) None Rfc822.is_wsp
-     >>= fun lwsp ->
-       (boundary *> return (true, Buffer.contents buffer))
-       <|> (Rfc822.crlf >>= fun () -> Buffer.add_char buffer '\n';
-                                      m)
-       <|> ({ f = fun i s fail succ ->
+           let len' = locate buff off len is_ in
+           Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
+           len'
+         in
+
+         succ i s n } *> peek_chr >>= function
+       | None -> return (false, Buffer.contents buffer)
+       | Some '=' ->
+         (hex >>= fun chr ->
+          Buffer.add_char buffer chr; m)
+         <|> (char '=' *> ((boundary *> return (true, Buffer.contents buffer))
+                           <|> (Rfc822.crlf *> m)))
+       | Some ' '
+       | Some '\t' ->
+         repeat (Some 1) None Rfc822.is_wsp
+         >>= fun lwsp -> peek_chr >>= (function
+          | Some '\r' -> m
+          | _ ->
+            { f = fun i s fail succ ->
               Buffer.add_string buffer lwsp;
 
               succ i s () } *> m)
-   | Some chr -> m)
+       | Some '\r' ->
+         (boundary *> return (true, Buffer.contents buffer))
+         <|> (Rfc822.crlf *> { f = fun i s fail succ -> Buffer.add_char buffer '\n';
+                                                        succ i s () }
+                          *> m)
+       | Some chr -> m)
+
+let decode boundary rollback buffer =
+  (fix @@ fun m -> line buffer boundary m)
   >>= function
     | true, content  ->
       rollback *> return content

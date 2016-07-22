@@ -16,7 +16,7 @@ Library mrmime
   Path:                 lib
   InternalModules:      Internal_buffer, Option, RingBuffer
   Modules:              Input, Parser, Encoder, Wrap,
-                        Rfc6532, Rfc822, Rfc2045, Base64, QuotedPrintable, Rfc2047, Rfc5321, Rfc5322, Rfc2046, Top,
+                        Rfc6532, Rfc822, Rfc2045, Base64, QuotedPrintable, Fast_qp, Rfc2047, Rfc5321, Rfc5322, Rfc2046, Top,
                         Date, MsgID, MimeVersion, ContentEncoding, ContentType, Content, Address, Resent, Trace, Header, Message
   BuildDepends:         ipaddr, uutf, bigarray
 
