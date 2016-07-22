@@ -43,6 +43,14 @@ struct
       Array1.set dst (dst_idx + !idx) (String.get src (src_idx + !idx));
       incr idx;
     done
+
+  let blit_bytes src src_idx dst dst_idx len =
+    let idx = ref 0 in
+
+    while !idx < len do
+      Bytes.set dst (dst_idx + !idx) (Array1.get src (src_idx + !idx));
+      incr idx;
+    done
 end
 
 type 'a t =
@@ -94,6 +102,11 @@ let blit_string (type a) src src_idx (dst : a t) dst_idx len =
   match dst with
   | Bytes dst -> Bytes.blit_string src src_idx dst dst_idx len
   | Bigstring dst -> Bigstring.blit_string src src_idx dst dst_idx len
+
+let blit_bytes (type a) (src : a t) src_idx dst dst_idx len =
+  match src with
+  | Bytes src -> Bytes.blit src src_idx dst dst_idx len
+  | Bigstring src -> Bigstring.blit_bytes src src_idx dst dst_idx len
 
 let sub (type a) (v : a t) off len : a t = match v with
   | Bytes v -> from_bytes @@ Bytes.sub v off len
