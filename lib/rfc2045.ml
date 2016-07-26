@@ -123,10 +123,22 @@ let ty =
          | Some v -> return v
          | None -> fail (Invalid_token s)
 
+let ty_to_string = function
+  | `Text -> "text"
+  | `Image -> "image"
+  | `Audio -> "audio"
+  | `Video -> "video"
+  | `Application -> "application"
+  | `Message -> "message"
+  | `Multipart -> "multipart"
+  | `Ietf_token s | `X_token s -> s
+
 let subty ty =
   (peek_chr >>= function
    | Some 'X' | Some 'x' -> extension_token
-   | _ -> token >>| fun v -> `Iana_token v) (* check iana *)
+   | _ -> token >>| fun v ->
+     try `Iana_token (Iana.Set.find v (Iana.Map.find (ty_to_string ty) Iana.iana))
+     with exn -> `X_token v)
   >>| fun subty -> (ty, subty)
 
 let value =
