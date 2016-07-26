@@ -4,15 +4,18 @@ type field_part =
   [ Rfc5322.field | Rfc2045.field | Rfc5322.skip ]
 
 type 'a message =
-  | Discrete  of Content.t * field_message list * 'a
-  | Extension of Content.t * field_message list
-  | Composite of Content.t * field_message list * (Content.t * field_part list * 'a part option) list
+  | Discrete  of MrMime_content.t * field_message list * 'a
+  | Extension of MrMime_content.t * field_message list
+  | Composite of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * 'a part option) list
 and 'a part =
-  | PDiscrete  of Content.t * field_part list * 'a
-  | PExtension of Content.t * field_part list
-  | PComposite of Content.t * field_part list * (Content.t * field_part list * 'a part option) list
+  | PDiscrete  of 'a
+  | PExtension of MrMime_content.t * field_part list
+  | PComposite of (MrMime_content.t * field_part list * 'a part option) list
 
 type content = ..
+type content += Base64 of MrMime_base64.result
+type content += QuotedPrintable of string
+type content += Raw of string
 
 include Parser
 include Parser.Convenience
@@ -35,10 +38,6 @@ let boundary content =
   try List.assoc "boundary" content.MrMime_content.ty.MrMime_contentType.parameters
       |> function `Token s | `String s -> Some s
   with Not_found -> None
-
-type content += Base64 of Base64.result
-type content += QuotedPrintable of string
-type content += Raw of string
 
 let octet boundary content fields =
   let boundary, rollback = match boundary with
