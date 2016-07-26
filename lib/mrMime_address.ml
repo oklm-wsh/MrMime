@@ -4,6 +4,8 @@ type raw            = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime
 type phrase         = Rfc5322.phrase
 type domain         = Rfc5322.domain
 type literal_domain = Rfc5321.literal_domain = ..
+type Rfc5321.literal_domain += IPv4 = Rfc5321.IPv4
+type Rfc5321.literal_domain += IPv6 = Rfc5321.IPv6
 
 type mailbox = Rfc5322.mailbox =
   { name    : phrase option

@@ -2,6 +2,8 @@ type word           = [ `Atom of string | `String of string ]
 type local          = word list
 type raw            = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.result
 type literal_domain = Rfc5321.literal_domain = ..
+type literal_domain += IPv4 of Ipaddr.V4.t
+type literal_domain += IPv6 of Ipaddr.V6.t
 type phrase         =
   [ `Dot
   | `Word of word
