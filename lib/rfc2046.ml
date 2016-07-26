@@ -8,6 +8,8 @@ let locate buff off len f =
 open Parser
 open Parser.Convenience
 
+type ('field, 'a) octet = (MrMime_content.t -> ([ Rfc5322.field | Rfc2045.field | Rfc5322.skip ] as 'field) list -> 'a t)
+
 let is_bcharsnospace = function
   | '\'' | '(' | ')' | '+' | '_' | ','
   | '-' | '.' | '/' | ':' | '=' | '?' -> true
@@ -54,6 +56,7 @@ let discard_to_dash_boundary boundary =
 
 let transport_padding =
   repeat None None (function '\x09' | '\x20' -> true | _ -> false)
+  *> return ()
 
 let text =
   fix @@ fun m ->
