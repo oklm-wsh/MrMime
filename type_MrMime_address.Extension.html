@@ -1,11 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
+<html><head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="next" href="MrMime_message.Extension.html">
-<link rel="Up" href="MrMime_message.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of extensions" rel=Appendix href="index_extensions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
@@ -25,14 +21,10 @@
 <link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
 <link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
 <link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
-<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_message.Decoder</title>
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_address.Extension</title>
 </head>
 <body>
-<div class="navbar">&nbsp;<a class="up" href="MrMime_message.html" title="MrMime_message">Up</a>
-&nbsp;<a class="post" href="MrMime_message.Extension.html" title="MrMime_message.Extension">Next</a>
-</div>
-<h1>Module <a href="type_MrMime_message.Decoder.html">MrMime_message.Decoder</a></h1>
-
-<pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_message.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
-
-<pre><span id="VALp_message"><span class="keyword">val</span> p_message</span> : <code class="type">(<a href="MrMime_header.html#TYPEheader">MrMime_header.header</a> *<br>        (<a href="MrMime_message.html#TYPEencoding">MrMime_message.encoding</a>, <a href="MrMime_message.html#TYPEcontent">MrMime_message.content</a>) <a href="MrMime_message.html#TYPEmessage">MrMime_message.message</a>)<br>       MrMime_parser.t</code></pre></body></html>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add_literal_domain&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">MrMime_address</span>.literal_domain&nbsp;<span class="constructor">MrMime_parser</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
+<span class="keyword">end</span></code></body></html>

@@ -21,12 +21,20 @@
 <link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
 <link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
 <link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
-<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_message.Decoder</title>
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_message.Extension</title>
 </head>
 <body>
 <code class="code"><span class="keyword">sig</span>
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_message&nbsp;:
-&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_header</span>.header&nbsp;*
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_message</span>.encoding,&nbsp;<span class="constructor">MrMime_message</span>.content)&nbsp;<span class="constructor">MrMime_message</span>.message)
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add_encoding&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;(unit&nbsp;<span class="constructor">MrMime_parser</span>.t&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unit&nbsp;<span class="constructor">MrMime_parser</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">MrMime_message</span>.encoding&nbsp;<span class="constructor">MrMime_parser</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;unit
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add_content&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;(string&nbsp;option&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_message</span>.content&nbsp;<span class="constructor">MrMime_parser</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;unit
 <span class="keyword">end</span></code></body></html>

@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="next" href="MrMime_message.Extension.html">
+<link rel="previous" href="MrMime_message.Decoder.html">
 <link rel="Up" href="MrMime_message.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of extensions" rel=Appendix href="index_extensions.html">
@@ -25,14 +25,15 @@
 <link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
 <link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
 <link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
-<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_message.Decoder</title>
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_message.Extension</title>
 </head>
 <body>
-<div class="navbar">&nbsp;<a class="up" href="MrMime_message.html" title="MrMime_message">Up</a>
-&nbsp;<a class="post" href="MrMime_message.Extension.html" title="MrMime_message.Extension">Next</a>
-</div>
-<h1>Module <a href="type_MrMime_message.Decoder.html">MrMime_message.Decoder</a></h1>
+<div class="navbar"><a class="pre" href="MrMime_message.Decoder.html" title="MrMime_message.Decoder">Previous</a>
+&nbsp;<a class="up" href="MrMime_message.html" title="MrMime_message">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_MrMime_message.Extension.html">MrMime_message.Extension</a></h1>
 
-<pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_message.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">module</span> Extension: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_message.Extension.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="VALp_message"><span class="keyword">val</span> p_message</span> : <code class="type">(<a href="MrMime_header.html#TYPEheader">MrMime_header.header</a> *<br>        (<a href="MrMime_message.html#TYPEencoding">MrMime_message.encoding</a>, <a href="MrMime_message.html#TYPEcontent">MrMime_message.content</a>) <a href="MrMime_message.html#TYPEmessage">MrMime_message.message</a>)<br>       MrMime_parser.t</code></pre></body></html>
+<pre><span id="VALadd_encoding"><span class="keyword">val</span> add_encoding</span> : <code class="type">string -><br>       (unit MrMime_parser.t -><br>        unit MrMime_parser.t -> <a href="MrMime_message.html#TYPEencoding">MrMime_message.encoding</a> MrMime_parser.t) -><br>       unit</code></pre>
+<pre><span id="VALadd_content"><span class="keyword">val</span> add_content</span> : <code class="type">string -><br>       (string option -><br>        <a href="MrMime_content.html#TYPEt">MrMime_content.t</a> -><br>        <a href="MrMime_message.html#TYPEfield_message">MrMime_message.field_message</a> list -> <a href="MrMime_message.html#TYPEcontent">MrMime_message.content</a> MrMime_parser.t) -><br>       unit</code></pre></body></html>

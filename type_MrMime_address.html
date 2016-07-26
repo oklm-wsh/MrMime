@@ -32,6 +32,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keyword">of</span>&nbsp;string
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_base64</span>.result
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;literal_domain&nbsp;=&nbsp;<span class="constructor">Rfc5321</span>.literal_domain&nbsp;=&nbsp;..
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;literal_domain&nbsp;+=&nbsp;<span class="constructor">IPv4</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Ipaddr</span>.<span class="constructor">V4</span>.t
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;literal_domain&nbsp;+=&nbsp;<span class="constructor">IPv6</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Ipaddr</span>.<span class="constructor">V6</span>.t
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;phrase&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Dot</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Encoded</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">MrMime_address</span>.raw
@@ -145,5 +147,10 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="constructor">MrMime_address</span>.address&nbsp;list&nbsp;*&nbsp;int)&nbsp;option
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;equal&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_address</span>.address&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">MrMime_address</span>.address&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Extension</span>&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add_literal_domain&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">MrMime_address</span>.literal_domain&nbsp;<span class="constructor">MrMime_parser</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
 <span class="keyword">end</span></code></body></html>

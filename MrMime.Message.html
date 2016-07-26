@@ -43,7 +43,7 @@
 <pre><span id="TYPEfield_part"><span class="keyword">type</span> <code class="type"></code>field_part</span> = <code class="type">Top.field_part</code> </pre>
 
 
-<pre><span id="TYPEmessage"><span class="keyword">type</span> <code class="type">'a</code> message</span> = <code class="type">'a Top.message</code> = </pre><table class="typetable">
+<pre><span id="TYPEmessage"><span class="keyword">type</span> <code class="type">('a, 'b)</code> message</span> = <code class="type">('a, 'b) Top.message</code> = </pre><table class="typetable">
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
@@ -55,20 +55,20 @@
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTmessage.Extension"><span class="constructor">Extension</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_message">field_message</a> list</code></code></td>
+<code><span id="TYPEELTmessage.Extension"><span class="constructor">Extension</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_message">field_message</a> list * 'b</code></code></td>
 
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTmessage.Composite"><span class="constructor">Composite</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_message">field_message</a> list<br>        * (<a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_part">field_part</a> list *<br>           'a <a href="MrMime_message.html#TYPEpart">part</a> option)<br>          list</code></code></td>
+<code><span id="TYPEELTmessage.Composite"><span class="constructor">Composite</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_message">field_message</a> list<br>        * (<a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_part">field_part</a> list *<br>           ('a, 'b) <a href="MrMime_message.html#TYPEpart">part</a> option)<br>          list</code></code></td>
 
 </tr></table>
 
 
 
-<pre><span id="TYPEpart"><span class="keyword">type</span> <code class="type">'a</code> part</span> = <code class="type">'a Top.part</code> = </pre><table class="typetable">
+<pre><span id="TYPEpart"><span class="keyword">type</span> <code class="type">('a, 'b)</code> part</span> = <code class="type">('a, 'b) Top.part</code> = </pre><table class="typetable">
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
@@ -80,14 +80,47 @@
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTpart.PExtension"><span class="constructor">PExtension</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_part">field_part</a> list</code></code></td>
+<code><span id="TYPEELTpart.PExtension"><span class="constructor">PExtension</span></span> <span class="keyword">of</span> <code class="type">'b</code></code></td>
 
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
-<code><span id="TYPEELTpart.PComposite"><span class="constructor">PComposite</span></span> <span class="keyword">of</span> <code class="type">(<a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_part">field_part</a> list *<br>      'a <a href="MrMime_message.html#TYPEpart">part</a> option)<br>     list</code></code></td>
+<code><span id="TYPEELTpart.PComposite"><span class="constructor">PComposite</span></span> <span class="keyword">of</span> <code class="type">(<a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * <a href="MrMime_message.html#TYPEfield_part">field_part</a> list *<br>      ('a, 'b) <a href="MrMime_message.html#TYPEpart">part</a> option)<br>     list</code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEencoding"><span class="keyword">type</span> <code class="type"></code>encoding</span> = ..</pre>
+
+<pre><code><span class="keyword">type</span> <code class="type"></code><a href="MrMime_message.html#TYPEencoding">MrMime_message.encoding</a> += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONBase64">Base64</span> <span class="keyword">of</span> <code class="type"><a href="MrMime_base64.html#TYPEresult">MrMime_base64.result</a></code></code></td>
+
+</tr></table>
+
+
+<pre><code><span class="keyword">type</span> <code class="type"></code><a href="MrMime_message.html#TYPEencoding">MrMime_message.encoding</a> += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONQuotedPrintable">QuotedPrintable</span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr></table>
+
+
+<pre><code><span class="keyword">type</span> <code class="type"></code><a href="MrMime_message.html#TYPEencoding">MrMime_message.encoding</a> += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONRaw">Raw</span> <span class="keyword">of</span> <code class="type">string</code></code></td>
 
 </tr></table>
 
@@ -100,31 +133,12 @@
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
-<code><span id="EXTENSIONBase64">Base64</span> <span class="keyword">of</span> <code class="type"><a href="MrMime_base64.html#TYPEresult">MrMime_base64.result</a></code></code></td>
-
-</tr></table>
-
-
-<pre><code><span class="keyword">type</span> <code class="type"></code><a href="MrMime_message.html#TYPEcontent">MrMime_message.content</a> += </code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="EXTENSIONQuotedPrintable">QuotedPrintable</span> <span class="keyword">of</span> <code class="type">string</code></code></td>
-
-</tr></table>
-
-
-<pre><code><span class="keyword">type</span> <code class="type"></code><a href="MrMime_message.html#TYPEcontent">MrMime_message.content</a> += </code></pre><table class="typetable">
-<tr>
-<td align="left" valign="top" >
-<code><span class="keyword">|</span></code></td>
-<td align="left" valign="top" >
-<code><span id="EXTENSIONRaw">Raw</span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+<code><span id="EXTENSIONUnit">Unit</span></code></td>
 
 </tr></table>
 
 
 
 <pre><span class="keyword">module</span> <a href="MrMime_message.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_message.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -><br>       int -><br>       int -><br>       ((<a href="MrMime_header.html#TYPEheader">MrMime_header.header</a> * <a href="MrMime_message.html#TYPEcontent">content</a> <a href="MrMime_message.html#TYPEmessage">message</a>) * int)<br>       option</code></pre></body></html>
+<pre><span class="keyword">module</span> <a href="MrMime_message.Extension.html">Extension</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_message.Extension.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -><br>       int -><br>       int -><br>       ((<a href="MrMime_header.html#TYPEheader">MrMime_header.header</a> *<br>         (<a href="MrMime_message.html#TYPEencoding">encoding</a>, <a href="MrMime_message.html#TYPEcontent">content</a>) <a href="MrMime_message.html#TYPEmessage">message</a>) *<br>        int)<br>       option</code></pre></body></html>

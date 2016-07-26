@@ -27,38 +27,59 @@
 <code class="code"><span class="keyword">sig</span>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;field_message&nbsp;=&nbsp;<span class="constructor">Top</span>.field_message
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;field_part&nbsp;=&nbsp;<span class="constructor">Top</span>.field_part
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;message&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Top</span>.message&nbsp;=
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;message&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">Top</span>.message&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Discrete</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;*&nbsp;<span class="keywordsign">'</span>a
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Extension</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Extension</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;*&nbsp;<span class="keywordsign">'</span>b
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Composite</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;*
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_part&nbsp;list&nbsp;*
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">MrMime_message</span>.part&nbsp;option)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">MrMime_message</span>.part&nbsp;option)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list
-&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;part&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Top</span>.part&nbsp;=
+&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;part&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">Top</span>.part&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">PDiscrete</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="keywordsign">'</span>a
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PExtension</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_part&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PExtension</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="keywordsign">'</span>b
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PComposite</span>&nbsp;<span class="keyword">of</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_part&nbsp;list&nbsp;*
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">MrMime_message</span>.part&nbsp;option)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">MrMime_message</span>.part&nbsp;option)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;=&nbsp;..
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_base64</span>.result
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">Raw</span>&nbsp;<span class="keyword">of</span>&nbsp;string
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;content&nbsp;=&nbsp;..
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;content&nbsp;+=&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_base64</span>.result
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;content&nbsp;+=&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keyword">of</span>&nbsp;string
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;content&nbsp;+=&nbsp;<span class="constructor">Raw</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;content&nbsp;+=&nbsp;<span class="constructor">Unit</span>
 &nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Decoder</span>&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_message&nbsp;:
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_header</span>.header&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.content&nbsp;<span class="constructor">MrMime_message</span>.message)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_header</span>.header&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_message</span>.encoding,&nbsp;<span class="constructor">MrMime_message</span>.content)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_message</span>.message)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
+&nbsp;&nbsp;<span class="keyword">module</span>&nbsp;<span class="constructor">Extension</span>&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">sig</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add_encoding&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(unit&nbsp;<span class="constructor">MrMime_parser</span>.t&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unit&nbsp;<span class="constructor">MrMime_parser</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">MrMime_message</span>.encoding&nbsp;<span class="constructor">MrMime_parser</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unit
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;add_content&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(string&nbsp;option&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_message</span>.content&nbsp;<span class="constructor">MrMime_parser</span>.t)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unit
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">end</span>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_string_raw&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;?chunk:int&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">MrMime_header</span>.header&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.content&nbsp;<span class="constructor">MrMime_message</span>.message)&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;((<span class="constructor">MrMime_header</span>.header&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_message</span>.encoding,&nbsp;<span class="constructor">MrMime_message</span>.content)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_message</span>.message)&nbsp;*
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int)
 &nbsp;&nbsp;&nbsp;&nbsp;option
 <span class="keyword">end</span></code></body></html>

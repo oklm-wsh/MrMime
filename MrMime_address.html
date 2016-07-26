@@ -63,6 +63,26 @@
 
 <pre><span id="TYPEliteral_domain"><span class="keyword">type</span> <code class="type"></code>literal_domain</span> = <code class="type">Rfc5321.literal_domain</code> = ..</pre>
 
+<pre><code><span class="keyword">type</span> <code class="type"></code><a href="MrMime_address.html#TYPEliteral_domain">literal_domain</a> += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONIPv4">IPv4</span> <span class="keyword">of</span> <code class="type">Ipaddr.V4.t</code></code></td>
+
+</tr></table>
+
+
+<pre><code><span class="keyword">type</span> <code class="type"></code><a href="MrMime_address.html#TYPEliteral_domain">literal_domain</a> += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONIPv6">IPv6</span> <span class="keyword">of</span> <code class="type">Ipaddr.V6.t</code></code></td>
+
+</tr></table>
+
+
 
 <pre><span id="TYPEphrase"><span class="keyword">type</span> <code class="type"></code>phrase</span> = <code class="type">[ `Dot<br>       | `Encoded of string * <a href="MrMime_address.html#TYPEraw">raw</a><br>       | `Word of <a href="MrMime_address.html#TYPEword">word</a> ] list</code> </pre>
 
@@ -132,4 +152,5 @@
 <pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_address.html#TYPEaddress">address</a> option</code></pre>
 <pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -> string -> int -> int -> (<a href="MrMime_address.html#TYPEaddress">address</a> * int) option</code></pre>
 <pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="MrMime_address.html#TYPEaddress">address</a> -> <a href="MrMime_address.html#TYPEaddress">address</a> -> bool</code></pre>
-<pre><span class="keyword">module</span> <a href="MrMime_address.List.html">List</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_address.List.html">..</a> <code class="code"><span class="keyword">end</span></code></pre></body></html>
+<pre><span class="keyword">module</span> <a href="MrMime_address.List.html">List</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_address.List.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_address.Extension.html">Extension</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_address.Extension.html">..</a> <code class="code"><span class="keyword">end</span></code></pre></body></html>
