@@ -82,6 +82,7 @@ val is_military_zone : char -> bool
 val is_obs_utext     : char -> bool
 val is_ftext         : char -> bool
 
+val domain           : domain t
 val addr_spec        : (Rfc822.local * domain) t
 val obs_phrase       : phrase t
 val phrase           : phrase t
