@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime.MimeVersion.html">
+<link rel="next" href="MrMime.Message.html">
+<link rel="Up" href="MrMime.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime.MsgID</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime.MimeVersion.html" title="MrMime.MimeVersion">Previous</a>
+&nbsp;<a class="up" href="MrMime.html" title="MrMime">Up</a>
+&nbsp;<a class="post" href="MrMime.Message.html" title="MrMime.Message">Next</a>
+</div>
+<h1>Module <a href="type_MrMime.MsgID.html">MrMime.MsgID</a> (<a href="code_MrMime.MsgID.html">.ml</a>)</h1>
+
+<pre><span class="keyword">module</span> MsgID: <code class="type"><a href="MrMime_msgID.html">MrMime_msgID</a></code></pre><hr width="100%">
+
+<pre><span id="TYPEword"><span class="keyword">type</span> <code class="type"></code>word</span> = <code class="type">[ `Atom of string | `String of string ]</code> </pre>
+
+
+<pre><span id="TYPElocal"><span class="keyword">type</span> <code class="type"></code>local</span> = <code class="type"><a href="MrMime_msgID.html#TYPEword">word</a> list</code> </pre>
+
+
+<pre><span id="TYPEdomain"><span class="keyword">type</span> <code class="type"></code>domain</span> = <code class="type">[ `Domain of string list | `Literal of string ]</code> </pre>
+
+
+<pre><span id="TYPEmsg_id"><span class="keyword">type</span> <code class="type"></code>msg_id</span> = <code class="type"><a href="MrMime_msgID.html#TYPElocal">local</a> * <a href="MrMime_msgID.html#TYPEdomain">domain</a></code> </pre>
+
+
+<pre><span id="VALpp_local"><span class="keyword">val</span> pp_local</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPElocal">local</a> -> unit</code></pre>
+<pre><span id="VALpp_domain"><span class="keyword">val</span> pp_domain</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPEdomain">domain</a> -> unit</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> -> unit</code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_msgID.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_msgID.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_msgID.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_msgID.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> option</code></pre>
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -> string -> int -> int -> (<a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> * int) option</code></pre></body></html>

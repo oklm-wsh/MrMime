@@ -1,0 +1,58 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_header.Encoder</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_unstructured&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_header</span>.unstructured,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Partial</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bytes</span>.t&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Wrap</span>.k1
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_field&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;([&nbsp;<span class="keywordsign">`</span><span class="constructor">Bcc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Cc</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Comments</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.unstructured
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Date</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.date
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Field</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.unstructured
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">From</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.mailbox&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">InReplyTo</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.phrase_or_msg_id&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Keywords</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.phrase&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">MessageID</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc822</span>.msg_id
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">References</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.phrase_or_msg_id&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ReplyTo</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Sender</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.mailbox
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Skip</span>&nbsp;<span class="keyword">of</span>&nbsp;string
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Subject</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.unstructured
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">To</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Rfc5322</span>.address&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Unsafe</span>&nbsp;<span class="keyword">of</span>&nbsp;string&nbsp;*&nbsp;<span class="constructor">Rfc5322</span>.unstructured&nbsp;],
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Partial</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bytes</span>.t&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.k1
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_header&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_header</span>.header,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Partial</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bytes</span>.t&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.k1
+<span class="keyword">end</span></code></body></html>

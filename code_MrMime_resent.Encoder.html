@@ -1,0 +1,83 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_resent.Encoder</title>
+</head>
+<body>
+<code class="code"><span class="keyword">struct</span>
+&nbsp;&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Encoder</span>
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;w_lst&nbsp;w_sep&nbsp;w_data&nbsp;l&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Wrap</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[&nbsp;x&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_data&nbsp;x
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;x&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_data&nbsp;x&nbsp;$&nbsp;w_sep&nbsp;$&nbsp;aux&nbsp;r
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;aux&nbsp;l
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_crlf&nbsp;k&nbsp;e&nbsp;=&nbsp;string&nbsp;<span class="string">"\r\n"</span>&nbsp;k&nbsp;e
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_field&nbsp;=&nbsp;<span class="keyword">function</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentCc</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Resent-Cc:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_addresses&nbsp;l&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentMessageID</span>&nbsp;m&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Resent-Message-ID:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">MsgID</span>.<span class="constructor">Encoder</span>.w_msg_id&nbsp;m&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentSender</span>&nbsp;p&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Resent-Sender:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox&nbsp;p&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentBcc</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Resent-Bcc:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_addresses&nbsp;l&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentFrom</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Resent-From:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;w_lst&nbsp;(string&nbsp;<span class="string">","</span>&nbsp;$&nbsp;space)&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox&nbsp;l&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentReplyTo</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Resent-Reply-To:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_addresses&nbsp;l&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentDate</span>&nbsp;d&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Resent-Date:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Date</span>.<span class="constructor">Encoder</span>.w_date&nbsp;d&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ResentTo</span>&nbsp;l&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Resent-To:&nbsp;"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_addresses&nbsp;l&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
+
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_resent&nbsp;{&nbsp;date;&nbsp;from;&nbsp;sender;&nbsp;to';&nbsp;cc;&nbsp;bcc;&nbsp;msg_id;&nbsp;reply_to;&nbsp;}&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">match</span>&nbsp;date&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Some</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentDate</span>&nbsp;v)&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop)
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;from&nbsp;<span class="keyword">with</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop&nbsp;<span class="keywordsign">|</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentFrom</span>&nbsp;v))
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;sender&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Some</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentSender</span>&nbsp;v)&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop)
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;to'&nbsp;<span class="keyword">with</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop&nbsp;<span class="keywordsign">|</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentTo</span>&nbsp;v))
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;cc&nbsp;<span class="keyword">with</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop&nbsp;<span class="keywordsign">|</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentCc</span>&nbsp;v))
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;bcc&nbsp;<span class="keyword">with</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop&nbsp;<span class="keywordsign">|</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentBcc</span>&nbsp;v))
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;msg_id&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">Some</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentMessageID</span>&nbsp;v)&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop)
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">match</span>&nbsp;reply_to&nbsp;<span class="keyword">with</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop&nbsp;<span class="keywordsign">|</span>&nbsp;v&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ResentReplyTo</span>&nbsp;v))
+<span class="keyword">end</span></code></body></html>

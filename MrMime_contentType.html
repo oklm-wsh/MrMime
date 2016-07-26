@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime_contentEncoding.html">
+<link rel="next" href="MrMime_content.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_contentType</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime_contentEncoding.html" title="MrMime_contentEncoding">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="MrMime_content.html" title="MrMime_content">Next</a>
+</div>
+<h1>Module <a href="type_MrMime_contentType.html">MrMime_contentType</a></h1>
+
+<pre><span class="keyword">module</span> MrMime_contentType: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentType.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="TYPEty"><span class="keyword">type</span> <code class="type"></code>ty</span> = <code class="type">[ `Application<br>       | `Audio<br>       | `Ietf_token of string<br>       | `Image<br>       | `Message<br>       | `Multipart<br>       | `Text<br>       | `Video<br>       | `X_token of string ]</code> </pre>
+
+
+<pre><span id="TYPEsubty"><span class="keyword">type</span> <code class="type"></code>subty</span> = <code class="type">[ `Iana_token of string | `Ietf_token of string | `X_token of string ]</code> </pre>
+
+
+<pre><span id="TYPEvalue"><span class="keyword">type</span> <code class="type"></code>value</span> = <code class="type">[ `String of string | `Token of string ]</code> </pre>
+
+
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `ContentType of Rfc2045.content ]</code> </pre>
+
+
+<pre><span id="TYPEcontent"><span class="keyword">type</span> <code class="type"></code>content</span> = <code class="type">Rfc2045.content</code> = {</pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.ty">ty</span>&nbsp;: <code class="type"><a href="MrMime_contentType.html#TYPEty">ty</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.subty">subty</span>&nbsp;: <code class="type"><a href="MrMime_contentType.html#TYPEsubty">subty</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontent.parameters">parameters</span>&nbsp;: <code class="type">(string * <a href="MrMime_contentType.html#TYPEvalue">value</a>) list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALpp_ty"><span class="keyword">val</span> pp_ty</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEty">ty</a> -> unit</code></pre>
+<pre><span id="VALpp_subty"><span class="keyword">val</span> pp_subty</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEsubty">subty</a> -> unit</code></pre>
+<pre><span id="VALpp_value"><span class="keyword">val</span> pp_value</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEvalue">value</a> -> unit</code></pre>
+<pre><span id="VALpp_parameter"><span class="keyword">val</span> pp_parameter</span> : <code class="type">Format.formatter -> string * <a href="MrMime_contentType.html#TYPEvalue">value</a> -> unit</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEcontent">content</a> -> unit</code></pre>
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_contentType.html#TYPEcontent">content</a></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_contentType.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentType.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_contentType.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentType.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_contentType.html#TYPEcontent">content</a> option</code></pre>
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_contentType.html#TYPEcontent">content</a> * int) option</code></pre></body></html>

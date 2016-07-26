@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime.Trace.html">
+<link rel="next" href="MrMime.Content.html">
+<link rel="Up" href="MrMime.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime.Header</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime.Trace.html" title="MrMime.Trace">Previous</a>
+&nbsp;<a class="up" href="MrMime.html" title="MrMime">Up</a>
+&nbsp;<a class="post" href="MrMime.Content.html" title="MrMime.Content">Next</a>
+</div>
+<h1>Module <a href="type_MrMime.Header.html">MrMime.Header</a> (<a href="code_MrMime.Header.html">.ml</a>)</h1>
+
+<pre><span class="keyword">module</span> Header: <code class="type"><a href="MrMime_header.html">MrMime_header</a></code></pre><hr width="100%">
+
+<pre><span id="TYPEraw"><span class="keyword">type</span> <code class="type"></code>raw</span> = <code class="type">Rfc2047.raw</code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTraw.QuotedPrintable"><span class="constructor">QuotedPrintable</span></span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTraw.Base64"><span class="constructor">Base64</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_base64.html#TYPEresult">MrMime_base64.result</a></code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEunstructured"><span class="keyword">type</span> <code class="type"></code>unstructured</span> = <code class="type">[ `CR of int<br>       | `CRLF<br>       | `Encoded of string * <a href="MrMime_header.html#TYPEraw">raw</a><br>       | `LF of int<br>       | `Text of string<br>       | `WSP ] list</code> </pre>
+
+
+<pre><span id="TYPEphrase_or_msg_id"><span class="keyword">type</span> <code class="type"></code>phrase_or_msg_id</span> = <code class="type">[ `MsgID of <a href="MrMime_msgID.html#TYPEmsg_id">MrMime_msgID.msg_id</a><br>       | `Phrase of<br>           [ `Dot<br>           | `Encoded of string * <a href="MrMime_header.html#TYPEraw">raw</a><br>           | `Word of [ `Atom of string | `String of string ] ] list ]</code> </pre>
+
+
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">Rfc5322.field</code> </pre>
+
+
+<pre><span class="keyword">module</span> <a href="MrMime_header.Map.html">Map</a>: <code class="type">module type of Map.Make(String)</code></pre>
+<pre><code><span id="TYPEheader"><span class="keyword">type</span> <code class="type"></code>header</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.date">date</span>&nbsp;: <code class="type"><a href="MrMime_date.html#TYPEdate">MrMime_date.date</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.from">from</span>&nbsp;: <code class="type"><a href="MrMime_address.html#TYPEmailbox">MrMime_address.mailbox</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.sender">sender</span>&nbsp;: <code class="type"><a href="MrMime_address.html#TYPEmailbox">MrMime_address.mailbox</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.reply_to">reply_to</span>&nbsp;: <code class="type"><a href="MrMime_address.html#TYPEaddress">MrMime_address.address</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.to'">to'</span>&nbsp;: <code class="type"><a href="MrMime_address.html#TYPEaddress">MrMime_address.address</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.cc">cc</span>&nbsp;: <code class="type"><a href="MrMime_address.html#TYPEaddress">MrMime_address.address</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.bcc">bcc</span>&nbsp;: <code class="type"><a href="MrMime_address.html#TYPEaddress">MrMime_address.address</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.subject">subject</span>&nbsp;: <code class="type"><a href="MrMime_header.html#TYPEunstructured">unstructured</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.msg_id">msg_id</span>&nbsp;: <code class="type"><a href="MrMime_msgID.html#TYPEmsg_id">MrMime_msgID.msg_id</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.in_reply_to">in_reply_to</span>&nbsp;: <code class="type"><a href="MrMime_header.html#TYPEphrase_or_msg_id">phrase_or_msg_id</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.references">references</span>&nbsp;: <code class="type"><a href="MrMime_header.html#TYPEphrase_or_msg_id">phrase_or_msg_id</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.comments">comments</span>&nbsp;: <code class="type"><a href="MrMime_header.html#TYPEunstructured">unstructured</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.keywords">keywords</span>&nbsp;: <code class="type"><a href="MrMime_address.html#TYPEphrase">MrMime_address.phrase</a> list list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.resents">resents</span>&nbsp;: <code class="type"><a href="MrMime_resent.html#TYPEresent">MrMime_resent.resent</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.traces">traces</span>&nbsp;: <code class="type"><a href="MrMime_trace.html#TYPEtrace">MrMime_trace.trace</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.fields">fields</span>&nbsp;: <code class="type"><a href="MrMime_header.html#TYPEunstructured">unstructured</a> list Map.t</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.unsafe">unsafe</span>&nbsp;: <code class="type"><a href="MrMime_header.html#TYPEunstructured">unstructured</a> list Map.t</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTheader.skip">skip</span>&nbsp;: <code class="type">string list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALpp_raw"><span class="keyword">val</span> pp_raw</span> : <code class="type">Format.formatter -> <a href="MrMime_header.html#TYPEraw">raw</a> -> unit</code></pre>
+<pre><span id="VALpp_unstructured"><span class="keyword">val</span> pp_unstructured</span> : <code class="type">Format.formatter -> <a href="MrMime_header.html#TYPEunstructured">unstructured</a> -> unit</code></pre>
+<pre><span id="VALpp_phrase_or_msg_id"><span class="keyword">val</span> pp_phrase_or_msg_id</span> : <code class="type">Format.formatter -> <a href="MrMime_header.html#TYPEphrase_or_msg_id">phrase_or_msg_id</a> -> unit</code></pre>
+<pre><span id="VALpp_field"><span class="keyword">val</span> pp_field</span> : <code class="type">Format.formatter -> <a href="MrMime_header.html#TYPEfield">field</a> -> unit</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_header.html#TYPEheader">header</a> -> unit</code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_header.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_header.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_header.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_header.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="MrMime_header.html#TYPEheader">header</a> -> string</code></pre>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -><br>       string -> (<a href="MrMime_header.html#TYPEheader">header</a> * [> <a href="MrMime_header.html#TYPEfield">field</a> ] list) option</code></pre>
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -><br>       int -><br>       int -> ((<a href="MrMime_header.html#TYPEheader">header</a> * [> <a href="MrMime_header.html#TYPEfield">field</a> ] list) * int) option</code></pre>
+<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="MrMime_header.html#TYPEheader">header</a> -> <a href="MrMime_header.html#TYPEheader">header</a> -> bool</code></pre></body></html>

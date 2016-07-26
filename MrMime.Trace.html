@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime.Resent.html">
+<link rel="next" href="MrMime.Header.html">
+<link rel="Up" href="MrMime.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime.Trace</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime.Resent.html" title="MrMime.Resent">Previous</a>
+&nbsp;<a class="up" href="MrMime.html" title="MrMime">Up</a>
+&nbsp;<a class="post" href="MrMime.Header.html" title="MrMime.Header">Next</a>
+</div>
+<h1>Module <a href="type_MrMime.Trace.html">MrMime.Trace</a> (<a href="code_MrMime.Trace.html">.ml</a>)</h1>
+
+<pre><span class="keyword">module</span> Trace: <code class="type"><a href="MrMime_trace.html">MrMime_trace</a></code></pre><hr width="100%">
+
+<pre><span id="TYPElocal"><span class="keyword">type</span> <code class="type"></code>local</span> = <code class="type">Rfc822.local</code> </pre>
+
+
+<pre><span id="TYPEdomain"><span class="keyword">type</span> <code class="type"></code>domain</span> = <code class="type">Rfc5322.domain</code> </pre>
+
+
+<pre><span id="TYPEword"><span class="keyword">type</span> <code class="type"></code>word</span> = <code class="type">Rfc822.word</code> </pre>
+
+
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">Rfc5322.trace</code> </pre>
+
+
+<pre><span id="TYPEreceived"><span class="keyword">type</span> <code class="type"></code>received</span> = <code class="type">[ `Addr of<br>           <a href="MrMime_trace.html#TYPElocal">local</a> * (<a href="MrMime_trace.html#TYPEdomain">domain</a> * <a href="MrMime_trace.html#TYPEdomain">domain</a> list)<br>       | `Domain of <a href="MrMime_trace.html#TYPEdomain">domain</a><br>       | `Word of <a href="MrMime_trace.html#TYPEword">word</a> ]</code> </pre>
+
+
+<pre><code><span id="TYPEtrace"><span class="keyword">type</span> <code class="type"></code>trace</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtrace.trace">trace</span>&nbsp;: <code class="type">(<a href="MrMime_trace.html#TYPElocal">local</a> * (<a href="MrMime_trace.html#TYPEdomain">domain</a> * <a href="MrMime_trace.html#TYPEdomain">domain</a> list))<br>       option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTtrace.received">received</span>&nbsp;: <code class="type">(<a href="MrMime_trace.html#TYPEreceived">received</a> list * <a href="MrMime_date.html#TYPEdate">MrMime_date.date</a> option) list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span class="keyword">module</span> <a href="MrMime_trace.Address.html">Address</a>: <code class="type"><a href="MrMime_address.html">MrMime_address</a></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_trace.Date.html">Date</a>: <code class="type"><a href="MrMime_date.html">MrMime_date</a></code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALMrMime_trace.pp.html">pp</a></span> : <code class="type">Format.formatter -> <a href="MrMime_trace.html#TYPEtrace">trace</a> -> unit</code></pre>
+<pre><span id="VALpp_lst"><span class="keyword">val</span> <a href="code_VALMrMime_trace.pp_lst.html">pp_lst</a></span> : <code class="type">sep:(Format.formatter -> unit -> unit) -><br>       (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a list -> unit</code></pre>
+<pre><span id="VALpp_path"><span class="keyword">val</span> <a href="code_VALMrMime_trace.pp_path.html">pp_path</a></span> : <code class="type">Format.formatter -><br>       Address.local * (Address.domain * Address.domain list) -> unit</code></pre>
+<pre><span id="VALpp_received"><span class="keyword">val</span> <a href="code_VALMrMime_trace.pp_received.html">pp_received</a></span> : <code class="type">Format.formatter -><br>       [< `Addr of Address.local * (Address.domain * Address.domain list)<br>        | `Domain of Address.domain<br>        | `Word of Address.word ]<br>       list * Date.date option -> unit</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALMrMime_trace.pp.html">pp</a></span> : <code class="type">Format.formatter -> <a href="MrMime_trace.html#TYPEtrace">trace</a> -> unit</code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_trace.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_trace.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span id="VALdecoder"><span class="keyword">val</span> <a href="code_VALMrMime_trace.decoder.html">decoder</a></span> : <code class="type">([> <a href="MrMime_trace.html#TYPEfield">field</a> ] as 'a) list -><br>       (<a href="MrMime_trace.html#TYPEtrace">trace</a> list * 'a list) Parser.t</code></pre>
+<pre><span id="VALequal"><span class="keyword">val</span> <a href="code_VALMrMime_trace.equal.html">equal</a></span> : <code class="type">'a -> 'a -> bool</code></pre></body></html>

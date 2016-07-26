@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime_resent.MsgID.html">
+<link rel="Up" href="MrMime_resent.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_resent.Encoder</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime_resent.MsgID.html" title="MrMime_resent.MsgID">Previous</a>
+&nbsp;<a class="up" href="MrMime_resent.html" title="MrMime_resent">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_MrMime_resent.Encoder.html">MrMime_resent.Encoder</a> (<a href="code_MrMime_resent.Encoder.html">.ml</a>)</h1>
+
+<pre><span class="keyword">module</span> Encoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_resent.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="VALw_lst"><span class="keyword">val</span> <a href="code_VALMrMime_resent.Encoder.w_lst.html">w_lst</a></span> : <code class="type">(('a -> 'b) -> 'a -> 'b) -><br>       ('c -> ('a -> 'b) -> 'a -> 'b) -> 'c list -> ('a -> 'b) -> 'a -> 'b</code></pre>
+<pre><span id="VALw_crlf"><span class="keyword">val</span> <a href="code_VALMrMime_resent.Encoder.w_crlf.html">w_crlf</a></span> : <code class="type">(Encoder.t -><br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial) -><br>       Encoder.t -> 'a Encoder.partial</code></pre>
+<pre><span id="VALw_field"><span class="keyword">val</span> <a href="code_VALMrMime_resent.Encoder.w_field.html">w_field</a></span> : <code class="type">[< `ResentBcc of <a href="MrMime_address.html#TYPEaddress">MrMime_address.address</a> list<br>        | `ResentCc of <a href="MrMime_address.html#TYPEaddress">MrMime_address.address</a> list<br>        | `ResentDate of <a href="MrMime_date.html#TYPEdate">MrMime_date.date</a><br>        | `ResentFrom of <a href="MrMime_address.html#TYPEmailbox">MrMime_address.mailbox</a> list<br>        | `ResentMessageID of <a href="MrMime_msgID.html#TYPEmsg_id">MrMime_msgID.msg_id</a><br>        | `ResentReplyTo of <a href="MrMime_address.html#TYPEaddress">MrMime_address.address</a> list<br>        | `ResentSender of <a href="MrMime_address.html#TYPEmailbox">MrMime_address.mailbox</a><br>        | `ResentTo of <a href="MrMime_address.html#TYPEaddress">MrMime_address.address</a> list ] -><br>       (Encoder.t -><br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>        Encoder.partial Encoder.partial Encoder.partial) -><br>       Encoder.t -><br>       'a Encoder.partial Encoder.partial Encoder.partial Encoder.partial</code></pre>
+<pre><span id="VALw_resent"><span class="keyword">val</span> <a href="code_VALMrMime_resent.Encoder.w_resent.html">w_resent</a></span> : <code class="type"><a href="MrMime_resent.html#TYPEresent">MrMime_resent.resent</a> -><br>       (Encoder.t -><br>        ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>        Encoder.partial Encoder.partial Encoder.partial) -><br>       Encoder.t -><br>       'a Encoder.partial Encoder.partial Encoder.partial Encoder.partial</code></pre></body></html>

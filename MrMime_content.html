@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime_contentType.html">
+<link rel="next" href="MrMime_address.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_content</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime_contentType.html" title="MrMime_contentType">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="MrMime_address.html" title="MrMime_address">Next</a>
+</div>
+<h1>Module <a href="type_MrMime_content.html">MrMime_content</a></h1>
+
+<pre><span class="keyword">module</span> MrMime_content: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_content.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span class="keyword">module</span> <a href="MrMime_content.Map.html">Map</a>: <code class="type">module type of Map.Make(String)</code></pre>
+<pre><span id="TYPEraw"><span class="keyword">type</span> <code class="type"></code>raw</span> = <code class="type">Rfc2047.raw</code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTraw.QuotedPrintable"><span class="constructor">QuotedPrintable</span></span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTraw.Base64"><span class="constructor">Base64</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_base64.html#TYPEresult">MrMime_base64.result</a></code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEunstructured"><span class="keyword">type</span> <code class="type"></code>unstructured</span> = <code class="type">[ `CR of int<br>       | `CRLF<br>       | `Encoded of string * <a href="MrMime_content.html#TYPEraw">raw</a><br>       | `LF of int<br>       | `Text of string<br>       | `WSP ] list</code> </pre>
+
+
+<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `Content of string * Rfc5322.unstructured<br>       | `ContentDescription of Rfc5322.unstructured<br>       | `ContentEncoding of Rfc2045.mechanism<br>       | `ContentID of Rfc822.msg_id<br>       | `ContentType of Rfc2045.content<br>       | `MimeVersion of Rfc2045.version<br>       | `Skip of string ]</code> </pre>
+
+
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.ty">ty</span>&nbsp;: <code class="type"><a href="MrMime_contentType.html#TYPEcontent">MrMime_contentType.content</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.encoding">encoding</span>&nbsp;: <code class="type"><a href="MrMime_contentEncoding.html#TYPEmechanism">MrMime_contentEncoding.mechanism</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.version">version</span>&nbsp;: <code class="type"><a href="MrMime_mimeVersion.html#TYPEversion">MrMime_mimeVersion.version</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.id">id</span>&nbsp;: <code class="type"><a href="MrMime_msgID.html#TYPEmsg_id">MrMime_msgID.msg_id</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.description">description</span>&nbsp;: <code class="type"><a href="MrMime_content.html#TYPEunstructured">unstructured</a> option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.content">content</span>&nbsp;: <code class="type"><a href="MrMime_content.html#TYPEunstructured">unstructured</a> list Map.t</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.unsafe">unsafe</span>&nbsp;: <code class="type"><a href="MrMime_content.html#TYPEunstructured">unstructured</a> list Map.t</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.skip">skip</span>&nbsp;: <code class="type">string list</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALpp_raw"><span class="keyword">val</span> pp_raw</span> : <code class="type">Format.formatter -> Rfc2047.raw -> unit</code></pre>
+<pre><span id="VALpp_unstructured"><span class="keyword">val</span> pp_unstructured</span> : <code class="type">Format.formatter -> <a href="MrMime_content.html#TYPEunstructured">unstructured</a> -> unit</code></pre>
+<pre><span id="VALpp_field"><span class="keyword">val</span> pp_field</span> : <code class="type">Format.formatter -> <a href="MrMime_content.html#TYPEfield">field</a> -> unit</code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_content.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_content.html#TYPEt">t</a></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_content.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_content.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_content.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_content.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre></body></html>
