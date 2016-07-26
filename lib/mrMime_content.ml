@@ -1,17 +1,27 @@
 module Map = Map.Make(String)
 
+type raw          = Rfc2047.raw =
+  | QuotedPrintable of string
+  | Base64 of MrMime_base64.result
 type unstructured = Rfc5322.unstructured
 type field        = [ Rfc2045.field | Rfc2045.field_version | Rfc2045.skip ]
 
 type t =
-  { ty          : ContentType.content
-  ; encoding    : ContentEncoding.mechanism
-  ; version     : MimeVersion.version
-  ; id          : MsgID.msg_id option
+  { ty          : MrMime_contentType.content
+  ; encoding    : MrMime_contentEncoding.mechanism
+  ; version     : MrMime_mimeVersion.version
+  ; id          : MrMime_msgID.msg_id option
   ; description : unstructured option
   ; content     : unstructured list Map.t
   ; unsafe      : unstructured list Map.t
   ; skip        : string list }
+
+(* convenience alias *)
+module ContentType     = MrMime_contentType
+module ContentEncoding = MrMime_contentEncoding
+module MimeVersion     = MrMime_mimeVersion
+module MsgID           = MrMime_msgID
+module Address         = MrMime_address
 
 let pp = Format.fprintf
 
@@ -34,16 +44,16 @@ let pp_raw fmt = function
 
 let pp_unstructured fmt lst =
   let rec aux fmt = function
-    | `Text s -> pp fmt "%s" s
+    | `Text s -> pp fmt "\"%s\"" s
     | `WSP    -> pp fmt "@ "
     | `CR i   -> pp fmt "<cr %d>" i
     | `LF i   -> pp fmt "<lf %d>" i
     | `CRLF   -> pp fmt "<crlf>@\n"
     | `Encoded (charset, raw) ->
-      pp fmt "{ @[<hov>charset = %s;@ raw = %a@] }"
+      pp fmt "{@[<hov>charset = %s;@ raw = %a@]}"
         charset pp_raw raw
   in
-  pp fmt "@[<hov>%a@]"
+  pp fmt "[@[<hov>%a@]]"
     (pp_lst ~sep:(fun fmt () -> pp fmt "@,") aux) lst
 
 let pp_field fmt = function
@@ -57,12 +67,12 @@ let pp_field fmt = function
   | `Skip line            -> pp fmt "@[<hov># %S@]" line
 
 let pp fmt { ty; encoding; version; id; description; content; unsafe; skip; } =
-    pp fmt "{ @[<hov>content-type = %a;@ \
-                     content-transfer-encoding = %a;@ \
-                     version = %a;@ \
-                     content-id = %a;@ \
-                     content-description = %a;@ \
-                     and @[<v>%a@]@] }"
+    pp fmt "{@[<hov>content-type = %a;@ \
+                    content-transfer-encoding = %a;@ \
+                    version = %a;@ \
+                    content-id = %a;@ \
+                    content-description = %a;@ \
+                    content = {@[<v>%a@]}@]}"
       ContentType.pp ty
       ContentEncoding.pp encoding
       MimeVersion.pp version
@@ -70,7 +80,6 @@ let pp fmt { ty; encoding; version; id; description; content; unsafe; skip; } =
       (pp_option pp_unstructured) description
       (pp_lst ~sep:(fun fmt () -> pp fmt "@\n") (fun fmt (k, v) -> pp fmt "@[<hov>%s = %a@]" k pp_unstructured v))
         (Map.fold (fun k v acc -> (List.map (fun e -> (k, e)) v) @ acc) content [])
-
 
 let default =
   { ty          = ContentType.default
@@ -151,65 +160,68 @@ struct
     $ (Map.fold (fun field values acc -> List.fold_right (fun value -> w_unsafe (`Unsafe (field, value))) values $ acc) unsafe noop)
 end
 
-open Parser
+module Decoder =
+struct
+  open Parser
 
-let message (fields : [> Rfc2045.field | Rfc2045.field_version ] list) =
-  { f = fun i s fail succ ->
-    let rec catch garbage acc = function
-      | `ContentType content :: r ->
-        catch garbage { acc with ty = content } r
-      | `ContentEncoding mechanism :: r ->
-        catch garbage { acc with encoding = mechanism } r
-      | `ContentID id :: r ->
-        catch garbage { acc with id = Some id } r
-      | `ContentDescription desc :: r ->
-        catch garbage { acc with description = Some desc } r
-      | `MimeVersion version :: r ->
-        catch garbage { acc with version = version } r
-      | `Content (field_name, value) :: r ->
-        let content =
-          try let old = Map.find field_name acc.content in
-              Map.add field_name (value :: old) acc.content
-          with Not_found -> Map.add field_name [value] acc.content
-        in
-        catch garbage { acc with content = content } r
-      | field :: r ->
-        catch (field :: garbage) acc r
-      | [] -> acc, List.rev garbage (* keep the order *)
-    in
+  let message (fields : [> Rfc2045.field | Rfc2045.field_version ] list) =
+    { f = fun i s fail succ ->
+      let rec catch garbage acc = function
+        | `ContentType content :: r ->
+          catch garbage { acc with ty = content } r
+        | `ContentEncoding mechanism :: r ->
+          catch garbage { acc with encoding = mechanism } r
+        | `ContentID id :: r ->
+          catch garbage { acc with id = Some id } r
+        | `ContentDescription desc :: r ->
+          catch garbage { acc with description = Some desc } r
+        | `MimeVersion version :: r ->
+          catch garbage { acc with version = version } r
+        | `Content (field_name, value) :: r ->
+          let content =
+            try let old = Map.find field_name acc.content in
+                Map.add field_name (value :: old) acc.content
+            with Not_found -> Map.add field_name [value] acc.content
+          in
+          catch garbage { acc with content = content } r
+        | field :: r ->
+          catch (field :: garbage) acc r
+        | [] -> acc, List.rev garbage (* keep the order *)
+      in
 
-    succ i s (catch [] default fields) }
+      succ i s (catch [] default fields) }
 
-let part (fields : [> Rfc2045.field | Rfc2045.unsafe | Rfc2045.skip ] list) =
-  { f = fun i s fail succ ->
-    let rec catch garbage acc = function
-      | `ContentType content :: r ->
-        catch garbage { acc with ty = content } r
-      | `ContentEncoding mechanism :: r ->
-        catch garbage { acc with encoding = mechanism } r
-      | `ContentID id :: r ->
-        catch garbage { acc with id = Some id } r
-      | `ContentDescription desc :: r ->
-        catch garbage { acc with description = Some desc } r
-      | `Content (field_name, value) :: r ->
-        let content =
-          try let old = Map.find field_name acc.content in
-              Map.add field_name (value :: old) acc.content
-          with Not_found -> Map.add field_name [value] acc.content
-        in
-        catch garbage { acc with content = content } r
-      | `Unsafe (field_name, value) :: r ->
-        let unsafe =
-          try let old = Map.find field_name acc.unsafe in
-              Map.add field_name (value :: old) acc.unsafe
-          with Not_found -> Map.add field_name [value] acc.unsafe
-        in
-        catch garbage { acc with unsafe = unsafe } r
-      | `Skip line :: r ->
-        catch garbage { acc with skip = line :: acc.skip } r
-      | field :: r ->
-        catch (field :: garbage) acc r
-      | [] -> acc, List.rev garbage
-    in
+  let part (fields : [> Rfc2045.field | Rfc2045.unsafe | Rfc2045.skip ] list) =
+    { f = fun i s fail succ ->
+      let rec catch garbage acc = function
+        | `ContentType content :: r ->
+          catch garbage { acc with ty = content } r
+        | `ContentEncoding mechanism :: r ->
+          catch garbage { acc with encoding = mechanism } r
+        | `ContentID id :: r ->
+          catch garbage { acc with id = Some id } r
+        | `ContentDescription desc :: r ->
+          catch garbage { acc with description = Some desc } r
+        | `Content (field_name, value) :: r ->
+          let content =
+            try let old = Map.find field_name acc.content in
+                Map.add field_name (value :: old) acc.content
+            with Not_found -> Map.add field_name [value] acc.content
+          in
+          catch garbage { acc with content = content } r
+        | `Unsafe (field_name, value) :: r ->
+          let unsafe =
+            try let old = Map.find field_name acc.unsafe in
+                Map.add field_name (value :: old) acc.unsafe
+            with Not_found -> Map.add field_name [value] acc.unsafe
+          in
+          catch garbage { acc with unsafe = unsafe } r
+        | `Skip line :: r ->
+          catch garbage { acc with skip = line :: acc.skip } r
+        | field :: r ->
+          catch (field :: garbage) acc r
+        | [] -> acc, List.rev garbage
+      in
 
-    succ i s (catch [] default fields) }
+      succ i s (catch [] default fields) }
+end

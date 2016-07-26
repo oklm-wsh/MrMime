@@ -27,11 +27,16 @@ val pp            : Format.formatter -> date -> unit
 
 module Encoder :
 sig
-  val w_day       : (day, 'r Encoder.partial) Wrap.k1
-  val w_date      : (date, 'r Encoder.partial) Wrap.k1
+  val w_day       : (day,                      'r Encoder.partial) Wrap.k1
+  val w_date      : (date,                     'r Encoder.partial) Wrap.k1
   val w_time      : ((int * int * int option), 'r Encoder.partial) Wrap.k1
-  val w_zone      : (zone, 'r Encoder.partial) Wrap.k1
-  val w_date      : (date, 'r Encoder.partial) Wrap.k1
+  val w_zone      : (zone,                     'r Encoder.partial) Wrap.k1
+  val w_date      : (date,                     'r Encoder.partial) Wrap.k1
+end
+
+module Decoder :
+sig
+  val p_date      : date MrMime_parser.t
 end
 
 val to_string     : date -> string

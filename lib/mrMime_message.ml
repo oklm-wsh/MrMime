@@ -1,16 +1,25 @@
 type field_message = Top.field_message
-type field_part = Top.field_part
+type field_part    = Top.field_part
 
 type 'a message = 'a Top.message =
-  | Discrete  of Content.t * field_message list * 'a
-  | Extension of Content.t * field_message list
-  | Composite of Content.t * field_message list * (Content.t * field_part list * 'a part option) list
+  | Discrete  of MrMime_content.t * field_message list * 'a
+  | Extension of MrMime_content.t * field_message list
+  | Composite of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * 'a part option) list
 and 'a part = 'a Top.part =
-  | PDiscrete  of Content.t * field_part list * 'a
-  | PExtension of Content.t * field_part list
-  | PComposite of Content.t * field_part list * (Content.t * field_part list * 'a part option) list
+  | PDiscrete  of 'a
+  | PExtension of MrMime_content.t * field_part list
+  | PComposite of (MrMime_content.t * field_part list * 'a part option) list
 
 type content = Top.content = ..
+type Top.content += Base64 = Top.Base64
+type Top.content += QuotedPrintable = Top.QuotedPrintable
+type Top.content += Raw = Top.Raw
+
+(* convenience alias *)
+module Content         = MrMime_content
+module Base64          = MrMime_base64
+module QuotedPrintable = MrMime_quotedPrintable
+module Input           = MrMime_input
 
 module Encoder =
 struct
@@ -34,14 +43,15 @@ struct
 
     aux 0
 
-  let w_body content body = match content.Content.encoding with
-    | `Bit8
-    | `Ietf_token _
-    | `X_token _
-    | `Bit7
-    | `Binary -> w_encode body
-    | `Base64 -> Base64.w_encode body
-    | `QuotedPrintable -> QuotedPrintable.w_encode body
+  let w_body content body = match content.Content.encoding, body with
+    | `Bit8           , Top.Raw body
+    | `Ietf_token _   , Top.Raw body
+    | `X_token _      , Top.Raw body
+    | `Bit7           , Top.Raw body
+    | `Binary         , Top.Raw body             -> w_encode body
+    | `Base64         , Top.Base64 (`Dirty body) -> Base64.w_encode body
+    | `Base64         , Top.Base64 (`Clean body) -> Base64.w_encode body
+    | `QuotedPrintable, Top.QuotedPrintable body -> QuotedPrintable.w_encode body
 
   let w_crlf k e = string "\r\n" k e
 
@@ -53,24 +63,24 @@ struct
       | None -> raise Expected_boundary
     in
     let rec aux = function
-      | [ (content, fields, Some (Top.PDiscrete (_, _, body))) ] ->
+      | [ (content, fields, Some (Top.PDiscrete body)) ] ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_body content body
-      | [ (content, fields, Some (Top.PComposite (_, _, lst))) ] ->
+      | [ (content, fields, Some (Top.PComposite lst)) ] ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_multipart content lst
       | [ (content, fields, None) ] ->
         Content.Encoder.w_part content
         $ w_crlf
-      | (content, fields, Some (Top.PDiscrete (_, _, body))) :: r ->
+      | (content, fields, Some (Top.PDiscrete body)) :: r ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_body content body
         $ string (Rfc2046.make_delimiter boundary)
         $ aux r
-      | (content, fields, Some (Top.PComposite (_, _, lst))) :: r ->
+      | (content, fields, Some (Top.PComposite lst)) :: r ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_multipart content lst
@@ -99,6 +109,11 @@ struct
       $ w_crlf
       $ w_body content body
     | _ -> assert false (* TODO: not implemented yet *)
+end
+
+module Decoder =
+struct
+  let p_message = Top.message
 end
 
 let of_string_raw ?(chunk = 1024) s off len =

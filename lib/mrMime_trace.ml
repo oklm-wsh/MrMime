@@ -10,7 +10,11 @@ type received =
 
 type trace =
   { trace    : (local * (domain * domain list)) option
-  ; received : (received list * Date.date option) list }
+  ; received : (received list * MrMime_date.date option) list }
+
+(* convenience alias *)
+module Address = MrMime_address
+module Date    = MrMime_date
 
 let pp = Format.fprintf
 

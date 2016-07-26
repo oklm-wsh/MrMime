@@ -3,6 +3,10 @@ type word   = Rfc822.word
 type domain = Rfc822.domain
 type msg_id = Rfc822.msg_id
 
+(* convenience alias *)
+module Address = MrMime_address
+module Input   = MrMime_input
+
 let pp = Format.fprintf
 
 let pp_lst ~sep pp_data fmt lst =
@@ -22,7 +26,7 @@ let pp_domain fmt (x : domain) = match x with
   | `Literal s -> pp fmt "[@[<hov>%s@]]" s
 
 let pp fmt (local, domain) =
-  pp fmt "{ @[<hov>%a;@ %a@] }"
+  pp fmt "{@[<hov>local = %a;@ domain = %a@]}"
     pp_local local
     pp_domain domain
 
@@ -59,6 +63,11 @@ struct
     $ close_box
     $ char '>'
     $ close_box
+end
+
+module Decoder =
+struct
+  let p_msg_id = Rfc822.msg_id
 end
 
 let of_string ?(chunk = 1024) s =

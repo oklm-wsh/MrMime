@@ -8,6 +8,10 @@ type content = Rfc2045.content =
   ; subty      : Rfc2045.subty
   ; parameters : (string * Rfc2045.value) list }
 
+(* convenice alias *)
+module Address = MrMime_address
+module Input   = MrMime_input
+
 let pp = Format.fprintf
 
 let pp_ty fmt = function
@@ -18,17 +22,17 @@ let pp_ty fmt = function
   | `Application  -> pp fmt "application"
   | `Message      -> pp fmt "message"
   | `Multipart    -> pp fmt "multipart"
-  | `Ietf_token s -> pp fmt "ietf:%s" s
-  | `X_token s    -> pp fmt "x:%s" s
+  | `Ietf_token s -> pp fmt "ietf:\"%s\"" s
+  | `X_token s    -> pp fmt "x:\"%s\"" s
 
 let pp_subty fmt = function
-  | `Ietf_token s -> pp fmt "ietf:%s" s
-  | `X_token s    -> pp fmt "x:%s" s
+  | `Ietf_token s -> pp fmt "ietf:\"%s\"" s
+  | `X_token s    -> pp fmt "x:\"%s\"" s
   | `Iana_token s -> pp fmt "iana:%s" s
 
 let pp_value fmt = function
   | `String s -> pp fmt "%S" s
-  | `Token s  -> pp fmt "%s" s
+  | `Token s  -> pp fmt "\"%s\"" s
 
 let pp_lst ~sep pp_data fmt lst =
   let rec aux = function
@@ -41,7 +45,7 @@ let pp_parameter fmt (key, value) =
   pp fmt "%s = %a" key pp_value value
 
 let pp fmt { ty; subty; parameters; } =
-  pp fmt "{ @[<hov>type = %a/%a;@ parameters = [@[<hov>%a@]]@] }"
+  pp fmt "{@[<hov>type = %a/%a;@ parameters = [@[<hov>%a@]]@]}"
     pp_ty ty
     pp_subty subty
     (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") pp_parameter) parameters
@@ -53,7 +57,7 @@ let make ?(parameters = []) ty subty =
 let default =
   { ty = `Text
   ; subty = `Iana_token "plain"
-  ; parameters = ["charsert", `Token "us-ascii"] }
+  ; parameters = ["charset", `Token "us-ascii"] }
 
 module Encoder =
 struct
@@ -114,6 +118,11 @@ struct
       string "Content-Type: "
       $ (fun k -> Wrap.(lift ((hovbox 0 $ w_content t $ close_box) (unlift k))))
       $ w_crlf
+end
+
+module Decoder =
+struct
+  let p_content = Rfc2045.content
 end
 
 let of_string ?(chunk = 1024) s =

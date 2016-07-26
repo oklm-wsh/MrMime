@@ -1,3 +1,6 @@
+module Input : module type of RingBuffer.Committed
+  with type 'a t = 'a RingBuffer.Committed.t
+
 module type S =
 sig
   type s =
@@ -76,5 +79,5 @@ sig
   val repeat       : int option -> int option -> (char -> bool) -> string t
 end
 
-module IO : I
+module IO          : I
 module Convenience : C

@@ -1,10 +1,13 @@
 type version = Rfc2045.version
 type field   = [ `MimeVersion of version ]
 
+(* convenience alias *)
+module Input = MrMime_input
+
 let pp = Format.fprintf
 
 let pp fmt (a, b) =
-  pp fmt "%d.%d" a b
+  pp fmt "(%d, %d)" a b
 
 let default = (1, 0)
 
@@ -29,6 +32,11 @@ struct
       string "MIME-Version: "
       $ (fun k -> Wrap.(lift ((hovbox 0 $ w_version v $ close_box) (unlift k))))
       $ w_crlf
+end
+
+module Decoder =
+struct
+  let p_version = Rfc2045.version
 end
 
 let of_string ?(chunk = 1024) s =
@@ -60,5 +68,3 @@ let of_string_raw ?(chunk = 1024) s off len =
   in
 
   aux off @@ Parser.run i Rfc2045.version
-
-let decoder = Rfc2045.version

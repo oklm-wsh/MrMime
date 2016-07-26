@@ -1,6 +1,18 @@
-type ty      = Rfc2045.ty
-type subty   = Rfc2045.subty
-type value   = Rfc2045.value
+type ty      =
+  [ `Application
+  | `Audio
+  | `Ietf_token of string
+  | `Image
+  | `Message
+  | `Multipart
+  | `Text
+  | `Video
+  | `X_token of string ]
+type subty   =
+  [ `Ietf_token of string
+  | `Iana_token of string
+  | `X_token of string ]
+type value   = [ `String of string | `Token of string ]
 type field   = [ `ContentType of Rfc2045.content ]
 
 type content = Rfc2045.content =
@@ -18,12 +30,17 @@ val default       : content
 
 module Encoder :
 sig
-  val w_type      : (ty, 'r Encoder.partial) Wrap.k1
-  val w_subtype   : (subty, 'r Encoder.partial) Wrap.k1
-  val w_value     : (value, 'r Encoder.partial) Wrap.k1
+  val w_type      : (ty,             'r Encoder.partial) Wrap.k1
+  val w_subtype   : (subty,          'r Encoder.partial) Wrap.k1
+  val w_value     : (value,          'r Encoder.partial) Wrap.k1
   val w_parameter : (string * value, 'r Encoder.partial) Wrap.k1
-  val w_content   : (content, 'r Encoder.partial) Wrap.k1
-  val w_field     : (field, 'r Encoder.partial) Encoder.k1
+  val w_content   : (content,        'r Encoder.partial) Wrap.k1
+  val w_field     : (field,          'r Encoder.partial) Encoder.k1
+end
+
+module Decoder :
+sig
+  val p_content   : content MrMime_parser.t
 end
 
 val of_string     : ?chunk:int -> string -> content option

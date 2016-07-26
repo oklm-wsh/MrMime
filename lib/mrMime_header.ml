@@ -1,7 +1,15 @@
-type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.result
+type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.result
 type unstructured     = Rfc5322.unstructured
 type phrase_or_msg_id = Rfc5322.phrase_or_msg_id
 type field            = Rfc5322.field
+
+(* convenience alias *)
+module Address = MrMime_address
+module Date    = MrMime_date
+module MsgID   = MrMime_msgID
+module Trace   = MrMime_trace
+module Resent  = MrMime_resent
+module Input   = MrMime_input
 
 let pp = Format.fprintf
 
@@ -20,17 +28,17 @@ let pp_raw fmt = function
 
 let pp_unstructured fmt lst =
   let rec aux fmt = function
-    | `Text s -> pp fmt "%s" s
+    | `Text s -> pp fmt "\"%s\"" s
     | `WSP    -> pp fmt "@ "
     | `CR i   -> pp fmt "<cr %d>" i
     | `LF i   -> pp fmt "<lf %d>" i
     | `CRLF   -> pp fmt "<crlf>@\n"
     | `Encoded (charset, raw) ->
-      pp fmt "{ @[<hov>charset = %s;@ raw = %a@] }"
+      pp fmt "{@[<hov>charset = %s;@ raw = %a@]}"
         charset pp_raw raw
   in
-  pp fmt "@[<hov>%a@]"
-    (pp_lst ~sep:(fun fmt () -> pp fmt "@,") aux) lst
+  pp fmt "[@[<hov>%a@]]"
+    (pp_lst ~sep:(fun fmt () -> ()) aux) lst
 
 let pp_phrase_or_msg_id fmt = function
   | `Phrase p -> pp fmt "%a" Address.pp_phrase p
@@ -46,11 +54,11 @@ let pp_received fmt r =
   in
   match r with
   | (l, Some date) ->
-    pp fmt "Received = { @[<hov>%a;@ date = %a@] }"
+    pp fmt "Received = {@[<hov>received = %a;@ date = %a@]}"
       (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_elem) l
       Date.pp date
   | (l, None) ->
-    pp fmt "Received = @[<hov>%a@]"
+    pp fmt "Received = {@[<hov>received = %a@]}"
       (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") pp_elem) l
 
 let pp_option pp_data fmt = function
@@ -125,24 +133,24 @@ let pp_map fmt map =
 let pp fmt { date; from; sender; reply_to; to'; cc; bcc; subject;
              msg_id; in_reply_to; references; comments; keywords;
              resents; traces; fields; unsafe; skip; } =
-  pp fmt "{ @[<hov>date = @[<hov>%a@];@ \
-                   from = @[<v>%a@];@ \
-                   sender = @[<hov>%a@];@ \
-                   reply-to = @[<hov>%a@];@ \
-                   to = @[<hov>%a@];@ \
-                   cc = @[<hov>%a@];@ \
-                   bcc = @[<hov>%a@];@ \
-                   subject = @[<hov>%a@];@ \
-                   msg-id = @[<hov>%a@];@ \
-                   in-reply-to = @[<hov>%a@];@ \
-                   references = @[<hov>%a@];@ \
-                   comments = @[<hov>%a@];@ \
-                   keywords = @[<hov>%a@];@ \
-                   resents = @[<hov>%a@];@ \
-                   traces = @[<hov>%a@];@ \
-                   fields = @[<hov>%a@];@ \
-                   unsafe = @[<hov>%a@];@ \
-                   skip = %a;@] }"
+  pp fmt "{@[<hov>date = @[<hov>%a@];@ \
+                  from = @[<v>%a@];@ \
+                  sender = @[<hov>%a@];@ \
+                  reply-to = @[<hov>%a@];@ \
+                  to = @[<hov>%a@];@ \
+                  cc = @[<hov>%a@];@ \
+                  bcc = @[<hov>%a@];@ \
+                  subject = @[<hov>%a@];@ \
+                  msg-id = @[<hov>%a@];@ \
+                  in-reply-to = @[<hov>%a@];@ \
+                  references = @[<hov>%a@];@ \
+                  comments = @[<hov>%a@];@ \
+                  keywords = @[<hov>%a@];@ \
+                  resents = @[<hov>%a@];@ \
+                  traces = @[<hov>%a@];@ \
+                  fields = @[<hov>%a@];@ \
+                  unsafe = @[<hov>%a@];@ \
+                  skip = %a;@]}"
     (pp_option Date.pp) date
     (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") Address.pp_mailbox) from
     (pp_option Address.pp_mailbox) sender
@@ -320,63 +328,66 @@ let to_string t =
 
   loop @@ Encoder.w_header t (Encoder.flush (fun _ -> `Ok)) state
 
-open Parser
+module Decoder =
+struct
+  open Parser
 
-let decoder (fields : [> field ] list) =
-  { f = fun i s fail succ ->
-    let rec catch garbage acc = function
-      | `Date date :: r ->
-        catch garbage { acc with date = Some date } r
-      | `From lst :: r ->
-        catch garbage { acc with from = lst @ acc.from } r
-      | `Sender mail :: r ->
-        catch garbage { acc with sender = Some mail } r
-      | `ReplyTo lst :: r ->
-        catch garbage { acc with reply_to = lst @ acc.reply_to } r
-      | `To lst :: r ->
-        catch garbage { acc with to' = lst @ acc.to' } r
-      | `Cc lst :: r ->
-        catch garbage { acc with cc = lst @ acc.cc } r
-      | `Bcc lst :: r ->
-        catch garbage { acc with bcc = lst @ acc.bcc } r
-      | `Subject subject :: r ->
-        catch garbage { acc with subject = Some subject } r
-      | `MessageID msg_id :: r ->
-        catch garbage { acc with msg_id = Some msg_id } r
-      | `InReplyTo lst :: r->
-        catch garbage { acc with in_reply_to = lst @ acc.in_reply_to } r
-      | `References lst :: r ->
-        catch garbage { acc with references = lst @ acc.references } r
-      | `Comments lst :: r ->
-        catch garbage { acc with comments = lst :: acc.comments } r
-      | `Keywords lst :: r ->
-        catch garbage { acc with keywords = lst :: acc.keywords } r
-      | `Field (field_name, value) :: r ->
-        let fields =
-          try let old = Map.find field_name acc.fields in
-              Map.add field_name (value :: old) acc.fields
-          with Not_found -> Map.add field_name [value] acc.fields
-        in
-        catch garbage { acc with fields = fields } r
-      | `Unsafe (field_name, value) :: r ->
-        let unsafe =
-          try let old = Map.find field_name acc.unsafe in
-              Map.add field_name (value :: old) acc.unsafe
-          with Not_found -> Map.add field_name [value] acc.unsafe
-        in
-        catch garbage { acc with unsafe = unsafe } r
-      | `Skip line :: r ->
-        catch garbage { acc with skip = line :: acc.skip } r
-      | field :: r ->
-        catch (field :: garbage) acc r
-      | [] -> acc, List.rev garbage (* keep the order *)
-    in
+  let header (fields : [> field ] list) =
+    { f = fun i s fail succ ->
+      let rec catch garbage acc = function
+        | `Date date :: r ->
+          catch garbage { acc with date = Some date } r
+        | `From lst :: r ->
+          catch garbage { acc with from = lst @ acc.from } r
+        | `Sender mail :: r ->
+          catch garbage { acc with sender = Some mail } r
+        | `ReplyTo lst :: r ->
+          catch garbage { acc with reply_to = lst @ acc.reply_to } r
+        | `To lst :: r ->
+          catch garbage { acc with to' = lst @ acc.to' } r
+        | `Cc lst :: r ->
+          catch garbage { acc with cc = lst @ acc.cc } r
+        | `Bcc lst :: r ->
+          catch garbage { acc with bcc = lst @ acc.bcc } r
+        | `Subject subject :: r ->
+          catch garbage { acc with subject = Some subject } r
+        | `MessageID msg_id :: r ->
+          catch garbage { acc with msg_id = Some msg_id } r
+        | `InReplyTo lst :: r->
+          catch garbage { acc with in_reply_to = lst @ acc.in_reply_to } r
+        | `References lst :: r ->
+          catch garbage { acc with references = lst @ acc.references } r
+        | `Comments lst :: r ->
+          catch garbage { acc with comments = lst :: acc.comments } r
+        | `Keywords lst :: r ->
+          catch garbage { acc with keywords = lst :: acc.keywords } r
+        | `Field (field_name, value) :: r ->
+          let fields =
+            try let old = Map.find field_name acc.fields in
+                Map.add field_name (value :: old) acc.fields
+            with Not_found -> Map.add field_name [value] acc.fields
+          in
+          catch garbage { acc with fields = fields } r
+        | `Unsafe (field_name, value) :: r ->
+          let unsafe =
+            try let old = Map.find field_name acc.unsafe in
+                Map.add field_name (value :: old) acc.unsafe
+            with Not_found -> Map.add field_name [value] acc.unsafe
+          in
+          catch garbage { acc with unsafe = unsafe } r
+        | `Skip line :: r ->
+          catch garbage { acc with skip = line :: acc.skip } r
+        | field :: r ->
+          catch (field :: garbage) acc r
+        | [] -> acc, List.rev garbage (* keep the order *)
+      in
 
-    succ i s (catch [] default fields) }
-  >>= fun (header, fields) -> Trace.decoder fields
-  >>= fun (traces, fields) -> return ({ header with traces = traces }, fields)
-  >>= fun (header, fields) -> Resent.decoder fields
-  >>= fun (resents, fields) -> return ({ header with resents = resents }, fields)
+      succ i s (catch [] default fields) }
+    >>= fun (header, fields) -> Trace.decoder fields
+    >>= fun (traces, fields) -> return ({ header with traces = traces }, fields)
+    >>= fun (header, fields) -> Resent.decoder fields
+    >>= fun (resents, fields) -> return ({ header with resents = resents }, fields)
+end
 
 let of_string ?(chunk = 1024) s =
   let s' = s ^ "\r\n" in
@@ -384,29 +395,29 @@ let of_string ?(chunk = 1024) s =
   let i = Input.create_bytes chunk in
 
   let rec aux consumed = function
-    | Fail _ -> None
-    | Read { buffer; k; } ->
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
       let n = min chunk (l - consumed) in
       Input.write_string buffer s' consumed n;
-      aux (consumed + n) @@ k n (if n = 0 then Complete else Incomplete)
-    | Done v -> Some v
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some v
   in
 
-  aux 0 @@ run i (Rfc5322.header (fun _ -> fail Rfc5322.Nothing_to_do) >>= decoder <* Rfc822.crlf)
+  aux 0 @@ Parser.run i Parser.(Rfc5322.header (fun _ -> fail Rfc5322.Nothing_to_do) >>= Decoder.header <* Rfc822.crlf)
 
 let of_string_raw ?(chunk = 1024) s off len =
   let i = Input.create_bytes chunk in
 
   let rec aux consumed = function
-    | Fail _ -> None
-    | Read { buffer; k; } ->
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
       let n = min chunk (len - (consumed - off)) in
       Input.write_string buffer s consumed n;
-      aux (consumed + n) @@ k n (if (consumed + n - off) = len then Complete else Incomplete)
-    | Done v -> Some (v, consumed - off)
+      aux (consumed + n) @@ k n (if (consumed + n - off) = len then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some (v, consumed - off)
   in
 
-  aux off @@ run i (Rfc5322.header (fun _ -> fail Rfc5322.Nothing_to_do) >>= decoder)
+  aux off @@ Parser.run i Parser.(Rfc5322.header (fun _ -> fail Rfc5322.Nothing_to_do) >>= Decoder.header)
 
 let equal a b =
   a.date = b.date

@@ -20,6 +20,9 @@ type date = Rfc5322.date =
   ; time : int * int * int option
   ; zone : zone }
 
+(* convenience alias *)
+module Input = MrMime_input
+
 let pp = Format.fprintf
 
 let pp_zone fmt = function
@@ -33,8 +36,8 @@ let pp_zone fmt = function
   | MDT  -> pp fmt "MDT"
   | PST  -> pp fmt "PST"
   | PDT  -> pp fmt "PDT"
-  | TZ z -> pp fmt "TZ %04d" z
-  | Military_zone c -> pp fmt "%c" c
+  | TZ z -> pp fmt "(TZ %04d)" z
+  | Military_zone c -> pp fmt "(Military_zone %c)" c
 
 let pp_month fmt = function
   | Jan  -> pp fmt "Jan"
@@ -61,11 +64,16 @@ let pp_day fmt = function
 
 let pp fmt = function
   | { day = Some day; date = (d, m, y); time = (hh, mm, ss); zone; } ->
-    pp fmt "{ @[<hov>day = %a;@ date = (@[<hov>%d,@ %a,@ %d@])@ time = (@[<hov>%d,@ %d,@ %d@])@ zone = %a@] }"
+    pp fmt "{@[<hov>day = %a;@ \
+                    date = (@[<hov>%d,@ %a,@ %d@]);@ \
+                    time = (@[<hov>%d,@ %d,@ %d@]);@ \
+                    zone = %a@]}"
       pp_day day d pp_month m y hh mm (Option.value ~default:0 ss)
       pp_zone zone
   | { day = None; date = (d, m, y); time = (hh, mm, ss); zone; } ->
-    pp fmt "{ @[<hov>date = (@[<hov>%d,@ %a,@ %d@])@ time = (@[<hov>%d,@ %d,@ %d@])@ zone = %a@] }"
+    pp fmt "{@[<hov>date = (@[<hov>%d,@ %a,@ %d@]);@ \
+                    time = (@[<hov>%d,@ %d,@ %d@]);@ \
+                    zone = %a@]}"
       d pp_month m y hh mm (Option.value ~default:0 ss)
       pp_zone zone
 
@@ -147,6 +155,11 @@ struct
     $ w_zone zone
     $ close_box
     $ close_box
+end
+
+module Decoder =
+struct
+  let p_date = Rfc5322.date_time
 end
 
 let to_string t =

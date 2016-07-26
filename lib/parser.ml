@@ -1,5 +1,7 @@
 let () = Printexc.record_backtrace true
 
+module Input = RingBuffer.Committed
+
 let locate buff off len f =
   let idx = ref 0 in
   while !idx < len && f (Internal_buffer.get buff (off + !idx))

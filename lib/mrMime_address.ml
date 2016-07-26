@@ -1,6 +1,6 @@
 type word           = Rfc822.word
 type local          = Rfc822.local
-type raw            = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.result
+type raw            = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.result
 type phrase         = Rfc5322.phrase
 type domain         = Rfc5322.domain
 type literal_domain = Rfc5321.literal_domain = ..
@@ -16,6 +16,11 @@ type group = Rfc5322.group =
 
 type address = [ `Group of group | `Mailbox of mailbox ]
 
+(* convenience alias *)
+module QuotedPrintable = MrMime_quotedPrintable
+module Base64          = MrMime_base64
+module Input           = MrMime_input
+
 let pp = Format.fprintf
 
 let pp_lst ~sep pp_data fmt lst =
@@ -26,13 +31,13 @@ let pp_lst ~sep pp_data fmt lst =
   in aux lst
 
 let pp_word fmt = function
-  | `Atom x -> pp fmt "%s" x
-  | `String s -> pp fmt "%S" s
+  | `Atom x -> pp fmt "`Atom \"%s\"" x
+  | `String s -> pp fmt "`String %S" s
 
 let pp_domain fmt (x : domain) = match x with
   | `Domain lst ->
-    pp fmt "@[<hov>%a@]"
-      (pp_lst ~sep:(fun fmt () -> pp fmt ".") Format.pp_print_string) lst
+    pp fmt "[@[<hov>%a@]]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt "@ .@ ") (fun fmt x -> pp fmt "\"%s\"" x)) lst
   | `Literal (Rfc5321.IPv4 ipv4) ->
     pp fmt "[@[<hov>%s@]]" (Ipaddr.V4.to_string ipv4)
   | `Literal (Rfc5321.IPv6 ipv6) ->
@@ -47,30 +52,32 @@ let pp_raw fmt = function
 let pp_phrase fmt =
   let rec aux fmt = function
     | `Dot    -> pp fmt "."
-    | `Word x -> pp_word fmt x
+    | `Word x -> pp fmt "`Word (%a)" pp_word x
     | `Encoded (charset, raw) ->
-        pp fmt "{ @[<hov> charset = %s;@ raw = %a@] }" charset pp_raw raw
+        pp fmt "{@[<hov>charset = %s;@ raw = %a@]}" charset pp_raw raw
   in
-  pp fmt "@[<hov>%a@]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux)
+  pp fmt "[@[<hov>%a@]]" (pp_lst ~sep:(fun fmt () -> pp fmt "@ ") aux)
 
-let pp_local =
-  pp_lst ~sep:(fun fmt () -> pp fmt ".") pp_word
+let pp_local fmt local =
+  let pp_word fmt x = pp fmt "(%a)" pp_word x in
+  pp fmt "[@[<hov>%a@]]"
+    (pp_lst ~sep:(fun fmt () -> pp fmt "@ .@ ") pp_word) local
 
 let pp_mailbox' fmt (local, (first, rest)) =
   match rest with
   | [] ->
-    pp fmt "{ @[<hov>%a;@ %a@] }"
+    pp fmt "{@[<hov>local = %a;@ domain = %a@]}"
       pp_local local
       pp_domain first
   | lst ->
-    pp fmt "{ @[<hov>%a;@ [@[<hov>%a@ |@ %a@]]@] }"
+    pp fmt "{@[<hov>local = %a;@ domain = [@[<hov>%a;@ %a@]]@]}"
       pp_local local
       pp_domain first
-      (pp_lst ~sep:(fun fmt () -> pp fmt "@ |@ ") pp_domain) lst
+      (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") pp_domain) lst
 
 let pp_mailbox fmt = function
   | { Rfc5322.name = Some name; local; domain; } ->
-    pp fmt "@[<hov>%a:@ %a@]"
+    pp fmt "{@[<hov>%a = %a@]}"
       pp_phrase name
       pp_mailbox' (local, domain)
   | { Rfc5322.name = None; local; domain;} ->
@@ -78,13 +85,13 @@ let pp_mailbox fmt = function
       pp_mailbox' (local, domain)
 
 let pp_group fmt { Rfc5322.name; mailbox; } =
-  pp fmt "@[<hov>%a:@ %a;@]"
+  pp fmt "{@[<hov>%a = %a;@]}"
     pp_phrase name
-    (pp_lst ~sep:(fun fmt () -> pp fmt ",@ ") pp_mailbox) mailbox
+    (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") pp_mailbox) mailbox
 
 let pp fmt = function
-  | `Group g -> pp_group fmt g
-  | `Mailbox m -> pp_mailbox fmt m
+  | `Group g -> pp fmt "`Group %a" pp_group g
+  | `Mailbox m -> pp fmt "`Mailbox %a" pp_mailbox m
 
 module Encoder =
 struct
@@ -277,6 +284,14 @@ struct
       | [ x ] -> w_address x
       | x :: r -> w_address x $ string "," $ hovbox 0 $ space $ aux r $ close_box
     in hovbox 0 $ aux lst $ close_box
+end
+
+module Decoder =
+struct
+  let p_address   = Rfc5322.address
+  let p_addresses = Rfc5322.address_list
+  let p_local     = Rfc822.local_part
+  let p_domain    = Rfc5322.domain
 end
 
 let to_string t =

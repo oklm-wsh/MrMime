@@ -1,6 +1,9 @@
 type mechanism = Rfc2045.mechanism
 type field     = [ `ContentEncoding of mechanism ]
 
+(* convenience alias *)
+module Input = MrMime_input
+
 let pp = Format.fprintf
 
 let pp fmt = function
@@ -9,8 +12,8 @@ let pp fmt = function
   | `Binary          -> pp fmt "binary"
   | `QuotedPrintable -> pp fmt "quoted-printable"
   | `Base64          -> pp fmt "base64"
-  | `Ietf_token s    -> pp fmt "ietf:%s" s
-  | `X_token s       -> pp fmt "x:%s" s
+  | `Ietf_token s    -> pp fmt "ietf:\"%s\"" s
+  | `X_token s       -> pp fmt "x:\"%s\"" s
 
 let default = `Bit7
 
@@ -47,6 +50,11 @@ struct
       string "Content-Transfer-Encoding: "
       $ (fun k -> Wrap.(lift ((hovbox 0 $ wrap (w_encoding x) $ close_box) (unlift k))))
       $ w_crlf
+end
+
+module Decoder =
+struct
+  let p_encoding = Rfc2045.encoding
 end
 
 let of_string ?(chunk = 1024) s =

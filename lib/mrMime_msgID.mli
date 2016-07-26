@@ -1,6 +1,7 @@
-type local  = Rfc822.local
-type domain = Rfc822.domain
-type msg_id = Rfc822.msg_id
+type word   = [ `Atom of string | `String of string ]
+type local  = word list
+type domain = [ `Domain of string list | `Literal of string ]
+type msg_id = (local * domain)
 
 val pp_local      : Format.formatter -> local -> unit
 val pp_domain     : Format.formatter -> domain -> unit
@@ -11,6 +12,11 @@ sig
   val w_left      : (local, 'r Encoder.partial) Wrap.k1
   val w_right     : (domain, 'r Encoder.partial) Wrap.k1
   val w_msg_id    : (msg_id, 'r Encoder.partial) Wrap.k1
+end
+
+module Decoder :
+sig
+  val p_msg_id    : msg_id MrMime_parser.t
 end
 
 val of_string     : ?chunk:int -> string -> msg_id option
