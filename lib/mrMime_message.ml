@@ -1,19 +1,22 @@
 type field_message = Top.field_message
 type field_part    = Top.field_part
 
-type 'a message = 'a Top.message =
+type ('a, 'b) message = ('a, 'b) Top.message =
   | Discrete  of MrMime_content.t * field_message list * 'a
-  | Extension of MrMime_content.t * field_message list
-  | Composite of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * 'a part option) list
-and 'a part = 'a Top.part =
+  | Extension of MrMime_content.t * field_message list * 'b
+  | Composite of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
+and ('a, 'b) part = ('a, 'b) Top.part =
   | PDiscrete  of 'a
-  | PExtension of MrMime_content.t * field_part list
-  | PComposite of (MrMime_content.t * field_part list * 'a part option) list
+  | PExtension of 'b
+  | PComposite of (MrMime_content.t * field_part list * ('a, 'b) part option) list
+
+type encoding = Top.encoding = ..
+type Top.encoding += Base64 = Top.Base64
+type Top.encoding += QuotedPrintable = Top.QuotedPrintable
+type Top.encoding += Raw = Top.Raw
 
 type content = Top.content = ..
-type Top.content += Base64 = Top.Base64
-type Top.content += QuotedPrintable = Top.QuotedPrintable
-type Top.content += Raw = Top.Raw
+type Top.content += Unit = Top.Unit
 
 (* convenience alias *)
 module Content         = MrMime_content
@@ -129,3 +132,24 @@ let of_string_raw ?(chunk = 1024) s off len =
   in
 
   aux off @@ Parser.run i Top.message
+
+module Extension =
+struct
+  let respect f s =
+    let l = String.length s in
+    let i = ref 0 in
+
+    while !i < l && f (String.get s !i) do incr i done;
+
+    !i = l
+
+  let add_encoding token encoding =
+    if respect Rfc2045.is_token token
+    then Hashtbl.add Top.decoder_hashtbl token encoding
+    else raise (Invalid_argument "Message.Extension.add_encoding: bad token")
+
+  let add_content token content =
+    if respect Rfc2045.is_token token
+    then Hashtbl.add Top.content_hashtbl token content
+    else raise (Invalid_argument "Message.Extension.add_content: bad token")
+end
