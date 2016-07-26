@@ -18,3 +18,5 @@ val let_dig                 : char t
 val ldh_str                 : string t
 val general_address_literal : literal_domain t
 val address_literal         : literal_domain t
+
+val iana_hashtbl            : (string, literal_domain t) Hashtbl.t

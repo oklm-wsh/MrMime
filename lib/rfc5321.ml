@@ -62,8 +62,8 @@ let is_dcontent = function
 
 type err += Invalid_address_literal of string | Unknown_tag of string
 
-let iana : (string, literal_domain t) Hashtbl.t = Hashtbl.create 16
-let () = Hashtbl.add iana "IPv6" (ipv6_addr >>| fun v -> IPv6 v)
+let iana_hashtbl : (string, literal_domain t) Hashtbl.t = Hashtbl.create 16
+let () = Hashtbl.add iana_hashtbl "IPv6" (ipv6_addr >>| fun v -> IPv6 v)
 
 let general_address_literal =
   ldh_str
@@ -71,7 +71,7 @@ let general_address_literal =
   *> one (satisfy is_dcontent) >>| implode
   >>= fun content ->
     { f = fun i s fail succ ->
-      try let p = Hashtbl.find iana tag in
+      try let p = Hashtbl.find iana_hashtbl tag in
           let b = Input.create_by ~proof:(Input.proof i) (String.length content) in
 
           Input.write b (Internal_buffer.from_string ~proof:(Input.proof i) content) 0 (String.length content);

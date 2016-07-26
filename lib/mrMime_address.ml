@@ -391,3 +391,23 @@ struct
 
   let equal = (=)
 end
+
+module Extension =
+struct
+  let ldh_str s =
+    let l = String.length s in
+    let i = ref 0 in
+
+    let ldh_chr = function 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '-' -> true | _ -> false in
+    let let_dig = function 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' -> true | _ -> false in
+
+    while !i < l && ldh_chr (String.get s !i) do incr i done;
+
+    !i = l || (!i + 1 = l && let_dig (String.get s (!i + 1)))
+
+  let add_literal_domain tag literal_domain =
+    if String.length tag >= 1
+       && ldh_str tag
+    then Hashtbl.add Rfc5321.iana_hashtbl tag literal_domain
+    else raise (Invalid_argument "Address.Extension.add_literal_domain: bad tag")
+end

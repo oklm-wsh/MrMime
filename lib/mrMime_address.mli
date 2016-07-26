@@ -71,3 +71,8 @@ sig
 
   val equal         : address list -> address list -> bool
 end
+
+module Extension :
+sig
+  val add_literal_domain : string -> literal_domain MrMime_parser.t -> unit
+end
