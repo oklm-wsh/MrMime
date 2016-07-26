@@ -1,3 +1,5 @@
+open MrMime
+
 module A =
 struct
   type t = Address.address

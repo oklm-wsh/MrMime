@@ -110,7 +110,7 @@ let discard_to_delimiter boundary =
 let body_part octet =
   Rfc2045.mime_part_headers
     (Rfc5322.field (fun _ -> fail Rfc5322.Nothing_to_do))
-  >>= Content.part >>= fun (content, fields) ->
+  >>= MrMime_content.Decoder.part >>= fun (content, fields) ->
     option None (Rfc822.crlf *> octet content fields >>| fun v -> Some v)
   >>| fun octets -> (content, fields, octets)
 

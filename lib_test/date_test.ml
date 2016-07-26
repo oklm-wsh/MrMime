@@ -1,3 +1,5 @@
+open MrMime
+
 module D =
 struct
   type t = Date.date

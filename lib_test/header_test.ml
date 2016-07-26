@@ -1,3 +1,5 @@
+open MrMime
+
 module H =
 struct
   type t = Header.header

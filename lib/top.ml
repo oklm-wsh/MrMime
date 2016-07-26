@@ -24,14 +24,15 @@ let message_headers =
     (Rfc2045.message_field
        (fun _ -> fail Rfc5322.Nothing_to_do)
        (fun _ -> fail Rfc5322.Nothing_to_do))
-  >>= Header.decoder >>= fun (header, rest) -> Content.message rest
+  >>= MrMime_header.Decoder.header
+  >>= fun (header, rest) -> MrMime_content.Decoder.message rest
   >>= fun (content, rest) -> return (header, content, rest)
   (* Rfc2045.mime_message_headers
    *   (fun _ -> fail Rfc5322.Nothing_to_do) mime-extension
    *   (Rfc5322.field (fun _ -> fail Rfc5322.Nothing_to_do)) *)
 
 let boundary content =
-  try List.assoc "boundary" content.Content.ty.ContentType.parameters
+  try List.assoc "boundary" content.MrMime_content.ty.MrMime_contentType.parameters
       |> function `Token s | `String s -> Some s
   with Not_found -> None
 
@@ -49,12 +50,12 @@ let octet boundary content fields =
     | None -> return (), return ()
   in
 
-  match content.Content.encoding with
+  match content.MrMime_content.encoding with
   | `QuotedPrintable ->
-    QuotedPrintable.decode boundary rollback
+    MrMime_quotedPrintable.decode boundary rollback
     >>| fun v -> QuotedPrintable v
   | `Base64 ->
-    Base64.decode boundary rollback
+    MrMime_base64.decode boundary rollback
     >>| fun v -> Base64 v
   | _ ->
     Rfc5322.decode boundary rollback
@@ -69,22 +70,22 @@ let body =
   in
 
   fix' @@ fun m parent content fields ->
-  match content.Content.ty.ContentType.ty with
+  match content.MrMime_content.ty.MrMime_contentType.ty with
   | #Rfc2045.extension -> return (PExtension (content, fields))
   | #Rfc2045.discrete  ->
     octet parent content fields
-    >>| fun v -> PDiscrete (content, fields, v)
+    >>| fun v -> PDiscrete v
   | #Rfc2045.composite ->
     match boundary content with
     | Some boundary ->
       Rfc2046.multipart_body parent boundary (m (Some boundary))
-      >>| fun v -> PComposite (content, fields, v)
+      >>| fun v -> PComposite v
     | None -> fail Expected_boundary
 
 let message =
   message_headers
   <* Rfc822.crlf
-  >>= fun (header, content, fields) -> match content.Content.ty.ContentType.ty with
+  >>= fun (header, content, fields) -> match content.MrMime_content.ty.MrMime_contentType.ty with
   | #Rfc2045.extension -> return (header, Extension (content, fields))
   | #Rfc2045.discrete  ->
     octet None content fields
