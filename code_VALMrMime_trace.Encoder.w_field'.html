@@ -21,24 +21,10 @@
 <link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
 <link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
 <link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
-<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_trace.Encoder</title>
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime_trace.Encoder.w_field'</title>
 </head>
 <body>
-<code class="code"><span class="keyword">struct</span>
-&nbsp;&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Encoder</span>
-
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_crlf&nbsp;k&nbsp;e&nbsp;=&nbsp;string&nbsp;<span class="string">"\r\n"</span>&nbsp;k&nbsp;e
-
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;w_lst&nbsp;w_sep&nbsp;w_data&nbsp;l&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">open</span>&nbsp;<span class="constructor">Wrap</span>&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;<span class="keyword">rec</span>&nbsp;aux&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;noop
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;[&nbsp;x&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_data&nbsp;x
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;x&nbsp;::&nbsp;r&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_data&nbsp;x&nbsp;$&nbsp;w_sep&nbsp;$&nbsp;aux&nbsp;r
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>&nbsp;aux&nbsp;l
-
-
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_field'&nbsp;=&nbsp;<span class="keyword">function</span>
+<code class="code"><span class="keyword">let</span>&nbsp;w_field'&nbsp;=&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;(l,&nbsp;<span class="constructor">Some</span>&nbsp;date)&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_data&nbsp;=&nbsp;<span class="keyword">function</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Word</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_word&nbsp;word
@@ -63,16 +49,4 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox'&nbsp;m&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Return-Path:&nbsp;&lt;&nbsp;&gt;"</span>&nbsp;$&nbsp;w_crlf
-
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_field&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Trace</span>&nbsp;(<span class="constructor">Some</span>&nbsp;trace,&nbsp;received)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;(<span class="constructor">Some</span>&nbsp;trace))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;<span class="constructor">List</span>.fold_right&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;acc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;x)&nbsp;$&nbsp;acc)&nbsp;received&nbsp;noop
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Trace</span>&nbsp;(<span class="constructor">None</span>,&nbsp;received)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">List</span>.fold_right&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;acc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;x)&nbsp;$&nbsp;acc)&nbsp;received&nbsp;noop
-
-&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_trace&nbsp;{&nbsp;trace;&nbsp;received;&nbsp;}&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;trace)
-&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;<span class="constructor">List</span>.fold_right&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;acc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;x)&nbsp;$&nbsp;acc)&nbsp;received&nbsp;noop
-<span class="keyword">end</span></code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Return-Path:&nbsp;&lt;&nbsp;&gt;"</span>&nbsp;$&nbsp;w_crlf</code></body></html>

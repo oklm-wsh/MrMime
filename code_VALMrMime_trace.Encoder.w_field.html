@@ -25,28 +25,8 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;w_field&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;(l,&nbsp;<span class="constructor">Some</span>&nbsp;date)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_data&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Word</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_word&nbsp;word
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_domain&nbsp;domain
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Addr</span>&nbsp;addr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox'&nbsp;addr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Received:&nbsp;"</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;w_lst&nbsp;space&nbsp;w_data&nbsp;l&nbsp;$&nbsp;close_box
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;hovbox&nbsp;0&nbsp;$&nbsp;string&nbsp;<span class="string">";"</span>&nbsp;$&nbsp;space&nbsp;$&nbsp;<span class="constructor">Date</span>.<span class="constructor">Encoder</span>.w_date&nbsp;date&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;(l,&nbsp;<span class="constructor">None</span>)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;w_data&nbsp;=&nbsp;<span class="keyword">function</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Word</span>&nbsp;word&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_word&nbsp;word
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;domain&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_domain&nbsp;domain
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Addr</span>&nbsp;addr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox'&nbsp;addr
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Received:&nbsp;"</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;w_lst&nbsp;space&nbsp;w_data&nbsp;l&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;(<span class="constructor">Some</span>&nbsp;m)&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;&nbsp;<span class="string">"Return-Path:&nbsp;"</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;(<span class="keyword">fun</span>&nbsp;k&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Wrap</span>.(lift&nbsp;((hovbox&nbsp;0&nbsp;$&nbsp;<span class="constructor">Address</span>.<span class="constructor">Encoder</span>.w_mailbox'&nbsp;m&nbsp;$&nbsp;close_box)&nbsp;(unlift&nbsp;k))))
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;w_crlf
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;<span class="constructor">None</span>&nbsp;<span class="keywordsign">-&gt;</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;<span class="string">"Return-Path:&nbsp;&lt;&nbsp;&gt;"</span>&nbsp;$&nbsp;w_crlf</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Trace</span>&nbsp;(<span class="constructor">Some</span>&nbsp;trace,&nbsp;received)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;(<span class="constructor">Some</span>&nbsp;trace))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;<span class="constructor">List</span>.fold_right&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;acc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;x)&nbsp;$&nbsp;acc)&nbsp;received&nbsp;noop
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Trace</span>&nbsp;(<span class="constructor">None</span>,&nbsp;received)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">List</span>.fold_right&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;acc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;x)&nbsp;$&nbsp;acc)&nbsp;received&nbsp;noop</code></body></html>

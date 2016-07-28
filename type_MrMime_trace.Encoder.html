@@ -33,7 +33,7 @@
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_lst&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;((<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>c&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>c&nbsp;list&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b
-&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_field&nbsp;:
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_field'&nbsp;:
 &nbsp;&nbsp;&nbsp;&nbsp;[&lt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;<span class="keyword">of</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&lt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Addr</span>&nbsp;<span class="keyword">of</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_address</span>.local&nbsp;*
@@ -45,6 +45,25 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_address</span>.local&nbsp;*
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_address</span>.domain&nbsp;*&nbsp;<span class="constructor">MrMime_address</span>.domain&nbsp;list))
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;option&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Encoder</span>.t&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Partial</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bytes</span>.t&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial)&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.t&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;w_field&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;[&lt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Trace</span>&nbsp;<span class="keyword">of</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_address</span>.local&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_address</span>.domain&nbsp;*&nbsp;<span class="constructor">MrMime_address</span>.domain&nbsp;list))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;option&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&lt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Addr</span>&nbsp;<span class="keyword">of</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_address</span>.local&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_address</span>.domain&nbsp;*&nbsp;<span class="constructor">MrMime_address</span>.domain&nbsp;list)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Domain</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_address</span>.domain
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">Word</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_address</span>.word&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list&nbsp;*&nbsp;<span class="constructor">MrMime_date</span>.date&nbsp;option)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list&nbsp;]&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">Encoder</span>.t&nbsp;<span class="keywordsign">-&gt;</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Partial</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">Bytes</span>.t&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;*&nbsp;(int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a)&nbsp;]&nbsp;<span class="keyword">as</span>&nbsp;<span class="keywordsign">'</span>a)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial&nbsp;<span class="constructor">Encoder</span>.partial

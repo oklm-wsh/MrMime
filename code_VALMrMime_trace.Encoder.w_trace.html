@@ -25,5 +25,5 @@
 </head>
 <body>
 <code class="code"><span class="keyword">let</span>&nbsp;w_trace&nbsp;{&nbsp;trace;&nbsp;received;&nbsp;}&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;trace)
-&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;<span class="constructor">List</span>.fold_right&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;acc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;x)&nbsp;$&nbsp;acc)&nbsp;received&nbsp;noop</code></body></html>
+&nbsp;&nbsp;&nbsp;&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">ReturnPath</span>&nbsp;trace)
+&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;<span class="constructor">List</span>.fold_right&nbsp;(<span class="keyword">fun</span>&nbsp;x&nbsp;acc&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;w_field'&nbsp;(<span class="keywordsign">`</span><span class="constructor">Received</span>&nbsp;x)&nbsp;$&nbsp;acc)&nbsp;received&nbsp;noop</code></body></html>
