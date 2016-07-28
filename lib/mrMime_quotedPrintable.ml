@@ -132,6 +132,120 @@ let decode boundary rollback buffer =
     | false, content ->
       return content
 
+module Convenience =
+struct
+  type 'a decoder =
+    { src           : 'a Input.t
+    ; buffer        : Buffer.t
+    ; mutable i     : Bytes.t
+    ; mutable i_off : int
+    ; mutable i_len : int
+    ; mutable k     : 'a decoder -> decode }
+  and decode = [ `Continue | `Error of err | `Dirty of char | `End of string | `String of string ]
+
+  let continue_or f { buffer; _ } =
+    if Buffer.length buffer = 0
+    then `Continue
+    else
+      let s = Buffer.contents buffer in
+      Buffer.clear buffer;
+      f s
+
+  let terminate { buffer; _ } =
+    let s = Buffer.contents buffer in
+    Buffer.clear buffer;
+    `End s
+
+  let p boundary t =
+    let is_ = function
+      | '=' | ' ' | '\r' | '\t' -> false
+      | _ -> true
+    in
+    (fast_qp t.buffer >>= function
+     | `Hard -> (boundary *> return (true, terminate t))
+                <|> (Rfc822.crlf
+                     *> { f = fun i s fail succ -> Buffer.add_char t.buffer '\n';
+                                                   succ i s () }
+                     *> return (false, continue_or (fun s -> `String s) t))
+     | `Soft -> (boundary *> return (true, terminate t))
+                <|> (Rfc822.crlf *> return (false, continue_or (fun s -> `String s) t)))
+    <|> ({ f = fun i s fail succ ->
+           let n = Input.transmit i @@ fun buff off len ->
+
+             let len' = locate buff off len is_ in
+             Buffer.add_string t.buffer (Internal_buffer.sub_string buff off len');
+             len'
+           in
+
+           succ i s n } *> peek_chr >>= function
+         | None -> return (false, terminate t)
+         | Some '=' ->
+           (hex >>= fun chr ->
+            Buffer.add_char t.buffer chr; return (false, continue_or (fun s -> `String s) t))
+           <|> (char '=' *> ((boundary *> return (true, terminate t))
+                             <|> (Rfc822.crlf *> return (false, continue_or (fun s -> `String s) t))))
+         | Some ' '
+         | Some '\t' ->
+           repeat (Some 1) None Rfc822.is_wsp
+           >>= fun lwsp -> peek_chr >>= (function
+            | Some '\r' -> return (false, continue_or (fun s -> `String s) t)
+            | _ ->
+              { f = fun i s fail succ ->
+                Buffer.add_string t.buffer lwsp;
+
+                succ i s () } *> return (false, continue_or (fun s -> `String s) t))
+         | Some '\r' ->
+           (boundary *> return (true, terminate t))
+           <|> (Rfc822.crlf *> { f = fun i s fail succ -> Buffer.add_char t.buffer '\n';
+                                                          succ i s () }
+                            *> return (false, continue_or (fun s -> `String s) t))
+         | Some chr -> return (false, `Dirty chr))
+
+  let rec loop rollback t = function
+    | Parser.Read { buffer; k; } ->
+      t.k <- (fun t ->
+              Input.write_string
+                t.src
+                (Bytes.unsafe_to_string t.i)
+                t.i_off t.i_len;
+
+              let s = if t.i_len = 0
+                      then Parser.Complete
+                      else Parser.Incomplete
+              in
+
+              loop rollback t @@ k t.i_len s);
+      `Continue
+    | Parser.Fail (marks, exn) -> `Error exn
+    | Parser.Done (need_to_rollback, v) ->
+      if need_to_rollback
+      then match Parser.run t.src rollback with
+           | Parser.Done () -> v
+           | _ -> assert false
+      else v
+
+  let decoder_src t = t.src
+
+  let decoder (rollback, boundary) src =
+    { src
+    ; buffer = Buffer.create 16
+    ; i      = Bytes.empty
+    ; i_off  = 0
+    ; i_len  = 0
+    ; k      = fun t -> loop rollback t
+                        @@ Parser.run t.src (option (false, `End "") (Rfc822.crlf *> p boundary t))}
+
+  let decode t = t.k t
+
+  let src t buf off len =
+    if (off < 0 || len < 0 || off + len > Bytes.length buf)
+    then raise (Invalid_argument "QuotedPrintable.src");
+
+    t.i <- buf;
+    t.i_off <- off;
+    t.i_len <- len;
+end
+
 let inline buffer =
   fix @@ fun m ->
     peek_chr >>= function

@@ -121,6 +121,118 @@ let decode boundary rollback t buffer =
        <|> (crlf >>= fun () -> m padding dirty)
      | Some chr -> advance 1 >>= fun () -> m padding `Dirty)
 
+module Convenience =
+struct
+  type err += Wrong_padding
+
+  type 'a decoder =
+    { src             : 'a Input.t
+    ; state           : F.t
+    ; buffer          : Buffer.t
+    ; mutable padding : int
+    ; mutable i       : Bytes.t
+    ; mutable i_off   : int
+    ; mutable i_len   : int
+    ; mutable k       : 'a decoder -> decode }
+  and decode = [ `Continue | `Error of err | `Dirty of string | `End of string | `String of string ]
+
+  let continue_or f { buffer; _ } =
+    if Buffer.length buffer = 0
+    then `Continue
+    else
+      let s = Buffer.contents buffer in
+      Buffer.clear buffer;
+      f s
+
+  let terminate { buffer; _ } =
+    let s = Buffer.contents buffer in
+    Buffer.clear buffer;
+    `End s
+
+  let p boundary t =
+    peek_chr >>= function
+    | None ->
+      F.flush t.state t.buffer;
+      if F.padding t.state t.padding
+      then return (false, terminate t)
+      else return (false, `Error Wrong_padding)
+    | Some chr when is_b64 chr ->
+      if t.padding = 0
+      then decode_chunk t.state t.buffer
+           >>| fun consumed -> (false, continue_or (fun s -> `String s) t)
+      else begin
+        F.flush t.state t.buffer;
+        return (false, continue_or (fun s -> `Dirty s) t)
+      end
+    | Some '=' ->
+      advance 1
+      >>= fun () -> begin t.padding <- t.padding + 1;
+                          return (false, `Continue)
+                    end
+    | Some '\x20'
+    | Some '\x09' ->
+      advance 1 >>= fun () -> return (false, `Continue)
+    | Some '\x0D' ->
+      (boundary >>= fun () ->
+       begin
+         F.flush t.state t.buffer;
+
+         if F.padding t.state t.padding
+         then return (true, terminate t)
+         else return (true, `Error Wrong_padding)
+       end)
+      <|> (crlf >>= fun () -> return (false, `Continue))
+    | Some chr ->
+      advance 1 >>= fun () -> return (false, `Dirty (String.make 1 chr))
+
+  let rec loop rollback t = function
+    | Parser.Read { buffer; k; } ->
+      t.k <- (fun t ->
+              Input.write_string
+                t.src
+                (Bytes.unsafe_to_string t.i)
+                t.i_off t.i_len;
+
+              let s = if t.i_len = 0
+                      then Parser.Complete
+                      else Parser.Incomplete
+              in
+
+              loop rollback t @@ k t.i_len s);
+      `Continue
+    | Parser.Fail (marks, exn) -> `Error exn
+    | Parser.Done (need_to_rollback, v) ->
+      if need_to_rollback
+      then match Parser.run t.src rollback with
+           | Parser.Done () -> v
+           | _ -> assert false (* XXX: rollback does not fail and does not
+                                       require any input. *)
+      else v
+
+  let decoder_src t = t.src
+
+  let decoder (rollback, boundary) src =
+    { src
+    ; state   = F.make ()
+    ; buffer  = Buffer.create 16
+    ; padding = 0
+    ; i       = Bytes.empty
+    ; i_off   = 0
+    ; i_len   = 0
+    ; k       = fun t -> loop rollback t
+                         @@ Parser.run t.src (option (false, `End "") (crlf *> p boundary t)) }
+
+  let decode t = t.k t
+
+  let src t buf off len =
+    if (off < 0 || len < 0 || off + len > Bytes.length buf)
+    then raise (Invalid_argument "Base64.src");
+
+    t.i <- buf;
+    t.i_off <- off;
+    t.i_len <- len;
+end
+
 let inline t buffer =
   let fix' f =
     let rec u a b = lazy (f r a b)
