@@ -220,7 +220,11 @@ let part_field extend_mime extend field_name =
         >>| fun v -> `Unsafe (field_name, v)) <?> (sp "Unsafe %s" field_name))
 
 let message_field extend_mime extend field_name =
-  field extend_mime extend field_name
+  field extend_mime
+    (fun field_name -> match String.lowercase_ascii field_name with
+     | "mime-version" -> version <* Rfc822.crlf >>| fun v -> `MimeVersion v
+     | _ -> extend field_name)
+    field_name
 
 let entity_part_headers extend_mime extend =
   many ((Rfc5322.field_name

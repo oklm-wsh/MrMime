@@ -80,6 +80,6 @@ val encoding             : mechanism t
 val id                   : Rfc822.msg_id t
 
 val part_field           : (string -> ([> field | unsafe ] as 'a) t) -> (string -> 'a t) -> string -> 'a t
-val message_field        : (string -> ([> field ] as 'a) t) -> (string -> 'a t) -> string -> 'a t
+val message_field        : (string -> ([> field | field_version ] as 'a) t) -> (string -> 'a t) -> string -> 'a t
 val mime_message_headers : (string -> ([> field | field_version ] as 'a) t) -> (string -> 'a t) -> 'a list t
 val mime_part_headers    : (string -> ([> skip | unsafe | field ] as 'a) t) -> 'a list t
