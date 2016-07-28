@@ -35,6 +35,7 @@ sig
   val unmark      : mark -> 'a t -> unit
   val forget      : mark -> 'a t -> unit
   val equal       : mark -> mark -> bool
+  val savailable  : 'a t -> int
 end
 
 type 'a t =
@@ -349,4 +350,9 @@ struct
   let pp fmt t         = pp fmt t.contents
   let rollback t s     = rollback t.contents s
   let proof t          = proof t.contents
+
+  let savailable ({ mark; _ } as t) =
+    match mark with
+    | None -> ravailable t
+    | Some mark -> t.contents.wpos - mark
 end

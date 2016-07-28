@@ -22,3 +22,4 @@ val wadvance : 'a t -> int -> unit
 val get : 'a t -> char
 val pp : Format.formatter -> 'a t -> unit
 val proof : 'a t -> 'a Internal_buffer.t
+val savailable : 'a t -> int
