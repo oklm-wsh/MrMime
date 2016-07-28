@@ -67,7 +67,7 @@ struct
     in aux l
 
 
-  let w_field = function
+  let w_field' = function
     | `Received (l, Some date) ->
       let w_data = function
         | `Word word -> Address.Encoder.w_word word
@@ -94,9 +94,16 @@ struct
     | `ReturnPath None ->
       string "Return-Path: < >" $ w_crlf
 
+  let w_field = function
+    | `Trace (Some trace, received) ->
+      w_field' (`ReturnPath (Some trace))
+      $ List.fold_right (fun x acc -> w_field' (`Received x) $ acc) received noop
+    | `Trace (None, received) ->
+      List.fold_right (fun x acc -> w_field' (`Received x) $ acc) received noop
+
   let w_trace { trace; received; } =
-    w_field (`ReturnPath trace)
-    $ List.fold_right (fun x acc -> w_field (`Received x) $ acc) received noop
+    w_field' (`ReturnPath trace)
+    $ List.fold_right (fun x acc -> w_field' (`Received x) $ acc) received noop
 end
 
 let decoder (fields : [> field ] list) =
