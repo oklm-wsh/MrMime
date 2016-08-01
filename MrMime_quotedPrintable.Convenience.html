@@ -33,13 +33,15 @@
 
 <pre><span class="keyword">module</span> Convenience: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_quotedPrintable.Convenience.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
+<pre><span class="keyword">module</span> <a href="MrMime_quotedPrintable.Convenience.Input.html">Input</a>: <code class="type">module type of RingBuffer.Committed</code><code class="type"> 
+    with type 'a t = 'a RingBuffer.Committed.t</code></pre>
 <pre><span id="TYPEdecoder"><span class="keyword">type</span> <code class="type">'a</code> decoder</span> </pre>
 
 
-<pre><span id="TYPEdecode"><span class="keyword">type</span> <code class="type"></code>decode</span> = <code class="type">[ `Continue<br>       | `Dirty of char<br>       | `End of string<br>       | `Error of Parser.err<br>       | `String of string ]</code> </pre>
+<pre><span id="TYPEdecoding"><span class="keyword">type</span> <code class="type"></code>decoding</span> = <code class="type">[ `Continue<br>       | `Dirty of char<br>       | `End of string<br>       | `Error of Parser.err<br>       | `String of string ]</code> </pre>
 
 
-<pre><span id="VALdecoder"><span class="keyword">val</span> decoder</span> : <code class="type">unit Parser.t * unit Parser.t -><br>       'a Parser.Input.t -> 'a <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoder">decoder</a></code></pre>
-<pre><span id="VALdecoder_src"><span class="keyword">val</span> decoder_src</span> : <code class="type">'a <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoder">decoder</a> -> 'a Parser.Input.t</code></pre>
-<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">'a <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoder">decoder</a> -><br>       <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecode">decode</a></code></pre>
+<pre><span id="VALdecoder"><span class="keyword">val</span> decoder</span> : <code class="type">unit Parser.t * unit Parser.t -><br>       'a Input.t -><br>       'a <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoder">decoder</a></code></pre>
+<pre><span id="VALdecoder_src"><span class="keyword">val</span> decoder_src</span> : <code class="type">'a <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoder">decoder</a> -><br>       'a Input.t</code></pre>
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">'a <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoder">decoder</a> -><br>       <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoding">decoding</a></code></pre>
 <pre><span id="VALsrc"><span class="keyword">val</span> src</span> : <code class="type">'a <a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoder">decoder</a> -> string -> int -> int -> unit</code></pre></body></html>

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime.Input.html">
+<link rel="Up" href="MrMime.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html"><title>MrMime.Convenience</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime.Input.html" title="MrMime.Input">Previous</a>
+&nbsp;<a class="up" href="MrMime.html" title="MrMime">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_MrMime.Convenience.html">MrMime.Convenience</a></h1>
+
+<pre><span class="keyword">module</span> Convenience: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime.Convenience.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="TYPEdecoding"><span class="keyword">type</span> <code class="type">'a</code> decoding</span> = <code class="type">[ `Continue | `Done of 'a | `Error of MrMime.Parser.err ]</code> </pre>
+
+
+<pre><span id="TYPEdecoder"><span class="keyword">type</span> <code class="type">('input, 'a)</code> decoder</span> </pre>
+
+
+<pre><span id="VALdecoder_src"><span class="keyword">val</span> decoder_src</span> : <code class="type">('input, 'a) <a href="MrMime.Convenience.html#TYPEdecoder">decoder</a> -> 'input MrMime.Input.t</code></pre>
+<pre><span id="VALdecoder"><span class="keyword">val</span> decoder</span> : <code class="type">'input MrMime.Input.t -><br>       'a MrMime.Parser.t -> ('input, 'a) <a href="MrMime.Convenience.html#TYPEdecoder">decoder</a></code></pre>
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">('input, 'a) <a href="MrMime.Convenience.html#TYPEdecoder">decoder</a> -> 'a <a href="MrMime.Convenience.html#TYPEdecoding">decoding</a></code></pre>
+<pre><span id="VALsrc"><span class="keyword">val</span> src</span> : <code class="type">('input, 'a) <a href="MrMime.Convenience.html#TYPEdecoder">decoder</a> -> string -> int -> int -> unit</code></pre>
+<pre><span id="VALdecoding"><span class="keyword">val</span> decoding</span> : <code class="type">('input, 'a) <a href="MrMime.Convenience.html#TYPEdecoder">decoder</a> -><br>       'b MrMime.Parser.t -> ('input, 'b) <a href="MrMime.Convenience.html#TYPEdecoder">decoder</a></code></pre></body></html>

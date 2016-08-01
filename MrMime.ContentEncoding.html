@@ -33,19 +33,7 @@
 &nbsp;<a class="up" href="MrMime.html" title="MrMime">Up</a>
 &nbsp;<a class="post" href="MrMime.MimeVersion.html" title="MrMime.MimeVersion">Next</a>
 </div>
-<h1>Module <a href="type_MrMime.ContentEncoding.html">MrMime.ContentEncoding</a> (<a href="code_MrMime.ContentEncoding.html">.ml</a>)</h1>
+<h1>Module <a href="type_MrMime.ContentEncoding.html">MrMime.ContentEncoding</a></h1>
 
-<pre><span class="keyword">module</span> ContentEncoding: <code class="type"><a href="MrMime_contentEncoding.html">MrMime_contentEncoding</a></code></pre><hr width="100%">
-
-<pre><span id="TYPEmechanism"><span class="keyword">type</span> <code class="type"></code>mechanism</span> = <code class="type">[ `Base64<br>       | `Binary<br>       | `Bit7<br>       | `Bit8<br>       | `Ietf_token of string<br>       | `QuotedPrintable<br>       | `X_token of string ]</code> </pre>
-
-
-<pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `ContentEncoding of <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> ]</code> </pre>
-
-
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> -> unit</code></pre>
-<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a></code></pre>
-<pre><span class="keyword">module</span> <a href="MrMime_contentEncoding.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentEncoding.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span class="keyword">module</span> <a href="MrMime_contentEncoding.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentEncoding.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> option</code></pre>
-<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> * int) option</code></pre></body></html>
+<pre><span class="keyword">module</span> ContentEncoding: <code class="type">module type of <a href="MrMime_contentEncoding.html">MrMime_contentEncoding</a></code></pre><hr width="100%">
+</body></html>
