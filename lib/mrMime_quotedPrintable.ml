@@ -161,32 +161,37 @@ struct
     | `End str    -> Format.fprintf fmt "`End %s" str
     | `String str -> Format.fprintf fmt "`String %s" str
 
-  let continue_or f { buffer; _ } =
-    if Buffer.length buffer = 0
-    then `Continue
-    else
-      let s = Buffer.contents buffer in
-      Buffer.clear buffer;
-      f s
-
-  let terminate { buffer; _ } =
+  let string { buffer; _ } =
     let s = Buffer.contents buffer in
-    Buffer.clear buffer;
-    `End s
+    Buffer.clear buffer; `String s
+
+  let terminate rollback { buffer; _ } =
+    let s = Buffer.contents buffer in
+    Buffer.clear buffer; `End (rollback, s)
+
+  let boundary' boundary t =
+    boundary *> return (terminate true t)
+
+  let hard t =
+    Rfc822.crlf
+    *> { f = fun i s fail succ ->
+         Buffer.add_char t.buffer '\n';
+         succ i s () }
+    *> return (string t)
+
+  let soft t =
+    Rfc822.crlf
+    *> return (string t)
 
   let p boundary t =
     let is_ = function
       | '=' | ' ' | '\r' | '\t' -> false
       | _ -> true
     in
-    (fast_qp t.buffer >>= function
-     | `Hard -> (boundary *> return (true, terminate t))
-                <|> (Rfc822.crlf
-                     *> { f = fun i s fail succ -> Buffer.add_char t.buffer '\n';
-                                                   succ i s () }
-                     *> return (false, continue_or (fun s -> `String s) t))
-     | `Soft -> (boundary *> return (true, terminate t))
-                <|> (Rfc822.crlf *> return (false, continue_or (fun s -> `String s) t)))
+    (fast_qp t.buffer
+     >>= function
+         | `Hard -> ((boundary' boundary t) <|> (hard t))
+         | `Soft -> ((boundary' boundary t) <|> (soft t)))
     <|> ({ f = fun i s fail succ ->
            let n = Input.transmit i @@ fun buff off len ->
 
@@ -196,30 +201,30 @@ struct
            in
 
            succ i s n } *> peek_chr >>= function
-         | None -> return (false, terminate t)
+         | None -> return (terminate false t)
          | Some '=' ->
            (hex >>= fun chr ->
-            Buffer.add_char t.buffer chr; return (false, continue_or (fun s -> `String s) t))
-           <|> (char '=' *> ((boundary *> return (true, terminate t))
-                             <|> (Rfc822.crlf *> return (false, continue_or (fun s -> `String s) t))))
+            Buffer.add_char t.buffer chr; return (string t))
+           <|> (char '=' *> ((boundary *> return (terminate true t))
+                             <|> (Rfc822.crlf *> return (string t))))
          | Some ' '
          | Some '\t' ->
            repeat (Some 1) None Rfc822.is_wsp
            >>= fun lwsp -> peek_chr >>= (function
-            | Some '\r' -> return (false, continue_or (fun s -> `String s) t)
+            | Some '\r' -> return (string t)
             | _ ->
               { f = fun i s fail succ ->
                 Buffer.add_string t.buffer lwsp;
 
-                succ i s () } *> return (false, continue_or (fun s -> `String s) t))
+                succ i s () } *> return (string t))
          | Some '\r' ->
-           (boundary *> return (true, terminate t))
+           (boundary *> return (terminate true t))
            <|> (Rfc822.crlf *> { f = fun i s fail succ -> Buffer.add_char t.buffer '\n';
                                                           succ i s () }
-                            *> return (false, continue_or (fun s -> `String s) t))
-         | Some chr -> return (false, `Dirty chr))
+                            *> return (string t))
+         | Some chr -> return (`Dirty chr))
 
-  let rec loop rollback t = function
+  let rec loop ((boundary, rollback) as p') t = function
     | Parser.Read { buffer; k; } ->
       t.k <- (fun t ->
               Input.write_string
@@ -232,26 +237,41 @@ struct
                       else Parser.Incomplete
               in
 
-              loop rollback t @@ k t.i_len s);
+              loop p' t @@ k t.i_len s);
       `Continue
     | Parser.Fail (marks, exn) -> `Error exn
-    | Parser.Done (need_to_rollback, v) ->
-      if need_to_rollback
-      then match Parser.run t.src rollback with
-           | Parser.Done () -> v
-           | _ -> assert false
-      else v
+    | Parser.Done (`Dirty chr) ->
+      t.k <- (fun t -> loop p' t
+              @@ Parser.(run t.src (p boundary t)));
+      `Dirty chr
+    | Parser.Done (`String raw) ->
+      t.k <- (fun t -> loop p' t
+              @@ Parser.(run t.src (p boundary t)));
+      `String raw
+    | Parser.Done (`End (false, raw)) ->
+      t.k <- (fun t -> loop p' t
+              @@ Parser.(run t.src (return (`End (false, raw)))));
+      `End raw
+    | Parser.Done (`End (true, raw)) ->
+      match Parser.run t.src rollback with
+      | Parser.Done () ->
+        t.k <- (fun t -> loop p' t
+                @@ Parser.(run t.src (return (`End (false, raw)))));
+        `End raw
+      | _ -> assert false
 
   let decoder_src t = t.src
 
-  let decoder (rollback, boundary) src =
+  let decoder ((boundary, rollback) as p') src =
     { src
     ; buffer = Buffer.create 16
     ; i      = Bytes.empty
     ; i_off  = 0
     ; i_len  = 0
-    ; k      = fun t -> loop rollback t
-                        @@ Parser.run t.src (option (false, `End "") (Rfc822.crlf *> p boundary t))}
+    ; k      = fun t -> loop p' t
+                        @@ Parser.(run t.src (option
+                                              (`End (false, ""))
+                                              (Rfc822.crlf *> p boundary t))) }
 
   let decode t = t.k t
 
