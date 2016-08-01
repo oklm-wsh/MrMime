@@ -134,6 +134,8 @@ let decode boundary rollback buffer =
 
 module Convenience =
 struct
+  module Input = Input
+
   type 'a decoder =
     { src           : 'a Input.t
     ; buffer        : Buffer.t

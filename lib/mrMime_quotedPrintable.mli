@@ -8,6 +8,9 @@ val inline          : unit -> string t
 
 module Convenience :
 sig
+  module Input : module type of RingBuffer.Committed
+    with type 'a t = 'a RingBuffer.Committed.t
+
   type 'a decoder
   type decode =
     [ `Continue
