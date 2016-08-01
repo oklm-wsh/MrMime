@@ -51,6 +51,13 @@ struct
       Bytes.set dst (dst_idx + !idx) (Array1.get src (src_idx + !idx));
       incr idx;
     done
+
+  let pp fmt bs =
+    for i = 0 to length bs - 1
+    do match get bs i with
+       | '\000' .. '\031' | '\127' -> Format.pp_print_char fmt '.'
+       | chr -> Format.pp_print_char fmt chr
+    done;
 end
 
 type 'a t =
@@ -120,6 +127,11 @@ let to_string (type a) (v : a t) = match v with
   | Bytes v -> Bytes.to_string v
   | Bigstring v -> Bigstring.to_string v
 
+let pp_bytes fmt =
+  Bytes.iter @@ function
+    | '\000' .. '\031' | '\127' -> Format.pp_print_char fmt '.'
+    | chr -> Format.pp_print_char fmt chr
+
 let pp (type a) fmt (v : a t) = match v with
-  | Bytes v -> Format.pp_print_string fmt (Bytes.unsafe_to_string v)
-  | Bigstring v -> Format.pp_print_string fmt (Bigstring.to_string v)
+  | Bytes v -> pp_bytes fmt v
+  | Bigstring v -> Bigstring.pp fmt v
