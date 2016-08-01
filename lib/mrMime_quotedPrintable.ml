@@ -67,17 +67,21 @@ let ensure_line =
   { f = loop }
 
 let fast_qp buffer =
-  (ensure_line
-   *> { f = fun i s fail succ ->
-        let k_eof buffer lexbuf = fail i s [] IO.End_of_flow in
-        let k_done line_breaks buffer lexbuf = succ i s line_breaks in
+  ensure_line
+  *> { f = fun i s fail succ ->
+       let mark = Input.mark i in
 
-        let lexbuf = from_input i in
+       let k_eof buffer lexbuf = fail i s [] IO.End_of_flow in
+       let k_done line_breaks buffer lexbuf =
+         Input.unmark mark i;
+         Input.radvance i (lexbuf.Lexing.lex_curr_pos - 2);
+         (* TODO: need to be check! *)
 
-        Fast_qp.decode buffer k_done k_eof lexbuf }
-   <* { f = fun i s fail succ ->
-        Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) "\r\n");
-        succ i s () })
+         succ i s line_breaks in
+
+       let lexbuf = from_input i in
+
+       Fast_qp.decode buffer k_done k_eof lexbuf }
 
 let line buffer boundary m =
   let is_ = function
