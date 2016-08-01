@@ -46,10 +46,18 @@ type 'a t =
 
 let pp fmt { rpos; wpos; buffer; size; } =
   if rpos <= wpos
-  then Format.fprintf fmt "{ @[<hov>size = %d;@ %d.@,%a@,.%d@] }" (size - 1)
-  rpos Internal_buffer.pp buffer wpos
-  else Format.fprintf fmt "{ @[<hov>size = %d;@ %d.@,%a@,.%d@] }" (size - 1)
-  wpos Internal_buffer.pp buffer rpos
+  then Format.fprintf fmt "{ @[<hov>size = %d;@ %d.@,%a@ [ rpos ]@ %a@ [ wpos ]@ %a@,.%d@] }" (size - 1)
+         rpos
+         Internal_buffer.pp (Internal_buffer.sub buffer 0 rpos)
+         Internal_buffer.pp (Internal_buffer.sub buffer rpos (wpos - rpos))
+         Internal_buffer.pp (Internal_buffer.sub buffer wpos (size - wpos))
+         wpos
+  else Format.fprintf fmt "{ @[<hov>size = %d;@ %d.@,%a@ [ wpos ]@ %a@ [ rpos ]@ %a@,.%d@] }" (size - 1)
+         wpos
+         Internal_buffer.pp (Internal_buffer.sub buffer 0 wpos)
+         Internal_buffer.pp (Internal_buffer.sub buffer wpos (rpos - wpos))
+         Internal_buffer.pp (Internal_buffer.sub buffer rpos (size - rpos))
+         rpos
 
 let proof (type a) (v : a t) : a Internal_buffer.t =
   v.buffer
