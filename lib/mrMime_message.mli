@@ -20,7 +20,14 @@ type content += Unit
 
 module Decoder :
 sig
-  val p_message   : (MrMime_header.header * (encoding, content) message) MrMime_parser.t
+  val p_message          : (MrMime_header.header * (encoding, content) message) MrMime_parser.t
+  val p_header           : (MrMime_header.header * MrMime_content.t * [ MrMime_header.field | MrMime_content.field ] list) MrMime_parser.t
+  val p_first_part       : MrMime_content.t -> (MrMime_content.t * [ MrMime_content.field | MrMime_header.field ] list) MrMime_parser.t
+  val p_next_part        : MrMime_content.t -> (MrMime_content.t * [ MrMime_content.field | MrMime_header.field ] list) MrMime_parser.t
+  val p_bound_of_content : MrMime_content.t -> (unit MrMime_parser.t * unit MrMime_parser.t)
+  val p_store_part       : MrMime_content.t -> MrMime_content.t -> [ `End of encoding option | `Next of encoding option ] MrMime_parser.t
+  val p_discard_part     : MrMime_content.t -> [ `End | `Next ] MrMime_parser.t
+  val p_end_of_part      : MrMime_content.t -> [ `End | `Next ] MrMime_parser.t
 end
 
 module Extension :
