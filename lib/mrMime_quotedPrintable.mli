@@ -12,7 +12,7 @@ sig
     with type 'a t = 'a RingBuffer.Committed.t
 
   type 'a decoder
-  type decode =
+  type decoding =
     [ `Continue
     | `Error of err
     | `Dirty of char
@@ -22,7 +22,7 @@ sig
   val decoder       : (unit Parser.t * unit Parser.t) -> 'a Input.t -> 'a decoder
   val decoder_src   : 'a decoder -> 'a Input.t
 
-  val decode        : 'a decoder -> decode
+  val decode        : 'a decoder -> decoding
   val src           : 'a decoder -> string -> int -> int -> unit
 end
 

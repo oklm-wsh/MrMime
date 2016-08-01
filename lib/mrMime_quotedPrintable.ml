@@ -142,8 +142,20 @@ struct
     ; mutable i     : Bytes.t
     ; mutable i_off : int
     ; mutable i_len : int
-    ; mutable k     : 'a decoder -> decode }
-  and decode = [ `Continue | `Error of err | `Dirty of char | `End of string | `String of string ]
+    ; mutable k     : 'a decoder -> decoding }
+  and decoding =
+    [ `Continue
+    | `Error  of err
+    | `Dirty  of char
+    | `End    of string
+    | `String of string ]
+
+  let pp_decoding fmt = function
+    | `Continue   -> Format.fprintf fmt "`Continue"
+    | `Error exn  -> Format.fprintf fmt "`Error exn"
+    | `Dirty chr  -> Format.fprintf fmt "`Dirty %S" (String.make 1 chr)
+    | `End str    -> Format.fprintf fmt "`End %s" str
+    | `String str -> Format.fprintf fmt "`String %s" str
 
   let continue_or f { buffer; _ } =
     if Buffer.length buffer = 0
