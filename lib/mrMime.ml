@@ -64,7 +64,7 @@ struct
 
   let src t buf off len =
     if (off < 0 || len < 0 || off + len > Bytes.length buf)
-    then raise (Invalid_argument "Base64.src");
+    then raise (Invalid_argument "MrMime.src");
 
     t.i <- buf;
     t.i_off <- off;
