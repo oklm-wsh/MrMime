@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime_message.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html">
+<link title="MrMime_maildir" rel="Chapter" href="MrMime_maildir.html"><title>MrMime_maildir</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime_message.html" title="MrMime_message">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_MrMime_maildir.html">MrMime_maildir</a> (<a href="code_MrMime_maildir.html">.ml</a>)</h1>
+
+<pre><span class="keyword">module</span> MrMime_maildir: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_maildir.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span class="keyword">module</span> <a href="MrMime_maildir.Map.html">Map</a>: <code class="type">Map.Make</code><code class="code">(</code><code class="type">String</code><code class="code">)</code></pre>
+<pre><span id="TYPEsafe"><span class="keyword">type</span> <code class="type"></code>safe</span> </pre>
+
+
+<pre><span id="TYPEunsafe"><span class="keyword">type</span> <code class="type"></code>unsafe</span> </pre>
+
+
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.sequence">sequence</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.boot">boot</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.crypto_random">crypto_random</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.inode">inode</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.device">device</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.microsecond">microsecond</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.pid">pid</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.deliveries">deliveries</span>&nbsp;: <code class="type">int option</code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALmake"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.make.html">make</a></span> : <code class="type">?sequence:int -><br>       ?boot:int -><br>       ?crypto_random:int -><br>       ?inode:int -><br>       ?device:int -><br>       ?microsecond:int -><br>       ?pid:int -> ?deliveries:int -> unit -> <a href="MrMime_maildir.html#TYPEunsafe">unsafe</a> <a href="MrMime_maildir.html#TYPEt">t</a></code></pre>
+<pre><span id="VALto_safe"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.to_safe.html">to_safe</a></span> : <code class="type"><a href="MrMime_maildir.html#TYPEunsafe">unsafe</a> <a href="MrMime_maildir.html#TYPEt">t</a> -><br>       <a href="MrMime_maildir.html#TYPEsafe">safe</a> <a href="MrMime_maildir.html#TYPEt">t</a> option</code></pre>
+<pre><code><span id="TYPEid"><span class="keyword">type</span> <code class="type"></code>id</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTid.Modern"><span class="constructor">Modern</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_maildir.html#TYPEsafe">safe</a> <a href="MrMime_maildir.html#TYPEt">t</a></code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTid.Old0"><span class="constructor">Old0</span></span> <span class="keyword">of</span> <code class="type">int</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTid.Old1"><span class="constructor">Old1</span></span> <span class="keyword">of</span> <code class="type">int * int</code></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEflag"><span class="keyword">type</span> <code class="type"></code>flag</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTflag.Passed"><span class="constructor">Passed</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTflag.Replied"><span class="constructor">Replied</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTflag.Seen"><span class="constructor">Seen</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTflag.Trashed"><span class="constructor">Trashed</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTflag.Draft"><span class="constructor">Draft</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTflag.Flagged"><span class="constructor">Flagged</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEinfo"><span class="keyword">type</span> <code class="type">'a</code> info</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTinfo.Exp"><span class="constructor">Exp</span></span> <span class="keyword">of</span> <code class="type">'a</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTinfo.Info"><span class="constructor">Info</span></span> <span class="keyword">of</span> <code class="type"><a href="MrMime_maildir.html#TYPEflag">flag</a> list</code></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEfilename"><span class="keyword">type</span> <code class="type">'a</code> filename</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTfilename.time">time</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTfilename.id">id</span>&nbsp;: <code class="type"><a href="MrMime_maildir.html#TYPEid">id</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTfilename.host">host</span>&nbsp;: <code class="type">string</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTfilename.parameters">parameters</span>&nbsp;: <code class="type">string Map.t</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTfilename.info">info</span>&nbsp;: <code class="type">'a <a href="MrMime_maildir.html#TYPEinfo">info</a></code>;</code></td>
+
+</tr></table>
+}
+
+
+
+<pre><span id="VALpp"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp.html">pp</a></span> : <code class="type">Format.formatter -> ('a, Format.formatter, unit) Pervasives.format -> 'a</code></pre>
+<pre><span id="VALpp_lst"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp_lst.html">pp_lst</a></span> : <code class="type">sep:(Format.formatter -> unit -> unit) -><br>       (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a list -> unit</code></pre>
+<pre><span id="VALpp_flag"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp_flag.html">pp_flag</a></span> : <code class="type">Format.formatter -> <a href="MrMime_maildir.html#TYPEflag">flag</a> -> unit</code></pre>
+<pre><span id="VALpp_info"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp_info.html">pp_info</a></span> : <code class="type">(Format.formatter -> 'a -> unit) -><br>       Format.formatter -> 'a <a href="MrMime_maildir.html#TYPEinfo">info</a> -> unit</code></pre>
+<pre><span id="VALpp_option"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp_option.html">pp_option</a></span> : <code class="type">(Format.formatter -> 'a -> unit) -> Format.formatter -> 'a option -> unit</code></pre>
+<pre><span id="VALpp_t"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp_t.html">pp_t</a></span> : <code class="type">Format.formatter -> 'a <a href="MrMime_maildir.html#TYPEt">t</a> -> unit</code></pre>
+<pre><span id="VALpp_id"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp_id.html">pp_id</a></span> : <code class="type">Format.formatter -> <a href="MrMime_maildir.html#TYPEid">id</a> -> unit</code></pre>
+<pre><span id="VALpp_map"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp_map.html">pp_map</a></span> : <code class="type">Format.formatter -> string Map.t -> unit</code></pre>
+<pre><span id="VALpp_filename"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.pp_filename.html">pp_filename</a></span> : <code class="type">(Format.formatter -> 'a -> unit) -><br>       Format.formatter -> 'a <a href="MrMime_maildir.html#TYPEfilename">filename</a> -> unit</code></pre><pre><code><span class="keyword">type</span> <code class="type"></code>Parser.err += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONInvalid_filename">Invalid_filename</span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALimplode"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.implode.html">implode</a></span> : <code class="type">char list -> string</code></pre>
+<pre><span id="VALavoid"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.avoid.html">avoid</a></span> : <code class="type">unit Parser.t</code></pre>
+<pre><span id="VALparse"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.parse.html">parse</a></span> : <code class="type">'a Parser.t -> 'a <a href="MrMime_maildir.html#TYPEfilename">filename</a> Parser.t</code></pre>
+<pre><span id="VALof_filename"><span class="keyword">val</span> <a href="code_VALMrMime_maildir.of_filename.html">of_filename</a></span> : <code class="type">'a Parser.t -> string -> 'a <a href="MrMime_maildir.html#TYPEfilename">filename</a> option</code></pre></body></html>
