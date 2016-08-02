@@ -53,7 +53,6 @@ let discard_to_dash_boundary boundary =
        then Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) @@ "--" ^ boundary);
        succ i s () }
 
-
 let transport_padding =
   repeat None None (function '\x09' | '\x20' -> true | _ -> false)
   *> return ()
@@ -114,7 +113,10 @@ let body_part octet =
   Rfc2045.mime_part_headers
     (Rfc5322.field (fun _ -> fail Rfc5322.Nothing_to_do))
   >>= MrMime_content.Decoder.part >>= fun (content, fields) ->
-    option None (Rfc822.crlf *> octet content fields >>| fun v -> Some v)
+    ((Rfc822.crlf *> return `HasCRLF) <|> (return `NoCRLF))
+  >>= (function
+    | `HasCRLF -> octet content fields >>| fun v -> Some v
+    | `NoCRLF -> return None)
   >>| fun octets -> (content, fields, octets)
 
 let encapsulation boundary octet =
@@ -134,13 +136,27 @@ let epilogue parent = match parent with
     | None -> return ()
     | Some _ -> m
 
+let optimized_encapsulation boundary octet =
+  let fix' f =
+    let rec u a = lazy (f r a)
+    and r a = { f = fun i s fail succ -> Lazy.(force (u a)).f i s fail succ } in
+    r
+  in
+
+  fix' @@ fun m l ->
+    ((delimiter boundary *> transport_padding *> Rfc822.crlf *> return `HasBoundary)
+     <|> (return `NoBoundary))
+    >>= function
+      | `HasBoundary -> body_part octet >>= fun x -> m (x :: l)
+      | `NoBoundary -> return l
+
 let multipart_body parent boundary octet =
   option () (preamble boundary)
   *> dash_boundary boundary
   *> transport_padding
   *> Rfc822.crlf
   *> body_part octet
-  >>= fun x -> many (encapsulation boundary octet)
+  >>= fun x -> optimized_encapsulation boundary octet []
   >>= fun r ->
     (close_delimiter boundary
      *> transport_padding
