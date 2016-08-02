@@ -260,6 +260,30 @@ struct
     | Weak of int
     | Uniq of int
 
+  let pp_with_mark fmt (off, len, { contents = { rpos; wpos; buffer; size; }; mark; }) =
+    match mark with
+    | Some mark when off <= mark && mark <= (off + len) ->
+      Format.fprintf fmt "%a [ mark ] %a"
+        Internal_buffer.pp (Internal_buffer.sub buffer off (mark - off))
+        Internal_buffer.pp (Internal_buffer.sub buffer mark (mark + len))
+    | _ ->
+      Internal_buffer.pp fmt (Internal_buffer.sub buffer off len)
+
+  let pp fmt ({ contents = { rpos; wpos; buffer; size; }; mark; } as t) =
+    if rpos <= wpos
+    then Format.fprintf fmt "{ @[<hov>size = %d;@ %d.@,%a@ [ rpos ]@ %a@ [ wpos ]@ %a@,.%d@] }" (size - 1)
+           rpos
+           pp_with_mark (0, rpos, t)
+           pp_with_mark (rpos, (wpos - rpos), t)
+           pp_with_mark (wpos, (size - wpos), t)
+           wpos
+    else Format.fprintf fmt "{ @[<hov>size = %d;@ %d.@,%a@ [ wpos ]@ %a@ [ rpos ]@ %a@,.%d@] }" (size - 1)
+           wpos
+           pp_with_mark (0, wpos, t)
+           pp_with_mark (wpos, (rpos - wpos), t)
+           pp_with_mark (rpos, (size - rpos), t)
+           rpos
+
   let copy t len =
     let buffer = create_by ~proof:t.contents.buffer (ravailable t.contents + len) in
     while ravailable t.contents <> 0
@@ -355,7 +379,6 @@ struct
   let radvance t       = radvance t.contents
   let wadvance t       = wadvance t.contents
   let get t            = get t.contents
-  let pp fmt t         = pp fmt t.contents
   let rollback t s     = rollback t.contents s
   let proof t          = proof t.contents
 
