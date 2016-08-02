@@ -11,6 +11,7 @@ module ContentEncoding = MrMime_contentEncoding
 module MimeVersion     = MrMime_mimeVersion
 module MsgID           = MrMime_msgID
 module Message         = MrMime_message
+module Maildir         = MrMime_maildir
 
 module Parser          = MrMime_parser
 module Input           = MrMime_input

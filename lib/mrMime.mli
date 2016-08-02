@@ -11,6 +11,7 @@ module ContentEncoding : module type of MrMime_contentEncoding
 module MimeVersion     : module type of MrMime_mimeVersion
 module MsgID           : module type of MrMime_msgID
 module Message         : module type of MrMime_message
+module Maildir         : module type of MrMime_maildir
 
 module Parser          : module type of MrMime_parser
 module Input           : module type of MrMime_input

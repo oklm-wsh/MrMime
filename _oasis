@@ -16,7 +16,7 @@ Library mrmime
   Path:                 lib
   InternalModules:      Internal_buffer, Option, RingBuffer, Parser, Encoder, Wrap, Iana,
                         Rfc6532, Rfc822, Rfc2045, Rfc2047, Rfc5321, Rfc5322, Rfc2046, Top, Fast_qp
-  Modules:              MrMime, MrMime_parser, MrMime_input, MrMime_quotedPrintable, MrMime_base64, MrMime_date, MrMime_msgID, MrMime_mimeVersion, MrMime_contentEncoding, MrMime_contentType, MrMime_content, MrMime_address, MrMime_resent, MrMime_trace, MrMime_header, MrMime_message
+  Modules:              MrMime, MrMime_parser, MrMime_input, MrMime_quotedPrintable, MrMime_base64, MrMime_date, MrMime_msgID, MrMime_mimeVersion, MrMime_contentEncoding, MrMime_contentType, MrMime_content, MrMime_address, MrMime_resent, MrMime_trace, MrMime_header, MrMime_message, MrMime_maildir
   BuildDepends:         ipaddr, uutf, bigarray
 
 SourceRepository master

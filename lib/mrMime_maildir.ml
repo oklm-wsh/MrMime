@@ -74,6 +74,73 @@ type 'a filename =
   ; parameters           : string Map.t
   ; info                 : 'a info }
 
+let pp = Format.fprintf
+
+let pp_lst ~sep pp_data fmt lst =
+  let rec aux = function
+    | [] -> ()
+    | [ x ] -> pp_data fmt x
+    | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
+  in aux lst
+
+let pp_flag fmt = function
+  | Passed  -> pp fmt "Passed"
+  | Replied -> pp fmt "Replied"
+  | Seen    -> pp fmt "Seen"
+  | Trashed -> pp fmt "Trashed"
+  | Draft   -> pp fmt "Draft"
+  | Flagged -> pp fmt "Flagged"
+
+let pp_info pp_experimental fmt = function
+  | Exp a -> pp_experimental fmt a
+  | Info l ->
+    pp fmt "[@[<hov>%a@]]"
+      (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") pp_flag) l
+
+let pp_option pp_data fmt = function
+  | Some a -> pp_data fmt a
+  | None -> pp fmt "<none>"
+
+let pp_t fmt { sequence; boot; crypto_random; inode; device; microsecond; pid; deliveries; } =
+  pp fmt "{@[<hov>sequence = %a;@ \
+                  boot = %a;@ \
+                  crypto_random = %a;@ \
+                  inode = %a;@ \
+                  device = %a;@ \
+                  microsecond = %a;@ \
+                  pid = %a;@ \
+                  deliveries = %a@]}"
+    (pp_option Format.pp_print_int) sequence
+    (pp_option Format.pp_print_int) boot
+    (pp_option Format.pp_print_int) crypto_random
+    (pp_option Format.pp_print_int) inode
+    (pp_option Format.pp_print_int) device
+    (pp_option Format.pp_print_int) microsecond
+    (pp_option Format.pp_print_int) pid
+    (pp_option Format.pp_print_int) deliveries
+
+let pp_id fmt = function
+  | Modern t    -> pp fmt "Modern %a" pp_t t
+  | Old0 i      -> pp fmt "Old %d" i
+  | Old1 (a, b) -> pp fmt "Old (%d, %d)" a b
+
+let pp_map fmt map =
+  Map.iter
+    (fun key value -> pp fmt "%s -> %s@\n" key value)
+    map
+
+let pp_filename pp_experimental fmt { time; id; host; parameters; info; } =
+  pp fmt "{@[<hov>time = %d;@ \
+                  id = @[<hov>%a@];@ \
+                  host = %S;@ \
+                  parameters = @[<hov>%a@];@ \
+                  info = @[<hov]%a@]@]}"
+    time
+    pp_id id
+    host
+    pp_map parameters
+    (pp_info pp_experimental) info
+
 open Parser
 open Parser.Convenience
 
@@ -179,3 +246,18 @@ let parse experimental =
       char ',' *> flags >>| fun l ->
       { time; id; host; parameters; info = Info l }
     | _ -> return { time; id; host; parameters; info = Info [] }
+
+let of_filename experimental filename =
+  let l = String.length filename in
+  let i = Input.create_bytes 128 in
+
+  let rec aux consumed = function
+    | Parser.Fail _ -> None
+    | Parser.Read { buffer; k; } ->
+      let n = min 128 (l - consumed) in
+      Input.write_string buffer filename consumed n;
+      aux (consumed + n) @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
+    | Parser.Done v -> Some v
+  in
+
+  aux 0 @@ Parser.run i (parse experimental)
