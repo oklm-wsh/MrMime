@@ -1,4 +1,4 @@
-module Base64 : module type of MrMime_base64
+module Base64          : module type of MrMime_base64
 module QuotedPrintable : module type of MrMime_quotedPrintable
 module Date            : module type of MrMime_date
 module Address         : module type of MrMime_address
