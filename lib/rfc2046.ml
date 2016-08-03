@@ -158,7 +158,8 @@ let multipart_body parent boundary octet =
   *> body_part octet
   >>= fun x -> optimized_encapsulation boundary octet []
   >>= fun r ->
-    (close_delimiter boundary
-     *> transport_padding
-     *> option () (Rfc822.crlf *> (epilogue parent))
-     *> return (x :: r)) <|> (return (x :: r))
+    ((close_delimiter boundary
+      *> transport_padding
+      *> option () (epilogue parent))
+     <|> (return ()))
+  >>= fun () -> return (x :: r)
