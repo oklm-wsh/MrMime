@@ -5,7 +5,9 @@ MrMime
 
 MrMime is a pure implementation of 7 standards about the email. You can see an example to extract an image from an multipart email:
 
-![MrMime](http://img.isomorphis.me/knV0k.gif)
+<p align="center">
+  <img src="http://img.isomorphis.me/2jToU.gif" alt="Mr. Mime" />
+</p>
 
 You can see [the abstract](http://din.osau.re/mrmime.pdf) about this project for the ICFP.
 
