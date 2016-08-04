@@ -14,7 +14,7 @@ You can see [the abstract](http://din.osau.re/mrmime.pdf) about this project for
 You can see an example of MrMime to the `test.ml` file. It's a step-by-step program to extract an image from an email. You can execute this program with `utop` like:
 
 ```
-$ utop -init test.ml > mrmime.gif
+$ utop test.ml > mrmime.gif
 ```
 
 After a `make install` of this project.
