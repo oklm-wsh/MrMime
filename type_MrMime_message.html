@@ -32,18 +32,21 @@
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">Top</span>.message&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Discrete</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;*&nbsp;<span class="keywordsign">'</span>a
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Extension</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;*&nbsp;<span class="keywordsign">'</span>b
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Composite</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Multipart</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;*
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_part&nbsp;list&nbsp;*
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">MrMime_message</span>.part&nbsp;option)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Message</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_message&nbsp;list&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_header</span>.header&nbsp;*&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">MrMime_message</span>.message
 &nbsp;&nbsp;<span class="keyword">and</span>&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;part&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">Top</span>.part&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">PDiscrete</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="keywordsign">'</span>a
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PExtension</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="keywordsign">'</span>b
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PComposite</span>&nbsp;<span class="keyword">of</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PMultipart</span>&nbsp;<span class="keyword">of</span>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;<span class="constructor">MrMime_message</span>.field_part&nbsp;list&nbsp;*
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">MrMime_message</span>.part&nbsp;option)
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;list
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PMessage</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_header</span>.header&nbsp;*&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">MrMime_message</span>.message
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;=&nbsp;..
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_base64</span>.result
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keyword">of</span>&nbsp;string
