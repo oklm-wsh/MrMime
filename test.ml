@@ -112,10 +112,10 @@ let rec b64_to_result decoder_b64 =
     src decoder_b64 tmp 0 n;
     b64_to_result decoder_b64
   | `String s ->
-    (* print_string s; *)
+    print_string s;
     b64_to_result decoder_b64
   | `End s ->
-    (* print_string s; *)
+    print_string s;
     Ok ()
   | `Dirty s ->
     b64_to_result decoder_b64
