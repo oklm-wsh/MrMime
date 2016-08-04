@@ -4,11 +4,13 @@ type field_part    = Top.field_part
 type ('a, 'b) message = ('a, 'b) Top.message =
   | Discrete  of MrMime_content.t * field_message list * 'a
   | Extension of MrMime_content.t * field_message list * 'b
-  | Composite of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | Multipart of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | Message   of MrMime_content.t * field_message list * MrMime_header.header * ('a, 'b) message
 and ('a, 'b) part = ('a, 'b) Top.part =
   | PDiscrete  of 'a
   | PExtension of 'b
-  | PComposite of (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | PMultipart of (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | PMessage   of MrMime_header.header * ('a, 'b) message
 
 type encoding = ..
 type encoding += Base64 of MrMime_base64.result

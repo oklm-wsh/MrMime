@@ -4,11 +4,13 @@ type field_part    = Top.field_part
 type ('a, 'b) message = ('a, 'b) Top.message =
   | Discrete  of MrMime_content.t * field_message list * 'a
   | Extension of MrMime_content.t * field_message list * 'b
-  | Composite of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | Multipart of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | Message   of MrMime_content.t * field_message list * MrMime_header.header * ('a, 'b) message
 and ('a, 'b) part = ('a, 'b) Top.part =
   | PDiscrete  of 'a
   | PExtension of 'b
-  | PComposite of (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | PMultipart of (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | PMessage   of MrMime_header.header * ('a, 'b) message
 
 type encoding = Top.encoding = ..
 type Top.encoding += Base64 = Top.Base64
@@ -237,7 +239,7 @@ struct
         Content.Encoder.w_part content
         $ w_crlf
         $ w_body content body
-      | [ (content, fields, Some (Top.PComposite lst)) ] ->
+      | [ (content, fields, Some (Top.PMultipart lst)) ] ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_multipart content lst
@@ -250,7 +252,7 @@ struct
         $ w_body content body
         $ string (Rfc2046.make_delimiter boundary)
         $ aux r
-      | (content, fields, Some (Top.PComposite lst)) :: r ->
+      | (content, fields, Some (Top.PMultipart lst)) :: r ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_multipart content lst
@@ -268,9 +270,9 @@ struct
     $ w_crlf
     $ aux lst
 
-  let w_message (header, body) =
+  and w_message (header, body) =
     match body with
-    | Top.Composite (content, fields, lst) ->
+    | Top.Multipart (content, fields, lst) ->
       Content.Encoder.w_message content
       $ w_crlf
       $ w_multipart content lst

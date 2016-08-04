@@ -13,11 +13,13 @@ type field_part =
 type ('a, 'b) message =
   | Discrete  of MrMime_content.t * field_message list * 'a
   | Extension of MrMime_content.t * field_message list * 'b
-  | Composite of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | Multipart of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | Message   of MrMime_content.t * field_message list * MrMime_header.header * ('a, 'b) message
 and ('a, 'b) part =
   | PDiscrete  of 'a
   | PExtension of 'b
-  | PComposite of (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | PMultipart of (MrMime_content.t * field_part list * ('a, 'b) part option) list
+  | PMessage   of MrMime_header.header * ('a, 'b) message
 
 type encoding = ..
 type encoding += Base64 of MrMime_base64.result
@@ -109,7 +111,7 @@ let discard = function
 let discard_body = discard None
 let discard_part boundary = discard (Some boundary)
 
-let body =
+let body message =
   let fix' f =
     let rec u a b c = lazy (f r a b c)
     and r a b c = { f = fun i s fail succ ->
@@ -126,27 +128,43 @@ let body =
   | #Rfc2045.discrete  ->
     octet parent content fields
     >>| fun v -> PDiscrete v
-  | #Rfc2045.composite ->
+  | `Message ->
+    message parent
+    >>| fun (header', message') -> PMessage (header', message')
+  | `Multipart ->
     match boundary content with
     | Some boundary ->
       Rfc2046.multipart_body parent boundary (m (Some boundary))
-      >>| fun v -> PComposite v
+      >>| fun v -> PMultipart v
     | None -> fail Expected_boundary
 
 let message =
+  let fix' f =
+    let rec u a = lazy (f r a)
+    and r a = { f = fun i s fail succ ->
+              Lazy.(force (u a)).f i s fail succ }
+    in r
+  in
+
+  fix' @@ fun m parent ->
   message_headers
   <* Rfc822.crlf
   >>= fun (header, content, fields) -> match content.MrMime_content.ty.MrMime_contentType.ty with
   | `Ietf_token s | `X_token s ->
     (try (Hashtbl.find content_hashtbl s) None content fields
-     with exn -> (discard None *> return Unit))
+     with exn -> (discard parent *> return Unit))
     >>| fun v -> header, Extension (content, fields, v)
   | #Rfc2045.discrete  ->
-    octet None content fields
+    octet parent content fields
     >>| fun v -> header, Discrete (content, fields, v)
-  | #Rfc2045.composite ->
+  | `Message ->
+    m parent >>| fun (header', message') ->
+      header, Message (content, fields, header', message')
+  | `Multipart ->
     match boundary content with
     | Some boundary ->
-      Rfc2046.multipart_body None boundary (body (Some boundary))
-      >>| fun v -> header, Composite (content, fields, v)
+      Rfc2046.multipart_body parent boundary (body m (Some boundary))
+      >>| fun v -> header, Multipart (content, fields, v)
     | None -> fail Expected_boundary
+
+let message = message None
