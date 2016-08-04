@@ -9,10 +9,13 @@ val inline          : unit -> result t
 
 module Convenience :
 sig
+  module Input : module type of RingBuffer.Committed
+    with type 'a t = 'a RingBuffer.Committed.t
+
   type err += Wrong_padding
 
   type 'a decoder
-  type decode =
+  type decoding =
     [ `Continue
     | `Error of err
     | `Dirty of string
@@ -22,7 +25,7 @@ sig
   val decoder       : (unit Parser.t * unit Parser.t) -> 'a Input.t -> 'a decoder
   val decoder_src   : 'a decoder -> 'a Input.t
 
-  val decode        : 'a decoder -> decode
+  val decode        : 'a decoder -> decoding
   val src           : 'a decoder -> string -> int -> int -> unit
 end
 
