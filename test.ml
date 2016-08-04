@@ -11,8 +11,6 @@
 
 open MrMime
 
-let () = Printexc.record_backtrace true
-
 type newline =
   | CRLF
   | LF
@@ -66,6 +64,7 @@ let message ?(chunk = 1024) ?(newline = LF) input =
   let rec aux consumed = function
     | Parser.Fail _ -> None
     | Parser.Read { buffer; k; } ->
+      Format.printf "%a\n%!" Input.pp buffer;
       let n = read_into ~newline input t 0 chunk in
       Input.write_string buffer (Bytes.unsafe_to_string t) 0 n;
       aux (consumed + n)
@@ -78,96 +77,51 @@ let message ?(chunk = 1024) ?(newline = LF) input =
 
 open Convenience
 
-(* open the email *)
-let ch      = open_in "sandbox/168";;
-(* create a temporary buffer *)
+(** An example, step by step to extract an image from an email. *)
+
+let ch      = open_in "email";;
 let tmp     = Bytes.create 1024;;
-(* create the input *)
 let input   = Input.create_bytes 4096;;
-(* create a Header decoder with the input *)
+
 let decoder = decoder input Message.Decoder.p_header;;
 
-(* the first shot need some data *)
-let `Continue
-  : _ decoding
-  = decode decoder;;
-(* so, we read the file *)
-let n         = read_into ~newline:LF ch tmp 0 1024;;
-(* and save the temporary buffer in the decoder *)
-let ()        = src decoder tmp 0 n;;
-
-(* we have the header of the email and the content information,
-   with [content], we can know the type of the email (and it's a multipart) *)
-let (`Done (header, content, _))
-  : _ decoding
-  = decode decoder;;
-
-(* we can create the next decoder for the next part of the email *)
-let decoder = decoding decoder (Message.Decoder.p_first_part content);;
-
-(* we catch the content-type of the first part *)
-let (`Done (content_1, _))
-  : _ decoding
-  = decode decoder;;
-
-(* we store the body of the first part. *)
-let decoder = decoding decoder (Message.Decoder.p_store_part content content_1);;
-
-(* as [content_1] describe, the body is a raw-data. *)
-let (`Done (`Next (Some (Message.Raw body))
-            : [ `Next of Message.encoding option
-              | `End of Message.encoding option ]))
-  : _ decoding
-  = decode decoder;;
-
-(* previously, we receive the [`Next] value, so we have a second part. *)
-let decoder = decoding decoder (Message.Decoder.p_next_part content);;
-
-(* we catch the content-type of the second part. *)
-let (`Done (content_2))
-  : _ decoding
-  = decode decoder;;
-
-(* we create the boundary of the second part. *)
-let boundary = Message.Decoder.p_bound_of_content content;;
-
-(* we create a specific decoder, [content_2] describe the body as a
-   quoted-printable data, we will use the decoder of quoted-printable. *)
-let decoder' = QuotedPrintable.Convenience.decoder
-  boundary (decoder_src decoder);;
-
-let buffer = Buffer.create 16;;
-
-(* we create a specific decoder for a post-script (the type of the second part
-   is a post-script file, as [content_2] describes). So, we can do a compute
-   with the quoted-printable. *)
-let rec ps decoder' = match QuotedPrintable.Convenience.decode decoder' with
+let rec to_result decoder = match decode decoder with
   | `Continue ->
     let n = read_into ~newline:LF ch tmp 0 1024 in
-    QuotedPrintable.Convenience.src decoder' tmp 0 n;
-    ps decoder'
-  | `String raw ->
-    (* we can imagine to pass the string to a post-script decoder. *)
-    Buffer.add_string buffer raw;
-    ps decoder'
-  | `End raw ->
-    (* this is the end of the part. *)
-    Buffer.add_string buffer raw
-  | `Error exn -> failwith "ps"
-  | `Dirty chr ->
-    (* it's a resilient error. *)
-    Buffer.add_char buffer chr;
-    ps decoder'
-;;
+    src decoder tmp 0 n;
+    to_result decoder
+  | `Done v -> Ok v
+  | `Error exn -> Error exn
 
-(* we execute the user-defined decoder. *)
-ps decoder';;
+let Ok (header, content, _) = to_result decoder
+let decoder = decoding decoder (Message.Decoder.p_first_part content)
+let Ok (content_txt, _) = to_result decoder
+let decoder = decoding decoder (Message.Decoder.p_discard_part content)
+let Ok (`Next : [`Next | `End ]) = to_result decoder
+let decoder = decoding decoder (Message.Decoder.p_next_part content)
+let Ok (content_img, _) = to_result decoder
 
-(* and we check if we have an other part. *)
-let decoder = decoding decoder (Message.Decoder.p_end_of_part content);;
+let bound       = Message.Decoder.p_bound_of_content content
+let decoder_b64 = Base64.Convenience.decoder bound (decoder_src decoder)
 
-(* we receive, [`End], so we have no part after! *)
-let (`Done (`End
-            : [ `End | `Next ]))
-  : _ decoding
-  = decode decoder;;
+let rec b64_to_result decoder_b64 =
+  let open Base64.Convenience in
+  match decode decoder_b64 with
+  | `Continue ->
+    let n = read_into ~newline:LF ch tmp 0 1024 in
+    src decoder_b64 tmp 0 n;
+    b64_to_result decoder_b64
+  | `String s ->
+    (* print_string s; *)
+    b64_to_result decoder_b64
+  | `End s ->
+    (* print_string s; *)
+    Ok ()
+  | `Dirty s ->
+    b64_to_result decoder_b64
+  | `Error exn -> Error exn
+
+let Ok () = b64_to_result decoder_b64
+
+let decoder = decoding decoder (Message.Decoder.p_end_of_part content)
+let Ok (`End : [ `Next | `End ]) = to_result decoder
