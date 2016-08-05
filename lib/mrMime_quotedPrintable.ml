@@ -139,6 +139,21 @@ let decode boundary rollback buffer =
     | false, content ->
       return content
 
+let inline buffer =
+  fix @@ fun m ->
+    peek_chr >>= function
+    | None
+    | Some '?' -> return (Buffer.contents buffer)
+    | Some '=' -> hex >>= fun chr -> Buffer.add_char buffer chr; m
+    | Some '_' -> advance 1 >>= fun () -> Buffer.add_char buffer ' '; m
+    | Some chr -> advance 1 >>= fun () -> Buffer.add_char buffer chr; m
+
+let inline () =
+  inline (Buffer.create 16)
+
+let decode boundary rollback =
+  decode boundary rollback (Buffer.create 16)
+
 module Convenience =
 struct
   module Input = Input
@@ -286,21 +301,6 @@ struct
     t.i_off <- off;
     t.i_len <- len;
 end
-
-let inline buffer =
-  fix @@ fun m ->
-    peek_chr >>= function
-    | None
-    | Some '?' -> return (Buffer.contents buffer)
-    | Some '=' -> hex >>= fun chr -> Buffer.add_char buffer chr; m
-    | Some '_' -> advance 1 >>= fun () -> Buffer.add_char buffer ' '; m
-    | Some chr -> advance 1 >>= fun () -> Buffer.add_char buffer chr; m
-
-let inline () =
-  inline (Buffer.create 16)
-
-let decode boundary rollback =
-  decode boundary rollback (Buffer.create 16)
 
 module T =
 struct
