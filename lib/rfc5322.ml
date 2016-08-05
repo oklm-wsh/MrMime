@@ -602,6 +602,40 @@ let header extend =
          >>= fun field_name -> field extend field_name)
         <|> (skip >>| fun v -> `Skip v))
 
+let line buffer boundary =
+  { f = fun i s fail succ ->
+    let store buff off len =
+      let len' = locate buff off len ((<>) '\r') in
+      Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
+      len'
+    in
+
+    let _ = Input.transmit i store in
+
+    succ i s () } *> peek_chr >>= function
+  | None -> return (`End false)
+  | Some '\r' ->
+    (boundary *> return (`End true))
+    <|> (Rfc822.crlf *> { f = fun i s fail succ ->
+                          Buffer.add_char buffer '\n';
+                          succ i s `Continue })
+    <|> (advance 1 *> { f = fun i s fail succ ->
+                        Buffer.add_char buffer '\r';
+                        succ i s `Continue })
+  | Some chr -> return `Continue
+
+let decode boundary rollback buffer =
+  (fix @@ fun m -> line buffer boundary >>= function
+   | `End r -> return (r, Buffer.contents buffer)
+   | _ -> m)
+  >>= function
+    | true, content -> rollback *> return content
+    | false, content -> return content
+
+let decode boundary rollback =
+  decode boundary rollback (Buffer.create 16)
+
+(*
 let decode boundary rollback =
   { f = fun i s fail succ ->
     let buffer = Buffer.create 16 in
@@ -627,3 +661,4 @@ let decode boundary rollback =
   >>= function
      | true, content  -> rollback *> return content
      | false, content -> return content
+*)
