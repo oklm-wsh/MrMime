@@ -25,4 +25,16 @@
 <link title="MrMime_maildir" rel="Chapter" href="MrMime_maildir.html"><title>MrMime_date.Decoder</title>
 </head>
 <body>
-<code class="code"><span class="keyword">sig</span>&nbsp;<span class="keyword">val</span>&nbsp;p_date&nbsp;:&nbsp;<span class="constructor">MrMime_date</span>.date&nbsp;<span class="constructor">MrMime_parser</span>.t&nbsp;<span class="keyword">end</span></code></body></html>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_hour&nbsp;:&nbsp;int&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_minute&nbsp;:&nbsp;int&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_second&nbsp;:&nbsp;int&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_year&nbsp;:&nbsp;int&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_day&nbsp;:&nbsp;int&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_month&nbsp;:&nbsp;<span class="constructor">MrMime_date</span>.month&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_day_of_week&nbsp;:&nbsp;<span class="constructor">MrMime_date</span>.day&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_zone&nbsp;:&nbsp;<span class="constructor">MrMime_date</span>.zone&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_time&nbsp;:&nbsp;((int&nbsp;*&nbsp;int&nbsp;*&nbsp;int&nbsp;option)&nbsp;*&nbsp;<span class="constructor">MrMime_date</span>.zone)&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_date&nbsp;:&nbsp;(int&nbsp;*&nbsp;<span class="constructor">MrMime_date</span>.month&nbsp;*&nbsp;int)&nbsp;<span class="constructor">MrMime_parser</span>.t
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;p_date_time&nbsp;:&nbsp;<span class="constructor">MrMime_date</span>.date&nbsp;<span class="constructor">MrMime_parser</span>.t
+<span class="keyword">end</span></code></body></html>

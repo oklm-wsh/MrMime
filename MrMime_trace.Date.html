@@ -89,6 +89,9 @@
 
 </tr></table>
 
+<div class="info ">
+Day of week<br>
+</div>
 
 
 <pre><span id="TYPEmonth"><span class="keyword">type</span> <code class="type"></code>month</span> = <code class="type">Rfc5322.month</code> = </pre><table class="typetable">
@@ -177,6 +180,9 @@
 
 </tr></table>
 
+<div class="info ">
+Month<br>
+</div>
 
 
 <pre><span id="TYPEzone"><span class="keyword">type</span> <code class="type"></code>zone</span> = <code class="type">Rfc5322.zone</code> = </pre><table class="typetable">
@@ -185,86 +191,148 @@
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.UT"><span class="constructor">UT</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Universal time (identical to <code class="code">+0000</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.GMT"><span class="constructor">GMT</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Greenwich Mean time (identical to <code class="code">+0000</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.EST"><span class="constructor">EST</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Eastern Standard time (identical to <code class="code">-0500</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.EDT"><span class="constructor">EDT</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Eastern Daylight Savings time (identical to
+                              <code class="code">-0400</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.CST"><span class="constructor">CST</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Central Standard time (identical to <code class="code">-0600</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.CDT"><span class="constructor">CDT</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Central Daylight Savings time (identical to
+                              <code class="code">-0500</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.MST"><span class="constructor">MST</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Mountain Standard time (identical to <code class="code">-0700</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.MDT"><span class="constructor">MDT</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Mountain Daylight Savings time (identical to
+                              <code class="code">-0600</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.PST"><span class="constructor">PST</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Pacific Standard time (identical to <code class="code">-0800</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.PDT"><span class="constructor">PDT</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Pacific Daylight Savings time (identical to
+                              <code class="code">-0700</code>)<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.Military_zone"><span class="constructor">Military_zone</span></span> <span class="keyword">of</span> <code class="type">char</code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+The character military zones were defined in a
+                              non-standard way in
+                              <a href="https://tools.ietf.org/html/rfc822">RFC822</a> and
+                              are therefore unpredictable in their meaning.
+<p>
 
+                              The original definitions of the military zones <code class="code"><span class="constructor">A</span></code>
+                              through <code class="code"><span class="constructor">I</span></code> are equivalent to <code class="code">+0100</code> through
+                              <code class="code">+0900</code>, respectively; <code class="code"><span class="constructor">K</span></code>, <code class="code"><span class="constructor">L</span></code>, and <code class="code"><span class="constructor">M</span></code> are
+                              equivalent to <code class="code">+1000</code>, <code class="code">+1100</code>, and <code class="code">+1200</code>,
+                              respectively; <code class="code"><span class="constructor">N</span></code> through <code class="code"><span class="constructor">Y</span></code> are equivalent to
+                              <code class="code">-0100</code> through <code class="code">-1200</code> respectively; and <code class="code"><span class="constructor">Z</span></code> is
+                              equivalent to <code class="code">+0000</code>.<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTzone.TZ"><span class="constructor">TZ</span></span> <span class="keyword">of</span> <code class="type">int</code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<code class="code"><span class="constructor">TZ</span> +hhmm</code> means <code class="code">+(hh * 60 + mm)</code> minutes, and
+                              <code class="code"><span class="constructor">TZ</span> -hhmm</code> means <code class="code">-(hh * 60 + mm)</code> minutes.
+<p>
 
+                              Accoding to the standard
+                              <a href="https://tools.ietf.org/html/rfc5322">RFC5322</a>,
+                              <code class="code">mm</code> must be within the range 00 through 59.
+                              MrMime does not check that.<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr></table>
 
+<div class="info ">
+Timezone<br>
+</div>
 
 
 <pre><span id="TYPEdate"><span class="keyword">type</span> <code class="type"></code>date</span> = <code class="type">Rfc5322.date</code> = {</pre><table class="typetable">
@@ -273,21 +341,51 @@
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTdate.day">day</span>&nbsp;: <code class="type"><a href="MrMime_date.html#TYPEday">day</a> option</code>;</code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+Accoding to the standard
+                                      <a href="https://tools.ietf.org/html/rfc5322">RFC5322</a>,
+                                      the <code class="code">day</code> (if included) must be the day
+                                      implied by the date. MrMime does not check
+                                      that.<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTdate.date">date</span>&nbsp;: <code class="type">int * <a href="MrMime_date.html#TYPEmonth">month</a> * int</code>;</code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<code class="code">(day, month, year)</code>:<ul>
+<li><code class="code">day</code> is the numeric day of the month.
+                                        According to the standard
+                                        <a href="https://tools.ietf.org/html/rfc5322">RFC5322</a>,
+                                        the <code class="code">day</code> must be between 1 and the
+                                        number of days allowed for the specified
+                                        month (in the specified year). MrMime
+                                        does not check that.</li>
+<li><code class="code">year</code> is any numeric year 1900 or
+                                        later.</li>
+</ul>
+<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
 <code>&nbsp;&nbsp;</code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTdate.time">time</span>&nbsp;: <code class="type">int * int * int option</code>;</code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+According to the standard
+                                      <a href="https://tools.ietf.org/html/rfc5322">RFC5322</a>,
+                                      <code class="code">time</code> must be in the range <code class="code">00:00:00</code>
+                                      through <code class="code">23:59:60</code> (the number of seconds
+                                      allowing for a leap second; see
+                                      <a href="https://tools.ietf.org/html/rfc1305">RFC1305</a>).
+                                      MrMime does not check that.<br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr>
 <tr>
 <td align="left" valign="top" >
@@ -298,15 +396,57 @@
 </tr></table>
 }
 
+<div class="info ">
+Date<br>
+</div>
 
 
-<pre><span id="VALpp_zone"><span class="keyword">val</span> pp_zone</span> : <code class="type">Format.formatter -> <a href="MrMime_date.html#TYPEzone">zone</a> -> unit</code></pre>
-<pre><span id="VALpp_month"><span class="keyword">val</span> pp_month</span> : <code class="type">Format.formatter -> <a href="MrMime_date.html#TYPEmonth">month</a> -> unit</code></pre>
-<pre><span id="VALpp_day"><span class="keyword">val</span> pp_day</span> : <code class="type">Format.formatter -> <a href="MrMime_date.html#TYPEday">day</a> -> unit</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_date.html#TYPEdate">date</a> -> unit</code></pre>
+<pre><span id="VALpp_zone"><span class="keyword">val</span> pp_zone</span> : <code class="type">Format.formatter -> <a href="MrMime_date.html#TYPEzone">zone</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_zone</code> prints an human readable representation of <code class="code">zone</code>.<br>
+</div>
+
+<pre><span id="VALpp_month"><span class="keyword">val</span> pp_month</span> : <code class="type">Format.formatter -> <a href="MrMime_date.html#TYPEmonth">month</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_month</code> prints an human readable representation of <code class="code">month</code>.<br>
+</div>
+
+<pre><span id="VALpp_day"><span class="keyword">val</span> pp_day</span> : <code class="type">Format.formatter -> <a href="MrMime_date.html#TYPEday">day</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_day</code> prints an human readable representation of <code class="code">day</code>.<br>
+</div>
+
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_date.html#TYPEdate">date</a> -> unit</code></pre><div class="info ">
+<code class="code">pp date</code> prints an human readable representatation of <code class="code">date</code>.<br>
+</div>
+
 <pre><span class="keyword">module</span> <a href="MrMime_date.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_date.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module</span> <a href="MrMime_date.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_date.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="MrMime_date.html#TYPEdate">date</a> -> string</code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_date.html#TYPEdate">date</a> option</code></pre>
-<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -> string -> int -> int -> (<a href="MrMime_date.html#TYPEdate">date</a> * int) option</code></pre>
-<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="MrMime_date.html#TYPEdate">date</a> -> <a href="MrMime_date.html#TYPEdate">date</a> -> bool</code></pre></body></html>
+<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="MrMime_date.html#TYPEdate">date</a> -> string</code></pre><div class="info ">
+<code class="code">to_string date</code> formats the date <code class="code">date</code> accoding to a
+    <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322</a>.<br>
+</div>
+
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_date.html#TYPEdate">date</a> option</code></pre><div class="info ">
+<code class="code">of_string ~chunk:1024 buf</code> parses an
+    <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322</a> date starting at
+    0 in <code class="code">buf</code>.
+<p>
+
+    This function allocates a internal buffer with <code class="code">chunk</code> size (default to
+    <code class="code">1024</code>).<br>
+</div>
+
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -> string -> int -> int -> (<a href="MrMime_date.html#TYPEdate">date</a> * int) option</code></pre><div class="info ">
+<code class="code">of_string_raw ~chunk:1024 buf off len</code> parses an
+    <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322</a> date starting at
+    <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(date, count)</code> with:<ul>
+<li><code class="code">date</code> the date</li>
+<li><code class="code">count</code> the number of bytes read starting at <code class="code">off</code> to parse the date.</li>
+</ul>
+
+    This function allocates a internal buffer with <code class="code">chunk</code> size (default to
+    <code class="code">1024</code>).<br>
+</div>
+
+<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="MrMime_date.html#TYPEdate">date</a> -> <a href="MrMime_date.html#TYPEdate">date</a> -> bool</code></pre><div class="info ">
+<code class="code">equal a b</code> is <code class="code"><span class="keyword">true</span></code> iff <code class="code">a</code> and <code class="code">b</code> are the same date.<br>
+</div>
+</body></html>

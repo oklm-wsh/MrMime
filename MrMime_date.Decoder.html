@@ -36,4 +36,121 @@
 
 <pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_date.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="VALp_date"><span class="keyword">val</span> p_date</span> : <code class="type"><a href="MrMime_date.html#TYPEdate">MrMime_date.date</a> MrMime_parser.t</code></pre></body></html>
+<pre><span id="VALp_hour"><span class="keyword">val</span> p_hour</span> : <code class="type">int MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<span class="constructor">DIGIT</span>&nbsp;/&nbsp;obs-hour
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-hour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[<span class="constructor">CFWS</span>]&nbsp;2<span class="constructor">DIGIT</span>&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_minute"><span class="keyword">val</span> p_minute</span> : <code class="type">int MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<span class="constructor">DIGIT</span>&nbsp;/&nbsp;obs-minute
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-minute&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[<span class="constructor">CFWS</span>]&nbsp;2<span class="constructor">DIGIT</span>&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_second"><span class="keyword">val</span> p_second</span> : <code class="type">int MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;second&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;2<span class="constructor">DIGIT</span>&nbsp;/&nbsp;obs-second
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-second&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[<span class="constructor">CFWS</span>]&nbsp;2<span class="constructor">DIGIT</span>&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_year"><span class="keyword">val</span> p_year</span> : <code class="type">int MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;year&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(<span class="constructor">FWS</span>&nbsp;4*<span class="constructor">DIGIT</span>&nbsp;<span class="constructor">FWS</span>)&nbsp;/&nbsp;obs-year
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-year&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[<span class="constructor">CFWS</span>]&nbsp;2*<span class="constructor">DIGIT</span>&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_day"><span class="keyword">val</span> p_day</span> : <code class="type">int MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;day&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;([<span class="constructor">FWS</span>]&nbsp;1*2<span class="constructor">DIGIT</span>&nbsp;<span class="constructor">FWS</span>)&nbsp;/&nbsp;obs-day
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-day&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[<span class="constructor">CFWS</span>]&nbsp;1*2<span class="constructor">DIGIT</span>&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_month"><span class="keyword">val</span> p_month</span> : <code class="type"><a href="MrMime_date.html#TYPEmonth">MrMime_date.month</a> MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;month&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"Jan"</span>&nbsp;/&nbsp;<span class="string">"Feb"</span>&nbsp;/&nbsp;<span class="string">"Mar"</span>&nbsp;/&nbsp;<span class="string">"Apr"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"May"</span>&nbsp;/&nbsp;<span class="string">"Jun"</span>&nbsp;/&nbsp;<span class="string">"Jul"</span>&nbsp;/&nbsp;<span class="string">"Aug"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"Sep"</span>&nbsp;/&nbsp;<span class="string">"Oct"</span>&nbsp;/&nbsp;<span class="string">"Nov"</span>&nbsp;/&nbsp;<span class="string">"Dec"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_day_of_week"><span class="keyword">val</span> p_day_of_week</span> : <code class="type"><a href="MrMime_date.html#TYPEday">MrMime_date.day</a> MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;day-<span class="keyword">of</span>-week&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;([<span class="constructor">FWS</span>]&nbsp;day-name)&nbsp;/&nbsp;obs-day-<span class="keyword">of</span>-week
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-day-<span class="keyword">of</span>-week&nbsp;&nbsp;&nbsp;=&nbsp;[<span class="constructor">CFWS</span>]&nbsp;day-name&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;day-name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"Mon"</span>&nbsp;/&nbsp;<span class="string">"Tue"</span>&nbsp;/&nbsp;<span class="string">"Wed"</span>&nbsp;/&nbsp;<span class="string">"Thu"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"Fri"</span>&nbsp;/&nbsp;<span class="string">"Sat"</span>&nbsp;/&nbsp;<span class="string">"Sun"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_zone"><span class="keyword">val</span> p_zone</span> : <code class="type"><a href="MrMime_date.html#TYPEzone">MrMime_date.zone</a> MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zone&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(<span class="constructor">FWS</span>&nbsp;(&nbsp;<span class="string">"+"</span>&nbsp;/&nbsp;<span class="string">"-"</span>&nbsp;)&nbsp;4<span class="constructor">DIGIT</span>)&nbsp;/&nbsp;obs-zone
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-zone&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"UT"</span>&nbsp;/&nbsp;<span class="string">"GMT"</span>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Universal</span>&nbsp;<span class="constructor">Time</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">North</span>&nbsp;<span class="constructor">American</span>&nbsp;<span class="constructor">UT</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;offsets
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"EST"</span>&nbsp;/&nbsp;<span class="string">"EDT"</span>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Eastern</span>:&nbsp;&nbsp;-&nbsp;5/&nbsp;-&nbsp;4
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"CST"</span>&nbsp;/&nbsp;<span class="string">"CDT"</span>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Central</span>:&nbsp;&nbsp;-&nbsp;6/&nbsp;-&nbsp;5
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"MST"</span>&nbsp;/&nbsp;<span class="string">"MDT"</span>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Mountain</span>:&nbsp;-&nbsp;7/&nbsp;-&nbsp;6
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"PST"</span>&nbsp;/&nbsp;<span class="string">"PDT"</span>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Pacific</span>:&nbsp;&nbsp;-&nbsp;8/&nbsp;-&nbsp;7
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d65-73&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Military</span>&nbsp;zones&nbsp;-&nbsp;<span class="string">"A"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d75-90&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;through&nbsp;<span class="string">"I"</span>&nbsp;<span class="keyword">and</span>&nbsp;<span class="string">"K"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d97-105&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;through&nbsp;<span class="string">"Z"</span>,&nbsp;both
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d107-122&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;upper&nbsp;<span class="keyword">and</span>&nbsp;lower&nbsp;case
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_time"><span class="keyword">val</span> p_time</span> : <code class="type">((int * int * int option) * <a href="MrMime_date.html#TYPEzone">MrMime_date.zone</a>) MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
+<p>
+
+     <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;time-<span class="keyword">of</span>-day&nbsp;zone
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time-<span class="keyword">of</span>-day&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;hour&nbsp;<span class="string">":"</span>&nbsp;minute&nbsp;[&nbsp;<span class="string">":"</span>&nbsp;second&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_date"><span class="keyword">val</span> p_date</span> : <code class="type">(int * <a href="MrMime_date.html#TYPEmonth">MrMime_date.month</a> * int) MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;day&nbsp;month&nbsp;year
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+
+<pre><span id="VALp_date_time"><span class="keyword">val</span> p_date_time</span> : <code class="type"><a href="MrMime_date.html#TYPEdate">MrMime_date.date</a> MrMime_parser.t</code></pre><div class="info ">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date-time&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;[&nbsp;day-<span class="keyword">of</span>-week&nbsp;<span class="string">","</span>&nbsp;]&nbsp;date&nbsp;time&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+</body></html>

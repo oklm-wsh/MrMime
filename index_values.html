@@ -95,7 +95,10 @@
 <tr><td><a href="MrMime_address.html#VALequal">equal</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALequal">equal</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">equal a b</code> is <code class="code"><span class="keyword">true</span></code> iff <code class="code">a</code> and <code class="code">b</code> are the same date.
+</div>
+</td></tr>
 <tr><td align="left"><br>G</td></tr>
 <tr><td><a href="MrMime_input.html#VALget">get</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
@@ -138,7 +141,12 @@
 <tr><td><a href="MrMime_msgID.html#VALof_string">of_string</a> [<a href="MrMime_msgID.html">MrMime_msgID</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALof_string">of_string</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">of_string ~chunk:1024 buf</code> parses an
+    <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322</a> date starting at
+    0 in <code class="code">buf</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_message.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_message.html">MrMime_message</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_header.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>
@@ -156,7 +164,14 @@
 <tr><td><a href="MrMime_msgID.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_msgID.html">MrMime_msgID</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">of_string_raw ~chunk:1024 buf off len</code> parses an
+    <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322</a> date starting at
+    <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(date, count)</code> with: <code class="code">date</code> the date, <code class="code">count</code> the number of bytes read starting at <code class="code">off</code> to parse the date.
+    This function allocates a internal buffer with <code class="code">chunk</code> size (default to
+    <code class="code">1024</code>).
+</div>
+</td></tr>
 <tr><td align="left"><br>P</td></tr>
 <tr><td><a href="MrMime_address.Decoder.html#VALp_address">p_address</a> [<a href="MrMime_address.Decoder.html">MrMime_address.Decoder</a>]</td>
 <td></td></tr>
@@ -167,7 +182,27 @@
 <tr><td><a href="MrMime_contentType.Decoder.html#VALp_content">p_content</a> [<a href="MrMime_contentType.Decoder.html">MrMime_contentType.Decoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.Decoder.html#VALp_date">p_date</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
-<td></td></tr>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
+</div>
+</td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_date_time">p_date_time</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
+</div>
+</td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_day">p_day</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+</div>
+</td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_day_of_week">p_day_of_week</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_message.Decoder.html#VALp_discard_part">p_discard_part</a> [<a href="MrMime_message.Decoder.html">MrMime_message.Decoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_address.Decoder.html#VALp_domain">p_domain</a> [<a href="MrMime_address.Decoder.html">MrMime_address.Decoder</a>]</td>
@@ -180,18 +215,58 @@
 <td></td></tr>
 <tr><td><a href="MrMime_message.Decoder.html#VALp_header">p_header</a> [<a href="MrMime_message.Decoder.html">MrMime_message.Decoder</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_hour">p_hour</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_address.Decoder.html#VALp_local">p_local</a> [<a href="MrMime_address.Decoder.html">MrMime_address.Decoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_message.Decoder.html#VALp_message">p_message</a> [<a href="MrMime_message.Decoder.html">MrMime_message.Decoder</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_minute">p_minute</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+</div>
+</td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_month">p_month</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_msgID.Decoder.html#VALp_msg_id">p_msg_id</a> [<a href="MrMime_msgID.Decoder.html">MrMime_msgID.Decoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_message.Decoder.html#VALp_next_part">p_next_part</a> [<a href="MrMime_message.Decoder.html">MrMime_message.Decoder</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_second">p_second</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_message.Decoder.html#VALp_store_part">p_store_part</a> [<a href="MrMime_message.Decoder.html">MrMime_message.Decoder</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_time">p_time</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_mimeVersion.Decoder.html#VALp_version">p_version</a> [<a href="MrMime_mimeVersion.Decoder.html">MrMime_mimeVersion.Decoder</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_year">p_year</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+</div>
+</td></tr>
+<tr><td><a href="MrMime_date.Decoder.html#VALp_zone">p_zone</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
+<td><div class="info">
+See RFC 5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
+      <a href="https://tools.ietf.org/html/rfc5322#section-4.3">4.3</a>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_maildir.html#VALparse">parse</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_content.Decoder.html#VALpart">part</a> [<a href="MrMime_content.Decoder.html">MrMime_content.Decoder</a>]</td>
@@ -221,11 +296,17 @@
 <tr><td><a href="MrMime_msgID.html#VALpp">pp</a> [<a href="MrMime_msgID.html">MrMime_msgID</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALpp">pp</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp date</code> prints an human readable representatation of <code class="code">date</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALpp">pp</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALpp_day">pp_day</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp_day</code> prints an human readable representation of <code class="code">day</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_address.html#VALpp_domain">pp_domain</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_msgID.html#VALpp_domain">pp_domain</a> [<a href="MrMime_msgID.html">MrMime_msgID</a>]</td>
@@ -259,7 +340,10 @@
 <tr><td><a href="MrMime_maildir.html#VALpp_map">pp_map</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALpp_month">pp_month</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp_month</code> prints an human readable representation of <code class="code">month</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_maildir.html#VALpp_option">pp_option</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALpp_parameter">pp_parameter</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
@@ -291,7 +375,10 @@
 <tr><td><a href="MrMime_address.html#VALpp_word">pp_word</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALpp_zone">pp_zone</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp_zone</code> prints an human readable representation of <code class="code">zone</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALproof">proof</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>R</td></tr>
@@ -324,7 +411,11 @@
 <tr><td><a href="MrMime_address.html#VALto_string">to_string</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALto_string">to_string</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">to_string date</code> formats the date <code class="code">date</code> accoding to a
+    <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322</a>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALtransmit">transmit</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>W</td></tr>
