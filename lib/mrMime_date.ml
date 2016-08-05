@@ -159,7 +159,17 @@ end
 
 module Decoder =
 struct
-  let p_date = Rfc5322.date_time
+  let p_hour        = Rfc5322.hour
+  let p_minute      = Rfc5322.minute
+  let p_second      = Rfc5322.second
+  let p_year        = Rfc5322.year
+  let p_month       = Rfc5322.month
+  let p_day_of_week = Rfc5322.day_of_week
+  let p_day         = Rfc5322.day
+  let p_zone        = Rfc5322.zone
+  let p_time        = Rfc5322.time
+  let p_date        = Rfc5322.date
+  let p_date_time   = Rfc5322.date_time
 end
 
 let to_string t =

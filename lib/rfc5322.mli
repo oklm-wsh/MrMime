@@ -110,6 +110,7 @@ val second           : int t
 val obs_year         : int t
 val year             : int t
 val obs_day          : int t
+val day              : int t
 val month            : month t
 val day_name         : day t
 val obs_day_of_week  : day t
