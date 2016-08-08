@@ -36,14 +36,29 @@
 </div>
 <h1>Module <a href="type_MrMime_base64.html">MrMime_base64</a></h1>
 
-<pre><span class="keyword">module</span> MrMime_base64: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_base64.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">module</span> MrMime_base64: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_base64.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Base64 encoding and decoding<br>
+</div>
+<hr width="100%">
 
 <pre><span id="TYPEresult"><span class="keyword">type</span> <code class="type"></code>result</span> = <code class="type">[ `Clean of string | `Dirty of string | `Wrong_padding ]</code> </pre>
 
 
-<pre><span id="VALis_b64"><span class="keyword">val</span> is_b64</span> : <code class="type">char -> bool</code></pre>
-<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">unit Parser.t -> unit Parser.t -> <a href="MrMime_base64.html#TYPEresult">result</a> Parser.t</code></pre>
-<pre><span id="VALinline"><span class="keyword">val</span> inline</span> : <code class="type">unit -> <a href="MrMime_base64.html#TYPEresult">result</a> Parser.t</code></pre>
+<pre><span id="VALis_b64"><span class="keyword">val</span> is_b64</span> : <code class="type">char -> bool</code></pre><div class="info ">
+<code class="code">is_b64 chr</code> returns <code class="code"><span class="keyword">true</span></code> iff the character is a Base64 character.<br>
+</div>
+
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">unit Parser.t -> unit Parser.t -> <a href="MrMime_base64.html#TYPEresult">result</a> Parser.t</code></pre><div class="info ">
+<code class="code">decode boundary rollback</code> decodes a Base64 input and stops at the
+    <code class="code">boundary</code> and, iff the decoder recognizes the boundary, it rollbacks - that
+    means the input contains the boundary although it recognized.<br>
+</div>
+
+<pre><span id="VALinline"><span class="keyword">val</span> inline</span> : <code class="type">unit -> <a href="MrMime_base64.html#TYPEresult">result</a> Parser.t</code></pre><div class="info ">
+<code class="code">inline ()</code> decodes an <i>inline encoded string</i>. It stops when it
+    recognizes the <code class="code"><span class="string">"?"</span></code> character and it does not consume him.<br>
+</div>
+
 <pre><span class="keyword">module</span> <a href="MrMime_base64.Convenience.html">Convenience</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_base64.Convenience.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span id="VALw_inline_encode"><span class="keyword">val</span> w_inline_encode</span> : <code class="type">string -><br>       ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>       Encoder.k0</code></pre>
 <pre><span id="VALw_encode"><span class="keyword">val</span> w_encode</span> : <code class="type">string -><br>       ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>       Encoder.k0</code></pre></body></html>
