@@ -36,12 +36,53 @@
 </div>
 <h1>Module <a href="type_MrMime_quotedPrintable.html">MrMime_quotedPrintable</a></h1>
 
-<pre><span class="keyword">module</span> MrMime_quotedPrintable: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_quotedPrintable.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">module</span> MrMime_quotedPrintable: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_quotedPrintable.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+QuotedPrintable encoding and decoding<br>
+</div>
+<hr width="100%">
 
-<pre><span id="VALis_hex"><span class="keyword">val</span> is_hex</span> : <code class="type">char -> bool</code></pre>
-<pre><span id="VALhex"><span class="keyword">val</span> hex</span> : <code class="type">char Parser.t</code></pre>
-<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">unit Parser.t -> unit Parser.t -> string Parser.t</code></pre>
-<pre><span id="VALinline"><span class="keyword">val</span> inline</span> : <code class="type">unit -> string Parser.t</code></pre>
+<pre><span id="VALis_hex"><span class="keyword">val</span> is_hex</span> : <code class="type">char -> bool</code></pre><div class="info ">
+<code class="code">is_hex chr</code>  returns <code class="code"><span class="keyword">true</span></code> iff  the character is  a hexadecimal character.
+    The standard defines an hexadecimal character like that:
+<p>
+
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">HEX</span>&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">DIGIT</span>&nbsp;/&nbsp;<span class="string">"A"</span>&nbsp;/&nbsp;<span class="string">"B"</span>&nbsp;/&nbsp;<span class="string">"C"</span>&nbsp;/&nbsp;<span class="string">"D"</span>&nbsp;/&nbsp;<span class="string">"E"</span>&nbsp;/&nbsp;<span class="string">"F"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">DIGIT</span>&nbsp;=&nbsp;<span class="string">"0"</span>&nbsp;-&nbsp;<span class="string">"9"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+    MrMime accepts <code class="code"><span class="string">"a"</span> - <span class="string">"f"</span></code> characters too.<br>
+</div>
+
+<pre><span id="VALhex"><span class="keyword">val</span> hex</span> : <code class="type">char Parser.t</code></pre><div class="info ">
+Corresponding to the rule from
+    <a href="https://tools.ietf.org/html/rfc2045#section-6.7">RFC2045</a> about
+    the hexadecimal value:
+<p>
+
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;hex-octet&nbsp;:=&nbsp;<span class="string">"="</span>&nbsp;2(<span class="constructor">DIGIT</span>&nbsp;/&nbsp;<span class="string">"A"</span>&nbsp;/&nbsp;<span class="string">"B"</span>&nbsp;/&nbsp;<span class="string">"C"</span>&nbsp;/&nbsp;<span class="string">"D"</span>&nbsp;/&nbsp;<span class="string">"E"</span>&nbsp;/&nbsp;<span class="string">"F"</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Octet</span>&nbsp;must&nbsp;be&nbsp;used&nbsp;<span class="keyword">for</span>&nbsp;characters&nbsp;&gt;&nbsp;127,&nbsp;=,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">SPACEs</span>&nbsp;<span class="keyword">or</span>&nbsp;<span class="constructor">TABs</span>&nbsp;at&nbsp;the&nbsp;ends&nbsp;<span class="keyword">of</span>&nbsp;lines,&nbsp;<span class="keyword">and</span>&nbsp;is
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;recommended&nbsp;<span class="keyword">for</span>&nbsp;any&nbsp;character&nbsp;not&nbsp;listed&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">RFC</span>&nbsp;2049&nbsp;<span class="keyword">as</span>&nbsp;<span class="string">"mail-safe"</span>.
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+    As we see  above,  MrMime accepts <code class="code"><span class="string">"a"</span> - <span class="string">"f"</span></code>  characters too.  This decoder
+    returns the hexadecimal value as <code class="code">char</code>.<br>
+</div>
+
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">unit Parser.t -> unit Parser.t -> string Parser.t</code></pre><div class="info ">
+<code class="code">decode boundary rollback</code> decodes a  QuotedPrintable input and stops at the
+    <code class="code">boundary</code> and,  iff he decoder recognizes the boundary, it rollbacks - that
+    means the input contains the boundary although it recognized.<br>
+</div>
+
+<pre><span id="VALinline"><span class="keyword">val</span> inline</span> : <code class="type">unit -> string Parser.t</code></pre><div class="info ">
+<code class="code">inline  ()</code>  decodes  an  <i> inline  encoded  string</i>.  It  stops  when it
+    recognizes the <code class="code"><span class="string">"?"</span></code> character and it does not consume him.<br>
+</div>
+
 <pre><span class="keyword">module</span> <a href="MrMime_quotedPrintable.Convenience.html">Convenience</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_quotedPrintable.Convenience.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span id="VALw_inline_encode"><span class="keyword">val</span> w_inline_encode</span> : <code class="type">string -><br>       ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>       Encoder.k0</code></pre>
 <pre><span id="VALw_encode"><span class="keyword">val</span> w_encode</span> : <code class="type">string -><br>       ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>       Encoder.k0</code></pre></body></html>
