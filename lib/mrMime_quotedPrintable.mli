@@ -1,3 +1,5 @@
+(** QuotedPrintable encoding and decoding *)
+
 open Parser
 
 (** [is_hex chr]  returns [true] iff  the character is  a hexadecimal character.
@@ -12,7 +14,9 @@ open Parser
 *)
 val is_hex          : char -> bool
 
-(** Corresponding to the rule from {{:}RFC2045} about the hexadecimal value:
+(** Corresponding to the rule from
+    {{:https://tools.ietf.org/html/rfc2045#section-6.7}RFC2045} about
+    the hexadecimal value:
 
     {[
     hex-octet := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
@@ -65,7 +69,7 @@ sig
       - [`Continue]  if [decoder]  awaits for more  input.  The client  muse use
       {!src} to provide it.
       - [`Dirty chr]  if  [decoder]  recognizes  an  unsafe character (according
-      {{:}RFC2045}:
+      {{:https://tools.ietf.org/html/rfc2045#section-6.7}RFC2045}:
   
       {[
       safe-char := <any octet with decimal value of 33 through
