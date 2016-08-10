@@ -36,24 +36,152 @@
 </div>
 <h1>Module <a href="type_MrMime_msgID.html">MrMime_msgID</a></h1>
 
-<pre><span class="keyword">module</span> MrMime_msgID: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_msgID.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">module</span> MrMime_msgID: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_msgID.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Message ID encoding and decoding<br>
+</div>
+<hr width="100%">
 
 <pre><span id="TYPEword"><span class="keyword">type</span> <code class="type"></code>word</span> = <code class="type">[ `Atom of string | `String of string ]</code> </pre>
+<div class="info ">
+<code class="code">word</code> is a combinations of <code class="code">atoms</code> and/or <code class="code">quoted-strings</code>:
+<p>
+
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;word&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;atom&nbsp;/&nbsp;quoted-string
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+<ul>
+<li> <code class="code">atom</code>  is  interpreted  as  a  single  unit,  comprising  the  string of
+    characters that make it  up.  Semantically,  the optional comments and <code class="code"><span class="constructor">FWS</span></code>
+    surrounding the rest of the characters are not part of the atom; the atom is
+    only the run of <code class="code">atext</code> characters in an atom.</li>
+</ul>
+
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;atext&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;<span class="constructor">ALPHA</span>&nbsp;/&nbsp;<span class="constructor">DIGIT</span>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Printable</span>&nbsp;<span class="constructor">US</span>-<span class="constructor">ASCII</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"!"</span>&nbsp;/&nbsp;<span class="string">"#"</span>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;characters&nbsp;not&nbsp;including
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"$"</span>&nbsp;/&nbsp;<span class="string">"%"</span>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;specials.&nbsp;&nbsp;<span class="constructor">Used</span>&nbsp;<span class="keyword">for</span>&nbsp;atoms.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"&amp;"</span>&nbsp;/&nbsp;<span class="string">"'"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"*"</span>&nbsp;/&nbsp;<span class="string">"+"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"-"</span>&nbsp;/&nbsp;<span class="string">"/"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"="</span>&nbsp;/&nbsp;<span class="string">"?"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"^"</span>&nbsp;/&nbsp;<span class="string">"_"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"`"</span>&nbsp;/&nbsp;<span class="string">"{"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"|"</span>&nbsp;/&nbsp;<span class="string">"}"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"~"</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;atom&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;[<span class="constructor">CFWS</span>]&nbsp;1*atext&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+<ul>
+<li>Strings of characters that include  characters other than those allowed in
+    atoms can be represented in a quoted string format, where the characters are
+    surrounded by quote characters.</li>
+</ul>
+
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;qtext&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;%d33&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Printable</span>&nbsp;<span class="constructor">US</span>-<span class="constructor">ASCII</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d35-91&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;characters&nbsp;not&nbsp;including
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d93-126&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;<span class="string">"\\"</span>&nbsp;<span class="keyword">or</span>&nbsp;the&nbsp;quote&nbsp;character
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-qtext
+&nbsp;&nbsp;&nbsp;&nbsp;obs-qp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;<span class="string">"\\"</span>&nbsp;(%d0&nbsp;/&nbsp;obs-<span class="constructor">NO</span>-<span class="constructor">WS</span>-<span class="constructor">CTL</span>&nbsp;/&nbsp;<span class="constructor">LF</span>&nbsp;/&nbsp;<span class="constructor">CR</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;obs-<span class="constructor">NO</span>-<span class="constructor">WS</span>-<span class="constructor">CTL</span>&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;%d1-8&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">US</span>-<span class="constructor">ASCII</span>&nbsp;control
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d11&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;characters&nbsp;that&nbsp;<span class="keyword">do</span>&nbsp;not
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d12&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;<span class="keyword">include</span>&nbsp;the&nbsp;carriage
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d14-31&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;return,&nbsp;line&nbsp;feed,&nbsp;<span class="keyword">and</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d127&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;white&nbsp;space&nbsp;characters
+
+&nbsp;&nbsp;&nbsp;&nbsp;quoted-pair&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;(<span class="string">"\\"</span>&nbsp;(<span class="constructor">VCHAR</span>&nbsp;/&nbsp;<span class="constructor">WSP</span>))&nbsp;/&nbsp;obs-qp
+&nbsp;&nbsp;&nbsp;&nbsp;qcontent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;qtext&nbsp;/&nbsp;quoted-pair
+
+&nbsp;&nbsp;&nbsp;&nbsp;quoted-string&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">DQUOTE</span>&nbsp;*([<span class="constructor">FWS</span>]&nbsp;qcontent)&nbsp;[<span class="constructor">FWS</span>]&nbsp;<span class="constructor">DQUOTE</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+    A quoted-string is treated as a unit. That is, quoted-string is identical to
+    atom, semantically. Since a quoted-string is allowed to contain FWS, fold is
+    permitted.  Also note that since quoted-pair  is allowed in a quoted-string,
+    the quote and backslash characters may  appear in a quoted-string so long as
+    they appear as  a quoted-pair.  MrMime interprets directly  a quoted-pair to
+    its value.
+<p>
+
+    Semantically,  neither the  optional <code class="code"><span class="constructor">CFWS</span></code> outside of  the quote characters
+    nor the quote  characters  themselves  are  part  of the quoted-string;  the
+    quoted-string is what  is  contained  beteen  the  two quote characters.  As
+    stated  ealier,  the  <code class="code"><span class="string">"\\"</span></code>  in  any  quoted-pair  and  the  <code class="code"><span class="constructor">CRLF</span></code>  in ant
+    <code class="code"><span class="constructor">FWS</span></code>/<code class="code"><span class="constructor">CFWS</span></code>  that  appears within  the  quoted-string  are  semantically <i>    invisible</i> and therefore not part of the quoted-string either.<br>
+<b>See also</b><ul><li><a href="https://tools.ietf.org/html/rfc5322#section-3.2.1">RFC5322 § Quoted
+    Characters</a></li>
+<li><a href="https://tools.ietf.org/html/rfc5322#section-3.2.3">RFC5322 § Atom</a></li>
+<li><a href="https://tools.ietf.org/html/rfc5322#section-3.2.4">RFC5322 § Quoted
+    Strings</a></li>
+<li><a href="https://tools.ietf.org/html/rfc5322#section-3.2.5">RFC5322 §
+    Miscellaneous Tokens</a></li>
+</ul>
+</div>
 
 
 <pre><span id="TYPElocal"><span class="keyword">type</span> <code class="type"></code>local</span> = <code class="type"><a href="MrMime_msgID.html#TYPEword">word</a> list</code> </pre>
+<div class="info ">
+Left-hand side of the <code class="code"><span class="string">"@"</span></code>.<br>
+</div>
 
 
 <pre><span id="TYPEdomain"><span class="keyword">type</span> <code class="type"></code>domain</span> = <code class="type">[ `Domain of string list | `Literal of string ]</code> </pre>
+<div class="info ">
+Right-hand side of the <code class="code"><span class="string">"@"</span></code>.<br>
+</div>
 
 
 <pre><span id="TYPEmsg_id"><span class="keyword">type</span> <code class="type"></code>msg_id</span> = <code class="type"><a href="MrMime_msgID.html#TYPElocal">local</a> * <a href="MrMime_msgID.html#TYPEdomain">domain</a></code> </pre>
+<div class="info ">
+The  message  identifier  <code class="code">msg-id</code>  syntax  is  a  limited  version  of  the
+    <code class="code">addr-spec</code> construct  enclosed in the angle  bracket characters,  <code class="code"><span class="string">"&lt;"</span></code> and
+    <code class="code"><span class="string">"&gt;"</span></code>. Unlike <code class="code">æddr-spec</code>, this syntax only permits the <code class="code">dot-atom-text</code> form
+    on  the left-hand  side of  the <code class="code"><span class="string">"@"</span></code>  and  does  not  have  internal <code class="code"><span class="constructor">CFWS</span></code>
+    anywhere in the message identifier.<br>
+<b>See also</b> <a href="https://tools.ietf.org/html/rfc5322#section-3.6.4">RFC5322 §
+    Identification Fields</a><br>
+</div>
 
 
-<pre><span id="VALpp_local"><span class="keyword">val</span> pp_local</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPElocal">local</a> -> unit</code></pre>
-<pre><span id="VALpp_domain"><span class="keyword">val</span> pp_domain</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPEdomain">domain</a> -> unit</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> -> unit</code></pre>
+<pre><span id="VALpp_local"><span class="keyword">val</span> pp_local</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPElocal">local</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_local  fmt  local</code>  prints  an  human  readable  representation  of  the
+    left-hand side of the <code class="code"><span class="string">"@"</span></code>.<br>
+</div>
+
+<pre><span id="VALpp_domain"><span class="keyword">val</span> pp_domain</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPEdomain">domain</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_domain  fmt  local</code>  prints  an  human  readable  representation  of the
+    right-hand side of the <code class="code"><span class="string">"@"</span></code>.<br>
+</div>
+
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> -> unit</code></pre><div class="info ">
+<code class="code">pp fmt msg_id</code> prints an human readable representation of <code class="code">msg_id</code>.<br>
+</div>
+
 <pre><span class="keyword">module</span> <a href="MrMime_msgID.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_msgID.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module</span> <a href="MrMime_msgID.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_msgID.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> option</code></pre>
-<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -> string -> int -> int -> (<a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> * int) option</code></pre></body></html>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> option</code></pre><div class="info ">
+<code class="code">of_string           ~chunk:1024           buf</code>           parses          an
+    <a href="https://tools.ietf.org/html/rfc5322#section-3.6.4">RFC5322</a>   message   ID
+    starting at <code class="code">0</code> in <code class="code">buf</code>.
+<p>
+
+    This  function allocates  a internal  buffer with  <code class="code">chunk</code> size  (default to
+    <code class="code">1024</code>).<br>
+</div>
+
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -> string -> int -> int -> (<a href="MrMime_msgID.html#TYPEmsg_id">msg_id</a> * int) option</code></pre><div class="info ">
+<code class="code">of_string_raw      ~chunk:1024     buf      off     len</code>      parses     an
+    <a href="https://tools.ietf.org/html/rfc5322#section-3.6.4">RFC5322</a>   message   ID
+    starting at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(msg_id, count)</code> with;
+<p>
+<ul>
+<li><code class="code">msg_id</code> the message ID</li>
+<li><code class="code">count</code> the number of bytes read starting at <code class="code">off</code> to parse the date.</li>
+</ul>
+
+    This  function allocates  a internal  buffer with  <code class="code">chunk</code> size  (default to
+    <code class="code">1024</code>).<br>
+</div>
+</body></html>

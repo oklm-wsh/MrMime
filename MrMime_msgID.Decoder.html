@@ -36,4 +36,36 @@
 
 <pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_msgID.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="VALp_msg_id"><span class="keyword">val</span> p_msg_id</span> : <code class="type"><a href="MrMime_msgID.html#TYPEmsg_id">MrMime_msgID.msg_id</a> MrMime_parser.t</code></pre></body></html>
+<pre><span id="VALp_msg_id"><span class="keyword">val</span> p_msg_id</span> : <code class="type"><a href="MrMime_msgID.html#TYPEmsg_id">MrMime_msgID.msg_id</a> MrMime_parser.t</code></pre><div class="info ">
+See RFC5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.6.4">3.6.4</a>
+      and RFC822 <a href="https://tools.ietf.org/html/rfc822#section-4.1">4.1</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dtext&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;%d33-90&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Printable</span>&nbsp;<span class="constructor">US</span>-<span class="constructor">ASCII</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%d94-126&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;characters&nbsp;not&nbsp;including
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-dtext&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;<span class="string">"["</span>,&nbsp;<span class="string">"]"</span>,&nbsp;<span class="keyword">or</span>&nbsp;<span class="string">"\\"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-dtext&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;obs-<span class="constructor">NO</span>-<span class="constructor">WS</span>-<span class="constructor">CTL</span>&nbsp;/&nbsp;quoted-pair
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msg-id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;[<span class="constructor">CFWS</span>]&nbsp;<span class="string">"&lt;"</span>&nbsp;id-left&nbsp;<span class="string">"@"</span>&nbsp;id-right&nbsp;<span class="string">"&gt;"</span>&nbsp;[<span class="constructor">CFWS</span>]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id-left&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;dot-atom-text&nbsp;/&nbsp;obs-id-left
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id-right&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;dot-atom-text&nbsp;/&nbsp;no-fold-literal&nbsp;/&nbsp;obs-id-right
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no-fold-literal&nbsp;=&nbsp;&nbsp;&nbsp;<span class="string">"["</span>&nbsp;*dtext&nbsp;<span class="string">"]"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dot-atom-text&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;1*atext&nbsp;*(<span class="string">"."</span>&nbsp;1*atext)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local-part&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;dot-atom&nbsp;/&nbsp;quoted-string&nbsp;/&nbsp;obs-local-part
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;domain&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;dot-atom&nbsp;/&nbsp;domain-literal&nbsp;/&nbsp;obs-domain
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;domain-literal&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;[<span class="constructor">CFWS</span>]&nbsp;<span class="string">"["</span>&nbsp;*([<span class="constructor">FWS</span>]&nbsp;dtext)&nbsp;[<span class="constructor">FWS</span>]&nbsp;<span class="string">"]"</span>&nbsp;[<span class="constructor">CFWS</span>]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-id-left&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;local-part
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-id-right&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;domain
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-local-part&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;word&nbsp;*(<span class="string">"."</span>&nbsp;word)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obs-domain&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;atom&nbsp;*(<span class="string">"."</span>&nbsp;atom)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+      See <a href="MrMime_msgID.html#TYPEword"><code class="code"><span class="constructor">MrMime_msgID</span>.word</code></a> for <code class="code">atext</code>, <code class="code">obs-<span class="constructor">NO</span>-<span class="constructor">WS</span>-<span class="constructor">CTL</span></code>, <code class="code">quoted-pair</code>, <code class="code">quoted-string</code>,
+      <code class="code">atom</code> and <code class="code">word</code>.<br>
+</div>
+</body></html>

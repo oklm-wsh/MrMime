@@ -91,6 +91,8 @@
 
 <div class="info ">
 Day of week<br>
+<b>See also</b> <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322 § Date and
+    Time Specification</a><br>
 </div>
 
 
@@ -182,6 +184,8 @@ Day of week<br>
 
 <div class="info ">
 Month<br>
+<b>See also</b> <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322 § Date and
+    Time Specification</a><br>
 </div>
 
 
@@ -332,6 +336,8 @@ The character military zones were defined in a
 
 <div class="info ">
 Timezone<br>
+<b>See also</b> <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322 § Date and
+    Time Specification</a><br>
 </div>
 
 
@@ -398,6 +404,8 @@ According to the standard
 
 <div class="info ">
 Date<br>
+<b>See also</b> <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322 § Date and
+    Time Specification</a><br>
 </div>
 
 
@@ -427,7 +435,7 @@ Date<br>
 <pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_date.html#TYPEdate">date</a> option</code></pre><div class="info ">
 <code class="code">of_string ~chunk:1024 buf</code> parses an
     <a href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC5322</a> date starting at
-    0 in <code class="code">buf</code>.
+    <code class="code">0</code> in <code class="code">buf</code>.
 <p>
 
     This function allocates a internal buffer with <code class="code">chunk</code> size (default to
