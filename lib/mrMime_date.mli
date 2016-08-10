@@ -1,17 +1,26 @@
 (** Module Date *)
 
-(** Day of week *)
+(** Day of week
+    @see <https://tools.ietf.org/html/rfc5322#section-3.3> RFC5322 § Date and
+    Time Specification
+*)
 type day   = Rfc5322.day =
   | Mon | Tue | Wed
   | Thu | Fri | Sat
   | Sun
 
-(** Month *)
+(** Month
+    @see <https://tools.ietf.org/html/rfc5322#section-3.3> RFC5322 § Date and
+    Time Specification
+*)
 type month = Rfc5322.month =
   | Jan | Feb | Mar | Apr | May | Jun
   | Jul | Aug | Sep | Oct | Nov | Dec
 
-(** Timezone *)
+(** Timezone
+    @see <https://tools.ietf.org/html/rfc5322#section-3.3> RFC5322 § Date and
+    Time Specification
+*)
 type zone  = Rfc5322.zone =
   | UT                    (** Universal time (identical to [+0000]) *)
   | GMT                   (** Greenwich Mean time (identical to [+0000]) *)
@@ -47,7 +56,10 @@ type zone  = Rfc5322.zone =
                               [mm] must be within the range 00 through 59.
                               MrMime does not check that. *)
 
-(** Date *)
+(** Date
+    @see <https://tools.ietf.org/html/rfc5322#section-3.3> RFC5322 § Date and
+    Time Specification
+*)
 type date = Rfc5322.date =
   { day  : day option             (** Accoding to the standard
                                       {{:https://tools.ietf.org/html/rfc5322}RFC5322},
@@ -96,7 +108,7 @@ end
 
 module Decoder :
 sig
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
 
       {[
@@ -106,7 +118,7 @@ sig
   *)
   val p_hour        : int MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
 
       {[
@@ -116,7 +128,7 @@ sig
   *)
   val p_minute      : int MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
 
       {[
@@ -126,7 +138,7 @@ sig
   *)
   val p_second      : int MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
 
       {[
@@ -136,7 +148,7 @@ sig
   *)
   val p_year        : int MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
 
       {[
@@ -146,7 +158,7 @@ sig
   *)
   val p_day         : int MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
 
       {[
       month             = "Jan" / "Feb" / "Mar" / "Apr" /
@@ -156,7 +168,7 @@ sig
   *)
   val p_month       : month MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
 
       {[
@@ -168,7 +180,7 @@ sig
   *)
   val p_day_of_week : day MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
 
       {[
@@ -189,7 +201,7 @@ sig
   *)
   val p_zone        : zone MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
 
      {[
      time               = time-of-day zone
@@ -198,7 +210,7 @@ sig
   *)
   val p_time        : ((int * int * int option) * zone) MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
 
       {[
       date              = day month year
@@ -206,7 +218,7 @@ sig
   *)
   val p_date        : (int * month * int) MrMime_parser.t
 
-  (** See RFC 5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
+  (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
 
       {[
       date-time         = [ day-of-week "," ] date time [CFWS]
@@ -222,7 +234,7 @@ val to_string     : date -> string
 
 (** [of_string ~chunk:1024 buf] parses an
     {{:https://tools.ietf.org/html/rfc5322#section-3.3}RFC5322} date starting at
-    0 in [buf].
+    [0] in [buf].
 
     This function allocates a internal buffer with [chunk] size (default to
     [1024]).

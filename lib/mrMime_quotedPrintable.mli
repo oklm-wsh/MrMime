@@ -23,7 +23,7 @@ val is_hex          : char -> bool
                  ; Octet must be used for characters > 127, =,
                  ; SPACEs or TABs at the ends of lines, and is
                  ; recommended for any character not listed in
-                 ; RFC 2049 as "mail-safe".
+                 ; RFC2049 as "mail-safe".
     ]}
 
     As we see  above,  MrMime accepts ["a" - "f"]  characters too.  This decoder
@@ -75,7 +75,7 @@ sig
       safe-char := <any octet with decimal value of 33 through
                    60 inclusive, and 62 through 126>
                    ; Characters not listed as "mail-safe" in
-                   ; RFC 2049 are also not recommended.
+                   ; RFC2049 are also not recommended.
       ]}
 
       In this case,  the character is already skipped.  The client can choose to
