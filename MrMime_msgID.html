@@ -97,19 +97,19 @@ Message ID encoding and decoding<br>
 &nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
 <p>
 
-    A quoted-string is treated as a unit. That is, quoted-string is identical to
-    atom, semantically. Since a quoted-string is allowed to contain FWS, fold is
-    permitted.  Also note that since quoted-pair  is allowed in a quoted-string,
-    the quote and backslash characters may  appear in a quoted-string so long as
-    they appear as  a quoted-pair.  MrMime interprets directly  a quoted-pair to
-    its value.
+    A  <code class="code">quoted-string</code>  is  treated  as  a  unit.  That  is,  <code class="code">quoted-string</code> is
+    identical to  atom,  semantically.  Since  a  <code class="code">quoted-string</code>  is allowed to
+    contain <code class="code"><span class="constructor">FWS</span></code>,  fold  is  permitted.  Also  note  that  since quoted-pair is
+    allowed in a <code class="code">quoted-string</code>,  the quote and backslash characters may appear
+    in  a <code class="code">quoted-string</code>  so long  as they  appear as  a <code class="code">quoted-pair</code>.  MrMime
+    interprets directly a <code class="code">quoted-pair</code> to its value.
 <p>
 
     Semantically,  neither the  optional <code class="code"><span class="constructor">CFWS</span></code> outside of  the quote characters
-    nor the quote  characters  themselves  are  part  of the quoted-string;  the
-    quoted-string is what  is  contained  beteen  the  two quote characters.  As
-    stated  ealier,  the  <code class="code"><span class="string">"\\"</span></code>  in  any  quoted-pair  and  the  <code class="code"><span class="constructor">CRLF</span></code>  in ant
-    <code class="code"><span class="constructor">FWS</span></code>/<code class="code"><span class="constructor">CFWS</span></code>  that  appears within  the  quoted-string  are  semantically <i>    invisible</i> and therefore not part of the quoted-string either.<br>
+    nor the  quote characters themselves  are part of  the <code class="code">quoted-string</code>;  the
+    <code class="code">quoted-string</code> is  what is contained  beteen the two  quote characters.  As
+    stated  ealier,  the <code class="code"><span class="string">"\\"</span></code>  in any  <code class="code">quoted-pair</code>  and  the  <code class="code"><span class="constructor">CRLF</span></code>  in any
+    <code class="code"><span class="constructor">FWS</span></code>/<code class="code"><span class="constructor">CFWS</span></code>  that appears  within the  <code class="code">quoted-string</code> are  semantically <i>    invisible</i> and therefore not part of the <code class="code">quoted-string</code> either.<br>
 <b>See also</b><ul><li><a href="https://tools.ietf.org/html/rfc5322#section-3.2.1">RFC5322 § Quoted
     Characters</a></li>
 <li><a href="https://tools.ietf.org/html/rfc5322#section-3.2.3">RFC5322 § Atom</a></li>
