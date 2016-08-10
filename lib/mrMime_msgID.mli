@@ -51,19 +51,19 @@
                         [CFWS]
     ]}
 
-    A quoted-string is treated as a unit. That is, quoted-string is identical to
-    atom, semantically. Since a quoted-string is allowed to contain FWS, fold is
-    permitted.  Also note that since quoted-pair  is allowed in a quoted-string,
-    the quote and backslash characters may  appear in a quoted-string so long as
-    they appear as  a quoted-pair.  MrMime interprets directly  a quoted-pair to
-    its value.
+    A  [quoted-string]  is  treated  as  a  unit.  That  is,  [quoted-string] is
+    identical to  atom,  semantically.  Since  a  [quoted-string]  is allowed to
+    contain [FWS],  fold  is  permitted.  Also  note  that  since quoted-pair is
+    allowed in a [quoted-string],  the quote and backslash characters may appear
+    in  a [quoted-string]  so long  as they  appear as  a [quoted-pair].  MrMime
+    interprets directly a [quoted-pair] to its value.
 
     Semantically,  neither the  optional [CFWS] outside of  the quote characters
-    nor the quote  characters  themselves  are  part  of the quoted-string;  the
-    quoted-string is what  is  contained  beteen  the  two quote characters.  As
-    stated  ealier,  the  ["\\"]  in  any  quoted-pair  and  the  [CRLF]  in ant
-    [FWS]/[CFWS]  that  appears within  the  quoted-string  are  semantically {i
-    invisible} and therefore not part of the quoted-string either.
+    nor the  quote characters themselves  are part of  the [quoted-string];  the
+    [quoted-string] is  what is contained  beteen the two  quote characters.  As
+    stated  ealier,  the ["\\"]  in any  [quoted-pair]  and  the  [CRLF]  in any
+    [FWS]/[CFWS]  that appears  within the  [quoted-string] are  semantically {i
+    invisible} and therefore not part of the [quoted-string] either.
 
 
     @see <https://tools.ietf.org/html/rfc5322#section-3.2.1> RFC5322 § Quoted
