@@ -36,4 +36,19 @@
 
 <pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentEncoding.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="VALp_encoding"><span class="keyword">val</span> p_encoding</span> : <code class="type"><a href="MrMime_contentEncoding.html#TYPEmechanism">MrMime_contentEncoding.mechanism</a> MrMime_parser.t</code></pre></body></html>
+<pre><span id="VALp_encoding"><span class="keyword">val</span> p_encoding</span> : <code class="type"><a href="MrMime_contentEncoding.html#TYPEmechanism">MrMime_contentEncoding.mechanism</a> MrMime_parser.t</code></pre><div class="info ">
+See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-6.1">6.1</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encoding&nbsp;:=&nbsp;<span class="string">"Content-Transfer-Encoding"</span>&nbsp;<span class="string">":"</span>&nbsp;mechanism
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mechanism&nbsp;:=&nbsp;<span class="string">"7bit"</span>&nbsp;/&nbsp;<span class="string">"8bit"</span>&nbsp;/&nbsp;<span class="string">"binary"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"quoted-printable"</span>&nbsp;/&nbsp;<span class="string">"base64"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ietf-token&nbsp;/&nbsp;x-toke
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+      These values are not case sensitive  -- <code class="code"><span class="constructor">Base64</span></code> and <code class="code"><span class="constructor">BASE64</span></code> and <code class="code">bAsE64</code>
+      are all equivalent.<br>
+</div>
+</body></html>

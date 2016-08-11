@@ -36,17 +36,83 @@
 </div>
 <h1>Module <a href="type_MrMime_contentEncoding.html">MrMime_contentEncoding</a></h1>
 
-<pre><span class="keyword">module</span> MrMime_contentEncoding: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentEncoding.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">module</span> MrMime_contentEncoding: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentEncoding.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Module Encoding<br>
+</div>
+<hr width="100%">
 
 <pre><span id="TYPEmechanism"><span class="keyword">type</span> <code class="type"></code>mechanism</span> = <code class="type">[ `Base64<br>       | `Binary<br>       | `Bit7<br>       | `Bit8<br>       | `Ietf_token of string<br>       | `QuotedPrintable<br>       | `X_token of string ]</code> </pre>
+<div class="info ">
+Kind of encoding.  Many media types  which could be usefully transported via
+    email are represented,  in their <i>natural</i> format, as <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit8</span></code> character or
+    <code class="code"><span class="keywordsign">`</span><span class="constructor">Binary</span></code>  data.   Such  data  cannot  be  transmitted  over  some  transfer
+    protocols. For example, <a href="https://tools.ietf.org/html/rfc821">RFC821</a> (SMTP)
+    restricts mail messages to <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code> US-ASCII data whitch lines no longer than
+    1000 characters including any trailing <code class="code"><span class="constructor">CRLF</span></code> line separator.
+<p>
+
+    Three transformations are currently defined: identity, the
+    <code class="code"><span class="string">"quoted-printable"</span></code> encoding, and the <code class="code"><span class="string">"base64"</span></code> encoding. The domains are
+    <code class="code"><span class="string">"binary"</span></code>, <code class="code"><span class="string">"8bit"</span></code> and <code class="code"><span class="string">"7bit"</span></code>.
+<p>
+
+    The <code class="code"><span class="string">"Content-Transfer-Encoding"</span></code> values <code class="code"><span class="string">"7bit"</span></code>,  <code class="code"><span class="string">"8bit"</span></code>, and <code class="code"><span class="string">"binary"</span></code>
+    all  mean that  the identity  (i.e.  No)  encoding  transformation  has been
+    performed.  As such,  they serve  simply as indicators of the  domain of the
+    body data,  and provide  useful information about the sort  of encoding that
+    might be needed for transmission in a given transport system.
+<p>
+
+    The <code class="code"><span class="string">"quoted-printable"</span></code> and <code class="code"><span class="string">"base64"</span></code> encodings transform their input from
+    an arbitrary domain into material in the <code class="code"><span class="string">"7bit"</span></code> range, thus making it safe
+    to carry over restricted  transports.  You can see <a href="MrMime.QuotedPrintable.html"><code class="code"><span class="constructor">MrMime</span>.<span class="constructor">QuotedPrintable</span></code></a>
+    for  the   <code class="code"><span class="string">"quoted-printable"</span></code>  decoding   and  <a href="MrMime.Base64.html"><code class="code"><span class="constructor">MrMime</span>.<span class="constructor">Base64</span></code></a>   for  the
+    <code class="code"><span class="string">"base64"</span></code> decoding.<br>
+</div>
 
 
 <pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `ContentEncoding of <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> ]</code> </pre>
+<div class="info ">
+It is necessary, therefore, to define a standard mechanism for encoding such
+    data  into  a <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code>  short  line  format.  Proper  labelling  of unencoded
+    material in  less restrictive formats  for direct use  over less restrictive
+    transports is also desirable. This module specifies that such encodings will
+    be indicated by a new <code class="code"><span class="string">"Content-Transfer-Encoding"</span></code> header field.<br>
+</div>
 
 
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> -> unit</code></pre>
-<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a></code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> -> unit</code></pre><div class="info ">
+<code class="code">pp mechanism</code> prints an human readble representation of <code class="code">mechanism</code>.<br>
+</div>
+
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a></code></pre><div class="info ">
+An encoding type of  <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code> requires that the body is  already in a <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code>
+    mail-ready  representation.   This   is  the  default  value   --  that  is,
+    <code class="code"><span class="string">"Content-Transfer-Encoding:      7BIT"</span></code>      is     assumed      if     the
+    <code class="code"><span class="string">"Content-Transfer-Encoding"</span></code> header field is not present.<br>
+</div>
+
 <pre><span class="keyword">module</span> <a href="MrMime_contentEncoding.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentEncoding.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module</span> <a href="MrMime_contentEncoding.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentEncoding.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> option</code></pre>
-<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> * int) option</code></pre></body></html>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> option</code></pre><div class="info ">
+<code class="code">of_string           ~chunk:1024           buf</code>           parses          an
+    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a> mechanism starting
+    at <code class="code">0</code> in <code class="code">buf</code>.
+<p>
+
+    This function allocates a internal buffer with <code class="code">chunk</code> size (default to
+    <code class="code">1024</code>).<br>
+</div>
+
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> * int) option</code></pre><div class="info ">
+<code class="code">of_string      ~chunk:1024      buff      off      len</code>      parses      an
+    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a> mechanism starting
+    at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(mechanism, count)</code> with:<ul>
+<li><code class="code">mechanism</code> the <a href="MrMime_contentEncoding.html#TYPEmechanism"><code class="code"><span class="constructor">MrMime_contentEncoding</span>.mechanism</code></a></li>
+<li><code class="code">count</code> the number of bytes read starting at <code class="code">off</code> to parse the mechanism.</li>
+</ul>
+
+    This  function allocates  a internal  buffer with  <code class="code">chunk</code> size  (default to
+    <code class="code">1024</code>).<br>
+</div>
+</body></html>
