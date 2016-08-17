@@ -32,15 +32,15 @@ type mechanism =
   | `QuotedPrintable
   | `X_token of string ]
 
-(** It is necessary, therefore, to define a standard mechanism for encoding such
-    data  into  a [`Bit7]  short  line  format.  Proper  labelling  of unencoded
+(** It is necessary,  therefore,  to define  a standard [mechanism] for encoding
+    such data into  a [`Bit7] short line format.  Proper  labelling of unencoded
     material in  less restrictive formats  for direct use  over less restrictive
     transports is also desirable. This module specifies that such encodings will
     be indicated by a new ["Content-Transfer-Encoding"] header field.
 *)
 type field     = [ `ContentEncoding of mechanism ]
 
-(** [pp mechanism] prints an human readble representation of [mechanism]. *)
+(** [pp mechanism] prints an human readable representation of [mechanism]. *)
 val pp            : Format.formatter -> mechanism -> unit
 
 (** An encoding type of  [`Bit7] requires that the body is  already in a [`Bit7]
@@ -75,19 +75,20 @@ sig
 end
 
 (** [of_string           ~chunk:1024           buf]           parses          an
-    {{:https://tools.ietf.org/html/rfc2045#section-6}RFC2045} mechanism starting
-    at [0] in [buf].
+    {{:https://tools.ietf.org/html/rfc2045#section-6}RFC2045}       {!mechanism}
+    starting at [0] in [buf].
 
     This function allocates a internal buffer with [chunk] size (default to
     [1024]).
 *)
 val of_string     : ?chunk:int -> string -> mechanism option
 
-(** [of_string      ~chunk:1024      buff      off      len]      parses      an
-    {{:https://tools.ietf.org/html/rfc2045#section-6}RFC2045} mechanism starting
-    at [off] in [buf] to a tuple [(mechanism, count)] with:
+(** [of_string_raw     ~chunk:1024      buff     off     len]      parses     an
+    {{:https://tools.ietf.org/html/rfc2045#section-6}RFC2045}       {!mechanism}
+    starting at [off] in [buf] to a tuple [(mechanism, count)] with:
     - [mechanism] the {!mechanism}
-    - [count] the number of bytes read starting at [off] to parse the mechanism.
+    -  [count]  the  number  of  bytes  read  starting  at  [off]  to  parse the
+    [mechanism].
 
     This  function allocates  a internal  buffer with  [chunk] size  (default to
     [1024]).
