@@ -36,4 +36,53 @@
 
 <pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentType.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="VALp_content"><span class="keyword">val</span> p_content</span> : <code class="type"><a href="MrMime_contentType.html#TYPEcontent">MrMime_contentType.content</a> MrMime_parser.t</code></pre></body></html>
+<pre><span id="VALp_content"><span class="keyword">val</span> p_content</span> : <code class="type"><a href="MrMime_contentType.html#TYPEcontent">MrMime_contentType.content</a> MrMime_parser.t</code></pre><div class="info ">
+See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-5.1">5.1</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;content&nbsp;:=&nbsp;<span class="string">"Content-Type"</span>&nbsp;<span class="string">":"</span>&nbsp;<span class="keyword">type</span>&nbsp;<span class="string">"/"</span>&nbsp;subtype
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(<span class="string">";"</span>&nbsp;parameter)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Matching</span>&nbsp;<span class="keyword">of</span>&nbsp;media&nbsp;<span class="keyword">type</span>&nbsp;<span class="keyword">and</span>&nbsp;subtype
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;is&nbsp;<span class="constructor">ALWAYS</span>&nbsp;case-insensitive.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;:=&nbsp;discrete-<span class="keyword">type</span>&nbsp;/&nbsp;composite-<span class="keyword">type</span>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;discrete-<span class="keyword">type</span>&nbsp;:=&nbsp;<span class="string">"text"</span>&nbsp;/&nbsp;<span class="string">"image"</span>&nbsp;/&nbsp;<span class="string">"audio"</span>&nbsp;/&nbsp;<span class="string">"video"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"application"</span>&nbsp;/&nbsp;extension-token
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;composite-<span class="keyword">type</span>&nbsp;:=&nbsp;<span class="string">"message"</span>&nbsp;/&nbsp;<span class="string">"multipart"</span>&nbsp;/&nbsp;extension-token
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;extension-token&nbsp;:=&nbsp;ietf-token&nbsp;/&nbsp;x-token
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ietf-token&nbsp;:=&nbsp;&lt;<span class="constructor">An</span>&nbsp;extension&nbsp;token&nbsp;defined&nbsp;by&nbsp;a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;standards-track&nbsp;<span class="constructor">RFC</span>&nbsp;<span class="keyword">and</span>&nbsp;registered
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">IANA</span>.&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x-token&nbsp;:=&nbsp;&lt;<span class="constructor">The</span>&nbsp;two&nbsp;characters&nbsp;<span class="string">"X-"</span>&nbsp;<span class="keyword">or</span>&nbsp;<span class="string">"x-"</span>&nbsp;followed,&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no&nbsp;intervening&nbsp;white&nbsp;space,&nbsp;by&nbsp;any&nbsp;token&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subtype&nbsp;:=&nbsp;extension-token&nbsp;/&nbsp;iana-token
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;iana-token&nbsp;:=&nbsp;&lt;<span class="constructor">A</span>&nbsp;publicly-defined&nbsp;extension&nbsp;token.&nbsp;<span class="constructor">Tokens</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">of</span>&nbsp;this&nbsp;form&nbsp;must&nbsp;be&nbsp;registered&nbsp;<span class="keyword">with</span>&nbsp;<span class="constructor">IANA</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">as</span>&nbsp;specified&nbsp;<span class="keyword">in</span>&nbsp;<span class="constructor">RFC</span>&nbsp;2048.&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;:=&nbsp;attribute&nbsp;<span class="string">"="</span>&nbsp;value
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attribute&nbsp;:=&nbsp;token
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Matching</span>&nbsp;<span class="keyword">of</span>&nbsp;attributes
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;is&nbsp;<span class="constructor">ALWAYS</span>&nbsp;case-insensitive.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value&nbsp;:=&nbsp;token&nbsp;/&nbsp;quoted-string
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;token&nbsp;:=&nbsp;1*&lt;any&nbsp;(<span class="constructor">US</span>-<span class="constructor">ASCII</span>)&nbsp;<span class="constructor">CHAR</span>&nbsp;except&nbsp;<span class="constructor">SPACE</span>,&nbsp;<span class="constructor">CTLs</span>,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">or</span>&nbsp;tspecials&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tspecials&nbsp;:=&nbsp;&nbsp;<span class="string">"("</span>&nbsp;/&nbsp;<span class="string">")"</span>&nbsp;/&nbsp;<span class="string">"&lt;"</span>&nbsp;/&nbsp;<span class="string">"&gt;"</span>&nbsp;/&nbsp;<span class="string">"@"</span>&nbsp;/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">","</span>&nbsp;/&nbsp;<span class="string">";"</span>&nbsp;/&nbsp;<span class="string">":"</span>&nbsp;/&nbsp;<span class="string">"\"&nbsp;/&nbsp;&lt;"</span>&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"/"</span>&nbsp;/&nbsp;<span class="string">"["</span>&nbsp;/&nbsp;<span class="string">"]"</span>&nbsp;/&nbsp;<span class="string">"?"</span>&nbsp;/&nbsp;<span class="string">"="</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Must</span>&nbsp;be&nbsp;<span class="keyword">in</span>&nbsp;quoted-string,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="keyword">to</span>&nbsp;use&nbsp;within&nbsp;parameter&nbsp;values
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+</body></html>

@@ -36,18 +36,100 @@
 </div>
 <h1>Module <a href="type_MrMime_contentType.html">MrMime_contentType</a></h1>
 
-<pre><span class="keyword">module</span> MrMime_contentType: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentType.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">module</span> MrMime_contentType: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentType.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Module Content-Type
+<p>
+
+    The purpose of the <code class="code"><span class="string">"Content-Type"</span></code> field  is to describe the data contained
+    in  the  body  fully  enough that  the  receiving  user  agent  can  pick an
+    appropriate agent or mechanism to present the date to the user, or otherwise
+    deal with  the data in  an appropriate manner.  The  value in this  field is
+    called a media type.
+<p>
+
+    The <code class="code"><span class="string">"Content-Type"</span></code>  header field specifies the  nature of the  data in the
+    body of  an entity  by giving  media type  and subtype  identifiers,  and by
+    providing  auxiliary information  that may  be  required  for  certain media
+    types.  After the media type and subtype names,  the remainder of the header
+    field is  simply a  set of  parameters,  specified in  a <code class="code"><span class="string">"attribute=value"</span></code>
+    notation. The ordering of parameters is not significant.<br>
+</div>
+<hr width="100%">
 
 <pre><span id="TYPEty"><span class="keyword">type</span> <code class="type"></code>ty</span> = <code class="type">[ `Application<br>       | `Audio<br>       | `Ietf_token of string<br>       | `Image<br>       | `Message<br>       | `Multipart<br>       | `Text<br>       | `Video<br>       | `X_token of string ]</code> </pre>
+<div class="info ">
+In general, the top-level media type is used to declare the general type of
+    data.
+<p>
+
+    An   initial  set   of  seven   top*level   media   types   is   defined  in
+    <a href="https://tools.ietf.org/html/rfc2046">RFC2046</a>.    Five   of    these   are
+    <code class="code"><span class="constructor">MrMime_message</span>.<span class="constructor">Discrete</span></code> types whose content  is essentially opaque as far
+    as    MIME   processing    is    concerned.    The    remaining    two   are
+    <code class="code"><span class="constructor">MrMime_message</span>.<span class="constructor">Composite</span></code> types whose contents require additional handling
+    by MIME processors.
+<p>
+
+    If another top-level type is to be used for any reason, it must be given a
+    name starting with <code class="code"><span class="string">"X-"</span></code> to indicate its non-standard status and to avoid a
+    potential conflict with a future officiel name.<br>
+</div>
 
 
 <pre><span id="TYPEsubty"><span class="keyword">type</span> <code class="type"></code>subty</span> = <code class="type">[ `Iana_token of string | `Ietf_token of string | `X_token of string ]</code> </pre>
+<div class="info ">
+While the subtype specifies a specific format for that type of data. Thus, a
+    media type of <code class="code"><span class="string">"image/xyz"</span></code> is enough to  tell a user agent that the data is
+    an image,  even  if the user  agent has no  knowledge of the  specific image
+    format <code class="code"><span class="string">"xyz"</span></code>.  Such information be used, for example, to decide whether or
+    not to  show a  user the  raw data from  an unrecognized  sbtype --  such an
+    action might  be reasonable for  unrecognized subtype of  text,  but not for
+    unrecognized subtypes of image or audio.
+<p>
+
+    For this reason, registered subtypes of text,  image, audio and video should
+    not contain  embedded information tht  is really of  a different type.  Such
+    compound  formats   should  be  represented   using  the   <code class="code"><span class="string">"multipart"</span></code>  or
+    <code class="code"><span class="string">"application"</span></code> types.
+<p>
+
+    MrMime recognize 3 subtypes:<ul>
+<li>                   Subtype                     from                    the
+    <a href="http://www.iana.org/assignments/media-types/media-types.xhtml">IANA database</a>:
+    <code class="code"><span class="keywordsign">`</span><span class="constructor">Iana_token</span></code></li>
+<li>Valid subtype but not recognized by the IANA database: <code class="code"><span class="keywordsign">`</span><span class="constructor">Ietf_token</span></code></li>
+<li>Like <a href="MrMime_contentType.html#TYPEty"><code class="code"><span class="constructor">MrMime_contentType</span>.ty</code></a>, a non-standard subtype starting with <code class="code"><span class="string">"X-"</span></code>: <code class="code"><span class="keywordsign">`</span><span class="constructor">X_token</span></code></li>
+</ul>
+<br>
+</div>
 
 
 <pre><span id="TYPEvalue"><span class="keyword">type</span> <code class="type"></code>value</span> = <code class="type">[ `String of string | `Token of string ]</code> </pre>
+<div class="info ">
+Parameters  are  modifiers  of  the  media  subtype,  and  as  such  do  not
+    fundamentally  affter the  nature of  the  content.  The  set  of meaningful
+    parameters depends on the media type and subtype, However, a given top-level
+    media type may define parameters which are applicable to any subtype of that
+    type.
+<p>
+
+    Parameters may be required by their defining content type of subtype or they
+    may be optional.  MrMime  does  not  check  any  assumption about parameters
+    except for the <code class="code"><span class="keywordsign">`</span><span class="constructor">Multipart</span></code> where he expects the<code class="code"><span class="string">"boundary"</span></code> parameter - but
+    MrMime does not processing (not yet!) the <code class="code"><span class="string">"charset"</span></code> parameter for example.
+<p>
+
+    Note that the value of parameter can be a quoted string (<code class="code"><span class="keywordsign">`</span><span class="constructor">String</span></code>). In this
+    case, the value does not include the quotes. That is, the quotation marks in
+    a quoted-string are not a part of the value of the parameter, but are merely
+    used to delimit that parameter value. In other case, the value is <code class="code"><span class="keywordsign">`</span><span class="constructor">Token</span></code>.<br>
+</div>
 
 
 <pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `ContentType of Rfc2045.content ]</code> </pre>
+<div class="info ">
+The field of <code class="code"><span class="string">"Content-Type"</span></code>.<br>
+</div>
 
 
 <pre><span id="TYPEcontent"><span class="keyword">type</span> <code class="type"></code>content</span> = <code class="type">Rfc2045.content</code> = {</pre><table class="typetable">
@@ -74,15 +156,81 @@
 </tr></table>
 }
 
+<div class="info ">
+A convenience record to deal with the <code class="code"><span class="string">"Content-Type"</span></code> which contains:<ul>
+<li>the media type <code class="code">ty</code></li>
+<li>the subtype <code class="code">subty</code></li>
+<li>parameters: a associative list of <code class="code">(attribute, value)</code></li>
+</ul>
+<br>
+</div>
 
 
-<pre><span id="VALpp_ty"><span class="keyword">val</span> pp_ty</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEty">ty</a> -> unit</code></pre>
-<pre><span id="VALpp_subty"><span class="keyword">val</span> pp_subty</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEsubty">subty</a> -> unit</code></pre>
-<pre><span id="VALpp_value"><span class="keyword">val</span> pp_value</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEvalue">value</a> -> unit</code></pre>
-<pre><span id="VALpp_parameter"><span class="keyword">val</span> pp_parameter</span> : <code class="type">Format.formatter -> string * <a href="MrMime_contentType.html#TYPEvalue">value</a> -> unit</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEcontent">content</a> -> unit</code></pre>
-<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_contentType.html#TYPEcontent">content</a></code></pre>
+<pre><span id="VALpp_ty"><span class="keyword">val</span> pp_ty</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEty">ty</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_ty ty</code> prints an human readable representation of <a href="MrMime_contentType.html#TYPEty"><code class="code"><span class="constructor">MrMime_contentType</span>.ty</code></a>.<br>
+</div>
+
+<pre><span id="VALpp_subty"><span class="keyword">val</span> pp_subty</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEsubty">subty</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_subty subty</code> prints an human readable representation of <a href="MrMime_contentType.html#TYPEsubty"><code class="code"><span class="constructor">MrMime_contentType</span>.subty</code></a>.<br>
+</div>
+
+<pre><span id="VALpp_value"><span class="keyword">val</span> pp_value</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEvalue">value</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_value value</code> prints an human readable representation of <a href="MrMime_contentType.html#TYPEvalue"><code class="code"><span class="constructor">MrMime_contentType</span>.value</code></a>.<br>
+</div>
+
+<pre><span id="VALpp_parameter"><span class="keyword">val</span> pp_parameter</span> : <code class="type">Format.formatter -> string * <a href="MrMime_contentType.html#TYPEvalue">value</a> -> unit</code></pre><div class="info ">
+<code class="code">pp_value (attribute,  value)</code>  prints an  human readable  representation of
+    <code class="code">parameter</code>.<br>
+</div>
+
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_contentType.html#TYPEcontent">content</a> -> unit</code></pre><div class="info ">
+<code class="code">pp content</code> prints an human readable representation of <a href="MrMime_contentType.html#TYPEcontent"><code class="code"><span class="constructor">MrMime_contentType</span>.content</code></a>.<br>
+</div>
+
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_contentType.html#TYPEcontent">content</a></code></pre><div class="info ">
+Default  <a href="https://tools.ietf.org/html/rfc822">RFC822</a>  messages  without  a
+    MIME <code class="code"><span class="string">"Content-Type"</span></code> header are taken by  this protocol to be plain text in
+    the US-ASCII character set, which can be excplicitly specified as:
+<p>
+
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Content</span>-<span class="constructor">Type</span>:&nbsp;text/plain;&nbsp;charset=use-ascii
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+    This is assumed i no <code class="code"><span class="string">"ContehjntType"</span></code> header field is specified. It is also
+    recommend  that  this  dfault  be   assumed  when  a  syntactically  invalid
+    <code class="code"><span class="string">"Content-Type"</span></code>  header  field  is  encountered.   In  the  presence  of  a
+    <a href="MrMime_mimeVersion.html#TYPEfield"><code class="code"><span class="constructor">MrMime_mimeVersion</span>.field</code></a>   header  field   and   the   absence   of  any
+    <code class="code"><span class="string">"Content-Type"</span></code> header field,  a receiving User  Agent can also assume that
+    plain US-ASCII text was the  sender's intent.  Plain US-ASCII text may still
+    be  assummed in  the absence  of a  <code class="code"><span class="string">"MIME-Version"</span></code> or  the presence  of an
+    syntactically  invalid  <code class="code"><span class="string">"Content-Type"</span></code>  header  field,  but  the  sender's
+    initent might have been otherwise.<br>
+</div>
+
 <pre><span class="keyword">module</span> <a href="MrMime_contentType.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentType.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module</span> <a href="MrMime_contentType.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentType.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_contentType.html#TYPEcontent">content</a> option</code></pre>
-<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_contentType.html#TYPEcontent">content</a> * int) option</code></pre></body></html>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_contentType.html#TYPEcontent">content</a> option</code></pre><div class="info ">
+<code class="code">of_string           ~chunk:1024           buf</code>           parses          an
+    <a href="https://tools.ietf.org/html/rfc2045#section-5.1">RFC2045</a>       <a href="MrMime_contentType.html#TYPEcontent"><code class="code"><span class="constructor">MrMime_contentType</span>.content</code></a>
+    starting at <code class="code">0</code> in <code class="code">buf</code>:
+<p>
+
+    This function  allocates an  internal buffer with  <code class="code">chunk</code> size  (default to
+    <code class="code">1024</code>)<br>
+</div>
+
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_contentType.html#TYPEcontent">content</a> * int) option</code></pre><div class="info ">
+<code class="code">of_string_raw     ~chunk:1024      buff     off     len</code>      parses     an
+    <a href="https://tools.ietf.org/html/rfc2045#section-5.1">RFC2045</a>       <a href="MrMime_contentType.html#TYPEcontent"><code class="code"><span class="constructor">MrMime_contentType</span>.content</code></a>
+    starting at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(content, count)</code>i with:
+<p>
+<ul>
+<li><code class="code">content</code> the <a href="MrMime_contentType.html#TYPEcontent"><code class="code"><span class="constructor">MrMime_contentType</span>.content</code></a></li>
+<li><code class="code">count</code> the number of byte read starting at <code class="code">off</code> to parse the <code class="code">content</code>.</li>
+</ul>
+
+    This  function allocates  a internal  buffer with  <code class="code">chunk</code> size  (default to
+    <code class="code">1024</code>).<br>
+</div>
+</body></html>

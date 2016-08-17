@@ -73,8 +73,8 @@ Kind of encoding.  Many media types  which could be usefully transported via
 
 <pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `ContentEncoding of <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> ]</code> </pre>
 <div class="info ">
-It is necessary, therefore, to define a standard mechanism for encoding such
-    data  into  a <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code>  short  line  format.  Proper  labelling  of unencoded
+It is necessary,  therefore,  to define  a standard <code class="code">mechanism</code> for encoding
+    such data into  a <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code> short line format.  Proper  labelling of unencoded
     material in  less restrictive formats  for direct use  over less restrictive
     transports is also desirable. This module specifies that such encodings will
     be indicated by a new <code class="code"><span class="string">"Content-Transfer-Encoding"</span></code> header field.<br>
@@ -82,7 +82,7 @@ It is necessary, therefore, to define a standard mechanism for encoding such
 
 
 <pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> -> unit</code></pre><div class="info ">
-<code class="code">pp mechanism</code> prints an human readble representation of <code class="code">mechanism</code>.<br>
+<code class="code">pp mechanism</code> prints an human readable representation of <code class="code">mechanism</code>.<br>
 </div>
 
 <pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a></code></pre><div class="info ">
@@ -96,8 +96,8 @@ An encoding type of  <code class="code"><span class="keywordsign">`</span><span 
 <pre><span class="keyword">module</span> <a href="MrMime_contentEncoding.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_contentEncoding.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> option</code></pre><div class="info ">
 <code class="code">of_string           ~chunk:1024           buf</code>           parses          an
-    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a> mechanism starting
-    at <code class="code">0</code> in <code class="code">buf</code>.
+    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a>       <a href="MrMime_contentEncoding.html#TYPEmechanism"><code class="code"><span class="constructor">MrMime_contentEncoding</span>.mechanism</code></a>
+    starting at <code class="code">0</code> in <code class="code">buf</code>.
 <p>
 
     This function allocates a internal buffer with <code class="code">chunk</code> size (default to
@@ -105,11 +105,12 @@ An encoding type of  <code class="code"><span class="keywordsign">`</span><span 
 </div>
 
 <pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_contentEncoding.html#TYPEmechanism">mechanism</a> * int) option</code></pre><div class="info ">
-<code class="code">of_string      ~chunk:1024      buff      off      len</code>      parses      an
-    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a> mechanism starting
-    at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(mechanism, count)</code> with:<ul>
+<code class="code">of_string_raw     ~chunk:1024      buff     off     len</code>      parses     an
+    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a>       <a href="MrMime_contentEncoding.html#TYPEmechanism"><code class="code"><span class="constructor">MrMime_contentEncoding</span>.mechanism</code></a>
+    starting at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(mechanism, count)</code> with:<ul>
 <li><code class="code">mechanism</code> the <a href="MrMime_contentEncoding.html#TYPEmechanism"><code class="code"><span class="constructor">MrMime_contentEncoding</span>.mechanism</code></a></li>
-<li><code class="code">count</code> the number of bytes read starting at <code class="code">off</code> to parse the mechanism.</li>
+<li> <code class="code">count</code>  the  number  of  bytes  read  starting  at  <code class="code">off</code>  to  parse the
+    <code class="code">mechanism</code>.</li>
 </ul>
 
     This  function allocates  a internal  buffer with  <code class="code">chunk</code> size  (default to

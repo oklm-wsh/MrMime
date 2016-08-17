@@ -40,7 +40,10 @@
 <tr><td><a href="MrMime_message.html#TYPEcontent">content</a> [<a href="MrMime_message.html">MrMime_message</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#TYPEcontent">content</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+A convenience record to deal with the <code class="code"><span class="string">"Content-Type"</span></code> which contains: the media type <code class="code">ty</code>, the subtype <code class="code">subty</code>, parameters: a associative list of <code class="code">(attribute, value)</code>
+</div>
+</td></tr>
 <tr><td align="left"><br>D</td></tr>
 <tr><td><a href="MrMime_date.html#TYPEdate">date</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
 <td><div class="info">
@@ -89,15 +92,22 @@ Right-hand side of the <code class="code"><span class="string">"@"</span></code>
 <tr><td><a href="MrMime_content.html#TYPEfield">field</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#TYPEfield">field</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+The field of <code class="code"><span class="string">"Content-Type"</span></code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_contentEncoding.html#TYPEfield">field</a> [<a href="MrMime_contentEncoding.html">MrMime_contentEncoding</a>]</td>
 <td><div class="info">
-It is necessary, therefore, to define a standard mechanism for encoding such
-    data  into  a <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code>  short  line  format.
+It is necessary,  therefore,  to define  a standard <code class="code">mechanism</code> for encoding
+    such data into  a <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code> short line format.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_mimeVersion.html#TYPEfield">field</a> [<a href="MrMime_mimeVersion.html">MrMime_mimeVersion</a>]</td>
-<td></td></tr>
+<td><div class="info">
+We define a new header field, <code class="code"><span class="string">"MIME-Version"</span></code>, which is to be used to
+    declare the version of the Internet message body format standard in use.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_message.html#TYPEfield_message">field_message</a> [<a href="MrMime_message.html">MrMime_message</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_message.html#TYPEfield_part">field_part</a> [<a href="MrMime_message.html">MrMime_message</a>]</td>
@@ -177,7 +187,10 @@ The  message  identifier  <code class="code">msg-id</code>  syntax  is  a  limit
 <tr><td><a href="MrMime_input.html#TYPEst">st</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#TYPEsubty">subty</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+While the subtype specifies a specific format for that type of data.
+</div>
+</td></tr>
 <tr><td align="left"><br>T</td></tr>
 <tr><td><a href="MrMime_maildir.html#TYPEt">t</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
@@ -188,7 +201,11 @@ The  message  identifier  <code class="code">msg-id</code>  syntax  is  a  limit
 <tr><td><a href="MrMime_trace.html#TYPEtrace">trace</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#TYPEty">ty</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+In general, the top-level media type is used to declare the general type of
+    data.
+</div>
+</td></tr>
 <tr><td align="left"><br>U</td></tr>
 <tr><td><a href="MrMime_maildir.html#TYPEunsafe">unsafe</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
@@ -198,9 +215,16 @@ The  message  identifier  <code class="code">msg-id</code>  syntax  is  a  limit
 <td></td></tr>
 <tr><td align="left"><br>V</td></tr>
 <tr><td><a href="MrMime_contentType.html#TYPEvalue">value</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Parameters  are  modifiers  of  the  media  subtype,  and  as  such  do  not
+    fundamentally  affter the  nature of  the  content.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_mimeVersion.html#TYPEversion">version</a> [<a href="MrMime_mimeVersion.html">MrMime_mimeVersion</a>]</td>
-<td></td></tr>
+<td><div class="info">
+The version of the Internet message body format standard in use.
+</div>
+</td></tr>
 <tr><td align="left"><br>W</td></tr>
 <tr><td><a href="MrMime_trace.html#TYPEword">word</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
 <td></td></tr>

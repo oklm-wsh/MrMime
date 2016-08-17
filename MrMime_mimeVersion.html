@@ -36,17 +36,55 @@
 </div>
 <h1>Module <a href="type_MrMime_mimeVersion.html">MrMime_mimeVersion</a></h1>
 
-<pre><span class="keyword">module</span> MrMime_mimeVersion: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_mimeVersion.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">module</span> MrMime_mimeVersion: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_mimeVersion.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Module MIME-Version<br>
+</div>
+<hr width="100%">
 
 <pre><span id="TYPEversion"><span class="keyword">type</span> <code class="type"></code>version</span> = <code class="type">int * int</code> </pre>
+<div class="info ">
+The version of the Internet message body format standard in use.<br>
+</div>
 
 
 <pre><span id="TYPEfield"><span class="keyword">type</span> <code class="type"></code>field</span> = <code class="type">[ `MimeVersion of <a href="MrMime_mimeVersion.html#TYPEversion">version</a> ]</code> </pre>
+<div class="info ">
+We define a new header field, <code class="code"><span class="string">"MIME-Version"</span></code>, which is to be used to
+    declare the version of the Internet message body format standard in use.<br>
+</div>
 
 
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_mimeVersion.html#TYPEversion">version</a> -> unit</code></pre>
-<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_mimeVersion.html#TYPEversion">version</a></code></pre>
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> <a href="MrMime_mimeVersion.html#TYPEversion">version</a> -> unit</code></pre><div class="info ">
+<code class="code">pp version</code> prints an human readable representation of <code class="code">version</code>.<br>
+</div>
+
+<pre><span id="VALdefault"><span class="keyword">val</span> default</span> : <code class="type"><a href="MrMime_mimeVersion.html#TYPEversion">version</a></code></pre><div class="info ">
+Default value of version.<br>
+</div>
+
 <pre><span class="keyword">module</span> <a href="MrMime_mimeVersion.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_mimeVersion.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
 <pre><span class="keyword">module</span> <a href="MrMime_mimeVersion.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_mimeVersion.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_mimeVersion.html#TYPEversion">version</a> option</code></pre>
-<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_mimeVersion.html#TYPEversion">version</a> * int) option</code></pre></body></html>
+<pre><span id="VALof_string"><span class="keyword">val</span> of_string</span> : <code class="type">?chunk:int -> string -> <a href="MrMime_mimeVersion.html#TYPEversion">version</a> option</code></pre><div class="info ">
+<code class="code">of_string           ~chunk:1024           buf</code>           parses          an
+    <a href="https://tools.ietf.org/html/rfc2045#section-4">RFC2045</a>         <a href="MrMime_mimeVersion.html#TYPEversion"><code class="code"><span class="constructor">MrMime_mimeVersion</span>.version</code></a>
+    starting at <code class="code">0</code> in <code class="code">buf</code>.
+<p>
+
+    This  function allocates  a internal  buffer with  <code class="code">chunk</code> size  (default to
+    <code class="code">1024</code>).<br>
+</div>
+
+<pre><span id="VALof_string_raw"><span class="keyword">val</span> of_string_raw</span> : <code class="type">?chunk:int -><br>       string -> int -> int -> (<a href="MrMime_mimeVersion.html#TYPEversion">version</a> * int) option</code></pre><div class="info ">
+<code class="code">of_string_raw     ~chunk:1024      buff     off     len</code>      parses     an
+    <a href="https://tools.ietf.org/html/rfc2045#section-4">RFC2045</a>         <a href="MrMime_mimeVersion.html#TYPEversion"><code class="code"><span class="constructor">MrMime_mimeVersion</span>.version</code></a>
+    starting at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(version, count)</code> with:
+<p>
+<ul>
+<li><code class="code">version</code> the <a href="MrMime_mimeVersion.html#TYPEversion"><code class="code"><span class="constructor">MrMime_mimeVersion</span>.version</code></a></li>
+<li><code class="code">count</code> the number of bytes read starting at <code class="code">off</code> to parse the version.</li>
+</ul>
+
+    This  function allocates  a internal  buffer with  <code class="code">chunk</code> size  (default to
+    <code class="code">1024</code>)<br>
+</div>
+</body></html>

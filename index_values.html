@@ -118,7 +118,12 @@
 <tr><td><a href="MrMime_content.html#VALdefault">default</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALdefault">default</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Default  <a href="https://tools.ietf.org/html/rfc822">RFC822</a>  messages  without  a
+    MIME <code class="code"><span class="string">"Content-Type"</span></code> header are taken by  this protocol to be plain text in
+    the US-ASCII character set, which can be excplicitly specified as:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_contentEncoding.html#VALdefault">default</a> [<a href="MrMime_contentEncoding.html">MrMime_contentEncoding</a>]</td>
 <td><div class="info">
 An encoding type of  <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code> requires that the body is  already in a <code class="code"><span class="keywordsign">`</span><span class="constructor">Bit7</span></code>
@@ -126,7 +131,10 @@ An encoding type of  <code class="code"><span class="keywordsign">`</span><span 
 </div>
 </td></tr>
 <tr><td><a href="MrMime_mimeVersion.html#VALdefault">default</a> [<a href="MrMime_mimeVersion.html">MrMime_mimeVersion</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Default value of version.
+</div>
+</td></tr>
 <tr><td align="left"><br>E</td></tr>
 <tr><td><a href="MrMime_header.html#VALequal">equal</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>
 <td></td></tr>
@@ -194,16 +202,26 @@ Corresponding to the rule from
 <tr><td><a href="MrMime_address.html#VALof_string">of_string</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALof_string">of_string</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">of_string           ~chunk:1024           buf</code>           parses          an
+    <a href="https://tools.ietf.org/html/rfc2045#section-5.1">RFC2045</a>       <a href="MrMime_contentType.html#TYPEcontent"><code class="code"><span class="constructor">MrMime_contentType</span>.content</code></a>
+    starting at <code class="code">0</code> in <code class="code">buf</code>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_contentEncoding.html#VALof_string">of_string</a> [<a href="MrMime_contentEncoding.html">MrMime_contentEncoding</a>]</td>
 <td><div class="info">
 <code class="code">of_string           ~chunk:1024           buf</code>           parses          an
-    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a> mechanism starting
-    at <code class="code">0</code> in <code class="code">buf</code>.
+    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a>       <a href="MrMime_contentEncoding.html#TYPEmechanism"><code class="code"><span class="constructor">MrMime_contentEncoding</span>.mechanism</code></a>
+    starting at <code class="code">0</code> in <code class="code">buf</code>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_mimeVersion.html#VALof_string">of_string</a> [<a href="MrMime_mimeVersion.html">MrMime_mimeVersion</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">of_string           ~chunk:1024           buf</code>           parses          an
+    <a href="https://tools.ietf.org/html/rfc2045#section-4">RFC2045</a>         <a href="MrMime_mimeVersion.html#TYPEversion"><code class="code"><span class="constructor">MrMime_mimeVersion</span>.version</code></a>
+    starting at <code class="code">0</code> in <code class="code">buf</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_msgID.html#VALof_string">of_string</a> [<a href="MrMime_msgID.html">MrMime_msgID</a>]</td>
 <td><div class="info">
 <code class="code">of_string           ~chunk:1024           buf</code>           parses          an
@@ -227,18 +245,29 @@ Corresponding to the rule from
 <tr><td><a href="MrMime_address.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">of_string_raw     ~chunk:1024      buff     off     len</code>      parses     an
+    <a href="https://tools.ietf.org/html/rfc2045#section-5.1">RFC2045</a>       <a href="MrMime_contentType.html#TYPEcontent"><code class="code"><span class="constructor">MrMime_contentType</span>.content</code></a>
+    starting at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(content, count)</code>i with:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_contentEncoding.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_contentEncoding.html">MrMime_contentEncoding</a>]</td>
 <td><div class="info">
-<code class="code">of_string      ~chunk:1024      buff      off      len</code>      parses      an
-    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a> mechanism starting
-    at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(mechanism, count)</code> with: <code class="code">mechanism</code> the <a href="MrMime_contentEncoding.html#TYPEmechanism"><code class="code"><span class="constructor">MrMime_contentEncoding</span>.mechanism</code></a>, <code class="code">count</code> the number of bytes read starting at <code class="code">off</code> to parse the mechanism.
+<code class="code">of_string_raw     ~chunk:1024      buff     off     len</code>      parses     an
+    <a href="https://tools.ietf.org/html/rfc2045#section-6">RFC2045</a>       <a href="MrMime_contentEncoding.html#TYPEmechanism"><code class="code"><span class="constructor">MrMime_contentEncoding</span>.mechanism</code></a>
+    starting at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(mechanism, count)</code> with: <code class="code">mechanism</code> the <a href="MrMime_contentEncoding.html#TYPEmechanism"><code class="code"><span class="constructor">MrMime_contentEncoding</span>.mechanism</code></a>,  <code class="code">count</code>  the  number  of  bytes  read  starting  at  <code class="code">off</code>  to  parse the
+    <code class="code">mechanism</code>.
     This  function allocates  a internal  buffer with  <code class="code">chunk</code> size  (default to
     <code class="code">1024</code>).
 </div>
 </td></tr>
 <tr><td><a href="MrMime_mimeVersion.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_mimeVersion.html">MrMime_mimeVersion</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">of_string_raw     ~chunk:1024      buff     off     len</code>      parses     an
+    <a href="https://tools.ietf.org/html/rfc2045#section-4">RFC2045</a>         <a href="MrMime_mimeVersion.html#TYPEversion"><code class="code"><span class="constructor">MrMime_mimeVersion</span>.version</code></a>
+    starting at <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(version, count)</code> with:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_msgID.html#VALof_string_raw">of_string_raw</a> [<a href="MrMime_msgID.html">MrMime_msgID</a>]</td>
 <td><div class="info">
 <code class="code">of_string_raw      ~chunk:1024     buf      off     len</code>      parses     an
@@ -263,7 +292,10 @@ Corresponding to the rule from
 <tr><td><a href="MrMime_message.Decoder.html#VALp_bound_of_content">p_bound_of_content</a> [<a href="MrMime_message.Decoder.html">MrMime_message.Decoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.Decoder.html#VALp_content">p_content</a> [<a href="MrMime_contentType.Decoder.html">MrMime_contentType.Decoder</a>]</td>
-<td></td></tr>
+<td><div class="info">
+See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-5.1">5.1</a>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_date.Decoder.html#VALp_date">p_date</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
 <td><div class="info">
 See RFC5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>:
@@ -344,7 +376,10 @@ See RFC5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>
 </div>
 </td></tr>
 <tr><td><a href="MrMime_mimeVersion.Decoder.html#VALp_version">p_version</a> [<a href="MrMime_mimeVersion.Decoder.html">MrMime_mimeVersion.Decoder</a>]</td>
-<td></td></tr>
+<td><div class="info">
+See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-4">4</a>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_date.Decoder.html#VALp_year">p_year</a> [<a href="MrMime_date.Decoder.html">MrMime_date.Decoder</a>]</td>
 <td><div class="info">
 See RFC5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a> &amp;
@@ -378,14 +413,20 @@ See RFC5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>
 <tr><td><a href="MrMime_content.html#VALpp">pp</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALpp">pp</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp content</code> prints an human readable representation of <a href="MrMime_contentType.html#TYPEcontent"><code class="code"><span class="constructor">MrMime_contentType</span>.content</code></a>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_contentEncoding.html#VALpp">pp</a> [<a href="MrMime_contentEncoding.html">MrMime_contentEncoding</a>]</td>
 <td><div class="info">
-<code class="code">pp mechanism</code> prints an human readble representation of <code class="code">mechanism</code>.
+<code class="code">pp mechanism</code> prints an human readable representation of <code class="code">mechanism</code>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_mimeVersion.html#VALpp">pp</a> [<a href="MrMime_mimeVersion.html">MrMime_mimeVersion</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp version</code> prints an human readable representation of <code class="code">version</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_msgID.html#VALpp">pp</a> [<a href="MrMime_msgID.html">MrMime_msgID</a>]</td>
 <td><div class="info">
 <code class="code">pp fmt msg_id</code> prints an human readable representation of <code class="code">msg_id</code>.
@@ -451,7 +492,11 @@ See RFC5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>
 <tr><td><a href="MrMime_maildir.html#VALpp_option">pp_option</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALpp_parameter">pp_parameter</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp_value (attribute,  value)</code>  prints an  human readable  representation of
+    <code class="code">parameter</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_trace.html#VALpp_path">pp_path</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_address.html#VALpp_phrase">pp_phrase</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
@@ -465,17 +510,26 @@ See RFC5322 § <a href="https://tools.ietf.org/html/rfc5322#section-3.3">3.3</a>
 <tr><td><a href="MrMime_trace.html#VALpp_received">pp_received</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALpp_subty">pp_subty</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp_subty subty</code> prints an human readable representation of <a href="MrMime_contentType.html#TYPEsubty"><code class="code"><span class="constructor">MrMime_contentType</span>.subty</code></a>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_maildir.html#VALpp_t">pp_t</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALpp_ty">pp_ty</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp_ty ty</code> prints an human readable representation of <a href="MrMime_contentType.html#TYPEty"><code class="code"><span class="constructor">MrMime_contentType</span>.ty</code></a>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_header.html#VALpp_unstructured">pp_unstructured</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_content.html#VALpp_unstructured">pp_unstructured</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentType.html#VALpp_value">pp_value</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp_value value</code> prints an human readable representation of <a href="MrMime_contentType.html#TYPEvalue"><code class="code"><span class="constructor">MrMime_contentType</span>.value</code></a>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_address.html#VALpp_word">pp_word</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALpp_zone">pp_zone</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
