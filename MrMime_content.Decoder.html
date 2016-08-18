@@ -36,5 +36,47 @@
 
 <pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_content.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
 
-<pre><span id="VALmessage"><span class="keyword">val</span> message</span> : <code class="type">([> `Content of string * Rfc5322.unstructured<br>         | `ContentDescription of Rfc5322.unstructured<br>         | `ContentEncoding of Rfc2045.mechanism<br>         | `ContentID of Rfc822.msg_id<br>         | `ContentType of Rfc2045.content<br>         | `MimeVersion of Rfc2045.version ]<br>        as 'a)<br>       list -> (<a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * 'a list) MrMime_parser.t</code></pre>
-<pre><span id="VALpart"><span class="keyword">val</span> part</span> : <code class="type">([> `Content of string * Rfc5322.unstructured<br>         | `ContentDescription of Rfc5322.unstructured<br>         | `ContentEncoding of Rfc2045.mechanism<br>         | `ContentID of Rfc822.msg_id<br>         | `ContentType of Rfc2045.content<br>         | `Skip of string<br>         | `Unsafe of string * Rfc5322.unstructured ]<br>        as 'a)<br>       list -> (<a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * 'a list) MrMime_parser.t</code></pre></body></html>
+<pre><span id="VALmessage"><span class="keyword">val</span> message</span> : <code class="type">([> `Content of string * Rfc5322.unstructured<br>         | `ContentDescription of Rfc5322.unstructured<br>         | `ContentEncoding of Rfc2045.mechanism<br>         | `ContentID of Rfc822.msg_id<br>         | `ContentType of Rfc2045.content<br>         | `MimeVersion of Rfc2045.version ]<br>        as 'a)<br>       list -> (<a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * 'a list) MrMime_parser.t</code></pre><div class="info ">
+See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;entity-headers&nbsp;:=&nbsp;[&nbsp;content&nbsp;<span class="constructor">CRLF</span>&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;encoding&nbsp;<span class="constructor">CRLF</span>&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;id&nbsp;<span class="constructor">CRLF</span>&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;description&nbsp;<span class="constructor">CRLF</span>&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(&nbsp;<span class="constructor">MIME</span>-extension-field&nbsp;<span class="constructor">CRLF</span>&nbsp;)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MIME</span>-message-headers&nbsp;:=&nbsp;entity-headers
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fields
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;version&nbsp;<span class="constructor">CRLF</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">The</span>&nbsp;ordering&nbsp;<span class="keyword">of</span>&nbsp;the&nbsp;header
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;fields&nbsp;implied&nbsp;by&nbsp;this&nbsp;<span class="constructor">BNF</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;definition&nbsp;should&nbsp;be&nbsp;ignored.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+      <b>NOTE</b>:  this  decoder has no  <code class="code"><span class="keywordsign">`</span><span class="constructor">Skip</span></code> and  <code class="code"><span class="keywordsign">`</span><span class="constructor">Unsafe</span></code> constructor.  This
+      things is let to <a href="MrMime_header.Decoder.html#VALheader"><code class="code"><span class="constructor">MrMime_header</span>.<span class="constructor">Decoder</span>.header</code></a>.<br>
+</div>
+
+<pre><span id="VALpart"><span class="keyword">val</span> part</span> : <code class="type">([> `Content of string * Rfc5322.unstructured<br>         | `ContentDescription of Rfc5322.unstructured<br>         | `ContentEncoding of Rfc2045.mechanism<br>         | `ContentID of Rfc822.msg_id<br>         | `ContentType of Rfc2045.content<br>         | `Skip of string<br>         | `Unsafe of string * Rfc5322.unstructured ]<br>        as 'a)<br>       list -> (<a href="MrMime_content.html#TYPEt">MrMime_content.t</a> * 'a list) MrMime_parser.t</code></pre><div class="info ">
+See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
+<p>
+
+     <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;entity-headers&nbsp;:=&nbsp;[&nbsp;content&nbsp;<span class="constructor">CRLF</span>&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;encoding&nbsp;<span class="constructor">CRLF</span>&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;id&nbsp;<span class="constructor">CRLF</span>&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;description&nbsp;<span class="constructor">CRLF</span>&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(&nbsp;<span class="constructor">MIME</span>-extension-field&nbsp;<span class="constructor">CRLF</span>&nbsp;)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MIME</span>-part-headers&nbsp;:=&nbsp;entity-headers
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;fields&nbsp;]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Any</span>&nbsp;field&nbsp;not&nbsp;beginning&nbsp;<span class="keyword">with</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="string">"content-"</span>&nbsp;can&nbsp;have&nbsp;no&nbsp;defined
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;meaning&nbsp;<span class="keyword">and</span>&nbsp;may&nbsp;be&nbsp;ignored.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">The</span>&nbsp;ordering&nbsp;<span class="keyword">of</span>&nbsp;the&nbsp;header
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;fields&nbsp;implied&nbsp;by&nbsp;this&nbsp;<span class="constructor">BNF</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;definition&nbsp;should&nbsp;be&nbsp;ignored.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
+</div>
+</body></html>

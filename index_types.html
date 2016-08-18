@@ -90,7 +90,11 @@ Right-hand side of the <code class="code"><span class="string">"@"</span></code>
 <tr><td><a href="MrMime_resent.html#TYPEfield">field</a> [<a href="MrMime_resent.html">MrMime_resent</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_content.html#TYPEfield">field</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
-<td></td></tr>
+<td><div class="info">
+MIME defines  a number of  new <a href="https://tools.ietf.org/html/rfc822">RFC822</a>
+    header fields that are used to describe the content of a MIME entity.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_contentType.html#TYPEfield">field</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
 <td><div class="info">
 The field of <code class="code"><span class="string">"Content-Type"</span></code>.
@@ -174,7 +178,11 @@ The  message  identifier  <code class="code">msg-id</code>  syntax  is  a  limit
 <tr><td><a href="MrMime_address.html#TYPEraw">raw</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_content.html#TYPEraw">raw</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
-<td></td></tr>
+<td><div class="info">
+It's             an             <i>            encoded-word</i>            from
+    <a href="https://tools.ietf.org/html/rfc2047">RFC2047</a>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_trace.html#TYPEreceived">received</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_resent.html#TYPEresent">resent</a> [<a href="MrMime_resent.html">MrMime_resent</a>]</td>
@@ -195,7 +203,10 @@ While the subtype specifies a specific format for that type of data.
 <tr><td><a href="MrMime_maildir.html#TYPEt">t</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_content.html#TYPEt">t</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
-<td></td></tr>
+<td><div class="info">
+A convenience record to deal with any <code class="code"><span class="string">"Content-*"</span></code> fields.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#TYPEt">t</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_trace.html#TYPEtrace">trace</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
@@ -212,7 +223,12 @@ In general, the top-level media type is used to declare the general type of
 <tr><td><a href="MrMime_header.html#TYPEunstructured">unstructured</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_content.html#TYPEunstructured">unstructured</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
-<td></td></tr>
+<td><div class="info">
+Some                    field                    bodies                   in
+    <a href="https://tools.ietf.org/html/rfc5322#section-2.2.1">RFC5322</a>  specification
+    are defined simply as <i> unstructured</i> with no further restrictions.
+</div>
+</td></tr>
 <tr><td align="left"><br>V</td></tr>
 <tr><td><a href="MrMime_contentType.html#TYPEvalue">value</a> [<a href="MrMime_contentType.html">MrMime_contentType</a>]</td>
 <td><div class="info">
