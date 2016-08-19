@@ -30,6 +30,45 @@
 &nbsp;</div>
 <h1>Index of values</h1>
 <table>
+<tr><td align="left"><br></td></tr>
+<tr><td><a href="MrMime_parser.html#VAL( *> )">( *&gt; )</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">p *&gt; q</code> runs <code class="code">p</code>, discards its result and then runs <code class="code">q</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VAL( <* )">( &lt;* )</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">p &lt;* q</code> runs <code class="code">p</code>, then runs <code class="code">q</code>, discards its result, and returns the
+    result of <code class="code">p</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VAL(<$>)">(&lt;$&gt;)</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">f &lt;$&gt; p</code> is equivalent to <code class="code">p &gt;&gt;| f</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VAL(<*>)">(&lt;*&gt;)</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">f &lt;*&gt; p</code> is equivalent to <code class="code">f &gt;&gt;= <span class="keyword">fun</span> f <span class="keywordsign">-&gt;</span> p &gt;&gt;| f</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VAL(<|>)">(&lt;|&gt;)</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">p &lt;|&gt; q</code> runs <code class="code">p</code> and returns the result if succeeds.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VAL(>>=)">(&gt;&gt;=)</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">p &gt;&gt;= f</code> creates a parser that will run <code class="code">p</code>, pass its result to <code class="code">f</code>, run
+    the parser that <code class="code">f</code> produces, and return its result.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VAL(>>|)">(&gt;&gt;|)</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">p &gt;&gt;| f</code> creates a parser that will run <code class="code">p</code>, and if it succeeds with result
+    <code class="code">v</code>, will return <code class="code">f v</code>.
+</div>
+</td></tr>
 <tr><td align="left"><br>A</td></tr>
 <tr><td><a href="MrMime_message.Extension.html#VALadd_content">add_content</a> [<a href="MrMime_message.Extension.html">MrMime_message.Extension</a>]</td>
 <td></td></tr>
@@ -37,9 +76,24 @@
 <td></td></tr>
 <tr><td><a href="MrMime_address.Extension.html#VALadd_literal_domain">add_literal_domain</a> [<a href="MrMime_address.Extension.html">MrMime_address.Extension</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_parser.html#VALadvance">advance</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">advance n</code> advances the input of <code class="code">n</code> bytes.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_maildir.html#VALavoid">avoid</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>C</td></tr>
+<tr><td><a href="MrMime_parser.html#VALchar">char</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">char c</code> accepts <code class="code">c</code> and return it.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALcount">count</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">count n p</code> runs <code class="code">p</code> <code class="code">n</code> times, returning a list of the results.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALcreate_bigstring">create_bigstring</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_input.html#VALcreate_bytes">create_bytes</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
@@ -156,6 +210,17 @@ Default value of version.
 <code class="code">equal a b</code> is <code class="code"><span class="keyword">true</span></code> iff <code class="code">a</code> and <code class="code">b</code> are the same date.
 </div>
 </td></tr>
+<tr><td align="left"><br>F</td></tr>
+<tr><td><a href="MrMime_parser.html#VALfail">fail</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">fail exn</code> creates a parser that will always fail with the <a href="MrMime_parser.html#TYPEerr"><code class="code"><span class="constructor">MrMime_parser</span>.err</code></a> <code class="code">exn</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALfix">fix</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">fix f</code> computes the fixpoint of <code class="code">f</code> and runs the resultant parser.
+</div>
+</td></tr>
 <tr><td align="left"><br>G</td></tr>
 <tr><td><a href="MrMime_input.html#VALget">get</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
@@ -192,9 +257,31 @@ Corresponding to the rule from
 <code class="code">is_hex chr</code>  returns <code class="code"><span class="keyword">true</span></code> iff  the character is  a hexadecimal character.
 </div>
 </td></tr>
+<tr><td align="left"><br>L</td></tr>
+<tr><td><a href="MrMime_parser.html#VALlift">lift</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td></td></tr>
+<tr><td><a href="MrMime_parser.html#VALlift2">lift2</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td></td></tr>
+<tr><td><a href="MrMime_parser.html#VALlift3">lift3</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+The <code class="code">liftN</code> family of functions promote functions to the parser monad.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALlist">list</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">list ps</code> runs each <code class="code">p</code> in <code class="code">ps</code> in sequence, returning a list of results of
+    each <code class="code">p</code>.
+</div>
+</td></tr>
 <tr><td align="left"><br>M</td></tr>
 <tr><td><a href="MrMime_maildir.html#VALmake">make</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_parser.html#VALmany">many</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">many p</code> runs <code class="code">p</code> <i>zero</i> or more times and returns a list of results from
+    the runs of <code class="code">p</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_content.Decoder.html#VALmessage">message</a> [<a href="MrMime_content.Decoder.html">MrMime_content.Decoder</a>]</td>
 <td><div class="info">
 See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
@@ -290,6 +377,23 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
     <code class="code">off</code> in <code class="code">buf</code> to a tuple <code class="code">(date, count)</code> with: <code class="code">date</code> the date, <code class="code">count</code> the number of bytes read starting at <code class="code">off</code> to parse the date.
     This function allocates a internal buffer with <code class="code">chunk</code> size (default to
     <code class="code">1024</code>).
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALone">one</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">one p</code> runs <code class="code">p</code> <i>one</i> or more times and returns a list of results from
+    the runs of <code class="code">p</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALonly">only</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">only input p</code> runs <code class="code">p</code> on <code class="code">input</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALoption">option</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">option v p</code> runs <code class="code">p</code>, returning the result of <code class="code">p</code> if it succeeds and <code class="code">v</code> if
+    it fails.
 </div>
 </td></tr>
 <tr><td align="left"><br>P</td></tr>
@@ -409,6 +513,17 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 </td></tr>
 <tr><td><a href="MrMime_input.html#VALpeek">peek</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_parser.html#VALpeek_chr">peek_chr</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">peek_chr</code> accepts any char and return  it,  or returns <code class="code"><span class="constructor">None</span></code> if the end of
+    input has been reached.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALpeek_chr_exn">peek_chr_exn</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">peek_chr_exn</code> accepts any  char and returnss it.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_maildir.html#VALpp">pp</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_header.html#VALpp">pp</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>
@@ -452,6 +567,8 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 </div>
 </td></tr>
 <tr><td><a href="MrMime_input.html#VALpp">pp</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
+<td></td></tr>
+<tr><td><a href="MrMime_parser.html#VALpp">pp</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALpp_day">pp_day</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
 <td><div class="info">
@@ -571,7 +688,36 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 <td></td></tr>
 <tr><td><a href="MrMime_input.html#VALread_space">read_space</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_parser.html#VALrecognize">recognize</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">recognize f</code> accepts input as long as <code class="code">f</code> returns <code class="code"><span class="keyword">true</span></code> and returns the
+    accepted characters as a string.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALrepeat">repeat</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">repeat      a      b      f</code>       is      a      parser      from      the
+    <a href="https://tools.ietf.org/html/rfc5234#section-3.6">RFC5234</a> to recognize any
+    character which respect the predicate <code class="code">f</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALreturn">return</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">return v</code> creates a parser that will always succeed and return <code class="code">v</code>.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALrun">run</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">run input p</code> runs <code class="code">p</code> on <code class="code">input</code>.
+</div>
+</td></tr>
 <tr><td align="left"><br>S</td></tr>
+<tr><td><a href="MrMime_parser.html#VALsatisfy">satisfy</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">satisfy f</code> accepts any character for which <code class="code">f</code> returns <code class="code"><span class="keyword">true</span></code> and returns
+    the accepted character.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALsavailable">savailable</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_input.html#VALsize">size</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
@@ -590,7 +736,27 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 </td></tr>
 <tr><td><a href="MrMime.Convenience.html#VALsrc">src</a> [<a href="MrMime.Convenience.html">MrMime.Convenience</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_parser.html#VALstore">store</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">store buf  f</code> stores any  character for which  <code class="code">f</code> returns <code class="code"><span class="keyword">true</span></code>  in <code class="code">buf</code>
+    only on the continuous buffer  inside the input.
+</div>
+</td></tr>
+<tr><td><a href="MrMime_parser.html#VALstring">string</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">string f s</code> ensures the input has <code class="code"><span class="constructor">String</span>.length s</code> (in another case,
+    the parser fails with <code class="code"><span class="constructor">End_of_flow</span></code>) and compare the string <code class="code">s'</code> from the
+    input and <code class="code">s</code> with <code class="code">f s = f s'</code> (in another case, the parser fails with
+    <a href="MrMime_parser.html#EXTENSIONString"><code class="code"><span class="constructor">MrMime_parser</span>.<span class="constructor">String</span></code></a>).
+</div>
+</td></tr>
 <tr><td align="left"><br>T</td></tr>
+<tr><td><a href="MrMime_parser.html#VALtake">take</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
+<td><div class="info">
+<code class="code">take n</code> accepts exactly <code class="code">n</code> character(s) of input and returns them as a
+    string.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_maildir.html#VALto_safe">to_safe</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_header.html#VALto_string">to_string</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>

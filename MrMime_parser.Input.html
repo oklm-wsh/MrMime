@@ -4,8 +4,7 @@
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
 <link rel="Start" href="index.html">
-<link rel="previous" href="MrMime_mimeVersion.Encoder.html">
-<link rel="Up" href="MrMime_mimeVersion.html">
+<link rel="Up" href="MrMime_parser.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
 <link title="Index of extensions" rel=Appendix href="index_extensions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
@@ -26,21 +25,13 @@
 <link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
 <link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
 <link title="MrMime_message" rel="Chapter" href="MrMime_message.html">
-<link title="MrMime_maildir" rel="Chapter" href="MrMime_maildir.html"><title>MrMime_mimeVersion.Decoder</title>
+<link title="MrMime_maildir" rel="Chapter" href="MrMime_maildir.html"><title>MrMime_parser.Input</title>
 </head>
 <body>
-<div class="navbar"><a class="pre" href="MrMime_mimeVersion.Encoder.html" title="MrMime_mimeVersion.Encoder">Previous</a>
-&nbsp;<a class="up" href="MrMime_mimeVersion.html" title="MrMime_mimeVersion">Up</a>
+<div class="navbar">&nbsp;<a class="up" href="MrMime_parser.html" title="MrMime_parser">Up</a>
 &nbsp;</div>
-<h1>Module <a href="type_MrMime_mimeVersion.Decoder.html">MrMime_mimeVersion.Decoder</a></h1>
+<h1>Module <a href="type_MrMime_parser.Input.html">MrMime_parser.Input</a></h1>
 
-<pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_mimeVersion.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
-
-<pre><span id="VALp_version"><span class="keyword">val</span> p_version</span> : <code class="type"><a href="MrMime_mimeVersion.html#TYPEversion">MrMime_mimeVersion.version</a> <a href="MrMime_parser.html#TYPEt">MrMime_parser.t</a></code></pre><div class="info ">
-See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-4">4</a>:
-<p>
-
-     <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;version&nbsp;:=&nbsp;<span class="string">"MIME-Version"</span>&nbsp;<span class="string">":"</span>&nbsp;1*<span class="constructor">DIGIT</span>&nbsp;<span class="string">"."</span>&nbsp;1*<span class="constructor">DIGIT</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre><br>
-</div>
+<pre><span class="keyword">module</span> Input: <code class="type">module type of RingBuffer.Committed</code><code class="type"> 
+  with type 'a t = 'a RingBuffer.Committed.t</code></pre><hr width="100%">
 </body></html>
