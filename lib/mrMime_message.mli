@@ -13,7 +13,7 @@ and ('a, 'b) part = ('a, 'b) Top.part =
   | PMessage   of MrMime_header.header * ('a, 'b) message
 
 type encoding = ..
-type encoding += Base64 of MrMime_base64.result
+type encoding += Base64 of MrMime_base64.Decoder.result
 type encoding += QuotedPrintable of string
 type encoding += Raw of string
 

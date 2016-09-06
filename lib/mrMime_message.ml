@@ -171,7 +171,7 @@ struct
           QuotedPrintable.decode boundary' rollback
           >>| fun v -> Top.QuotedPrintable v
         | `Base64 ->
-          Base64.decode boundary' rollback
+          Base64.Decoder.decode boundary' rollback
           >>| fun v -> Top.Base64 v
         | _ ->
           Rfc5322.decode boundary' rollback
@@ -221,8 +221,8 @@ struct
     | `X_token _      , Top.Raw body
     | `Bit7           , Top.Raw body
     | `Binary         , Top.Raw body             -> w_encode body
-    | `Base64         , Top.Base64 (`Dirty body) -> Base64.w_encode body
-    | `Base64         , Top.Base64 (`Clean body) -> Base64.w_encode body
+    | `Base64         , Top.Base64 (`Dirty body) -> Base64.Encoder.w_encode body
+    | `Base64         , Top.Base64 (`Clean body) -> Base64.Encoder.w_encode body
     | `QuotedPrintable, Top.QuotedPrintable body -> QuotedPrintable.w_encode body
 
   let w_crlf k e = string "\r\n" k e

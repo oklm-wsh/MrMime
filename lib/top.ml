@@ -22,7 +22,7 @@ and ('a, 'b) part =
   | PMessage   of MrMime_header.header * ('a, 'b) message
 
 type encoding = ..
-type encoding += Base64 of MrMime_base64.result
+type encoding += Base64 of MrMime_base64.Decoder.result
 type encoding += QuotedPrintable of string
 type encoding += Raw of string
 
@@ -69,7 +69,7 @@ let octet boundary content fields =
     MrMime_quotedPrintable.decode boundary rollback
     >>| fun v -> QuotedPrintable v
   | `Base64 ->
-    MrMime_base64.decode boundary rollback
+    MrMime_base64.Decoder.decode boundary rollback
     >>| fun v -> Base64 v
   | `Bit7 | `Bit8 | `Binary ->
     Rfc5322.decode boundary rollback

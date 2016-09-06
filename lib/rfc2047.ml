@@ -1,6 +1,6 @@
 type raw =
   | QuotedPrintable of string
-  | Base64 of MrMime_base64.result
+  | Base64 of MrMime_base64.Decoder.result
 
 open Parser
 open Parser.Convenience
@@ -46,7 +46,7 @@ let inline_encoded_string =
     | _   -> assert false)
   >>= fun encoding -> char '?'
   >>= fun _ -> (match encoding with
-    | `B -> MrMime_base64.inline () >>| fun v -> Base64 v
+    | `B -> MrMime_base64.Decoder.inline () >>| fun v -> Base64 v
     | `Q -> MrMime_quotedPrintable.inline () >>| fun v -> QuotedPrintable v)
   >>= fun decoded -> string id "?="
   *> return (charset, decoded)

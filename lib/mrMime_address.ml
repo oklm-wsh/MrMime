@@ -1,8 +1,8 @@
-type word           = Rfc822.word
-type local          = Rfc822.local
-type raw            = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.result
-type phrase         = Rfc5322.phrase
-type domain         = Rfc5322.domain
+type word = Rfc822.word
+type local = Rfc822.local
+type raw = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.Decoder.result
+type phrase = Rfc5322.phrase
+type domain = Rfc5322.domain
 type literal_domain = Rfc5321.literal_domain = ..
 type Rfc5321.literal_domain += IPv4 = Rfc5321.IPv4
 type Rfc5321.literal_domain += IPv6 = Rfc5321.IPv6
@@ -178,7 +178,7 @@ struct
     | Rfc2047.QuotedPrintable s ->
       string "Q?" $ (wrap (QuotedPrintable.w_inline_encode s $ Encoder.flush))
     | Rfc2047.Base64 (`Clean raw)
-    | Rfc2047.Base64 (`Dirty raw) -> string "B?" $ (wrap (Base64.w_inline_encode raw $ Encoder.flush))
+    | Rfc2047.Base64 (`Dirty raw) -> string "B?" $ (wrap (Base64.Encoder.w_inline_encode raw $ Encoder.flush))
     | Rfc2047.Base64 `Wrong_padding -> string "B?"
 
   let rec w_lst w_sep w_data l =

@@ -1,4 +1,6 @@
-type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.result
+type raw = Rfc2047.raw =
+  | QuotedPrintable of string
+  | Base64 of MrMime_base64.Decoder.result
 type unstructured     =
   [ `CR of int
   | `CRLF
@@ -12,9 +14,9 @@ type phrase_or_msg_id =
       [ `Dot
       | `Encoded of string * raw
       | `Word of [ `String of string | `Atom of string ] ] list ]
-type field            = Rfc5322.field
+type field = Rfc5322.field
 
-module Map      : (module type of Map.Make(String))
+module Map : (module type of Map.Make(String))
 
 type header =
   { date        : MrMime_date.date option

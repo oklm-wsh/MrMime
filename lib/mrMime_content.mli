@@ -37,7 +37,7 @@
 *)
 
 (** Map with [type key = string]. *)
-module Map            : module type of Map.Make(String)
+module Map : module type of Map.Make(String)
 
 (** It's             an             {i             encoded-word}            from
     {{:https://tools.ietf.org/html/rfc2047}RFC2047}.  An  {i encoded-word}  is a
@@ -57,7 +57,7 @@ module Map            : module type of Map.Make(String)
 *)
 type raw              = Rfc2047.raw =
   | QuotedPrintable of string
-  | Base64 of MrMime_base64.result
+  | Base64 of MrMime_base64.Decoder.result
 
 (** Some                    field                    bodies                   in
     {{:https://tools.ietf.org/html/rfc5322#section-2.2.1}RFC5322}  specification
