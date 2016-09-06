@@ -1,4 +1,4 @@
-(** Parser Module
+(** Module Decoder (Parser)
 
     Most           of           this            part           is           from
     {{:https://github.com/inhabitedtype/angstrom}angstrom}  project   by  Spiros

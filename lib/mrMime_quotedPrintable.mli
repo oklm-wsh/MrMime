@@ -1,4 +1,4 @@
-(** QuotedPrintable encoding and decoding *)
+(** Module QuotedPrintable encoding *)
 
 open Parser
 

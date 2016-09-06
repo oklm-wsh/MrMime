@@ -1,4 +1,4 @@
-(** Base64 encoding and decoding *)
+(** Module Base64 encoding *)
 
 open Parser
 

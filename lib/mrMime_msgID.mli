@@ -1,4 +1,4 @@
-(** Message ID encoding and decoding *)
+(** Module Message ID *)
 
 (** [word] is a combinations of [atoms] and/or [quoted-strings]:
 
