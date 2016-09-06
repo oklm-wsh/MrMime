@@ -41,10 +41,26 @@
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> = <code class="type">'a RingBuffer.Committed.t</code> </pre>
 
 
-<pre><span id="TYPEst"><span class="keyword">type</span> <code class="type"></code>st</span> = <code class="type">[ `ST ]</code> </pre>
+<pre><span id="TYPEst"><span class="keyword">type</span> <code class="type"></code>st</span> = <code class="type">Internal_buffer.st</code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTst.St"><span class="constructor">St</span></span></code></td>
+
+</tr></table>
 
 
-<pre><span id="TYPEbs"><span class="keyword">type</span> <code class="type"></code>bs</span> = <code class="type">[ `BS ]</code> </pre>
+
+<pre><span id="TYPEbs"><span class="keyword">type</span> <code class="type"></code>bs</span> = <code class="type">Internal_buffer.bs</code> = </pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTbs.Bs"><span class="constructor">Bs</span></span></code></td>
+
+</tr></table>
+
 
 
 <pre><span id="VALwrite"><span class="keyword">val</span> write</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t -> int -> int -> unit</code></pre>

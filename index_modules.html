@@ -47,8 +47,6 @@
 <td></td></tr>
 <tr><td><a href="MrMime.ContentType.html">ContentType</a> [<a href="MrMime.html">MrMime</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.Convenience.html">Convenience</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
-<td></td></tr>
 <tr><td><a href="MrMime_quotedPrintable.Convenience.html">Convenience</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime.Convenience.html">Convenience</a> [<a href="MrMime.html">MrMime</a>]</td>
@@ -78,6 +76,8 @@
 <td></td></tr>
 <tr><td><a href="MrMime_date.Decoder.html">Decoder</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_base64.Decoder.html">Decoder</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>E</td></tr>
 <tr><td><a href="MrMime_header.Encoder.html">Encoder</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>
 <td></td></tr>
@@ -99,6 +99,8 @@
 <td></td></tr>
 <tr><td><a href="MrMime_date.Encoder.html">Encoder</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_base64.Encoder.html">Encoder</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
+<td></td></tr>
 <tr><td><a href="MrMime_message.Extension.html">Extension</a> [<a href="MrMime_message.html">MrMime_message</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_address.Extension.html">Extension</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
@@ -107,7 +109,7 @@
 <tr><td><a href="MrMime.Header.html">Header</a> [<a href="MrMime.html">MrMime</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>I</td></tr>
-<tr><td><a href="MrMime_base64.Convenience.Input.html">Input</a> [<a href="MrMime_base64.Convenience.html">MrMime_base64.Convenience</a>]</td>
+<tr><td><a href="MrMime_base64.Input.html">Input</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_quotedPrintable.Convenience.Input.html">Input</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
 <td></td></tr>
@@ -120,6 +122,8 @@
 <td></td></tr>
 <tr><td align="left"><br>M</td></tr>
 <tr><td><a href="MrMime.Maildir.html">Maildir</a> [<a href="MrMime.html">MrMime</a>]</td>
+<td></td></tr>
+<tr><td><a href="MrMime_address.Make.html">Make</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_maildir.Map.html">Map</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
@@ -137,10 +141,13 @@ Map with <code class="code"><span class="keyword">type</span> key = string</code
 <tr><td><a href="MrMime.html">MrMime</a> </td>
 <td></td></tr>
 <tr><td><a href="MrMime_address.html">MrMime_address</a> </td>
-<td></td></tr>
+<td><div class="info">
+Module Address
+</div>
+</td></tr>
 <tr><td><a href="MrMime_base64.html">MrMime_base64</a> </td>
 <td><div class="info">
-Base64 encoding and decoding
+Module Base64 encoding
 </div>
 </td></tr>
 <tr><td><a href="MrMime_content.html">MrMime_content</a> </td>
@@ -178,17 +185,17 @@ Module MIME-Version
 </td></tr>
 <tr><td><a href="MrMime_msgID.html">MrMime_msgID</a> </td>
 <td><div class="info">
-Message ID encoding and decoding
+Module Message ID
 </div>
 </td></tr>
 <tr><td><a href="MrMime_parser.html">MrMime_parser</a> </td>
 <td><div class="info">
-Parser Module
+Module Decoder (Parser)
 </div>
 </td></tr>
 <tr><td><a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a> </td>
 <td><div class="info">
-QuotedPrintable encoding and decoding
+Module QuotedPrintable encoding
 </div>
 </td></tr>
 <tr><td><a href="MrMime_resent.html">MrMime_resent</a> </td>

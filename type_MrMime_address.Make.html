@@ -1,0 +1,48 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html">
+<link title="MrMime_maildir" rel="Chapter" href="MrMime_maildir.html"><title>MrMime_address.Make</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;z&nbsp;=&nbsp;<span class="constructor">Z</span>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;s&nbsp;=&nbsp;<span class="constructor">S</span>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;word
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>data,&nbsp;<span class="keywordsign">'</span>peano)&nbsp;llist
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;word&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;]&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.word
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;atom&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;[&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;]&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.word
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;e&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;([&gt;&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;]&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.word,&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.z)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.llist
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;(&nbsp;<span class="keywordsign">&amp;</span>&nbsp;)&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.word&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.word,&nbsp;<span class="keywordsign">'</span>x)&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.llist&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.word,&nbsp;<span class="keywordsign">'</span>x&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.s)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.llist
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;(&nbsp;@&nbsp;)&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;([&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">String</span>&nbsp;]&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.word,&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.s)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.llist&nbsp;<span class="keywordsign">-&gt;</span>
+&nbsp;&nbsp;&nbsp;&nbsp;([&nbsp;<span class="keywordsign">`</span><span class="constructor">Atom</span>&nbsp;]&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.word,&nbsp;<span class="keywordsign">'</span>b&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.s)
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">MrMime_address</span>.<span class="constructor">Make</span>.llist&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">MrMime_address</span>.mailbox
+<span class="keyword">end</span></code></body></html>

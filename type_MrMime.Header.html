@@ -29,7 +29,7 @@
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;raw&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Rfc2047</span>.raw&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keyword">of</span>&nbsp;string
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_base64</span>.result
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_base64</span>.<span class="constructor">Decoder</span>.result
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;unstructured&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;<span class="keywordsign">`</span><span class="constructor">CR</span>&nbsp;<span class="keyword">of</span>&nbsp;int
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="keywordsign">`</span><span class="constructor">CRLF</span>

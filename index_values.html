@@ -42,6 +42,8 @@
     result of <code class="code">p</code>.
 </div>
 </td></tr>
+<tr><td><a href="MrMime_address.Make.html#VAL(&)">(&amp;)</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
+<td></td></tr>
 <tr><td><a href="MrMime_parser.html#VAL(<$>)">(&lt;$&gt;)</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
 <td><div class="info">
 <code class="code">f &lt;$&gt; p</code> is equivalent to <code class="code">p &gt;&gt;| f</code>.
@@ -69,6 +71,8 @@
     <code class="code">v</code>, will return <code class="code">f v</code>.
 </div>
 </td></tr>
+<tr><td><a href="MrMime_address.Make.html#VAL(@)">(@)</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>A</td></tr>
 <tr><td><a href="MrMime_message.Extension.html#VALadd_content">add_content</a> [<a href="MrMime_message.Extension.html">MrMime_message.Extension</a>]</td>
 <td></td></tr>
@@ -81,6 +85,8 @@
 <code class="code">advance n</code> advances the input of <code class="code">n</code> bytes.
 </div>
 </td></tr>
+<tr><td><a href="MrMime_address.Make.html#VALatom">atom</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
+<td></td></tr>
 <tr><td><a href="MrMime_maildir.html#VALavoid">avoid</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>C</td></tr>
@@ -99,22 +105,22 @@
 <tr><td><a href="MrMime_input.html#VALcreate_bytes">create_bytes</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>D</td></tr>
-<tr><td><a href="MrMime_base64.Convenience.html#VALdecode">decode</a> [<a href="MrMime_base64.Convenience.html">MrMime_base64.Convenience</a>]</td>
+<tr><td><a href="MrMime_base64.Decoder.html#VALdecode">decode</a> [<a href="MrMime_base64.Decoder.html">MrMime_base64.Decoder</a>]</td>
 <td><div class="info">
-<code class="code">decode decoder</code> is: <code class="code"><span class="keywordsign">`</span><span class="constructor">Continue</span></code>  if <code class="code">decoder</code>  awaits for more  input.  The client  must use
-      <a href="MrMime_base64.Convenience.html#VALsrc"><code class="code"><span class="constructor">MrMime_base64</span>.<span class="constructor">Convenience</span>.src</code></a> to provide it., <code class="code"><span class="keywordsign">`</span><span class="constructor">Dirty</span> s</code> if <code class="code">decoder</code> has a padding error or if the character is not a
-      valid Base64 character (see <a href="MrMime_base64.html#VALis_b64"><code class="code"><span class="constructor">MrMime_base64</span>.is_b64</code></a>).  If  the client is interested in a
-      best-effort decoding it can still continue to decode after an dirty chunk., <code class="code"><span class="keywordsign">`</span><span class="constructor">Error</span> exn</code> if <code class="code">decoder</code> has  a padding error (<code class="code"><span class="constructor">Wrong_padding</span></code> error) -
-      in this case, the client doest not trust the content - or a parsing error., <code class="code"><span class="keywordsign">`</span><span class="constructor">String</span> s</code> if a chunk <code class="code">s</code> was decoded., <code class="code"><span class="keywordsign">`</span><span class="constructor">End</span> s</code> if the last chunk <code class="code">s</code> was decoded - when the decoder arises one
-      time this value,  it  returns  only  this  value  after  the client recall
-      <code class="code">decode</code>.
+<code class="code">decode  boundary  rollback</code>  decodes a  Base64  input  and  stops  at the
+      <code class="code">boundary</code> and,  iff the decoder  recognizes the boundary,  it rollbacks -
+      that means the input contains the boundary although it recognized.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_base64.html#VALdecode">decode</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
 <td><div class="info">
-<code class="code">decode boundary rollback</code> decodes a Base64 input and stops at the
-    <code class="code">boundary</code> and, iff the decoder recognizes the boundary, it rollbacks - that
-    means the input contains the boundary although it recognized.
+<code class="code">decode decoder</code> is: <code class="code"><span class="keywordsign">`</span><span class="constructor">Continue</span></code> if <code class="code">decoder</code> awaits for more input. The client must use <a href="MrMime_base64.html#VALsrc"><code class="code"><span class="constructor">MrMime_base64</span>.src</code></a>
+    to provide it., <code class="code"><span class="keywordsign">`</span><span class="constructor">Dirty</span> s</code> if  <code class="code">decoder</code> has a padding error or if  the character is not a
+    valid Base64  character (see <code class="code">is_b64</code>).  If  the client is  interested in a
+    best-effort decoding it can still continue to decode after an dirty chunk., <code class="code"><span class="keywordsign">`</span><span class="constructor">Error</span> exn</code> if <code class="code">decoder</code> has a padding error (<code class="code"><span class="constructor">Wrong_padding</span></code> error) - in
+    this case, the client doest not trust the content - or a parsing error., <code class="code"><span class="keywordsign">`</span><span class="constructor">String</span> s</code> if a chunk <code class="code">s</code> was decoded., <code class="code"><span class="keywordsign">`</span><span class="constructor">End</span> s</code> if  the last chunk <code class="code">s</code> was decoded -  when the decoder arises one
+    time  this  value,  it  returns only  this  value  after  the  client recall
+    <code class="code">decode</code>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_quotedPrintable.Convenience.html#VALdecode">decode</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
@@ -142,10 +148,10 @@
 <td></td></tr>
 <tr><td><a href="MrMime_resent.html#VALdecoder">decoder</a> [<a href="MrMime_resent.html">MrMime_resent</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.Convenience.html#VALdecoder">decoder</a> [<a href="MrMime_base64.Convenience.html">MrMime_base64.Convenience</a>]</td>
+<tr><td><a href="MrMime_base64.html#VALdecoder">decoder</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
 <td><div class="info">
-<code class="code">decoder (boundary,  rollback) input</code> is a Base64 decoder that inputs from
-      <code class="code">input</code>.
+<code class="code">decoder (boundary,  rollback) input</code>  is a Base64 decoder  that inputs from
+    <code class="code">input</code>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_quotedPrintable.Convenience.html#VALdecoder">decoder</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
@@ -156,7 +162,7 @@
 </td></tr>
 <tr><td><a href="MrMime.Convenience.html#VALdecoder">decoder</a> [<a href="MrMime.Convenience.html">MrMime.Convenience</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.Convenience.html#VALdecoder_src">decoder_src</a> [<a href="MrMime_base64.Convenience.html">MrMime_base64.Convenience</a>]</td>
+<tr><td><a href="MrMime_base64.html#VALdecoder_src">decoder_src</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
 <td><div class="info">
 <code class="code">decoder_src decoder</code> is <code class="code">decoder</code>'s input source.
 </div>
@@ -195,6 +201,8 @@ Default value of version.
 </div>
 </td></tr>
 <tr><td align="left"><br>E</td></tr>
+<tr><td><a href="MrMime_address.Make.html#VALe">e</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
+<td></td></tr>
 <tr><td><a href="MrMime_header.html#VALequal">equal</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_trace.html#VALequal">equal</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
@@ -237,9 +245,9 @@ Corresponding to the rule from
 <tr><td align="left"><br>I</td></tr>
 <tr><td><a href="MrMime_maildir.html#VALimplode">implode</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.html#VALinline">inline</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
+<tr><td><a href="MrMime_base64.Decoder.html#VALinline">inline</a> [<a href="MrMime_base64.Decoder.html">MrMime_base64.Decoder</a>]</td>
 <td><div class="info">
-<code class="code">inline ()</code> decodes an <i>inline encoded string</i>.
+<code class="code">inline  ()</code> decodes  an <i> inline  encoded  string</i>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_quotedPrintable.html#VALinline">inline</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
@@ -247,7 +255,7 @@ Corresponding to the rule from
 <code class="code">inline  ()</code>  decodes  an  <i> inline  encoded  string</i>.
 </div>
 </td></tr>
-<tr><td><a href="MrMime_base64.html#VALis_b64">is_b64</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
+<tr><td><a href="MrMime_base64.Decoder.html#VALis_b64">is_b64</a> [<a href="MrMime_base64.Decoder.html">MrMime_base64.Decoder</a>]</td>
 <td><div class="info">
 <code class="code">is_b64 chr</code> returns <code class="code"><span class="keyword">true</span></code> iff the character is a Base64 character.
 </div>
@@ -722,10 +730,10 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 <td></td></tr>
 <tr><td><a href="MrMime_input.html#VALsize">size</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.Convenience.html#VALsrc">src</a> [<a href="MrMime_base64.Convenience.html">MrMime_base64.Convenience</a>]</td>
+<tr><td><a href="MrMime_base64.html#VALsrc">src</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
 <td><div class="info">
-<code class="code">src decoder  buf off len</code> provides  <code class="code">decoder</code> with  <code class="code">len</code> bytes  to read,
-      starting at <code class="code">off</code> in <code class="code">buf</code>.
+<code class="code">src decoder buf  off  len</code>  provides  <code class="code">decoder</code>  with  <code class="code">len</code> bytes to read,
+    starting at <code class="code">off</code>  in <code class="code">buf</code>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_quotedPrintable.Convenience.html#VALsrc">src</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
@@ -790,7 +798,7 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 <td></td></tr>
 <tr><td><a href="MrMime_address.Encoder.html#VALw_domain">w_domain</a> [<a href="MrMime_address.Encoder.html">MrMime_address.Encoder</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.html#VALw_encode">w_encode</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
+<tr><td><a href="MrMime_base64.Encoder.html#VALw_encode">w_encode</a> [<a href="MrMime_base64.Encoder.html">MrMime_base64.Encoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_quotedPrintable.html#VALw_encode">w_encode</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
 <td></td></tr>
@@ -818,7 +826,7 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 <td></td></tr>
 <tr><td><a href="MrMime_header.Encoder.html#VALw_header">w_header</a> [<a href="MrMime_header.Encoder.html">MrMime_header.Encoder</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.html#VALw_inline_encode">w_inline_encode</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
+<tr><td><a href="MrMime_base64.Encoder.html#VALw_inline_encode">w_inline_encode</a> [<a href="MrMime_base64.Encoder.html">MrMime_base64.Encoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_quotedPrintable.html#VALw_inline_encode">w_inline_encode</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
 <td></td></tr>
@@ -877,6 +885,8 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 <tr><td><a href="MrMime_input.html#VALwadvance">wadvance</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_input.html#VALwavailable">wavailable</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
+<td></td></tr>
+<tr><td><a href="MrMime_address.Make.html#VALword">word</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_input.html#VALwrite">write</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
 <td></td></tr>

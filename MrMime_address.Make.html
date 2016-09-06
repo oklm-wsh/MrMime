@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="MrMime_address.List.html">
+<link rel="next" href="MrMime_address.Extension.html">
+<link rel="Up" href="MrMime_address.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html">
+<link title="MrMime_maildir" rel="Chapter" href="MrMime_maildir.html"><title>MrMime_address.Make</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="MrMime_address.List.html" title="MrMime_address.List">Previous</a>
+&nbsp;<a class="up" href="MrMime_address.html" title="MrMime_address">Up</a>
+&nbsp;<a class="post" href="MrMime_address.Extension.html" title="MrMime_address.Extension">Next</a>
+</div>
+<h1>Module <a href="type_MrMime_address.Make.html">MrMime_address.Make</a></h1>
+
+<pre><span class="keyword">module</span> Make: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_address.Make.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><code><span id="TYPEz"><span class="keyword">type</span> <code class="type"></code>z</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTz.Z"><span class="constructor">Z</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEs"><span class="keyword">type</span> <code class="type">'a</code> s</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTs.S"><span class="constructor">S</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="TYPEword"><span class="keyword">type</span> <code class="type">'a</code> word</span> </pre>
+
+
+<pre><span id="TYPEllist"><span class="keyword">type</span> <code class="type">('data, 'peano)</code> llist</span> </pre>
+
+
+<pre><span id="VALword"><span class="keyword">val</span> word</span> : <code class="type">string -> [ `Atom | `String ] <a href="MrMime_address.Make.html#TYPEword">word</a></code></pre>
+<pre><span id="VALatom"><span class="keyword">val</span> atom</span> : <code class="type">string -> [> `Atom ] <a href="MrMime_address.Make.html#TYPEword">word</a></code></pre>
+<pre><span id="VALe"><span class="keyword">val</span> e</span> : <code class="type">([> `Atom ] <a href="MrMime_address.Make.html#TYPEword">word</a>, <a href="MrMime_address.Make.html#TYPEz">z</a>)<br>       <a href="MrMime_address.Make.html#TYPEllist">llist</a></code></pre>
+<pre><span id="VAL(&)"><span class="keyword">val</span> (&amp;)</span> : <code class="type">'a <a href="MrMime_address.Make.html#TYPEword">word</a> -><br>       ('a <a href="MrMime_address.Make.html#TYPEword">word</a>, 'x) <a href="MrMime_address.Make.html#TYPEllist">llist</a> -><br>       ('a <a href="MrMime_address.Make.html#TYPEword">word</a>, 'x <a href="MrMime_address.Make.html#TYPEs">s</a>)<br>       <a href="MrMime_address.Make.html#TYPEllist">llist</a></code></pre>
+<pre><span id="VAL(@)"><span class="keyword">val</span> (@)</span> : <code class="type">([ `Atom | `String ] <a href="MrMime_address.Make.html#TYPEword">word</a>, 'a <a href="MrMime_address.Make.html#TYPEs">s</a>)<br>       <a href="MrMime_address.Make.html#TYPEllist">llist</a> -><br>       ([ `Atom ] <a href="MrMime_address.Make.html#TYPEword">word</a>, 'b <a href="MrMime_address.Make.html#TYPEs">s</a>)<br>       <a href="MrMime_address.Make.html#TYPEllist">llist</a> -> <a href="MrMime_address.html#TYPEmailbox">MrMime_address.mailbox</a></code></pre></body></html>

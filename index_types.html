@@ -55,7 +55,7 @@ Date
 Day of week
 </div>
 </td></tr>
-<tr><td><a href="MrMime_base64.Convenience.html#TYPEdecoder">decoder</a> [<a href="MrMime_base64.Convenience.html">MrMime_base64.Convenience</a>]</td>
+<tr><td><a href="MrMime_base64.html#TYPEdecoder">decoder</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
 <td><div class="info">
 The type for Base64 decoder.
 </div>
@@ -64,7 +64,7 @@ The type for Base64 decoder.
 <td></td></tr>
 <tr><td><a href="MrMime.Convenience.html#TYPEdecoder">decoder</a> [<a href="MrMime.Convenience.html">MrMime.Convenience</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.Convenience.html#TYPEdecoding">decoding</a> [<a href="MrMime_base64.Convenience.html">MrMime_base64.Convenience</a>]</td>
+<tr><td><a href="MrMime_base64.html#TYPEdecoding">decoding</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_quotedPrintable.Convenience.html#TYPEdecoding">decoding</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
 <td></td></tr>
@@ -141,6 +141,8 @@ We define a new header field, <code class="code"><span class="string">"MIME-Vers
 <tr><td align="left"><br>L</td></tr>
 <tr><td><a href="MrMime_address.html#TYPEliteral_domain">literal_domain</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_address.Make.html#TYPEllist">llist</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
+<td></td></tr>
 <tr><td><a href="MrMime_trace.html#TYPElocal">local</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_address.html#TYPElocal">local</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
@@ -183,7 +185,11 @@ The  message  identifier  <code class="code">msg-id</code>  syntax  is  a  limit
 <tr><td><a href="MrMime_header.html#TYPEraw">raw</a> [<a href="MrMime_header.html">MrMime_header</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_address.html#TYPEraw">raw</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
-<td></td></tr>
+<td><div class="info">
+It's             an             <i>            encoded-word</i>            from
+    <a href="https://tools.ietf.org/html/rfc2047">RFC2047</a>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_content.html#TYPEraw">raw</a> [<a href="MrMime_content.html">MrMime_content</a>]</td>
 <td><div class="info">
 It's             an             <i>            encoded-word</i>            from
@@ -194,9 +200,11 @@ It's             an             <i>            encoded-word</i>            from
 <td></td></tr>
 <tr><td><a href="MrMime_resent.html#TYPEresent">resent</a> [<a href="MrMime_resent.html">MrMime_resent</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_base64.html#TYPEresult">result</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
+<tr><td><a href="MrMime_base64.Decoder.html#TYPEresult">result</a> [<a href="MrMime_base64.Decoder.html">MrMime_base64.Decoder</a>]</td>
 <td></td></tr>
 <tr><td align="left"><br>S</td></tr>
+<tr><td><a href="MrMime_address.Make.html#TYPEs">s</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
+<td></td></tr>
 <tr><td><a href="MrMime_parser.html#TYPEs">s</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_maildir.html#TYPEsafe">safe</a> [<a href="MrMime_maildir.html">MrMime_maildir</a>]</td>
@@ -262,14 +270,21 @@ The version of the Internet message body format standard in use.
 <tr><td align="left"><br>W</td></tr>
 <tr><td><a href="MrMime_trace.html#TYPEword">word</a> [<a href="MrMime_trace.html">MrMime_trace</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_address.html#TYPEword">word</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
+<tr><td><a href="MrMime_address.Make.html#TYPEword">word</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
 <td></td></tr>
+<tr><td><a href="MrMime_address.html#TYPEword">word</a> [<a href="MrMime_address.html">MrMime_address</a>]</td>
+<td><div class="info">
+<code class="code">word</code> is a combinations of <code class="code">atoms</code> and/or <code class="code">quoted-strings</code>:
+</div>
+</td></tr>
 <tr><td><a href="MrMime_msgID.html#TYPEword">word</a> [<a href="MrMime_msgID.html">MrMime_msgID</a>]</td>
 <td><div class="info">
 <code class="code">word</code> is a combinations of <code class="code">atoms</code> and/or <code class="code">quoted-strings</code>:
 </div>
 </td></tr>
 <tr><td align="left"><br>Z</td></tr>
+<tr><td><a href="MrMime_address.Make.html#TYPEz">z</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
+<td></td></tr>
 <tr><td><a href="MrMime_date.html#TYPEzone">zone</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
 <td><div class="info">
 Timezone

@@ -44,7 +44,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="constructor">MrMime_content</span>.t&nbsp;*&nbsp;field_part&nbsp;list&nbsp;*&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;part&nbsp;option)&nbsp;list
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;<span class="constructor">PMessage</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_header</span>.header&nbsp;*&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;message
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;=&nbsp;..
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_base64</span>.result
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">Base64</span>&nbsp;<span class="keyword">of</span>&nbsp;<span class="constructor">MrMime_base64</span>.<span class="constructor">Decoder</span>.result
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">QuotedPrintable</span>&nbsp;<span class="keyword">of</span>&nbsp;string
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;encoding&nbsp;+=&nbsp;<span class="constructor">Raw</span>&nbsp;<span class="keyword">of</span>&nbsp;string
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;content&nbsp;=&nbsp;..

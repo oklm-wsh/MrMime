@@ -37,28 +37,89 @@
 <h1>Module <a href="type_MrMime_base64.html">MrMime_base64</a></h1>
 
 <pre><span class="keyword">module</span> MrMime_base64: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_base64.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-Base64 encoding and decoding<br>
+Module Base64 encoding<br>
 </div>
 <hr width="100%">
 
-<pre><span id="TYPEresult"><span class="keyword">type</span> <code class="type"></code>result</span> = <code class="type">[ `Clean of string | `Dirty of string | `Wrong_padding ]</code> </pre>
+<pre><span class="keyword">module</span> <a href="MrMime_base64.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_base64.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_base64.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_base64.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_base64.Input.html">Input</a>: <code class="type">module type of RingBuffer.Committed</code><code class="type"> 
+  with type 'a t = 'a RingBuffer.Committed.t</code></pre><pre><code><span class="keyword">type</span> <code class="type"></code>Parser.err += </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="EXTENSIONWrong_padding">Wrong_padding</span></code></td>
 
+</tr></table>
 
-<pre><span id="VALis_b64"><span class="keyword">val</span> is_b64</span> : <code class="type">char -> bool</code></pre><div class="info ">
-<code class="code">is_b64 chr</code> returns <code class="code"><span class="keyword">true</span></code> iff the character is a Base64 character.<br>
+<div class="info ">
+Special processing is  performed if fewer than 24 bits  are available at the
+    end of the data. A full encoding quantum is always completed at the end of a
+    body. When fewer than 24 inputs bits are available in an input group, zero bits
+    are added (on the right) to form an integral number of 6-bit groups. Padding at
+    the end of the data is performed using the <code class="code"><span class="string">"="</span></code> character.
+<p>
+
+    Since all Base64 input is an  integral number of octets,  only the following
+    cases can arise:
+<p>
+<ul>
+<li>the final  quantum of encoding input  is an integral multiple  of 24 bits;
+    here the  final unit of  encoded output will  be an  integral multiple  of 4
+    characters with no <code class="code"><span class="string">"="</span></code> padding.</li>
+<li>the final  quantum of encoding input is  exactly 8 bits;  here,  the final
+    unit of encoded output will be  two characters followed by two <code class="code"><span class="string">"="</span></code> padding
+    characters.</li>
+<li>the  final quantum of encoding  input is exactly 16  bits;  here the final
+    unit of encoded output will be three characters followed by on <code class="code"><span class="string">"="</span></code> padding
+    character.</li>
+<li>in another case, the decoder returns <code class="code"><span class="constructor">Wrong_padding</span></code>.</li>
+</ul>
+<br>
 </div>
 
-<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">unit Parser.t -> unit Parser.t -> <a href="MrMime_base64.html#TYPEresult">result</a> Parser.t</code></pre><div class="info ">
-<code class="code">decode boundary rollback</code> decodes a Base64 input and stops at the
-    <code class="code">boundary</code> and, iff the decoder recognizes the boundary, it rollbacks - that
-    means the input contains the boundary although it recognized.<br>
+
+<pre><span id="TYPEdecoder"><span class="keyword">type</span> <code class="type">'a</code> decoder</span> </pre>
+<div class="info ">
+The type for Base64 decoder.<br>
 </div>
 
-<pre><span id="VALinline"><span class="keyword">val</span> inline</span> : <code class="type">unit -> <a href="MrMime_base64.html#TYPEresult">result</a> Parser.t</code></pre><div class="info ">
-<code class="code">inline ()</code> decodes an <i>inline encoded string</i>. It stops when it
-    recognizes the <code class="code"><span class="string">"?"</span></code> character and it does not consume him.<br>
+
+<pre><span id="TYPEdecoding"><span class="keyword">type</span> <code class="type"></code>decoding</span> = <code class="type">[ `Continue<br>       | `Dirty of string<br>       | `End of string<br>       | `Error of Parser.err<br>       | `String of string ]</code> </pre>
+
+
+<pre><span id="VALdecoder"><span class="keyword">val</span> decoder</span> : <code class="type">unit Parser.t * unit Parser.t -><br>       'a Input.t -> 'a <a href="MrMime_base64.html#TYPEdecoder">decoder</a></code></pre><div class="info ">
+<code class="code">decoder (boundary,  rollback) input</code>  is a Base64 decoder  that inputs from
+    <code class="code">input</code>.  <code class="code">boundary</code> specifies  the  limit  of  the  decoding and <code class="code">rollback</code>
+    allows the decoder to keep the boundary inside the <code class="code">input</code>.<br>
 </div>
 
-<pre><span class="keyword">module</span> <a href="MrMime_base64.Convenience.html">Convenience</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_base64.Convenience.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALw_inline_encode"><span class="keyword">val</span> w_inline_encode</span> : <code class="type">string -><br>       ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>       Encoder.k0</code></pre>
-<pre><span id="VALw_encode"><span class="keyword">val</span> w_encode</span> : <code class="type">string -><br>       ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>       Encoder.k0</code></pre></body></html>
+<pre><span id="VALdecoder_src"><span class="keyword">val</span> decoder_src</span> : <code class="type">'a <a href="MrMime_base64.html#TYPEdecoder">decoder</a> -> 'a Input.t</code></pre><div class="info ">
+<code class="code">decoder_src decoder</code> is <code class="code">decoder</code>'s input source.<br>
+</div>
+
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">'a <a href="MrMime_base64.html#TYPEdecoder">decoder</a> -> <a href="MrMime_base64.html#TYPEdecoding">decoding</a></code></pre><div class="info ">
+<code class="code">decode decoder</code> is:<ul>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">Continue</span></code> if <code class="code">decoder</code> awaits for more input. The client must use <a href="MrMime_base64.html#VALsrc"><code class="code"><span class="constructor">MrMime_base64</span>.src</code></a>
+    to provide it.</li>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">Dirty</span> s</code> if  <code class="code">decoder</code> has a padding error or if  the character is not a
+    valid Base64  character (see <code class="code">is_b64</code>).  If  the client is  interested in a
+    best-effort decoding it can still continue to decode after an dirty chunk.</li>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">Error</span> exn</code> if <code class="code">decoder</code> has a padding error (<code class="code"><span class="constructor">Wrong_padding</span></code> error) - in
+    this case, the client doest not trust the content - or a parsing error.</li>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">String</span> s</code> if a chunk <code class="code">s</code> was decoded.</li>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">End</span> s</code> if  the last chunk <code class="code">s</code> was decoded -  when the decoder arises one
+    time  this  value,  it  returns only  this  value  after  the  client recall
+    <code class="code">decode</code>.</li>
+</ul>
+<br>
+</div>
+
+<pre><span id="VALsrc"><span class="keyword">val</span> src</span> : <code class="type">'a <a href="MrMime_base64.html#TYPEdecoder">decoder</a> -> string -> int -> int -> unit</code></pre><div class="info ">
+<code class="code">src decoder buf  off  len</code>  provides  <code class="code">decoder</code>  with  <code class="code">len</code> bytes to read,
+    starting at <code class="code">off</code>  in <code class="code">buf</code>.  This byte range is read  by calls to <a href="MrMime_base64.html#VALdecode"><code class="code"><span class="constructor">MrMime_base64</span>.decode</code></a>
+    until <code class="code"><span class="keywordsign">`</span><span class="constructor">Continue</span></code> is returned.  To signal the end of input call the function
+    with <code class="code">len = 0</code>.<br>
+</div>
+</body></html>
