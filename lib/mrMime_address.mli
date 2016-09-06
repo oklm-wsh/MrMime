@@ -1,6 +1,102 @@
+(** Module Address *)
+
+(** [word] is a combinations of [atoms] and/or [quoted-strings]:
+
+    {[
+    word         =   atom / quoted-string
+    ]}
+
+    -  [atom]  is  interpreted  as  a  single  unit,  comprising  the  string of
+    characters that make it  up.  Semantically,  the optional comments and [FWS]
+    surrounding the rest of the characters are not part of the atom; the atom is
+    only the run of [atext] characters in an atom.
+
+    {[
+    atext        =   ALPHA / DIGIT /    ; Printable US-ASCII
+                     "!" / "#" /        ;  characters not including
+                     "$" / "%" /        ;  specials.  Used for atoms.
+                     "&" / "'" /
+                     "*" / "+" /
+                     "-" / "/" /
+                     "=" / "?" /
+                     "^" / "_" /
+                     "`" / "{" /
+                     "|" / "}" /
+                     "~"
+
+    atom         =   [CFWS] 1*atext [CFWS]
+    ]}
+
+    - Strings of characters that include  characters other than those allowed in
+    atoms can be represented in a quoted string format, where the characters are
+    surrounded by quote characters.
+
+    {[
+    qtext           =   %d33 /             ; Printable US-ASCII
+                        %d35-91 /          ;  characters not including
+                        %d93-126 /         ;  "\\" or the quote character
+                        obs-qtext
+    obs-qp          =   "\\" (%d0 / obs-NO-WS-CTL / LF / CR)
+    obs-NO-WS-CTL   =   %d1-8 /            ; US-ASCII control
+                        %d11 /             ;  characters that do not
+                        %d12 /             ;  include the carriage
+                        %d14-31 /          ;  return, line feed, and
+                        %d127              ;  white space characters
+
+    quoted-pair     =   ("\\" (VCHAR / WSP)) / obs-qp
+    qcontent        =   qtext / quoted-pair
+
+    quoted-string   =   [CFWS]
+                        DQUOTE *([FWS] qcontent) [FWS] DQUOTE
+                        [CFWS]
+    ]}
+
+    A  [quoted-string]  is  treated  as  a  unit.  That  is,  [quoted-string] is
+    identical to  atom,  semantically.  Since  a  [quoted-string]  is allowed to
+    contain [FWS],  fold  is  permitted.  Also  note  that  since quoted-pair is
+    allowed in a [quoted-string],  the quote and backslash characters may appear
+    in  a [quoted-string]  so long  as they  appear as  a [quoted-pair].  MrMime
+    interprets directly a [quoted-pair] to its value.
+
+    Semantically,  neither the  optional [CFWS] outside of  the quote characters
+    nor the  quote characters themselves  are part of  the [quoted-string];  the
+    [quoted-string] is  what is contained  beteen the two  quote characters.  As
+    stated  ealier,  the ["\\"]  in any  [quoted-pair]  and  the  [CRLF]  in any
+    [FWS]/[CFWS]  that appears  within the  [quoted-string] are  semantically {i
+    invisible} and therefore not part of the [quoted-string] either.
+
+
+    @see <https://tools.ietf.org/html/rfc5322#section-3.2.1> RFC5322 § Quoted
+    Characters
+    @see <https://tools.ietf.org/html/rfc5322#section-3.2.3> RFC5322 § Atom
+    @see <https://tools.ietf.org/html/rfc5322#section-3.2.4> RFC5322 § Quoted
+    Strings
+    @see <https://tools.ietf.org/html/rfc5322#section-3.2.5> RFC5322 §
+    Miscellaneous Tokens
+*)
 type word           = [ `Atom of string | `String of string ]
 type local          = word list
-type raw            = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.result
+
+(** It's             an             {i             encoded-word}            from
+    {{:https://tools.ietf.org/html/rfc2047}RFC2047}.  An  {i encoded-word}  is a
+    sequence of printable  ASCII characters that begins  with ["=?"],  ends with
+    ["?="],  and has two ["?"]s in between.  It specifies a character set and an
+    encoding method,  and  also includes  the original  text encoded  as graphic
+    ASCII characters, according to the rules for that encoding method.
+
+    MrMime recognizes {i encoded-words} when  they appear in certain protions of
+    the message header.  Instead of displaying the {i encoded-word} "as is",  it
+    will reverse the encoding and display the original text.
+
+    {b NOTE}: the client need to translate the original text into the designated
+    character set (like [utf-8]) - this feature is in {b TODO}.
+
+    @see <https://tools.ietf.org/html/rfc2047> RFC2047
+*)
+type raw = Rfc2047.raw =
+  | QuotedPrintable of string
+  | Base64 of MrMime_base64.result
+
 type literal_domain = Rfc5321.literal_domain = ..
 type literal_domain += IPv4 of Ipaddr.V4.t
 type literal_domain += IPv6 of Ipaddr.V6.t
