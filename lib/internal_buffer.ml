@@ -2,8 +2,8 @@ open Bigarray
 
 type bigstring = (char, int8_unsigned_elt, c_layout) Array1.t
 
-type bs = [ `BS ]
-type st = [ `ST ]
+type bs = Bs
+type st = St
 
 module Bigstring =
 struct

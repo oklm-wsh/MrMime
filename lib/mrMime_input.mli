@@ -1,7 +1,7 @@
 type 'a t = 'a RingBuffer.Committed.t
 
-type st = [ `ST ]
-type bs = [ `BS ]
+type st = Internal_buffer.st = St
+type bs = Internal_buffer.bs = Bs
 
 val write : 'a t -> 'a Internal_buffer.t -> int -> int -> unit
 val write_string : 'a t -> string -> int -> int -> unit
