@@ -341,6 +341,79 @@ let of_string_raw ?(chunk = 1024) s off len =
 
 let equal = (=)
 
+module Make =
+struct
+  let sp = Format.sprintf
+
+  let normalize x =
+    let buf = Buffer.create 16 in
+
+    String.iter (function
+      | '\000' -> Buffer.add_string buf "\\\000"
+      | '\009' -> Buffer.add_string buf "\\t"
+      | '\010' -> Buffer.add_string buf "\\n"
+      | '\013' -> Buffer.add_string buf "\\r"
+      | '\\'   -> Buffer.add_string buf "\\\\"
+      | c      -> Buffer.add_char buf c) x;
+
+    Buffer.contents buf
+
+  let respect f s =
+    let l = String.length s in
+    let i = ref 0 in
+
+    while !i < l && f (String.get s !i) do incr i done;
+
+    !i = l
+
+  type 'a word =
+    | Atom : string -> [> `Atom ] word
+    | String : string -> [ `String | `Atom ] word
+
+  type z = Z
+  type 'a s = S
+
+  type ('data, 'peano) llist =
+    | N : ('a, z) llist
+    | C : 'a * ('a, 'b) llist -> ('a, 'b s) llist
+
+  let e = N
+
+  let word x : [ `String | `Atom ] word =
+    if respect Rfc822.is_atext x && String.length x > 0
+    then Atom x
+    else if respect Rfc822.is_qtext x && String.length x > 0
+    then String x
+    else if String.length x > 0
+    then String (normalize x)
+    else raise (Invalid_argument "Address.Make.word: empty word")
+
+  let atom x : [> `Atom ] word =
+    if respect Rfc822.is_atext x && String.length x > 0
+    then Atom x
+    else raise (Invalid_argument (sp "Address.Make.atom: invalid atom %S" x))
+
+  let rec fold_right : type a b n. (a -> b -> b) -> (a, n) llist -> b -> b
+    = fun f -> function
+      | N -> fun b -> b
+      | C (x, r) -> fun b -> f x (fold_right f r b)
+
+  let to_list l = fold_right (fun x a -> x :: a) l []
+
+  let ( & ) : type n. 'a word -> ('a word, n) llist -> ('a word, n s) llist
+            = fun x r -> C (x, r)
+
+  let ( @ ) : ([ `Atom | `String ] word, _ s) llist -> ([ `Atom ] word, _ s) llist -> mailbox
+            = fun local domain ->
+    let local  = List.map
+      (function Atom x -> `Atom x | String x -> `String x)
+      (to_list local) in
+    let domain = List.map
+      (fun (x : [ `Atom ] word) -> match x with Atom x -> x)
+      (to_list domain) in
+    { name = None; local; domain = (`Domain domain, []) }
+end
+
 module List =
 struct
   let pp fmt =

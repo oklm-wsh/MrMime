@@ -168,6 +168,24 @@ sig
   val equal         : address list -> address list -> bool
 end
 
+module Make :
+sig
+  type z = Z
+  type 'a s = S
+
+  type 'a word
+  type ('data, 'peano) llist
+
+  val word  : string -> [ `Atom | `String ] word
+  val atom  : string -> [> `Atom ] word
+
+  val e     : ([> `Atom ] word, z) llist
+
+  val ( & ) : 'a word -> ('a word, 'x) llist -> ('a word, 'x s) llist
+
+  val ( @ ) : ([ `Atom | `String ] word, _ s) llist -> ([ `Atom ] word, _ s) llist -> mailbox
+end
+
 module Extension :
 sig
   val add_literal_domain : string -> literal_domain MrMime_parser.t -> unit
