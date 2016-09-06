@@ -39,7 +39,7 @@ depends: [
   "fmt"               {test}
   "astring"           {test}
   "re"                {test}
-  "ipaddr"
+  "ipaddr"            {>= "2.7.0"}
   "uutf"
 ]
 
