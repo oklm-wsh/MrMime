@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="MrMime_quotedPrintable.Encoder.html">
+<link rel="Up" href="MrMime_quotedPrintable.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of extensions" rel=Appendix href="index_extensions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="MrMime" rel="Chapter" href="MrMime.html">
+<link title="MrMime_parser" rel="Chapter" href="MrMime_parser.html">
+<link title="MrMime_input" rel="Chapter" href="MrMime_input.html">
+<link title="MrMime_quotedPrintable" rel="Chapter" href="MrMime_quotedPrintable.html">
+<link title="MrMime_base64" rel="Chapter" href="MrMime_base64.html">
+<link title="MrMime_date" rel="Chapter" href="MrMime_date.html">
+<link title="MrMime_msgID" rel="Chapter" href="MrMime_msgID.html">
+<link title="MrMime_mimeVersion" rel="Chapter" href="MrMime_mimeVersion.html">
+<link title="MrMime_contentEncoding" rel="Chapter" href="MrMime_contentEncoding.html">
+<link title="MrMime_contentType" rel="Chapter" href="MrMime_contentType.html">
+<link title="MrMime_content" rel="Chapter" href="MrMime_content.html">
+<link title="MrMime_address" rel="Chapter" href="MrMime_address.html">
+<link title="MrMime_resent" rel="Chapter" href="MrMime_resent.html">
+<link title="MrMime_trace" rel="Chapter" href="MrMime_trace.html">
+<link title="MrMime_header" rel="Chapter" href="MrMime_header.html">
+<link title="MrMime_message" rel="Chapter" href="MrMime_message.html">
+<link title="MrMime_maildir" rel="Chapter" href="MrMime_maildir.html"><title>MrMime_quotedPrintable.Decoder</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="MrMime_quotedPrintable.html" title="MrMime_quotedPrintable">Up</a>
+&nbsp;<a class="post" href="MrMime_quotedPrintable.Encoder.html" title="MrMime_quotedPrintable.Encoder">Next</a>
+</div>
+<h1>Module <a href="type_MrMime_quotedPrintable.Decoder.html">MrMime_quotedPrintable.Decoder</a></h1>
+
+<pre><span class="keyword">module</span> Decoder: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_quotedPrintable.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="VALis_hex"><span class="keyword">val</span> is_hex</span> : <code class="type">char -> bool</code></pre><div class="info ">
+<code class="code">is_hex chr</code> returns <code class="code"><span class="keyword">true</span></code> iff  the character is a hexadecimal character.
+      The standard defines an hexadecimal character like that:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">HEX</span>&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">DIGIT</span>&nbsp;/&nbsp;<span class="string">"A"</span>&nbsp;/&nbsp;<span class="string">"B"</span>&nbsp;/&nbsp;<span class="string">"C"</span>&nbsp;/&nbsp;<span class="string">"D"</span>&nbsp;/&nbsp;<span class="string">"E"</span>&nbsp;/&nbsp;<span class="string">"F"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">DIGIT</span>&nbsp;=&nbsp;<span class="string">"0"</span>&nbsp;-&nbsp;<span class="string">"9"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+      MrMime accepts <code class="code"><span class="string">"a"</span> - <span class="string">"f"</span></code> characters too.<br>
+</div>
+
+<pre><span id="VALhex"><span class="keyword">val</span> hex</span> : <code class="type">char Parser.t</code></pre><div class="info ">
+Corresponding            to            the            rule            from
+      <a href="https://tools.ietf.org/html/rfc2045#section-6.7">RFC2045</a>    about   the
+      hexadecimal value:
+<p>
+
+      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hex-octet&nbsp;:=&nbsp;<span class="string">"="</span>&nbsp;2(<span class="constructor">DIGIT</span>&nbsp;/&nbsp;<span class="string">"A"</span>&nbsp;/&nbsp;<span class="string">"B"</span>&nbsp;/&nbsp;<span class="string">"C"</span>&nbsp;/&nbsp;<span class="string">"D"</span>&nbsp;/&nbsp;<span class="string">"E"</span>&nbsp;/&nbsp;<span class="string">"F"</span>)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Octet</span>&nbsp;must&nbsp;be&nbsp;used&nbsp;<span class="keyword">for</span>&nbsp;characters&nbsp;&gt;&nbsp;127,&nbsp;=,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">SPACEs</span>&nbsp;<span class="keyword">or</span>&nbsp;<span class="constructor">TABs</span>&nbsp;at&nbsp;the&nbsp;ends&nbsp;<span class="keyword">of</span>&nbsp;lines,&nbsp;<span class="keyword">and</span>&nbsp;is
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;recommended&nbsp;<span class="keyword">for</span>&nbsp;any&nbsp;character&nbsp;not&nbsp;listed&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">RFC2049</span>&nbsp;<span class="keyword">as</span>&nbsp;<span class="string">"mail-safe"</span>.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<p>
+
+      As we see above,  MrMime accepts <code class="code"><span class="string">"a"</span> - <span class="string">"f"</span></code> characters too.  This decoder
+      returns the hexadecimal value as <code class="code">char</code>.<br>
+</div>
+
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">unit Parser.t -> unit Parser.t -> string Parser.t</code></pre><div class="info ">
+<code class="code">decode boundary  rollback</code> decodes a  QuotedPrintable input and  stops at
+      the <code class="code">boundary</code> and, iff he decoder recognizes the boundary, it rollbacks -
+      that means the input contains the boundary although it recognized.<br>
+</div>
+
+<pre><span id="VALinline"><span class="keyword">val</span> inline</span> : <code class="type">unit -> string Parser.t</code></pre><div class="info ">
+<code class="code">inline  ()</code> decodes  an <i> inline  encoded  string</i>.  It  stops  when it
+      recognizes the <code class="code"><span class="string">"?"</span></code> character and it does not consume him.<br>
+</div>
+</body></html>

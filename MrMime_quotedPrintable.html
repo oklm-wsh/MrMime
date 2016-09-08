@@ -41,48 +41,58 @@ Module QuotedPrintable encoding<br>
 </div>
 <hr width="100%">
 
-<pre><span id="VALis_hex"><span class="keyword">val</span> is_hex</span> : <code class="type">char -> bool</code></pre><div class="info ">
-<code class="code">is_hex chr</code>  returns <code class="code"><span class="keyword">true</span></code> iff  the character is  a hexadecimal character.
-    The standard defines an hexadecimal character like that:
-<p>
+<pre><span class="keyword">module</span> <a href="MrMime_quotedPrintable.Decoder.html">Decoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_quotedPrintable.Decoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_quotedPrintable.Encoder.html">Encoder</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_quotedPrintable.Encoder.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
+<pre><span class="keyword">module</span> <a href="MrMime_quotedPrintable.Input.html">Input</a>: <code class="type">module type of RingBuffer.Committed</code><code class="type"> 
+  with type 'a t = 'a RingBuffer.Committed.t</code></pre>
+<pre><span id="TYPEdecoder"><span class="keyword">type</span> <code class="type">'a</code> decoder</span> </pre>
 
-    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">HEX</span>&nbsp;&nbsp;&nbsp;=&nbsp;<span class="constructor">DIGIT</span>&nbsp;/&nbsp;<span class="string">"A"</span>&nbsp;/&nbsp;<span class="string">"B"</span>&nbsp;/&nbsp;<span class="string">"C"</span>&nbsp;/&nbsp;<span class="string">"D"</span>&nbsp;/&nbsp;<span class="string">"E"</span>&nbsp;/&nbsp;<span class="string">"F"</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">DIGIT</span>&nbsp;=&nbsp;<span class="string">"0"</span>&nbsp;-&nbsp;<span class="string">"9"</span>
+
+<pre><span id="TYPEdecoding"><span class="keyword">type</span> <code class="type"></code>decoding</span> = <code class="type">[ `Continue<br>       | `Dirty of char<br>       | `End of string<br>       | `Error of Parser.err<br>       | `String of string ]</code> </pre>
+
+
+<pre><span id="VALdecoder"><span class="keyword">val</span> decoder</span> : <code class="type">unit Parser.t * unit Parser.t -><br>       'a Input.t -> 'a <a href="MrMime_quotedPrintable.html#TYPEdecoder">decoder</a></code></pre><div class="info ">
+<code class="code">decoder  (boundary,  rollback) input</code>  is  a  QuotedPrintable  decoder that
+    inputs from  <code class="code">input</code>.  <code class="code">boundary</code> specifies  the limit  of the  decoding and
+    <code class="code">rollback</code> allows the decoder to keep the boundary inside the <code class="code">input</code>.<br>
+</div>
+
+<pre><span id="VALdecoder_src"><span class="keyword">val</span> decoder_src</span> : <code class="type">'a <a href="MrMime_quotedPrintable.html#TYPEdecoder">decoder</a> -> 'a Input.t</code></pre><div class="info ">
+<code class="code">decoder_src decoder</code> is <code class="code">decoder</code>'s input source.<br>
+</div>
+
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">'a <a href="MrMime_quotedPrintable.html#TYPEdecoder">decoder</a> -> <a href="MrMime_quotedPrintable.html#TYPEdecoding">decoding</a></code></pre><div class="info ">
+<code class="code">decode decoder</code> is:<ul>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">Continue</span></code> if <code class="code">decoder</code> awaits for more input. The client muse use <a href="MrMime_quotedPrintable.html#VALsrc"><code class="code"><span class="constructor">MrMime_quotedPrintable</span>.src</code></a>
+    to provide it.</li>
+<li> <code class="code"><span class="keywordsign">`</span><span class="constructor">Dirty</span>  chr</code> if  <code class="code">decoder</code>  recognizes  an  unsafe  character (according
+    <a href="https://tools.ietf.org/html/rfc2045#section-6.7">RFC2045</a>:</li>
+</ul>
+
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;safe-char&nbsp;:=&nbsp;&lt;any&nbsp;octet&nbsp;<span class="keyword">with</span>&nbsp;decimal&nbsp;value&nbsp;<span class="keyword">of</span>&nbsp;33&nbsp;through
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;60&nbsp;inclusive,&nbsp;<span class="keyword">and</span>&nbsp;62&nbsp;through&nbsp;126&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Characters</span>&nbsp;not&nbsp;listed&nbsp;<span class="keyword">as</span>&nbsp;<span class="string">"mail-safe"</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">RFC2049</span>&nbsp;are&nbsp;also&nbsp;not&nbsp;recommended.
 &nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
 <p>
 
-    MrMime accepts <code class="code"><span class="string">"a"</span> - <span class="string">"f"</span></code> characters too.<br>
-</div>
-
-<pre><span id="VALhex"><span class="keyword">val</span> hex</span> : <code class="type">char Parser.t</code></pre><div class="info ">
-Corresponding to the rule from
-    <a href="https://tools.ietf.org/html/rfc2045#section-6.7">RFC2045</a> about
-    the hexadecimal value:
+    In this case,  the  character is already skipped.  The client  can choose to
+    keep this character in its computation or not.
 <p>
-
-    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;hex-octet&nbsp;:=&nbsp;<span class="string">"="</span>&nbsp;2(<span class="constructor">DIGIT</span>&nbsp;/&nbsp;<span class="string">"A"</span>&nbsp;/&nbsp;<span class="string">"B"</span>&nbsp;/&nbsp;<span class="string">"C"</span>&nbsp;/&nbsp;<span class="string">"D"</span>&nbsp;/&nbsp;<span class="string">"E"</span>&nbsp;/&nbsp;<span class="string">"F"</span>)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Octet</span>&nbsp;must&nbsp;be&nbsp;used&nbsp;<span class="keyword">for</span>&nbsp;characters&nbsp;&gt;&nbsp;127,&nbsp;=,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">SPACEs</span>&nbsp;<span class="keyword">or</span>&nbsp;<span class="constructor">TABs</span>&nbsp;at&nbsp;the&nbsp;ends&nbsp;<span class="keyword">of</span>&nbsp;lines,&nbsp;<span class="keyword">and</span>&nbsp;is
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;recommended&nbsp;<span class="keyword">for</span>&nbsp;any&nbsp;character&nbsp;not&nbsp;listed&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">RFC2049</span>&nbsp;<span class="keyword">as</span>&nbsp;<span class="string">"mail-safe"</span>.
-&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
-<p>
-
-    As we see  above,  MrMime accepts <code class="code"><span class="string">"a"</span> - <span class="string">"f"</span></code>  characters too.  This decoder
-    returns the hexadecimal value as <code class="code">char</code>.<br>
+<ul>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">Error</span> exn</code> if the <code class="code">decoder</code> as a parsing error.</li>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">String</span> s</code> if a chunk <code class="code">s</code> was decoder.</li>
+<li><code class="code"><span class="keywordsign">`</span><span class="constructor">End</span> s</code> if  the last chunk <code class="code">s</code> was decoded -  when the decoder arises one
+    time  this  value,  it  returns only  this  value  after  the  client recall
+    <code class="code">decode</code>.</li>
+</ul>
+<br>
 </div>
 
-<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">unit Parser.t -> unit Parser.t -> string Parser.t</code></pre><div class="info ">
-<code class="code">decode boundary rollback</code> decodes a  QuotedPrintable input and stops at the
-    <code class="code">boundary</code> and,  iff he decoder recognizes the boundary, it rollbacks - that
-    means the input contains the boundary although it recognized.<br>
+<pre><span id="VALsrc"><span class="keyword">val</span> src</span> : <code class="type">'a <a href="MrMime_quotedPrintable.html#TYPEdecoder">decoder</a> -> string -> int -> int -> unit</code></pre><div class="info ">
+<code class="code">src decoder buf  off  len</code>  provides  <code class="code">decoder</code>  with  <code class="code">len</code> bytes to read,
+    starting at <code class="code">off</code> in <code class="code">buf</code>.  This bbyte  range is read by calls to <a href="MrMime_quotedPrintable.html#VALdecode"><code class="code"><span class="constructor">MrMime_quotedPrintable</span>.decode</code></a>
+    until <code class="code"><span class="keywordsign">`</span><span class="constructor">Continue</span></code> is returned.  To signal the end of input call the function
+    with <code class="code">len = 0</code>.<br>
 </div>
-
-<pre><span id="VALinline"><span class="keyword">val</span> inline</span> : <code class="type">unit -> string Parser.t</code></pre><div class="info ">
-<code class="code">inline  ()</code>  decodes  an  <i> inline  encoded  string</i>.  It  stops  when it
-    recognizes the <code class="code"><span class="string">"?"</span></code> character and it does not consume him.<br>
-</div>
-
-<pre><span class="keyword">module</span> <a href="MrMime_quotedPrintable.Convenience.html">Convenience</a>: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_quotedPrintable.Convenience.html">..</a> <code class="code"><span class="keyword">end</span></code></pre>
-<pre><span id="VALw_inline_encode"><span class="keyword">val</span> w_inline_encode</span> : <code class="type">string -><br>       ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>       Encoder.k0</code></pre>
-<pre><span id="VALw_encode"><span class="keyword">val</span> w_encode</span> : <code class="type">string -><br>       ([> `Partial of Bytes.t * int * int * (int -> 'a) ] as 'a) Encoder.partial<br>       Encoder.k0</code></pre></body></html>
+</body></html>

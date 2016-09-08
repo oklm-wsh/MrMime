@@ -123,23 +123,23 @@
     <code class="code">decode</code>.
 </div>
 </td></tr>
-<tr><td><a href="MrMime_quotedPrintable.Convenience.html#VALdecode">decode</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
+<tr><td><a href="MrMime_quotedPrintable.Decoder.html#VALdecode">decode</a> [<a href="MrMime_quotedPrintable.Decoder.html">MrMime_quotedPrintable.Decoder</a>]</td>
 <td><div class="info">
-<code class="code">decode decoder</code> is: <code class="code"><span class="keywordsign">`</span><span class="constructor">Continue</span></code>  if <code class="code">decoder</code>  awaits for more  input.  The client  muse use
-      <a href="MrMime_quotedPrintable.Convenience.html#VALsrc"><code class="code"><span class="constructor">MrMime_quotedPrintable</span>.<span class="constructor">Convenience</span>.src</code></a> to provide it., <code class="code"><span class="keywordsign">`</span><span class="constructor">Dirty</span> chr</code>  if  <code class="code">decoder</code>  recognizes  an  unsafe character (according
-      <a href="https://tools.ietf.org/html/rfc2045#section-6.7">RFC2045</a>:
-      <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;safe-char&nbsp;:=&nbsp;&lt;any&nbsp;octet&nbsp;<span class="keyword">with</span>&nbsp;decimal&nbsp;value&nbsp;<span class="keyword">of</span>&nbsp;33&nbsp;through
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;60&nbsp;inclusive,&nbsp;<span class="keyword">and</span>&nbsp;62&nbsp;through&nbsp;126&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Characters</span>&nbsp;not&nbsp;listed&nbsp;<span class="keyword">as</span>&nbsp;<span class="string">"mail-safe"</span>&nbsp;<span class="keyword">in</span>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">RFC2049</span>&nbsp;are&nbsp;also&nbsp;not&nbsp;recommended.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
+<code class="code">decode boundary  rollback</code> decodes a  QuotedPrintable input and  stops at
+      the <code class="code">boundary</code> and, iff he decoder recognizes the boundary, it rollbacks -
+      that means the input contains the boundary although it recognized.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_quotedPrintable.html#VALdecode">decode</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
 <td><div class="info">
-<code class="code">decode boundary rollback</code> decodes a  QuotedPrintable input and stops at the
-    <code class="code">boundary</code> and,  iff he decoder recognizes the boundary, it rollbacks - that
-    means the input contains the boundary although it recognized.
+<code class="code">decode decoder</code> is: <code class="code"><span class="keywordsign">`</span><span class="constructor">Continue</span></code> if <code class="code">decoder</code> awaits for more input. The client muse use <a href="MrMime_quotedPrintable.html#VALsrc"><code class="code"><span class="constructor">MrMime_quotedPrintable</span>.src</code></a>
+    to provide it.,  <code class="code"><span class="keywordsign">`</span><span class="constructor">Dirty</span>  chr</code> if  <code class="code">decoder</code>  recognizes  an  unsafe  character (according
+    <a href="https://tools.ietf.org/html/rfc2045#section-6.7">RFC2045</a>:
+    <pre class="codepre"><code class="code">&nbsp;&nbsp;&nbsp;&nbsp;safe-char&nbsp;:=&nbsp;&lt;any&nbsp;octet&nbsp;<span class="keyword">with</span>&nbsp;decimal&nbsp;value&nbsp;<span class="keyword">of</span>&nbsp;33&nbsp;through
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;60&nbsp;inclusive,&nbsp;<span class="keyword">and</span>&nbsp;62&nbsp;through&nbsp;126&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">Characters</span>&nbsp;not&nbsp;listed&nbsp;<span class="keyword">as</span>&nbsp;<span class="string">"mail-safe"</span>&nbsp;<span class="keyword">in</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;<span class="constructor">RFC2049</span>&nbsp;are&nbsp;also&nbsp;not&nbsp;recommended.
+&nbsp;&nbsp;&nbsp;&nbsp;</code></pre>
 </div>
 </td></tr>
 <tr><td><a href="MrMime.Convenience.html#VALdecode">decode</a> [<a href="MrMime.Convenience.html">MrMime.Convenience</a>]</td>
@@ -154,10 +154,10 @@
     <code class="code">input</code>.
 </div>
 </td></tr>
-<tr><td><a href="MrMime_quotedPrintable.Convenience.html#VALdecoder">decoder</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
+<tr><td><a href="MrMime_quotedPrintable.html#VALdecoder">decoder</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
 <td><div class="info">
-<code class="code">decoder (boundary,  rollback)  input</code> is  a QuotedPrintable  decoder that
-      inputs from <code class="code">input</code>.
+<code class="code">decoder  (boundary,  rollback) input</code>  is  a  QuotedPrintable  decoder that
+    inputs from  <code class="code">input</code>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime.Convenience.html#VALdecoder">decoder</a> [<a href="MrMime.Convenience.html">MrMime.Convenience</a>]</td>
@@ -167,8 +167,11 @@
 <code class="code">decoder_src decoder</code> is <code class="code">decoder</code>'s input source.
 </div>
 </td></tr>
-<tr><td><a href="MrMime_quotedPrintable.Convenience.html#VALdecoder_src">decoder_src</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
-<td></td></tr>
+<tr><td><a href="MrMime_quotedPrintable.html#VALdecoder_src">decoder_src</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
+<td><div class="info">
+<code class="code">decoder_src decoder</code> is <code class="code">decoder</code>'s input source.
+</div>
+</td></tr>
 <tr><td><a href="MrMime.Convenience.html#VALdecoder_src">decoder_src</a> [<a href="MrMime.Convenience.html">MrMime.Convenience</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime.Convenience.html#VALdecoding">decoding</a> [<a href="MrMime.Convenience.html">MrMime.Convenience</a>]</td>
@@ -235,11 +238,11 @@ Default value of version.
 <tr><td align="left"><br>H</td></tr>
 <tr><td><a href="MrMime_header.Decoder.html#VALheader">header</a> [<a href="MrMime_header.Decoder.html">MrMime_header.Decoder</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_quotedPrintable.html#VALhex">hex</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
+<tr><td><a href="MrMime_quotedPrintable.Decoder.html#VALhex">hex</a> [<a href="MrMime_quotedPrintable.Decoder.html">MrMime_quotedPrintable.Decoder</a>]</td>
 <td><div class="info">
-Corresponding to the rule from
-    <a href="https://tools.ietf.org/html/rfc2045#section-6.7">RFC2045</a> about
-    the hexadecimal value:
+Corresponding            to            the            rule            from
+      <a href="https://tools.ietf.org/html/rfc2045#section-6.7">RFC2045</a>    about   the
+      hexadecimal value:
 </div>
 </td></tr>
 <tr><td align="left"><br>I</td></tr>
@@ -250,9 +253,9 @@ Corresponding to the rule from
 <code class="code">inline  ()</code> decodes  an <i> inline  encoded  string</i>.
 </div>
 </td></tr>
-<tr><td><a href="MrMime_quotedPrintable.html#VALinline">inline</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
+<tr><td><a href="MrMime_quotedPrintable.Decoder.html#VALinline">inline</a> [<a href="MrMime_quotedPrintable.Decoder.html">MrMime_quotedPrintable.Decoder</a>]</td>
 <td><div class="info">
-<code class="code">inline  ()</code>  decodes  an  <i> inline  encoded  string</i>.
+<code class="code">inline  ()</code> decodes  an <i> inline  encoded  string</i>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime_base64.Decoder.html#VALis_b64">is_b64</a> [<a href="MrMime_base64.Decoder.html">MrMime_base64.Decoder</a>]</td>
@@ -260,9 +263,9 @@ Corresponding to the rule from
 <code class="code">is_b64 chr</code> returns <code class="code"><span class="keyword">true</span></code> iff the character is a Base64 character.
 </div>
 </td></tr>
-<tr><td><a href="MrMime_quotedPrintable.html#VALis_hex">is_hex</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
+<tr><td><a href="MrMime_quotedPrintable.Decoder.html#VALis_hex">is_hex</a> [<a href="MrMime_quotedPrintable.Decoder.html">MrMime_quotedPrintable.Decoder</a>]</td>
 <td><div class="info">
-<code class="code">is_hex chr</code>  returns <code class="code"><span class="keyword">true</span></code> iff  the character is  a hexadecimal character.
+<code class="code">is_hex chr</code> returns <code class="code"><span class="keyword">true</span></code> iff  the character is a hexadecimal character.
 </div>
 </td></tr>
 <tr><td align="left"><br>L</td></tr>
@@ -736,10 +739,10 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
     starting at <code class="code">off</code>  in <code class="code">buf</code>.
 </div>
 </td></tr>
-<tr><td><a href="MrMime_quotedPrintable.Convenience.html#VALsrc">src</a> [<a href="MrMime_quotedPrintable.Convenience.html">MrMime_quotedPrintable.Convenience</a>]</td>
+<tr><td><a href="MrMime_quotedPrintable.html#VALsrc">src</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
 <td><div class="info">
-<code class="code">src decoder  buf off len</code> provides  <code class="code">decoder</code> with  <code class="code">len</code> bytes  to read,
-      starting at <code class="code">off</code> in <code class="code">buf</code>.
+<code class="code">src decoder buf  off  len</code>  provides  <code class="code">decoder</code>  with  <code class="code">len</code> bytes to read,
+    starting at <code class="code">off</code> in <code class="code">buf</code>.
 </div>
 </td></tr>
 <tr><td><a href="MrMime.Convenience.html#VALsrc">src</a> [<a href="MrMime.Convenience.html">MrMime.Convenience</a>]</td>
@@ -800,7 +803,7 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 <td></td></tr>
 <tr><td><a href="MrMime_base64.Encoder.html#VALw_encode">w_encode</a> [<a href="MrMime_base64.Encoder.html">MrMime_base64.Encoder</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_quotedPrintable.html#VALw_encode">w_encode</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
+<tr><td><a href="MrMime_quotedPrintable.Encoder.html#VALw_encode">w_encode</a> [<a href="MrMime_quotedPrintable.Encoder.html">MrMime_quotedPrintable.Encoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_contentEncoding.Encoder.html#VALw_encoding">w_encoding</a> [<a href="MrMime_contentEncoding.Encoder.html">MrMime_contentEncoding.Encoder</a>]</td>
 <td></td></tr>
@@ -828,7 +831,7 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 <td></td></tr>
 <tr><td><a href="MrMime_base64.Encoder.html#VALw_inline_encode">w_inline_encode</a> [<a href="MrMime_base64.Encoder.html">MrMime_base64.Encoder</a>]</td>
 <td></td></tr>
-<tr><td><a href="MrMime_quotedPrintable.html#VALw_inline_encode">w_inline_encode</a> [<a href="MrMime_quotedPrintable.html">MrMime_quotedPrintable</a>]</td>
+<tr><td><a href="MrMime_quotedPrintable.Encoder.html#VALw_inline_encode">w_inline_encode</a> [<a href="MrMime_quotedPrintable.Encoder.html">MrMime_quotedPrintable.Encoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_msgID.Encoder.html#VALw_left">w_left</a> [<a href="MrMime_msgID.Encoder.html">MrMime_msgID.Encoder</a>]</td>
 <td></td></tr>
