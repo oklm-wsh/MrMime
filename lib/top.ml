@@ -66,7 +66,7 @@ let octet boundary content fields =
 
   match content.MrMime_content.encoding with
   | `QuotedPrintable ->
-    MrMime_quotedPrintable.decode boundary rollback
+    MrMime_quotedPrintable.Decoder.decode boundary rollback
     >>| fun v -> QuotedPrintable v
   | `Base64 ->
     MrMime_base64.Decoder.decode boundary rollback

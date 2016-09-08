@@ -47,6 +47,6 @@ let inline_encoded_string =
   >>= fun encoding -> char '?'
   >>= fun _ -> (match encoding with
     | `B -> MrMime_base64.Decoder.inline () >>| fun v -> Base64 v
-    | `Q -> MrMime_quotedPrintable.inline () >>| fun v -> QuotedPrintable v)
+    | `Q -> MrMime_quotedPrintable.Decoder.inline () >>| fun v -> QuotedPrintable v)
   >>= fun decoded -> string id "?="
   *> return (charset, decoded)

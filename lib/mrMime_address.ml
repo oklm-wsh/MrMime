@@ -176,7 +176,7 @@ struct
 
   let w_raw = function
     | Rfc2047.QuotedPrintable s ->
-      string "Q?" $ (wrap (QuotedPrintable.w_inline_encode s $ Encoder.flush))
+      string "Q?" $ (wrap (QuotedPrintable.Encoder.w_inline_encode s $ Encoder.flush))
     | Rfc2047.Base64 (`Clean raw)
     | Rfc2047.Base64 (`Dirty raw) -> string "B?" $ (wrap (Base64.Encoder.w_inline_encode raw $ Encoder.flush))
     | Rfc2047.Base64 `Wrong_padding -> string "B?"

@@ -168,7 +168,7 @@ struct
 
       let decoder = match current_content.Content.encoding with
         | `QuotedPrintable ->
-          QuotedPrintable.decode boundary' rollback
+          QuotedPrintable.Decoder.decode boundary' rollback
           >>| fun v -> Top.QuotedPrintable v
         | `Base64 ->
           Base64.Decoder.decode boundary' rollback
@@ -223,7 +223,7 @@ struct
     | `Binary         , Top.Raw body             -> w_encode body
     | `Base64         , Top.Base64 (`Dirty body) -> Base64.Encoder.w_encode body
     | `Base64         , Top.Base64 (`Clean body) -> Base64.Encoder.w_encode body
-    | `QuotedPrintable, Top.QuotedPrintable body -> QuotedPrintable.w_encode body
+    | `QuotedPrintable, Top.QuotedPrintable body -> QuotedPrintable.Encoder.w_encode body
 
   let w_crlf k e = string "\r\n" k e
 
