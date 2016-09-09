@@ -36,9 +36,15 @@
 </div>
 <h1>Module <a href="type_MrMime_input.html">MrMime_input</a></h1>
 
-<pre><span class="keyword">module</span> MrMime_input: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_input.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+<pre><span class="keyword">module</span> MrMime_input: <code class="code"><span class="keyword">sig</span></code> <a href="MrMime_input.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Module Input<br>
+</div>
+<hr width="100%">
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> = <code class="type">'a RingBuffer.Committed.t</code> </pre>
+<div class="info ">
+A ringbuffer.<br>
+</div>
 
 
 <pre><span id="TYPEst"><span class="keyword">type</span> <code class="type"></code>st</span> = <code class="type">Internal_buffer.st</code> = </pre><table class="typetable">
@@ -47,9 +53,15 @@
 <code><span class="keyword">|</span></code></td>
 <td align="left" valign="top" >
 <code><span id="TYPEELTst.St"><span class="constructor">St</span></span></code></td>
-
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+A proof to use a <code class="code">(char, int8_unsigned_elt, c_layout) <span class="constructor">Bigarray</span>.<span class="constructor">Array1</span>.t</code><br>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
 </tr></table>
 
+<div class="info ">
+A proof to use a <code class="code">string</code> internally<br>
+</div>
 
 
 <pre><span id="TYPEbs"><span class="keyword">type</span> <code class="type"></code>bs</span> = <code class="type">Internal_buffer.bs</code> = </pre><table class="typetable">
@@ -63,21 +75,94 @@
 
 
 
-<pre><span id="VALwrite"><span class="keyword">val</span> write</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t -> int -> int -> unit</code></pre>
-<pre><span id="VALwrite_string"><span class="keyword">val</span> write_string</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> string -> int -> int -> unit</code></pre>
-<pre><span id="VALcreate_bytes"><span class="keyword">val</span> create_bytes</span> : <code class="type">int -> <a href="MrMime_input.html#TYPEst">st</a> <a href="MrMime_input.html#TYPEt">t</a></code></pre>
-<pre><span id="VALcreate_bigstring"><span class="keyword">val</span> create_bigstring</span> : <code class="type">int -> <a href="MrMime_input.html#TYPEbs">bs</a> <a href="MrMime_input.html#TYPEt">t</a></code></pre>
-<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int</code></pre>
-<pre><span id="VALpeek"><span class="keyword">val</span> peek</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t -> int -> int -> unit</code></pre>
-<pre><span id="VALread"><span class="keyword">val</span> read</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t -> int -> int -> unit</code></pre>
-<pre><span id="VALread_space"><span class="keyword">val</span> read_space</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> ('a Internal_buffer.t * int * int) option</code></pre>
-<pre><span id="VALwrite_space"><span class="keyword">val</span> write_space</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> ('a Internal_buffer.t * int * int) option</code></pre>
-<pre><span id="VALtransmit"><span class="keyword">val</span> transmit</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> ('a Internal_buffer.t -> int -> int -> int) -> int</code></pre>
-<pre><span id="VALravailable"><span class="keyword">val</span> ravailable</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int</code></pre>
-<pre><span id="VALwavailable"><span class="keyword">val</span> wavailable</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int</code></pre>
-<pre><span id="VALradvance"><span class="keyword">val</span> radvance</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int -> unit</code></pre>
-<pre><span id="VALwadvance"><span class="keyword">val</span> wadvance</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int -> unit</code></pre>
-<pre><span id="VALget"><span class="keyword">val</span> get</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> char</code></pre>
-<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> 'a <a href="MrMime_input.html#TYPEt">t</a> -> unit</code></pre>
-<pre><span id="VALproof"><span class="keyword">val</span> proof</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t</code></pre>
-<pre><span id="VALsavailable"><span class="keyword">val</span> savailable</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int</code></pre></body></html>
+<pre><span id="VALwrite"><span class="keyword">val</span> write</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t -> int -> int -> unit</code></pre><div class="info ">
+<code class="code">write input buf off len</code> writes an internal buffer (with the same proof
+    <code class="code"><span class="keywordsign">'</span>a</code> - see <a href="MrMime_input.html#TYPEst"><code class="code"><span class="constructor">MrMime_input</span>.st</code></a> or <a href="MrMime_input.html#TYPEbs"><code class="code"><span class="constructor">MrMime_input</span>.bs</code></a>) starting at <code class="code">off</code> to <code class="code">len</code> inside the input.<br>
+</div>
+
+<pre><span id="VALwrite_string"><span class="keyword">val</span> write_string</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> string -> int -> int -> unit</code></pre><div class="info ">
+<code class="code">write_string input buf off len</code> writes a <code class="code">string</code> starting at <code class="code">off</code> to
+    <code class="code">len</code> inside the input.<br>
+</div>
+
+<pre><span id="VALcreate_bytes"><span class="keyword">val</span> create_bytes</span> : <code class="type">int -> <a href="MrMime_input.html#TYPEst">st</a> <a href="MrMime_input.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">create_bytes size</code> returns a fresh input of length <code class="code">size</code> with the proof <a href="MrMime_input.html#TYPEst"><code class="code"><span class="constructor">MrMime_input</span>.st</code></a>.
+    The sequence is uninitialiazed and contains arbitrary bytes.<br>
+</div>
+
+<pre><span id="VALcreate_bigstring"><span class="keyword">val</span> create_bigstring</span> : <code class="type">int -> <a href="MrMime_input.html#TYPEbs">bs</a> <a href="MrMime_input.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">create_bigstring size</code> returns a fresh input of length <code class="code">size</code> with the
+    proof <a href="MrMime_input.html#TYPEbs"><code class="code"><span class="constructor">MrMime_input</span>.bs</code></a>. The sequence is unintialiazed and contains arbitrary bytes.<br>
+</div>
+
+<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+<code class="code">size input</code> returns the length of the given input.<br>
+</div>
+
+<pre><span id="VALpeek"><span class="keyword">val</span> peek</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t -> int -> int -> unit</code></pre><div class="info ">
+<code class="code">peek input buf off len</code> same as <a href="MrMime_input.html#VALread"><code class="code"><span class="constructor">MrMime_input</span>.read</code></a> but does not advance the read
+    pointer.<br>
+</div>
+
+<pre><span id="VALread"><span class="keyword">val</span> read</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t -> int -> int -> unit</code></pre><div class="info ">
+<code class="code">read input buf off len</code> read the data inside the input and advance the read
+    pointer.<br>
+</div>
+
+<pre><span id="VALread_space"><span class="keyword">val</span> read_space</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> ('a Internal_buffer.t * int * int) option</code></pre><div class="info ">
+<code class="code">read_space input</code> returns a continuous part of the internal buffer with the
+    offset and the length of bytes available to read. If <a href="MrMime_input.html#VALravailable"><code class="code"><span class="constructor">MrMime_input</span>.ravailable</code></a>
+    returns <code class="code">0</code>, <code class="code">read_space</code> returns <code class="code"><span class="constructor">None</span></code>.
+<p>
+
+    The continuous part of the internal buffer is not necessarily a buffer which
+    contains all bytes available to read (it's a part).<br>
+</div>
+
+<pre><span id="VALwrite_space"><span class="keyword">val</span> write_space</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> ('a Internal_buffer.t * int * int) option</code></pre><div class="info ">
+<code class="code">write_space input</code> returns a continuous part of the internal buffer with
+    the offset and the length of bytes available to write. If
+    <a href="MrMime_input.html#VALwavailable"><code class="code"><span class="constructor">MrMime_input</span>.wavailable</code></a> returns <code class="code">0</code>, <code class="code">write_space</code> returns <code class="code"><span class="constructor">None</span></code>.
+<p>
+
+    The continuous part of the internal buffer is not necessarily a buffer which
+    contains all bytes available to write (it's a part).<br>
+</div>
+
+<pre><span id="VALtransmit"><span class="keyword">val</span> transmit</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> ('a Internal_buffer.t -> int -> int -> int) -> int</code></pre><div class="info ">
+<code class="code">transmit input f</code> same as <code class="code"><span class="constructor">Option</span>.map f (read_space input)</code>.<br>
+</div>
+
+<pre><span id="VALravailable"><span class="keyword">val</span> ravailable</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+<code class="code">ravailable input</code> returns available bytes to read.<br>
+</div>
+
+<pre><span id="VALwavailable"><span class="keyword">val</span> wavailable</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+<code class="code">wavailable input</code> returns available bytes to write.<br>
+</div>
+
+<pre><span id="VALradvance"><span class="keyword">val</span> radvance</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int -> unit</code></pre><div class="info ">
+<code class="code">radvance input n</code> drops <code class="code">n</code> bytes.<br>
+</div>
+
+<pre><span id="VALwadvance"><span class="keyword">val</span> wadvance</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int -> unit</code></pre><div class="info ">
+<code class="code">wadvance input n</code> advances the write pointer.<br>
+</div>
+
+<pre><span id="VALget"><span class="keyword">val</span> get</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> char</code></pre><div class="info ">
+<code class="code">get input</code> gets the first character at the read pointer.<br>
+</div>
+
+<pre><span id="VALpp"><span class="keyword">val</span> pp</span> : <code class="type">Format.formatter -> 'a <a href="MrMime_input.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<code class="code">pp input</code> prints an human readable representation of <code class="code">input</code>.<br>
+</div>
+
+<pre><span id="VALproof"><span class="keyword">val</span> proof</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> 'a Internal_buffer.t</code></pre><div class="info ">
+<code class="code">proof input</code> gets the internal buffer with the proof.<br>
+</div>
+
+<pre><span id="VALsavailable"><span class="keyword">val</span> savailable</span> : <code class="type">'a <a href="MrMime_input.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+<code class="code">savailable input</code> returns available bytes to read or, if the input is
+    committed, returns available bytes from the commit to the write pointer.<br>
+</div>
+</body></html>

@@ -101,9 +101,16 @@
 </div>
 </td></tr>
 <tr><td><a href="MrMime_input.html#VALcreate_bigstring">create_bigstring</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">create_bigstring size</code> returns a fresh input of length <code class="code">size</code> with the
+    proof <a href="MrMime_input.html#TYPEbs"><code class="code"><span class="constructor">MrMime_input</span>.bs</code></a>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALcreate_bytes">create_bytes</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">create_bytes size</code> returns a fresh input of length <code class="code">size</code> with the proof <a href="MrMime_input.html#TYPEst"><code class="code"><span class="constructor">MrMime_input</span>.st</code></a>.
+</div>
+</td></tr>
 <tr><td align="left"><br>D</td></tr>
 <tr><td><a href="MrMime_base64.Decoder.html#VALdecode">decode</a> [<a href="MrMime_base64.Decoder.html">MrMime_base64.Decoder</a>]</td>
 <td><div class="info">
@@ -234,7 +241,10 @@ Default value of version.
 </td></tr>
 <tr><td align="left"><br>G</td></tr>
 <tr><td><a href="MrMime_input.html#VALget">get</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">get input</code> gets the first character at the read pointer.
+</div>
+</td></tr>
 <tr><td align="left"><br>H</td></tr>
 <tr><td><a href="MrMime_header.Decoder.html#VALheader">header</a> [<a href="MrMime_header.Decoder.html">MrMime_header.Decoder</a>]</td>
 <td></td></tr>
@@ -523,7 +533,11 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 </div>
 </td></tr>
 <tr><td><a href="MrMime_input.html#VALpeek">peek</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">peek input buf off len</code> same as <a href="MrMime_input.html#VALread"><code class="code"><span class="constructor">MrMime_input</span>.read</code></a> but does not advance the read
+    pointer.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_parser.html#VALpeek_chr">peek_chr</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
 <td><div class="info">
 <code class="code">peek_chr</code> accepts any char and return  it,  or returns <code class="code"><span class="constructor">None</span></code> if the end of
@@ -578,7 +592,10 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 </div>
 </td></tr>
 <tr><td><a href="MrMime_input.html#VALpp">pp</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">pp input</code> prints an human readable representation of <code class="code">input</code>.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_parser.html#VALpp">pp</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_date.html#VALpp_day">pp_day</a> [<a href="MrMime_date.html">MrMime_date</a>]</td>
@@ -689,16 +706,33 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 </div>
 </td></tr>
 <tr><td><a href="MrMime_input.html#VALproof">proof</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">proof input</code> gets the internal buffer with the proof.
+</div>
+</td></tr>
 <tr><td align="left"><br>R</td></tr>
 <tr><td><a href="MrMime_input.html#VALradvance">radvance</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">radvance input n</code> drops <code class="code">n</code> bytes.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALravailable">ravailable</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">ravailable input</code> returns available bytes to read.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALread">read</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">read input buf off len</code> read the data inside the input and advance the read
+    pointer.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALread_space">read_space</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">read_space input</code> returns a continuous part of the internal buffer with the
+    offset and the length of bytes available to read.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_parser.html#VALrecognize">recognize</a> [<a href="MrMime_parser.html">MrMime_parser</a>]</td>
 <td><div class="info">
 <code class="code">recognize f</code> accepts input as long as <code class="code">f</code> returns <code class="code"><span class="keyword">true</span></code> and returns the
@@ -730,9 +764,16 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 </div>
 </td></tr>
 <tr><td><a href="MrMime_input.html#VALsavailable">savailable</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">savailable input</code> returns available bytes to read or, if the input is
+    committed, returns available bytes from the commit to the write pointer.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALsize">size</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">size input</code> returns the length of the given input.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_base64.html#VALsrc">src</a> [<a href="MrMime_base64.html">MrMime_base64</a>]</td>
 <td><div class="info">
 <code class="code">src decoder buf  off  len</code>  provides  <code class="code">decoder</code>  with  <code class="code">len</code> bytes to read,
@@ -783,7 +824,10 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 </div>
 </td></tr>
 <tr><td><a href="MrMime_input.html#VALtransmit">transmit</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">transmit input f</code> same as <code class="code"><span class="constructor">Option</span>.map f (read_space input)</code>.
+</div>
+</td></tr>
 <tr><td align="left"><br>W</td></tr>
 <tr><td><a href="MrMime_address.Encoder.html#VALw_address">w_address</a> [<a href="MrMime_address.Encoder.html">MrMime_address.Encoder</a>]</td>
 <td></td></tr>
@@ -886,17 +930,35 @@ See RFC2045 § <a href="https://tools.ietf.org/html/rfc2045#section-3">3</a>:
 <tr><td><a href="MrMime_date.Encoder.html#VALw_zone">w_zone</a> [<a href="MrMime_date.Encoder.html">MrMime_date.Encoder</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_input.html#VALwadvance">wadvance</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">wadvance input n</code> advances the write pointer.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALwavailable">wavailable</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">wavailable input</code> returns available bytes to write.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_address.Make.html#VALword">word</a> [<a href="MrMime_address.Make.html">MrMime_address.Make</a>]</td>
 <td></td></tr>
 <tr><td><a href="MrMime_input.html#VALwrite">write</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">write input buf off len</code> writes an internal buffer (with the same proof
+    <code class="code"><span class="keywordsign">'</span>a</code> - see <a href="MrMime_input.html#TYPEst"><code class="code"><span class="constructor">MrMime_input</span>.st</code></a> or <a href="MrMime_input.html#TYPEbs"><code class="code"><span class="constructor">MrMime_input</span>.bs</code></a>) starting at <code class="code">off</code> to <code class="code">len</code> inside the input.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALwrite_space">write_space</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">write_space input</code> returns a continuous part of the internal buffer with
+    the offset and the length of bytes available to write.
+</div>
+</td></tr>
 <tr><td><a href="MrMime_input.html#VALwrite_string">write_string</a> [<a href="MrMime_input.html">MrMime_input</a>]</td>
-<td></td></tr>
+<td><div class="info">
+<code class="code">write_string input buf off len</code> writes a <code class="code">string</code> starting at <code class="code">off</code> to
+    <code class="code">len</code> inside the input.
+</div>
+</td></tr>
 </table>
 </body>
 </html>
