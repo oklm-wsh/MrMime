@@ -72,8 +72,6 @@ let of_escaped_character = function
   | '\x72' -> '\x0D'
   | c      -> c
 
-let e = char '\\'
-
 let quoted_pair =
   char '\\'
   *> satisfy is_quoted_pair

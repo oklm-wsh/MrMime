@@ -3,5 +3,5 @@ let value ~default = function
   | None -> default
 
 let is_some = function
-  | Some v -> true
+  | Some _ -> true
   | None -> false

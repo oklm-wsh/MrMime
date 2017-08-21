@@ -58,8 +58,7 @@ struct
 
   let w_crlf k e = string "\r\n" k e
 
-  let rec w_lst w_sep w_data l =
-    let open Wrap in
+  let w_lst w_sep w_data l =
       let rec aux = function
       | [] -> noop
       | [ x ] -> w_data x
@@ -107,7 +106,7 @@ struct
 end
 
 let decoder (fields : [> field ] list) =
-  { Parser.f = fun i s fail succ ->
+  { Parser.f = fun i s _fail succ ->
     let rec catch garbage acc = function
       | `Trace (trace, received) :: r ->
         catch garbage ({ trace; received; } :: acc) r

@@ -56,7 +56,7 @@ struct
         Buffer.add_char buffer (Char.chr b)
       | _ -> assert false
 
-    let padding { contents = (quantum, size) } padding =
+    let padding { contents = (_quantum, size) } padding =
       match size, padding with
       | 0, 0 -> true
       | 1, _ -> false
@@ -70,7 +70,7 @@ struct
     | _ -> false
 
   let decode_chunk t buffer =
-    { f = fun i s fail succ ->
+    { f = fun i s _fail succ ->
       let decode t buff off len =
         let rec loop idx =
           if idx < len && is_b64 (Internal_buffer.get buff (off + idx))
@@ -87,7 +87,7 @@ struct
 
   let crlf = char '\r' *> char '\n' *> return ()
 
-  let decode boundary rollback t buffer =
+  let decode boundary _rollback t buffer =
     let fix' f =
       let rec u a b = lazy (f r a b)
       and r a b = { f = fun i s fail succ ->
@@ -106,7 +106,7 @@ struct
          else return (false, `Wrong_padding)
        | Some chr when is_b64 chr ->
          if padding = 0
-         then decode_chunk t buffer >>= fun consumed -> m padding dirty
+         then decode_chunk t buffer >>= fun _consumed -> m padding dirty
          else (F.flush t buffer; return (false, `Dirty (Buffer.contents buffer)))
        | Some '=' ->
          advance 1 >>= fun () -> m (padding + 1) dirty
@@ -122,7 +122,7 @@ struct
                        | `Clean -> true, `Clean (Buffer.contents buffer))
           else return (true, `Wrong_padding))
          <|> (crlf >>= fun () -> m padding dirty)
-       | Some chr -> advance 1 >>= fun () -> m padding `Dirty)
+       | Some _chr -> advance 1 >>= fun () -> m padding `Dirty)
 
   let inline t buffer =
     let fix' f =
@@ -143,7 +143,7 @@ struct
         else return `Wrong_padding
       | Some chr when is_b64 chr ->
         if padding = 0
-        then decode_chunk t buffer >>= fun consumed -> m padding dirty
+        then decode_chunk t buffer >>= fun _consumed -> m padding dirty
         else (F.flush t buffer; return (`Dirty (Buffer.contents buffer)))
 
       | Some '=' ->
@@ -151,7 +151,7 @@ struct
       | Some '\x20'
       | Some '\x09' ->
         advance 1 >>= fun () -> m padding dirty
-      | Some chr -> advance 1 >>= fun () -> m padding `Dirty
+      | Some _chr -> advance 1 >>= fun () -> m padding `Dirty
 
   let decode boundary rollback =
     decode boundary rollback (F.make ()) (Buffer.create 16) 0 `Clean
@@ -191,7 +191,7 @@ struct
       then string "\r\n" (fun state -> k { t with state = state; cnum = 4; }) state
       else k { t with cnum = cnum + 4 }
 
-    let add chr k ({ state; buffer; seek; _ } as t) =
+    let add chr k ({ buffer; seek; _ } as t) =
       if seek >= 2
       then begin
         let a, b, c = Bytes.get buffer 0, Bytes.get buffer 1, chr in
@@ -340,7 +340,7 @@ let parser boundary t =
   | Some chr when Decoder.is_b64 chr ->
     if t.padding = 0
     then Decoder.decode_chunk t.state t.buffer
-         >>| fun consumed -> string' t
+         >>| fun _consumed -> string' t
     else begin
       Decoder.F.flush t.state t.buffer;
       return (dirty t)
@@ -368,7 +368,7 @@ let parser boundary t =
     advance 1 >>= fun () -> return (`Dirty (String.make 1 chr))
 
 let rec loop ((boundary, rollback) as p') t = function
-  | Parser.Read { buffer; k; } ->
+  | Parser.Read { k; _ } ->
     t.k <- (fun t ->
             Input.write_string
               t.src
@@ -382,7 +382,7 @@ let rec loop ((boundary, rollback) as p') t = function
 
             loop p' t @@ k t.i_len s);
     `Continue
-  | Parser.Fail (marks, exn) -> `Error exn
+  | Parser.Fail (_marks, exn) -> `Error exn
   | Parser.Done (`Error exn) -> `Error exn
   | Parser.Done (`Dirty raw) ->
     t.k <- (fun t -> loop p' t @@ Parser.(run t.src (parser boundary t)));
@@ -402,7 +402,7 @@ let rec loop ((boundary, rollback) as p') t = function
 
 let decoder_src t = t.src
 
-let decoder ((boundary, rollback) as p') src =
+let decoder ((boundary, _rollback) as p') src =
   { src
   ; state   = Decoder.F.make ()
   ; buffer  = Buffer.create 16

@@ -409,16 +409,16 @@ let obs_unstruct : unstructured t =
     | 0, 0, _ -> return []
     | n, 0, _ -> return [`LF n]
     | n, 1, Some '\n' ->
-      { f = fun i s fail succ ->
+      { f = fun i s _fail succ ->
           Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) "\r");
 
           succ i s () } *> return (if n <> 0 then [`LF n] else [])
     | n, m, Some '\n' ->
-      { f = fun i s fail succ ->
+      { f = fun i s _fail succ ->
           Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) "\r");
 
           succ i s () } *> return (if n <> 0 then [`LF n; `CR (m - 1)] else [`CR (m - 1)])
-    | n, m, _ -> return [`LF n; `CR 128]
+    | n, _m, _ -> return [`LF n; `CR 128]
   in
 
   many
@@ -574,7 +574,7 @@ let skip =
     let buffer = Buffer.create 16 in
 
     let consume =
-      { f = fun i s fail succ ->
+      { f = fun i s _fail succ ->
         let n = Input.transmit i @@ fun buff off len ->
           let len' = locate buff off len ((<>) '\r') in
           Buffer.add_bytes buffer (Internal_buffer.sub_string buff off len');
@@ -591,7 +591,7 @@ let skip =
              match consumed + n, chr with
              | 0, _ -> fail Nothing_to_do
              | n, Some _ -> (Rfc822.crlf <|> m n)
-             | n, None -> return ()) in
+             | _n, None -> return ()) in
 
     (r 0).f i s fail' succ' }
 
@@ -603,7 +603,7 @@ let header extend =
         <|> (skip >>| fun v -> `Skip v))
 
 let line buffer boundary =
-  { f = fun i s fail succ ->
+  { f = fun i s _fail succ ->
     let store buff off len =
       let len' = locate buff off len ((<>) '\r') in
       Buffer.add_bytes buffer (Internal_buffer.sub_string buff off len');
@@ -616,13 +616,13 @@ let line buffer boundary =
   | None -> return (`End false)
   | Some '\r' ->
     (boundary *> return (`End true))
-    <|> (Rfc822.crlf *> { f = fun i s fail succ ->
+    <|> (Rfc822.crlf *> { f = fun i s _fail succ ->
                           Buffer.add_char buffer '\n';
                           succ i s `Continue })
-    <|> (advance 1 *> { f = fun i s fail succ ->
+    <|> (advance 1 *> { f = fun i s _fail succ ->
                         Buffer.add_char buffer '\r';
                         succ i s `Continue })
-  | Some chr -> return `Continue
+  | Some _chr -> return `Continue
 
 let decode boundary rollback buffer =
   (fix @@ fun m -> line buffer boundary >>= function

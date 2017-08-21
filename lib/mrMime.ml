@@ -27,7 +27,7 @@ struct
     ; mutable k     : ('input, 'r) decoder -> 'r decoding }
 
   let rec loop t = function
-    | Parser.Read { buffer; k; } ->
+    | Parser.Read { k; _ } ->
       let f t =
         Input.write_string
           t.src
@@ -43,7 +43,7 @@ struct
       in
 
       t.k <- f; `Continue
-    | Parser.Fail (marks, exn) -> `Error exn
+    | Parser.Fail (_marks, exn) -> `Error exn
     | Parser.Done v ->
       let f t = loop t @@ Parser.run t.src (Parser.return v) in
       t.k <- f; `Done v

@@ -23,7 +23,7 @@ let flush p state =
 
 let wait k state = `Wait k
 
-let rec writes s k state =
+let writes s k state =
   let len = Bytes.length state.buffer in
   let rec loop j l state =
     let rem = len - state.pos in
@@ -38,8 +38,6 @@ let string s k e = writes s k e
 let char chr k e = string (String.make 1 chr) k e
 let noop k e     = k e
 let sp           = Format.sprintf
-
-let spaces = String.make 80 ' '
 
 let ( & ) x y k e = x (string " " (y k)) e
 let ( $ ) x y k e = x (y k) e

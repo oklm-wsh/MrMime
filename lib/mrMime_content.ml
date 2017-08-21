@@ -43,7 +43,7 @@ let pp_raw fmt = function
   | Rfc2047.Base64 `Wrong_padding -> pp fmt "base64:wrong-padding"
 
 let pp_unstructured fmt lst =
-  let rec aux fmt = function
+  let aux fmt = function
     | `Text s -> pp fmt "\"%s\"" s
     | `WSP    -> pp fmt "@ "
     | `CR i   -> pp fmt "<cr %d>" i
@@ -66,7 +66,7 @@ let pp_field fmt = function
   | `Unsafe (k, v)        -> pp fmt "@[<hov>%s # %a@]" (String.capitalize_ascii k) pp_unstructured v
   | `Skip line            -> pp fmt "@[<hov># %S@]" line
 
-let pp fmt { ty; encoding; version; id; description; content; unsafe; skip; } =
+let pp fmt { ty; encoding; version; id; description; content; _ } =
     pp fmt "{@[<hov>content-type = %a;@ \
                     content-transfer-encoding = %a;@ \
                     version = %a;@ \
@@ -151,7 +151,7 @@ struct
     $ (match description with Some v -> w_field (`ContentDescription v) | None -> noop)
     $ (Map.fold (fun field values acc -> List.fold_right (fun value -> w_field (`Content (field, value))) values $ acc) content noop)
 
-  let w_part { ty; encoding; id; description; content; unsafe; skip; _ } =
+  let w_part { ty; encoding; id; description; content; unsafe; _ } =
     w_field (`ContentType ty)
     $ w_field (`ContentEncoding encoding)
     $ (match id          with Some v -> w_field (`ContentID v) | None -> noop)
@@ -165,7 +165,7 @@ struct
   open Parser
 
   let message (fields : [> Rfc2045.field | Rfc2045.field_version ] list) =
-    { f = fun i s fail succ ->
+    { f = fun i s _fail succ ->
       let rec catch garbage acc = function
         | `ContentType content :: r ->
           catch garbage { acc with ty = content } r
@@ -192,7 +192,7 @@ struct
       succ i s (catch [] default fields) }
 
   let part (fields : [> Rfc2045.field | Rfc2045.unsafe | Rfc2045.skip ] list) =
-    { f = fun i s fail succ ->
+    { f = fun i s _fail succ ->
       let rec catch garbage acc = function
         | `ContentType content :: r ->
           catch garbage { acc with ty = content } r

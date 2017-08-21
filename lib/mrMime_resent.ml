@@ -31,8 +31,7 @@ module Encoder =
 struct
   open Encoder
 
-  let rec w_lst w_sep w_data l =
-    let open Wrap in
+  let w_lst w_sep w_data l =
       let rec aux = function
       | [] -> noop
       | [ x ] -> w_data x
@@ -87,7 +86,7 @@ struct
 end
 
 let decoder (fields : [> field ] list) =
-  { Parser.f = fun i s fail succ ->
+  { Parser.f = fun i s _fail succ ->
     let rec catch garbage acc lst = match lst, acc with
       | `ResentDate date :: r, ([] as r')
       | `ResentDate date :: r, (({ date = Some _; _ } :: _)  as r') ->

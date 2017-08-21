@@ -71,7 +71,7 @@ struct
 
     loop @@ rule (Encoder.flush (fun _ -> `Ok)) state
 
-  let field ?(skipped = None) : result Parser.t =
+  let _field ~skipped : result Parser.t =
     let rule =
       (Rfc5322.field_name
        <* (many (satisfy (function '\x09' | '\x20' -> true | _ -> false)))
@@ -144,7 +144,7 @@ struct
     match Top.boundary content with
     | Some boundary ->
       Rfc2046.delimiter boundary,
-      { Parser.f = fun i s fail succ ->
+      { Parser.f = fun i s _fail succ ->
         Parser.Input.rollback i
           (Internal_buffer.from_string ~proof:(Input.proof i)
            @@ ("\r\n--" ^ boundary));
@@ -185,7 +185,6 @@ struct
 
   let p_discard_part parent_content =
     let open Parser in
-    let open Parser.Convenience in
     match Top.boundary parent_content with
     | Some boundary ->
       Top.discard_part boundary
@@ -224,6 +223,7 @@ struct
     | `Base64         , Top.Base64 (`Dirty body) -> Base64.Encoder.w_encode body
     | `Base64         , Top.Base64 (`Clean body) -> Base64.Encoder.w_encode body
     | `QuotedPrintable, Top.QuotedPrintable body -> QuotedPrintable.Encoder.w_encode body
+    | _ -> assert false
 
   let w_crlf k e = string "\r\n" k e
 
@@ -235,30 +235,30 @@ struct
       | None -> raise Expected_boundary
     in
     let rec aux = function
-      | [ (content, fields, Some (Top.PDiscrete body)) ] ->
+      | [ (content, _fields, Some (Top.PDiscrete body)) ] ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_body content body
-      | [ (content, fields, Some (Top.PMultipart lst)) ] ->
+      | [ (content, _fields, Some (Top.PMultipart lst)) ] ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_multipart content lst
-      | [ (content, fields, None) ] ->
+      | [ (content, _fields, None) ] ->
         Content.Encoder.w_part content
         $ w_crlf
-      | (content, fields, Some (Top.PDiscrete body)) :: r ->
+      | (content, _fields, Some (Top.PDiscrete body)) :: r ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_body content body
         $ string (Rfc2046.make_delimiter boundary)
         $ aux r
-      | (content, fields, Some (Top.PMultipart lst)) :: r ->
+      | (content, _fields, Some (Top.PMultipart lst)) :: r ->
         Content.Encoder.w_part content
         $ w_crlf
         $ w_multipart content lst
         $ string (Rfc2046.make_delimiter boundary)
         $ aux r
-      | (content, fields, None) :: r ->
+      | (content, _fields, None) :: r ->
         Content.Encoder.w_part content
         $ w_crlf
         $ string (Rfc2046.make_delimiter boundary)
@@ -270,13 +270,13 @@ struct
     $ w_crlf
     $ aux lst
 
-  and w_message (header, body) =
+  let _w_message (_header, body) =
     match body with
-    | Top.Multipart (content, fields, lst) ->
+    | Top.Multipart (content, _fields, lst) ->
       Content.Encoder.w_message content
       $ w_crlf
       $ w_multipart content lst
-    | Top.Discrete (content, fields, body) ->
+    | Top.Discrete (content, _fields, body) ->
       Content.Encoder.w_message content
       $ w_crlf
       $ w_body content body

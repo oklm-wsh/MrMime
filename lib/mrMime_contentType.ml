@@ -50,10 +50,6 @@ let pp fmt { ty; subty; parameters; } =
     pp_subty subty
     (pp_lst ~sep:(fun fmt () -> pp fmt ";@ ") pp_parameter) parameters
 
-let make ?(parameters = []) ty subty =
-  let parameters = List.map (fun (k, v) -> (String.lowercase_ascii k, v)) parameters in
-  { ty; subty; parameters }
-
 let default =
   { ty = `Text
   ; subty = `Iana_token "plain"
@@ -94,7 +90,7 @@ struct
 
   let w_content { ty; subty; parameters; } =
     let open Wrap in
-    let rec w_lst w_sep w_data l =
+    let w_lst w_sep w_data l =
       let rec aux = function
         | [] -> noop
         | x :: r -> w_sep $ hovbox 0 $ w_data x $ close_box $ aux r

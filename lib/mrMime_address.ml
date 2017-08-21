@@ -44,6 +44,8 @@ let pp_domain fmt (x : domain) = match x with
     pp fmt "[@[<hov>%s@]]" (Ipaddr.V4.to_string ipv4)
   | `Literal (Rfc5321.IPv6 ipv6) ->
     pp fmt "[@[<hov>%s@]]" (Ipaddr.V6.to_string ipv6)
+  | _ ->
+    assert false
 
 let pp_raw fmt = function
   | Rfc2047.QuotedPrintable raw -> pp fmt "quoted-printable:%s" raw
@@ -52,7 +54,7 @@ let pp_raw fmt = function
   | Rfc2047.Base64 `Wrong_padding -> pp fmt "base64:wrong-padding"
 
 let pp_phrase fmt =
-  let rec aux fmt = function
+  let aux fmt = function
     | `Dot    -> pp fmt "."
     | `Word x -> pp fmt "`Word (%a)" pp_word x
     | `Encoded (charset, raw) ->
@@ -122,6 +124,8 @@ struct
       $ string (Ipaddr.V6.to_string ipv6)
       $ string "]"
       $ close_box
+    | _ ->
+      assert false
 
   let explode str =
     let rec exp i l =
@@ -181,8 +185,7 @@ struct
     | Rfc2047.Base64 (`Dirty raw) -> string "B?" $ (wrap (Base64.Encoder.w_inline_encode raw $ Encoder.flush))
     | Rfc2047.Base64 `Wrong_padding -> string "B?"
 
-  let rec w_lst w_sep w_data l =
-    let open Wrap in
+  let w_lst w_sep w_data l =
       let rec aux = function
       | [] -> noop
       | [ x ] -> w_data x
@@ -430,7 +433,7 @@ struct
       | `Ok -> Buffer.contents buf
     in
 
-    loop @@ (Wrap.lift Wrap.(Encoder.w_addresses t (unlift (Encoder.flush (fun v -> `Ok))))) state
+    loop @@ (Wrap.lift Wrap.(Encoder.w_addresses t (unlift (Encoder.flush (fun _ -> `Ok))))) state
 
   let of_string ?(chunk = 1024) s =
     let s' = s ^ "\r\n" in

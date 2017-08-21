@@ -183,7 +183,7 @@ let parse experimental =
   let modern =
     one modern
     >>= fun l ->
-      { f = fun i s fail succ ->
+      { f = fun i s _fail succ ->
 
         let rec catch acc = function
         | `Sequence x :: r     -> catch { acc with sequence = Some x } r

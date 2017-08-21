@@ -11,7 +11,7 @@ let ipv4_address_literal =
   { f = fun i s fail succ ->
     let r = ref None in
     let _ = Input.transmit i
-      (fun buff off len ->
+      (fun buff off _len ->
        let i = ref off in
        try r := Some (Ipaddr.V4.of_string_raw (Internal_buffer.to_string buff) i);
            (!i - off)
@@ -27,7 +27,7 @@ let ipv6_addr =
   { f = fun i s fail succ ->
     let r = ref None in
     let _ = Input.transmit i
-      (fun buff off len ->
+      (fun buff off _len ->
        let i = ref off in
        try r := Some (Ipaddr.V6.of_string_raw (Internal_buffer.to_string buff) i);
            (!i - off)

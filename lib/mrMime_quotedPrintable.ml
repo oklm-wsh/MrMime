@@ -73,8 +73,8 @@ struct
     *> { f = fun i s fail succ ->
          let mark = Input.mark i in
 
-         let k_eof buffer lexbuf = fail i s [] IO.End_of_flow in
-         let k_done line_breaks buffer lexbuf =
+         let k_eof _buffer _lexbuf = fail i s [] IO.End_of_flow in
+         let k_done line_breaks _buffer lexbuf =
            Input.unmark mark i;
            Input.radvance i (lexbuf.Lexing.lex_curr_pos - 2);
            (* TODO: need to be check! *)
@@ -90,15 +90,15 @@ struct
       | '=' | ' ' | '\r' | '\t' -> false
       | _ -> true
     in
-    (fast_qp buffer <* { f = fun i s fail succ ->
+    (fast_qp buffer <* { f = fun i s _fail succ ->
                          succ i s () } >>= function
      | `Hard -> (boundary *> return (`End true))
                 <|> (Rfc822.crlf
-                     *> { f = fun i s fail succ -> Buffer.add_char buffer '\n';
+                     *> { f = fun i s _fail succ -> Buffer.add_char buffer '\n';
                                                    succ i s `Newline })
      | `Soft -> (boundary *> return (`End true))
                 <|> (Rfc822.crlf *> return `Newline))
-    <|> ({ f = fun i s fail succ ->
+    <|> ({ f = fun i s _fail succ ->
            let n = Input.transmit i @@ fun buff off len ->
 
              let len' = locate buff off len is_ in
@@ -110,7 +110,7 @@ struct
          | None -> return (`End false)
          | Some '=' ->
             (hex >>= fun chr ->
-             { f = fun i s fail succ ->
+             { f = fun i s _fail succ ->
               Buffer.add_char buffer chr; succ i s `Hex })
            <|> (char '=' *> ((boundary *> return (`End true))
                              <|> (Rfc822.crlf *> return `Newline)))
@@ -120,13 +120,13 @@ struct
            >>= fun lwsp -> peek_chr >>= (function
             | Some '\r' -> return `Whitespace
             | _ ->
-              { f = fun i s fail succ ->
+              { f = fun i s _fail succ ->
                 Buffer.add_string buffer lwsp;
 
                 succ i s `Whitespace })
          | Some '\r' ->
            (boundary *> return (`End true))
-           <|> (Rfc822.crlf *> { f = fun i s fail succ ->
+           <|> (Rfc822.crlf *> { f = fun i s _fail succ ->
                                  Buffer.add_char buffer '\n';
                                  succ i s `Newline })
          | Some chr -> return (`Dirty chr))
@@ -180,7 +180,7 @@ struct
       then string "=\r\n" (fun state -> k { t with position = 0; state = state }) state
       else k t
 
-    let commit_word k ({ position; word; } as t) =
+    let commit_word k ({ position; word; _ } as t) =
       (if position + Buffer.length word >= 76
        then add_break
        else noop)
@@ -225,7 +225,7 @@ struct
         add_char '\x09' $ commit_word
 
     let add_newline chr =
-      let rec aux k ({ state; _ } as t) =
+      let aux k ({ state; _ } as t) =
         string "\r\n" (fun state -> k { t with state = state; position = 0 }) state
       in
       (match chr with
@@ -330,9 +330,9 @@ and decoding =
   | `End    of string
   | `String of string ]
 
-let pp_decoding fmt = function
+let _pp_decoding fmt = function
   | `Continue   -> Format.fprintf fmt "`Continue"
-  | `Error exn  -> Format.fprintf fmt "`Error exn"
+  | `Error _exn -> Format.fprintf fmt "`Error exn"
   | `Dirty chr  -> Format.fprintf fmt "`Dirty %S" (String.make 1 chr)
   | `End str    -> Format.fprintf fmt "`End %s" str
   | `String str -> Format.fprintf fmt "`String %s" str
@@ -352,7 +352,7 @@ let boundary' boundary t =
 let hard t =
   let open Parser in
   Rfc822.crlf
-  *> { f = fun i s fail succ ->
+  *> { f = fun i s _fail succ ->
        Buffer.add_char t.buffer '\n';
        succ i s () }
   *> return (string' t)
@@ -373,7 +373,7 @@ let p boundary t =
    >>= function
        | `Hard -> ((boundary' boundary t) <|> (hard t))
        | `Soft -> ((boundary' boundary t) <|> (soft t)))
-  <|> ({ f = fun i s fail succ ->
+  <|> ({ f = fun i s _fail succ ->
          let n = Input.transmit i @@ fun buff off len ->
 
            let len' = locate buff off len is_ in
@@ -394,19 +394,19 @@ let p boundary t =
          >>= fun lwsp -> peek_chr >>= (function
           | Some '\r' -> return (string' t)
           | _ ->
-            { f = fun i s fail succ ->
+            { f = fun i s _fail succ ->
               Buffer.add_string t.buffer lwsp;
 
               succ i s () } *> return (string' t))
        | Some '\r' ->
          (boundary *> return (terminate true t))
-         <|> (Rfc822.crlf *> { f = fun i s fail succ -> Buffer.add_char t.buffer '\n';
+         <|> (Rfc822.crlf *> { f = fun i s _fail succ -> Buffer.add_char t.buffer '\n';
                                                         succ i s () }
                           *> return (string' t))
        | Some chr -> return (`Dirty chr))
 
 let rec loop ((boundary, rollback) as p') t = function
-  | Parser.Read { buffer; k; } ->
+  | Parser.Read { k; _ } ->
     t.k <- (fun t ->
             Input.write_string
               t.src
@@ -420,7 +420,7 @@ let rec loop ((boundary, rollback) as p') t = function
 
             loop p' t @@ k t.i_len s);
     `Continue
-  | Parser.Fail (marks, exn) -> `Error exn
+  | Parser.Fail (_marks, exn) -> `Error exn
   | Parser.Done (`Dirty chr) ->
     t.k <- (fun t -> loop p' t
             @@ Parser.(run t.src (p boundary t)));
@@ -443,7 +443,7 @@ let rec loop ((boundary, rollback) as p') t = function
 
 let decoder_src t = t.src
 
-let decoder ((boundary, rollback) as p') src =
+let decoder ((boundary, _rollback) as p') src =
   { src
   ; buffer = Buffer.create 16
   ; i      = Bytes.empty

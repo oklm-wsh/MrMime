@@ -27,7 +27,7 @@ let pp_raw fmt = function
   | Rfc2047.Base64 `Wrong_padding -> pp fmt "base64:wrong-padding"
 
 let pp_unstructured fmt lst =
-  let rec aux fmt = function
+  let aux fmt = function
     | `Text s -> pp fmt "\"%s\"" s
     | `WSP    -> pp fmt "@ "
     | `CR i   -> pp fmt "<cr %d>" i
@@ -38,15 +38,13 @@ let pp_unstructured fmt lst =
         charset pp_raw raw
   in
   pp fmt "[@[<hov>%a@]]"
-    (pp_lst ~sep:(fun fmt () -> ()) aux) lst
+    (pp_lst ~sep:(fun _fmt () -> ()) aux) lst
 
 let pp_phrase_or_msg_id fmt = function
   | `Phrase p -> pp fmt "%a" Address.pp_phrase p
   | `MsgID m  -> pp fmt "%a" MsgID.pp m
 
-let pp_path = Address.pp_mailbox'
-
-let pp_received fmt r =
+let _pp_received fmt r =
   let pp_elem fmt = function
     | `Addr v -> Address.pp_mailbox' fmt v
     | `Domain v -> Address.pp_domain fmt v
@@ -213,8 +211,7 @@ struct
 
   let w_crlf k e = string "\r\n" k e
 
-  let rec w_lst w_sep w_data l =
-    let open Wrap in
+  let w_lst w_sep w_data l =
       let rec aux = function
       | [] -> noop
       | [ x ] -> w_data x
@@ -295,7 +292,7 @@ struct
 
   let w_header { date; from; sender; reply_to; to'; cc; bcc; subject;
                  msg_id; in_reply_to; references; comments; keywords;
-                 resents; traces; fields; unsafe; skip; } =
+                 resents; traces; fields; unsafe; _ } =
     (match date        with Some v -> w_field (`Date v) | None -> noop)
     $ (match from        with [] -> noop | v -> w_field (`From v))
     $ (match sender      with Some v -> w_field (`Sender v) | None -> noop)
@@ -333,7 +330,7 @@ struct
   open Parser
 
   let header (fields : [> field ] list) =
-    { f = fun i s fail succ ->
+    { f = fun i s _fail succ ->
       let rec catch garbage acc = function
         | `Date date :: r ->
           catch garbage { acc with date = Some date } r

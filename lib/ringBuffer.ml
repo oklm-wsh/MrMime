@@ -260,7 +260,7 @@ struct
     | Weak of int
     | Uniq of int
 
-  let pp_with_mark fmt (off, len, { contents = { rpos; wpos; buffer; size; }; mark; }) =
+  let pp_with_mark fmt (off, len, { contents = { buffer; _ }; mark; }) =
     match mark with
     | Some mark when off <= mark && mark <= (off + len) ->
       Format.fprintf fmt "%a [ mark ] %a"
@@ -269,7 +269,7 @@ struct
     | _ ->
       Internal_buffer.pp fmt (Internal_buffer.sub buffer off len)
 
-  let pp fmt ({ contents = { rpos; wpos; buffer; size; }; mark; } as t) =
+  let pp fmt ({ contents = { rpos; wpos; size; _ }; _ } as t) =
     if rpos <= wpos
     then Format.fprintf fmt "{ @[<hov>size = %d;@ %d.@,%a@ [ rpos ]@ %a@ [ wpos ]@ %a@,.%d@] }" (size - 1)
            rpos
@@ -324,7 +324,7 @@ struct
     | Uniq a, Uniq b -> a = b
 
   let mark t = match t.mark with
-    | Some mark -> Weak t.contents.rpos
+    | Some _mark -> Weak t.contents.rpos
     | None ->
       let buffer = create_by ~proof:t.contents.buffer (size t.contents) in
       while ravailable t.contents <> 0
@@ -337,7 +337,7 @@ struct
 
   let unmark mark t = match mark, t.mark with
     | _, None -> raise (Invalid_argument "unmark")
-    | Weak rpos, Some mark ->
+    | Weak rpos, Some _mark ->
       t.contents.rpos <- rpos
     | Uniq rpos, Some mark ->
       assert (mark = rpos);

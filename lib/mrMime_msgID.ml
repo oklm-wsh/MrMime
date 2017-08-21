@@ -16,7 +16,6 @@ let pp_lst ~sep pp_data fmt lst =
     | x :: r -> pp fmt "%a%a" pp_data x sep (); aux r
   in aux lst
 
-let pp_word = Address.pp_word
 let pp_local = Address.pp_local
 
 let pp_domain fmt (x : domain) = match x with

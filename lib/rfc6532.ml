@@ -6,7 +6,6 @@ let locate buff off len f =
   !idx
 
 open Parser
-open Parser.Convenience
 
 type err += Empty_string
 
@@ -67,7 +66,7 @@ let str f =
 
 (* Remove the constraint « at least, one character » from [str] *)
 let dtext is_dtext =
-  { f = fun i s fail succ ->
+  { f = fun i s _fail succ ->
     let utf8 = Buffer.create 16 in
     let decoder = Uutf.decoder `Manual in
 
