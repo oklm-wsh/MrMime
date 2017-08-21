@@ -8,10 +8,6 @@ type content = Rfc2045.content =
   ; subty      : Rfc2045.subty
   ; parameters : (string * Rfc2045.value) list }
 
-(* convenice alias *)
-module Address = MrMime_address
-module Input   = MrMime_input
-
 let pp = Format.fprintf
 
 let pp_ty fmt = function

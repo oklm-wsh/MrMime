@@ -24,7 +24,7 @@ let make_compute_test s =
   `Slow,
   (fun () -> match Address.List.of_string s with
    | None -> failwith "Invalid address"
-   | Some v -> ())
+   | Some _ -> ())
 
 let make_pp_test s =
   Printf.sprintf "%S" s,
@@ -44,7 +44,7 @@ let make_exn_test s =
   `Slow,
   (fun () ->
    try ignore (Address.List.of_string s); raise Expect_exception
-   with exn -> ())
+   with _ -> ())
 
 let tests =
   [ "Mary Smith <mary@example.net>"
@@ -53,7 +53,7 @@ let tests =
   ; "Undisclosed recipients:;"
   ; "\"Mary Smith: Personal Account\" <smith@home.example>"
   ; "John Doe <jdoe@machine.example>"
-  ; "Pete(A nice \) chap) <pete(his account)@silly.test(his host)>"
+  ; "Pete(A nice \\) chap) <pete(his account)@silly.test(his host)>"
   ; "A Group(Some people)\r\n    :Chris Jones <c@(Chris's host.)public.example>,\r\n      joe@example.org,\r\n  John <jdoe@one.test> (my dear friend); (the end of the group)"
   ; "(Empty list)(start)Hidden recipients  :(nobody(that I know))  ;"
   ; "Mary Smith <@node.test:mary@example.net>, , jdoe@test  . example"
@@ -64,7 +64,7 @@ let tests =
   ; "!#$%&`*+/=?^`{|}~@iana.org"
   ; "(\x07;)mary@example.net"
   ; "\"\\\x0a\"@x.test"
-  ; "\"\a\"@x.test"
+  ; "\"\\a\"@x.test"
   ; "\"\x07\"@x.test"
   ; "\"\\\x07\"@x.test"
   ; "pete@[255.255.255.255]"
@@ -232,7 +232,7 @@ let err_tests =
   ; "jdoe.@example.net"
   ; "pete..silly.test"
   ; "sm_i-th.com"
-  ; "mary\@jdoe@one.test"
+  ; "mary\\@jdoe@one.test"
   ; "jdoe@.one.test"
   ; "jdon@one.test."
   ; "boss@nil..test"
@@ -312,7 +312,7 @@ let err_tests =
   ; "-- test --@iana.org"
   ; "[test]@iana.org"
   ; "\"test\"test\"@iana.org"
-  ; "()[]\;:,><@iana.org"
+  ; "()[]\\;:,><@iana.org"
   ; "test@."
   ; "test@example."
   ; "test@.org"
@@ -384,7 +384,7 @@ let err_tests =
   ; "first.last@[IPv6:a1:a2:a3:a4:b1:b2:b3:]"
   ; "first.last@[IPv6::a2:a3:a4:b1:b2:b3:b4]"
   ; "first.last@[IPv6:a1:a2:a3:a4::b1:b2:b3:b4]"
-  ; "=?us-ascii?Q?Chri's_Smith?= =?us-ascii?Q?Henry?= <.@gmail.com,@hotmail.fr:henry.chris+porno@(Chris's host.)public.example> (je suis un connard en puissance)" 
+  ; "=?us-ascii?Q?Chri's_Smith?= =?us-ascii?Q?Henry?= <.@gmail.com,@hotmail.fr:henry.chris+porno@(Chris's host.)public.example> (je suis un connard en puissance)"
   ; "jdoe@[RFC-5322-\\a-domain-literal]"
   ; "jdoe@[RFC-5322-\\t-domain-literal]"
   ; "jdoe@[RFC-5322-\\]-domain-literal]"

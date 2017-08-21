@@ -14,7 +14,7 @@ let make_compute_test s =
   Printf.sprintf "header",
   `Slow,
   (fun () -> match Header.of_string s with
-   | Some v -> ()
+   | Some _ -> ()
    | None -> failwith "Invalid header")
 
 let make_pp_test s =

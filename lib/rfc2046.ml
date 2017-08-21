@@ -8,7 +8,7 @@ let locate buff off len f =
 open Parser
 open Parser.Convenience
 
-type ('field, 'a) octet = (MrMime_content.t -> ([ Rfc5322.field | Rfc2045.field | Rfc5322.skip ] as 'field) list -> 'a t)
+type ('field, 'a) octet = (Content.t -> ([ Rfc5322.field | Rfc2045.field | Rfc5322.skip ] as 'field) list -> 'a t)
 
 let is_bcharsnospace = function
   | '\'' | '(' | ')' | '+' | '_' | ','
@@ -112,7 +112,7 @@ let discard_to_delimiter boundary =
 let body_part octet =
   Rfc2045.mime_part_headers
     (Rfc5322.field (fun _ -> fail Rfc5322.Nothing_to_do))
-  >>= MrMime_content.Decoder.part >>= fun (content, fields) ->
+  >>= Content.Decoder.part >>= fun (content, fields) ->
     ((Rfc822.crlf *> return `HasCRLF) <|> (return `NoCRLF))
   >>= (function
     | `HasCRLF -> octet content fields >>| fun v -> Some v

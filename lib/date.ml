@@ -20,9 +20,6 @@ type date = Rfc5322.date =
   ; time : int * int * int option
   ; zone : zone }
 
-(* convenience alias *)
-module Input = MrMime_input
-
 let pp = Format.fprintf
 
 let pp_zone fmt = function

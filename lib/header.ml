@@ -1,15 +1,7 @@
-type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.Decoder.result
+type raw              = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.Decoder.result
 type unstructured     = Rfc5322.unstructured
 type phrase_or_msg_id = Rfc5322.phrase_or_msg_id
 type field            = Rfc5322.field
-
-(* convenience alias *)
-module Address = MrMime_address
-module Date    = MrMime_date
-module MsgID   = MrMime_msgID
-module Trace   = MrMime_trace
-module Resent  = MrMime_resent
-module Input   = MrMime_input
 
 let pp = Format.fprintf
 

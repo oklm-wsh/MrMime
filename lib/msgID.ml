@@ -3,10 +3,6 @@ type word   = Rfc822.word
 type domain = Rfc822.domain
 type msg_id = Rfc822.msg_id
 
-(* convenience alias *)
-module Address = MrMime_address
-module Input   = MrMime_input
-
 let pp = Format.fprintf
 
 let pp_lst ~sep pp_data fmt lst =

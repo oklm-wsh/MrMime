@@ -1,6 +1,6 @@
 type word = Rfc822.word
 type local = Rfc822.local
-type raw = Rfc2047.raw = QuotedPrintable of string | Base64 of MrMime_base64.Decoder.result
+type raw = Rfc2047.raw = QuotedPrintable of string | Base64 of Base64.Decoder.result
 type phrase = Rfc5322.phrase
 type domain = Rfc5322.domain
 type literal_domain = Rfc5321.literal_domain = ..
@@ -17,11 +17,6 @@ type group = Rfc5322.group =
   ; mailbox : mailbox list }
 
 type address = [ `Group of group | `Mailbox of mailbox ]
-
-(* convenience alias *)
-module QuotedPrintable = MrMime_quotedPrintable
-module Base64          = MrMime_base64
-module Input           = MrMime_input
 
 let pp = Format.fprintf
 

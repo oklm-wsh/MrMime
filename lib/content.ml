@@ -2,26 +2,19 @@ module Map = Map.Make(String)
 
 type raw          = Rfc2047.raw =
   | QuotedPrintable of string
-  | Base64 of MrMime_base64.Decoder.result
+  | Base64 of Base64.Decoder.result
 type unstructured = Rfc5322.unstructured
 type field        = [ Rfc2045.field | Rfc2045.field_version | Rfc2045.skip ]
 
 type t =
-  { ty          : MrMime_contentType.content
-  ; encoding    : MrMime_contentEncoding.mechanism
-  ; version     : MrMime_mimeVersion.version
-  ; id          : MrMime_msgID.msg_id option
+  { ty          : ContentType.content
+  ; encoding    : ContentEncoding.mechanism
+  ; version     : MimeVersion.version
+  ; id          : MsgID.msg_id option
   ; description : unstructured option
   ; content     : unstructured list Map.t
   ; unsafe      : unstructured list Map.t
   ; skip        : string list }
-
-(* convenience alias *)
-module ContentType     = MrMime_contentType
-module ContentEncoding = MrMime_contentEncoding
-module MimeVersion     = MrMime_mimeVersion
-module MsgID           = MrMime_msgID
-module Address         = MrMime_address
 
 let pp = Format.fprintf
 

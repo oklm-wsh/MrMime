@@ -192,7 +192,7 @@ sig
                     ; to use within parameter values
       ]}
   *)
-  val p_content   : content MrMime_parser.t
+  val p_content   : content Parser.t
 end
 
 (** [of_string           ~chunk:1024           buf]           parses          an

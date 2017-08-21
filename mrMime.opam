@@ -8,32 +8,12 @@ bug-reports:  "https://github.com/oklm-wsh/MrMime/issues"
 dev-repo:     "https://github.com/oklm-wsh/MrMime.git"
 license:      "MIT"
 
-build: [
-  ["./configure"
-    "--disable-tests"
-    "--prefix=%{prefix}%"]
-  [make]
-]
-
-build-test: [
-  ["./configure"
-    "--enable-tests"
-    "--prefix=%{prefix}%"]
-  [make "test"]
-]
-
-build-doc: [
-  ["./configure"
-    "--enable-docs"
-    "--prefix=%{prefix}%"]
-  [make "test"]
-]
-
-install: [make "install"]
-remove: ["ocamlfind" "remove" "mrmime"]
+build: [["jbuilder" "build" "-p" name "-j" jobs]]
+build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
+build-doc: [["jbuilder" "build" "@doc"]]
 
 depends: [
-  "oasis"             {build}
+  "jbuilder"             {build}
   "cmdliner"          {test}
   "alcotest"          {test}
   "fmt"               {test}

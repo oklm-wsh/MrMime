@@ -1,14 +1,14 @@
 type field = Rfc5322.resent
 
 type resent =
-  { date     : MrMime_date.date option
-  ; from     : MrMime_address.mailbox list
-  ; sender   : MrMime_address.mailbox option
-  ; to'      : MrMime_address.address list
-  ; cc       : MrMime_address.address list
-  ; bcc      : MrMime_address.address list
-  ; msg_id   : MrMime_msgID.msg_id option
-  ; reply_to : MrMime_address.address list }
+  { date     : Date.date option
+  ; from     : Address.mailbox list
+  ; sender   : Address.mailbox option
+  ; to'      : Address.address list
+  ; cc       : Address.address list
+  ; bcc      : Address.address list
+  ; msg_id   : MsgID.msg_id option
+  ; reply_to : Address.address list }
 
 let default =
   { date     = None
@@ -19,11 +19,6 @@ let default =
   ; bcc      = []
   ; msg_id   = None
   ; reply_to = [] }
-
-(* convenience alias *)
-module Date    = MrMime_date
-module Address = MrMime_address
-module MsgID   = MrMime_msgID
 
 let pp fmt _ = Format.pp_print_string fmt "#resent"
 

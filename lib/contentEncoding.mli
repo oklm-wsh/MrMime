@@ -71,7 +71,7 @@ sig
       These values are not case sensitive  -- [Base64] and [BASE64] and [bAsE64]
       are all equivalent.
   *)
-  val p_encoding  : mechanism MrMime_parser.t
+  val p_encoding  : mechanism Parser.t
 end
 
 (** [of_string           ~chunk:1024           buf]           parses          an

@@ -1,5 +1,5 @@
 (** Module Content
- 
+
     This goal of this module is about the MIME header specification.  So you can
     find somes mechanisms:
 
@@ -57,7 +57,7 @@ module Map : module type of Map.Make(String)
 *)
 type raw              = Rfc2047.raw =
   | QuotedPrintable of string
-  | Base64 of MrMime_base64.Decoder.result
+  | Base64 of Base64.Decoder.result
 
 (** Some                    field                    bodies                   in
     {{:https://tools.ietf.org/html/rfc5322#section-2.2.1}RFC5322}  specification
@@ -104,13 +104,13 @@ type field            = [ Rfc2045.field | Rfc2045.field_version | Rfc2045.skip ]
 
 (** A convenience record to deal with any ["Content-*"] fields. *)
 type t =
-  { ty                : MrMime_contentType.content
+  { ty                : ContentType.content
     (** The ["Content-Type"] field. *)
-  ; encoding          : MrMime_contentEncoding.mechanism
+  ; encoding          : ContentEncoding.mechanism
     (** The ["Content-Transfer-Encoding"] field. *)
-  ; version           : MrMime_mimeVersion.version
+  ; version           : MimeVersion.version
     (** The ["MIME-Version"] field. *)
-  ; id                : MrMime_msgID.msg_id option
+  ; id                : MsgID.msg_id option
     (** The ["Content-ID"] field.  In  constructing a high-level user-agent,  it
         may  be desirable  to allow  one  body  to  make  reference  to another.
         Accordingly,  bodies may  be  labelled  using  the ["Content-ID"] header
@@ -243,7 +243,7 @@ sig
       {b NOTE}:  this  decoder has no  [`Skip] and  [`Unsafe] constructor.  This
       things is let to {!MrMime_header.Decoder.header}.
   *)
-  val message         : ([> Rfc2045.field | Rfc2045.field_version ] as 'a) list -> (t * 'a list) MrMime_parser.t
+  val message         : ([> Rfc2045.field | Rfc2045.field_version ] as 'a) list -> (t * 'a list) Parser.t
 
   (** See RFC2045 § {{:https://tools.ietf.org/html/rfc2045#section-3}3}:
 
@@ -264,5 +264,5 @@ sig
                           ; definition should be ignored.
      ]}
   *)
-  val part            : ([> Rfc2045.field | Rfc2045.unsafe | Rfc2045.skip ] as 'a) list -> (t * 'a list) MrMime_parser.t
+  val part            : ([> Rfc2045.field | Rfc2045.unsafe | Rfc2045.skip ] as 'a) list -> (t * 'a list) Parser.t
 end

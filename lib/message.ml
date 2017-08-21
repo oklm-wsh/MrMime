@@ -2,15 +2,15 @@ type field_message = Top.field_message
 type field_part    = Top.field_part
 
 type ('a, 'b) message = ('a, 'b) Top.message =
-  | Discrete  of MrMime_content.t * field_message list * 'a
-  | Extension of MrMime_content.t * field_message list * 'b
-  | Multipart of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
-  | Message   of MrMime_content.t * field_message list * MrMime_header.header * ('a, 'b) message
+  | Discrete  of Content.t * field_message list * 'a
+  | Extension of Content.t * field_message list * 'b
+  | Multipart of Content.t * field_message list * (Content.t * field_part list * ('a, 'b) part option) list
+  | Message   of Content.t * field_message list * Header.header * ('a, 'b) message
 and ('a, 'b) part = ('a, 'b) Top.part =
   | PDiscrete  of 'a
   | PExtension of 'b
-  | PMultipart of (MrMime_content.t * field_part list * ('a, 'b) part option) list
-  | PMessage   of MrMime_header.header * ('a, 'b) message
+  | PMultipart of (Content.t * field_part list * ('a, 'b) part option) list
+  | PMessage   of Header.header * ('a, 'b) message
 
 type encoding = Top.encoding = ..
 type Top.encoding += Base64 = Top.Base64
@@ -19,12 +19,6 @@ type Top.encoding += Raw = Top.Raw
 
 type content = Top.content = ..
 type Top.content += Unit = Top.Unit
-
-(* convenience alias *)
-module Content         = MrMime_content
-module Base64          = MrMime_base64
-module QuotedPrintable = MrMime_quotedPrintable
-module Input           = MrMime_input
 
 module Decoder =
 struct
@@ -62,11 +56,11 @@ struct
     in
 
     let rule = match base with
-      | #Rfc5322.field_header as x  -> MrMime_header.Encoder.w_field x
-      | #Rfc2045.field as x         -> MrMime_content.Encoder.w_field x
-      | #Rfc2045.field_version as x -> MrMime_mimeVersion.Encoder.w_field x
-      | #Rfc5322.resent as x        -> MrMime_resent.Encoder.w_field x
-      | #Rfc5322.trace as x         -> MrMime_trace.Encoder.w_field x
+      | #Rfc5322.field_header as x  -> Header.Encoder.w_field x
+      | #Rfc2045.field as x         -> Content.Encoder.w_field x
+      | #Rfc2045.field_version as x -> MimeVersion.Encoder.w_field x
+      | #Rfc5322.resent as x        -> Resent.Encoder.w_field x
+      | #Rfc5322.trace as x         -> Trace.Encoder.w_field x
     in
 
     loop @@ rule (Encoder.flush (fun _ -> `Ok)) state
@@ -113,8 +107,8 @@ struct
       (Rfc2045.message_field
         (fun _ -> fail Rfc5322.Nothing_to_do)
         (fun _ -> fail Rfc5322.Nothing_to_do))
-    >>= MrMime_header.Decoder.header
-    >>= fun (header, rest) -> MrMime_content.Decoder.message rest
+    >>= Header.Decoder.header
+    >>= fun (header, rest) -> Content.Decoder.message rest
     >>= fun (content, rest) -> return (header, content, rest)
 
   let p_first_part content =

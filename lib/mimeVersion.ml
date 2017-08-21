@@ -1,9 +1,6 @@
 type version = Rfc2045.version
 type field   = [ `MimeVersion of version ]
 
-(* convenience alias *)
-module Input = MrMime_input
-
 let pp = Format.fprintf
 
 let pp fmt (a, b) =

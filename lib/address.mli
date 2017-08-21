@@ -95,7 +95,7 @@ type local          = word list
 *)
 type raw = Rfc2047.raw =
   | QuotedPrintable of string
-  | Base64 of MrMime_base64.Decoder.result
+  | Base64 of Base64.Decoder.result
 
 type literal_domain = Rfc5321.literal_domain = ..
 type literal_domain += IPv4 of Ipaddr.V4.t
@@ -145,10 +145,10 @@ end
 
 module Decoder :
 sig
-  val p_address     : address      MrMime_parser.t
-  val p_addresses   : address list MrMime_parser.t
-  val p_local       : local        MrMime_parser.t
-  val p_domain      : domain       MrMime_parser.t
+  val p_address     : address      Parser.t
+  val p_addresses   : address list Parser.t
+  val p_local       : local        Parser.t
+  val p_domain      : domain       Parser.t
 end
 
 val to_string       : address -> string
@@ -188,5 +188,5 @@ end
 
 module Extension :
 sig
-  val add_literal_domain : string -> literal_domain MrMime_parser.t -> unit
+  val add_literal_domain : string -> literal_domain Parser.t -> unit
 end

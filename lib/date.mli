@@ -116,7 +116,7 @@ sig
       obs-hour          = [CFWS] 2DIGIT [CFWS]
       ]}
   *)
-  val p_hour        : int MrMime_parser.t
+  val p_hour        : int Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
@@ -126,7 +126,7 @@ sig
       obs-minute        = [CFWS] 2DIGIT [CFWS]
       ]}
   *)
-  val p_minute      : int MrMime_parser.t
+  val p_minute      : int Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
@@ -136,7 +136,7 @@ sig
       obs-second        = [CFWS] 2DIGIT [CFWS]
       ]}
   *)
-  val p_second      : int MrMime_parser.t
+  val p_second      : int Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
@@ -146,7 +146,7 @@ sig
       obs-year          = [CFWS] 2*DIGIT [CFWS]
       ]}
   *)
-  val p_year        : int MrMime_parser.t
+  val p_year        : int Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
@@ -156,7 +156,7 @@ sig
       obs-day           = [CFWS] 1*2DIGIT [CFWS]
       ]}
   *)
-  val p_day         : int MrMime_parser.t
+  val p_day         : int Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
 
@@ -166,7 +166,7 @@ sig
                           "Sep" / "Oct" / "Nov" / "Dec"
       ]}
   *)
-  val p_month       : month MrMime_parser.t
+  val p_month       : month Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
@@ -178,7 +178,7 @@ sig
                           "Fri" / "Sat" / "Sun"
       ]}
   *)
-  val p_day_of_week : day MrMime_parser.t
+  val p_day_of_week : day Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3} &
       {{:https://tools.ietf.org/html/rfc5322#section-4.3}4.3}:
@@ -199,7 +199,7 @@ sig
                           %d107-122          ; upper and lower case
       ]}
   *)
-  val p_zone        : zone MrMime_parser.t
+  val p_zone        : zone Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
 
@@ -208,7 +208,7 @@ sig
      time-of-day        = hour ":" minute [ ":" second ]
      ]}
   *)
-  val p_time        : ((int * int * int option) * zone) MrMime_parser.t
+  val p_time        : ((int * int * int option) * zone) Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
 
@@ -216,7 +216,7 @@ sig
       date              = day month year
       ]}
   *)
-  val p_date        : (int * month * int) MrMime_parser.t
+  val p_date        : (int * month * int) Parser.t
 
   (** See RFC5322 § {{:https://tools.ietf.org/html/rfc5322#section-3.3}3.3}:
 
@@ -224,7 +224,7 @@ sig
       date-time         = [ day-of-week "," ] date time [CFWS]
       ]}
   *)
-  val p_date_time   : date MrMime_parser.t
+  val p_date_time   : date Parser.t
 end
 
 (** [to_string date] formats the date [date] accoding to a

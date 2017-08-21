@@ -145,7 +145,7 @@ sig
       See {!word} for [atext], [obs-NO-WS-CTL], [quoted-pair], [quoted-string],
       [atom] and [word].
   *)
-  val p_msg_id    : msg_id MrMime_parser.t
+  val p_msg_id    : msg_id Parser.t
 end
 
 (** [of_string           ~chunk:1024           buf]           parses          an

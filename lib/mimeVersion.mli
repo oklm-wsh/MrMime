@@ -28,7 +28,7 @@ sig
      version := "MIME-Version" ":" 1*DIGIT "." 1*DIGIT
      ]}
   *)
-  val p_version   : version MrMime_parser.t
+  val p_version   : version Parser.t
 end
 
 (** [of_string           ~chunk:1024           buf]           parses          an

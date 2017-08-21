@@ -1,6 +1,6 @@
 type raw = Rfc2047.raw =
   | QuotedPrintable of string
-  | Base64 of MrMime_base64.Decoder.result
+  | Base64 of Base64.Decoder.result
 type unstructured     =
   [ `CR of int
   | `CRLF
@@ -9,7 +9,7 @@ type unstructured     =
   | `Text of string
   | `WSP ] list
 type phrase_or_msg_id =
-  [ `MsgID of MrMime_msgID.msg_id
+  [ `MsgID of MsgID.msg_id
   | `Phrase of
       [ `Dot
       | `Encoded of string * raw
@@ -19,21 +19,21 @@ type field = Rfc5322.field
 module Map : (module type of Map.Make(String))
 
 type header =
-  { date        : MrMime_date.date option
-  ; from        : MrMime_address.mailbox list
-  ; sender      : MrMime_address.mailbox option
-  ; reply_to    : MrMime_address.address list
-  ; to'         : MrMime_address.address list
-  ; cc          : MrMime_address.address list
-  ; bcc         : MrMime_address.address list
+  { date        : Date.date option
+  ; from        : Address.mailbox list
+  ; sender      : Address.mailbox option
+  ; reply_to    : Address.address list
+  ; to'         : Address.address list
+  ; cc          : Address.address list
+  ; bcc         : Address.address list
   ; subject     : unstructured option
-  ; msg_id      : MrMime_msgID.msg_id option
+  ; msg_id      : MsgID.msg_id option
   ; in_reply_to : phrase_or_msg_id list
   ; references  : phrase_or_msg_id list
   ; comments    : unstructured list
-  ; keywords    : MrMime_address.phrase list list
-  ; resents     : MrMime_resent.resent list
-  ; traces      : MrMime_trace.trace list
+  ; keywords    : Address.phrase list list
+  ; resents     : Resent.resent list
+  ; traces      : Trace.trace list
   ; fields      : unstructured list Map.t
   ; unsafe      : unstructured list Map.t
   ; skip        : string list }
@@ -53,7 +53,7 @@ end
 
 module Decoder :
 sig
-  val header : ([> field ] as 'a) list -> (header * 'a list) MrMime_parser.t
+  val header : ([> field ] as 'a) list -> (header * 'a list) Parser.t
 end
 
 val to_string           : header -> string

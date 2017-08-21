@@ -1,9 +1,6 @@
 type mechanism = Rfc2045.mechanism
 type field     = [ `ContentEncoding of mechanism ]
 
-(* convenience alias *)
-module Input = MrMime_input
-
 let pp = Format.fprintf
 
 let pp fmt = function
