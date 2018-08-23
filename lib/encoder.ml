@@ -21,8 +21,6 @@ let flush p state =
        in next 0
   else p state
 
-let wait k state = `Wait k
-
 let writes s k state =
   let len = Bytes.length state.buffer in
   let rec loop j l state =

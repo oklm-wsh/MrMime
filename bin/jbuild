@@ -1,9 +1,0 @@
-(jbuild_version 1)
-
-(executable
- ((name maildir)
-  (libraries (mrMime unix astring fmt cmdliner re.str))))
-
-(alias
- ((name DEFAULT)
-  (deps (maildir.exe))))

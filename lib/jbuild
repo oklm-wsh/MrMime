@@ -1,8 +1,0 @@
-(jbuild_version 1)
-
-(ocamllex (fast_qp))
-
-(library
- ((name mrMime)
-  (public_name mrMime)
-  (libraries (ipaddr uutf bigarray))))

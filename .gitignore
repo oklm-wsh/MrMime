@@ -2,3 +2,4 @@ _build/
 *.tar.gz
 _tests/
 .merlin
+*.install
