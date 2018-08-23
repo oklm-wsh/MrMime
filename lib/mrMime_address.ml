@@ -481,6 +481,6 @@ struct
   let add_literal_domain tag literal_domain =
     if String.length tag >= 1
        && ldh_str tag
-    then Hashtbl.add Rfc5321.iana_hashtbl tag literal_domain
+    then Hashtbl.add Rfc5321.iana_hashtbl (Bytes.of_string tag) literal_domain
     else raise (Invalid_argument "Address.Extension.add_literal_domain: bad tag")
 end

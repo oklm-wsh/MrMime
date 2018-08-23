@@ -29,7 +29,7 @@ struct
     let r = Bytes.create len in
     let s = sub t off len in
     Bytes.iteri (fun i _ -> Bytes.set r i (get s i)) r;
-    Bytes.unsafe_to_string r
+    r
 
   let blit src src_idx dst dst_idx len =
     let src = Array1.sub src src_idx len in
@@ -120,7 +120,7 @@ let sub (type a) (v : a t) off len : a t = match v with
   | Bigstring v -> from_bigstring @@ Bigstring.sub v off len
 
 let sub_string (type a) (v : a t) off len = match v with
-  | Bytes v -> Bytes.sub_string v off len
+  | Bytes v -> Bytes.sub v off len
   | Bigstring v -> Bigstring.sub_string v off len
 
 let to_string (type a) (v : a t) = match v with

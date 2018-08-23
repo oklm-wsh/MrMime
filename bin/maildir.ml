@@ -1,3 +1,4 @@
+module Practicality = String
 open Astring
 open MrMime
 
@@ -74,7 +75,7 @@ let read_into ?(newline = LF) channel buf off len =
       if remaining = 0 then len
       else match input_char channel with
            | '\n' when not has_cr && remaining >= 2 ->
-             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
+             Bytes.blit (Bytes.of_string "\r\n") 0 buf (last - remaining) 2;
              read_char false (remaining - 2)
            | '\n' when not has_cr && remaining = 1 ->
              let pos = pos_in channel in
@@ -166,7 +167,7 @@ let path =
 
 let newline =
   let parse s =
-    match Bytes.uppercase_ascii s with
+    match Practicality.uppercase_ascii s with
     | "CRLF" -> `Ok CRLF
     | "LF" -> `Ok LF
     | _ -> `Error "Invalid newline."

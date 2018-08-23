@@ -62,8 +62,8 @@ let is_dcontent = function
 
 type err += Invalid_address_literal of string | Unknown_tag of string
 
-let iana_hashtbl : (string, literal_domain t) Hashtbl.t = Hashtbl.create 16
-let () = Hashtbl.add iana_hashtbl "IPv6" (ipv6_addr >>| fun v -> IPv6 v)
+let iana_hashtbl : (bytes, literal_domain t) Hashtbl.t = Hashtbl.create 16
+let () = Hashtbl.add iana_hashtbl (Bytes.of_string "IPv6") (ipv6_addr >>| fun v -> IPv6 v)
 
 let general_address_literal =
   ldh_str
@@ -72,13 +72,13 @@ let general_address_literal =
   >>= fun content ->
     { f = fun i s fail succ ->
       try let p = Hashtbl.find iana_hashtbl tag in
-          let b = Input.create_by ~proof:(Input.proof i) (String.length content) in
+          let b = Input.create_by ~proof:(Input.proof i) (Bytes.length content) in
 
-          Input.write b (Internal_buffer.from_string ~proof:(Input.proof i) content) 0 (String.length content);
+          Input.write b (Internal_buffer.from_string ~proof:(Input.proof i) (Bytes.to_string content)) 0 (Bytes.length content);
           match only b p with
-          | Read _ | Fail _ -> fail i s [] (Invalid_address_literal tag)
+          | Read _ | Fail _ -> fail i s [] (Invalid_address_literal (Bytes.to_string tag))
           | Done v -> succ i s v
-      with Not_found -> fail i s [] (Unknown_tag tag) }
+      with Not_found -> fail i s [] (Unknown_tag (Bytes.to_string tag)) }
 
 let address_literal =
   (ipv4_address_literal >>| fun v -> IPv4 v)

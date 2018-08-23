@@ -127,10 +127,10 @@ val unstructured     : unstructured t
 val phrase_or_msg_id : phrase_or_msg_id list t
 val obs_phrase_list  : phrase list t
 val keywords         : phrase list t
-val field_name       : string t
+val field_name       : bytes t
 
 val field            : (string -> ([> field ] as 'a) t) -> string -> 'a t
 val skip             : string t
 val header           : (string -> ([> skip | field ] as 'a) t) -> 'a list t
 
-val decode           : unit t -> unit t -> string t
+val decode           : unit t -> unit t -> bytes t

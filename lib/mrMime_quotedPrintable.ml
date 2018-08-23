@@ -102,7 +102,7 @@ struct
            let n = Input.transmit i @@ fun buff off len ->
 
              let len' = locate buff off len is_ in
-             Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
+             Buffer.add_bytes buffer (Internal_buffer.sub_string buff off len');
              len'
            in
 
@@ -377,7 +377,7 @@ let p boundary t =
          let n = Input.transmit i @@ fun buff off len ->
 
            let len' = locate buff off len is_ in
-           Buffer.add_string t.buffer (Internal_buffer.sub_string buff off len');
+           Buffer.add_bytes t.buffer (Internal_buffer.sub_string buff off len');
            len'
          in
 

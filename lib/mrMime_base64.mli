@@ -99,4 +99,4 @@ val decode        : 'a decoder -> decoding
     until [`Continue] is returned.  To signal the end of input call the function
     with [len = 0].
 *)
-val src           : 'a decoder -> string -> int -> int -> unit
+val src           : 'a decoder -> bytes -> int -> int -> unit

@@ -194,7 +194,7 @@ struct
     let add chr k ({ state; buffer; seek; _ } as t) =
       if seek >= 2
       then begin
-        let a, b, c = buffer.[0], buffer.[1], chr in
+        let a, b, c = Bytes.get buffer 0, Bytes.get buffer 1, chr in
         (if t.wrap
          then wrap
          else noop)
@@ -229,7 +229,7 @@ struct
       (fun ({ state; buffer; seek; _ } as t) ->
        match seek with
        | 2 ->
-         let b, c = buffer.[0], buffer.[1] in
+         let b, c = Bytes.get buffer 0, Bytes.get buffer 1 in
 
          t.seek <- 0;
 
@@ -249,7 +249,7 @@ struct
          (fun state -> k { t with state = state; seek = 0 })
          state
        | 1 ->
-         let c = buffer.[0] in
+         let c = Bytes.get buffer 0 in
 
          t.seek <- 0;
 

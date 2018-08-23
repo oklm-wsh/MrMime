@@ -42,7 +42,7 @@ let str f =
                   else fail i s [] Empty_string)
                  (loop consumed)
       | `Await when Input.ravailable i = 0 && s = Complete ->
-        Uutf.Manual.src decoder "" 0 0;
+        Uutf.Manual.src decoder Bytes.empty 0 0;
         loop consumed i s
 
         (*

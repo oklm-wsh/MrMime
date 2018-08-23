@@ -182,7 +182,7 @@ sig
   val prompt  : 'input Input.t -> ('input Input.t -> s -> ('a, 'input) state) -> ('input Input.t -> s -> ('a, 'input) state) -> ('a, 'input) state
   val expect  : unit t
   val require : int -> 'input Input.t -> s -> ('a, 'input) fail -> (unit, 'a, 'input) success -> ('a, 'input) state
-  val ensure  : int -> string t
+  val ensure  : int -> bytes t
 end
 
 module type C =
@@ -196,14 +196,14 @@ sig
   val advance      : int -> unit t
   val satisfy      : (char -> bool) -> char t
   val print        : string -> unit t
-  val string       : (string -> string) -> string -> string t
+  val string       : (string -> string) -> string -> bytes t
   val store        : Buffer.t -> (char -> bool) -> int t
   val recognize    : (char -> bool) -> string t
   val char         : char -> char t
   val many         : 'a t -> 'a list t
   val one          : 'a t -> 'a list t
   val option       : 'a -> 'a t -> 'a t
-  val take         : int -> string t
+  val take         : int -> bytes t
   val list         : 'a t list -> 'a list t
   val count        : int -> 'a t -> 'a list t
   val repeat'      : Buffer.t -> int option -> int option -> (char -> bool) -> int t
@@ -305,7 +305,7 @@ struct
   let string f s =
     let len = String.length s in
     IO.ensure len >>= fun s' ->
-      if f s = f s'
+      if f s = f (Bytes.to_string s')
       then advance len *> return s'
       else fail String
 
@@ -313,7 +313,7 @@ struct
     { f = fun i s fail succ ->
       let recognize buff off len =
         let len' = locate buff off len f in
-        Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
+        Buffer.add_bytes buffer (Internal_buffer.sub_string buff off len');
         len'
       in
 
@@ -391,7 +391,7 @@ struct
                b - (Buffer.length buffer)
              | _ -> len'
            in
-           Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
+           Buffer.add_bytes buffer (Internal_buffer.sub_string buff off len');
            len') in
 
         succ i s consumed } *> m
