@@ -79,7 +79,7 @@ struct
        >>= fun field_name -> Rfc5322.field (Rfc2045.message_field
                                             (fun _ -> fail Rfc5322.Nothing_to_do)
                                             (fun _ -> fail Rfc5322.Nothing_to_do))
-                                           field_name)
+                                           (Bytes.to_string field_name))
     in
     rule >>= fun field -> match skipped, field with
       | None, #Rfc5322.skip -> return `Skip
@@ -175,7 +175,7 @@ struct
           >>| fun v -> Top.Base64 v
         | _ ->
           Rfc5322.decode boundary' rollback
-          >>| fun v -> Top.Raw v
+          >>| fun v -> Top.Raw (Bytes.to_string v)
       in
 
       option None (Rfc822.crlf *> decoder >>| fun v -> Some v)

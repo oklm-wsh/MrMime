@@ -577,7 +577,7 @@ let skip =
       { f = fun i s fail succ ->
         let n = Input.transmit i @@ fun buff off len ->
           let len' = locate buff off len ((<>) '\r') in
-          Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
+          Buffer.add_bytes buffer (Internal_buffer.sub_string buff off len');
           len'
         in
 
@@ -599,14 +599,14 @@ let header extend =
   many ((field_name
          <* (many (satisfy (function '\x09' | '\x20' -> true | _ -> false)))
          <* char ':'
-         >>= fun field_name -> field extend field_name)
+         >>= fun field_name -> field extend (Bytes.to_string field_name))
         <|> (skip >>| fun v -> `Skip v))
 
 let line buffer boundary =
   { f = fun i s fail succ ->
     let store buff off len =
       let len' = locate buff off len ((<>) '\r') in
-      Buffer.add_string buffer (Internal_buffer.sub_string buff off len');
+      Buffer.add_bytes buffer (Internal_buffer.sub_string buff off len');
       len'
     in
 
@@ -626,7 +626,7 @@ let line buffer boundary =
 
 let decode boundary rollback buffer =
   (fix @@ fun m -> line buffer boundary >>= function
-   | `End r -> return (r, Buffer.contents buffer)
+   | `End r -> return (r, Buffer.to_bytes buffer)
    | _ -> m)
   >>= function
     | true, content -> rollback *> return content

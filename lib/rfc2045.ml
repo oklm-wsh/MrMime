@@ -230,14 +230,14 @@ let entity_part_headers extend_mime extend =
   many ((Rfc5322.field_name
          <* (many (satisfy (function '\x09' | '\x20' -> true | _ -> false)))
          <* char ':'
-         >>= fun field_name -> part_field extend_mime extend field_name)
+         >>= fun field_name -> part_field extend_mime extend (Bytes.to_string field_name))
         <|> (Rfc5322.skip >>| fun v -> `Skip v))
 
 let entity_message_headers extend_mime extend =
   many (Rfc5322.field_name
         <* (many (satisfy (function '\x09' | '\x20' -> true | _ -> false)))
         <* char ':'
-        >>= fun field_name -> message_field extend_mime extend field_name)
+        >>= fun field_name -> message_field extend_mime extend (Bytes.to_string field_name))
 
 let mime_message_headers extend_mime extend =
   entity_message_headers

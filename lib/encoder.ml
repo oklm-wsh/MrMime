@@ -24,7 +24,7 @@ let flush p state =
 let wait k state = `Wait k
 
 let rec writes s k state =
-  let len = String.length state.buffer in
+  let len = Bytes.length state.buffer in
   let rec loop j l state =
     let rem = len - state.pos in
     let len = if l > rem then rem else l in

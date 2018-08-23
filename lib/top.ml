@@ -73,10 +73,10 @@ let octet boundary content fields =
     >>| fun v -> Base64 v
   | `Bit7 | `Bit8 | `Binary ->
     Rfc5322.decode boundary rollback
-    >>| fun v -> Raw v
+    >>| fun v -> Raw (Bytes.to_string v)
   | `Ietf_token s | `X_token s ->
     try (Hashtbl.find decoder_hashtbl s) boundary rollback
-    with Not_found -> Rfc5322.decode boundary rollback >>| fun v -> Raw v
+    with Not_found -> Rfc5322.decode boundary rollback >>| fun v -> Raw (Bytes.to_string v)
 
 let discard = function
   | None ->
