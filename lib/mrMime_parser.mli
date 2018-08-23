@@ -137,7 +137,7 @@ val satisfy      : (char -> bool) -> char t
     input and [s] with [f s = f s'] (in another case, the parser fails with
     {!String}). The parser advances the input of [String.length s] byte(s).
 *)
-val string       : (string -> string) -> string -> string t
+val string       : (string -> string) -> string -> bytes t
 
 (** [store buf  f] stores any  character for which  [f] returns [true]  in [buf]
     only on the continuous buffer  inside the input.  That means,  [store buf f]
@@ -178,7 +178,7 @@ val option       : 'a -> 'a t -> 'a t
 (** [take n] accepts exactly [n] character(s) of input and returns them as a
     string.
 *)
-val take         : int -> string t
+val take         : int -> bytes t
 
 (** [list ps] runs each [p] in [ps] in sequence, returning a list of results of
     each [p].

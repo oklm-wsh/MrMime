@@ -51,7 +51,7 @@ sig
   val prompt  : 'input Input.t -> ('input Input.t -> s -> ('a, 'input) state) -> ('input Input.t -> s -> ('a, 'input) state) -> ('a, 'input) state
   val expect  : unit t
   val require : int -> 'input Input.t -> s -> ('a, 'input) fail -> (unit, 'a, 'input) success -> ('a, 'input) state
-  val ensure  : int -> string t
+  val ensure  : int -> bytes t
 end
 
 module type C =
@@ -65,14 +65,14 @@ sig
   val advance      : int -> unit t
   val satisfy      : (char -> bool) -> char t
   val print        : string -> unit t
-  val string       : (string -> string) -> string -> string t
+  val string       : (string -> string) -> string -> bytes t
   val store        : Buffer.t -> (char -> bool) -> int t
   val recognize    : (char -> bool) -> string t
   val char         : char -> char t
   val many         : 'a t -> 'a list t
   val one          : 'a t -> 'a list t
   val option       : 'a -> 'a t -> 'a t
-  val take         : int -> string t
+  val take         : int -> bytes t
   val list         : 'a t list -> 'a list t
   val count        : int -> 'a t -> 'a list t
   val repeat'      : Buffer.t -> int option -> int option -> (char -> bool) -> int t

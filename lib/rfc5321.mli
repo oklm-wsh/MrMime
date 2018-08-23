@@ -15,8 +15,8 @@ val ipv4_address_literal    : Ipaddr.V4.t t
 val ipv6_addr               : Ipaddr.V6.t t
 val ipv6_address_literal    : Ipaddr.V6.t t
 val let_dig                 : char t
-val ldh_str                 : string t
+val ldh_str                 : bytes t
 val general_address_literal : literal_domain t
 val address_literal         : literal_domain t
 
-val iana_hashtbl            : (string, literal_domain t) Hashtbl.t
+val iana_hashtbl            : (bytes, literal_domain t) Hashtbl.t
