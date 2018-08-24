@@ -102,10 +102,10 @@ let decoder = decoding decoder (Message.Decoder.p_next_part content)
 let Ok (content_img, _) = to_result decoder
 
 let bound       = Message.Decoder.p_bound_of_content content
-let decoder_b64 = Base64.Convenience.decoder bound (decoder_src decoder)
+let decoder_b64 = Base64.decoder bound (decoder_src decoder)
 
 let rec b64_to_result decoder_b64 =
-  let open Base64.Convenience in
+  let open Base64 in
   match decode decoder_b64 with
   | `Continue ->
     let n = read_into ~newline:LF ch tmp 0 1024 in
