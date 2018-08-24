@@ -11,57 +11,19 @@
 
 open MrMime
 
-type newline =
-  | CRLF
-  | LF
-
-let read_into ?(newline = LF) channel buf off len =
-  if len + off > Bytes.length buf
-     || off < 0
-     || len < 0
-  then raise (Invalid_argument "index out of bound");
-
-  let last = len + off in
-
-  match newline with
-  | CRLF -> input channel buf off len
-  | LF ->
-    let rec read_char has_cr remaining =
-      assert (remaining >= 0);
-
-      if remaining = 0 then len
-      else match input_char channel with
-           | '\n' when not has_cr && remaining >= 2 ->
-             Bytes.blit "\r\n" 0 buf (last - remaining) 2;
-             read_char false (remaining - 2)
-           | '\n' when not has_cr && remaining = 1 ->
-             let pos = pos_in channel in
-             seek_in channel (pred pos);
-             (len - remaining)
-           | '\r' ->
-             Bytes.set buf (last - remaining) '\r';
-             read_char true  (pred remaining)
-           | chr  ->
-             Bytes.set buf (last - remaining) chr;
-             read_char false (pred remaining)
-           | exception End_of_file -> (len - remaining)
-    in
-
-    read_char false len
-
 open Convenience
 
 (** An example, step by step to extract an image from an email. *)
 
 let ch      = open_in "email";;
 let tmp     = Bytes.create 1024;;
-let input   = Input.create_bytes 4096;;
+let buffer  = Input.create_bytes 4096;;
 
-let decoder = decoder input Message.Decoder.p_header;;
+let decoder = decoder buffer Message.Decoder.p_header;;
 
 let rec to_result decoder = match decode decoder with
   | `Continue ->
-    let n = read_into ~newline:LF ch tmp 0 1024 in
+    let n = input ch tmp 0 1024 in
     src decoder tmp 0 n;
     to_result decoder
   | `Done v -> Ok v
@@ -82,7 +44,7 @@ let rec b64_to_result decoder_b64 =
   let open Base64 in
   match decode decoder_b64 with
   | `Continue ->
-    let n = read_into ~newline:LF ch tmp 0 1024 in
+    let n = input ch tmp 0 1024 in
     src decoder_b64 tmp 0 n;
     b64_to_result decoder_b64
   | `String s ->
