@@ -49,32 +49,6 @@ let read_into ?(newline = LF) channel buf off len =
 
     read_char false len
 
-let of_filename filename =
-  open_in filename
-
-let to_filename filename content =
-  let ch = open_out filename in
-  output_string ch content;
-  close_out ch
-
-let message ?(chunk = 1024) ?(newline = LF) input =
-  let i = Input.create_bytes chunk in
-  let t = Bytes.create chunk in
-
-  let rec aux consumed = function
-    | Parser.Fail _ -> None
-    | Parser.Read { buffer; k; } ->
-      Format.printf "%a\n%!" Input.pp buffer;
-      let n = read_into ~newline input t 0 chunk in
-      Input.write_string buffer (Bytes.unsafe_to_string t) 0 n;
-      aux (consumed + n)
-      @@ k n (if n = 0 then Parser.Complete else Parser.Incomplete)
-    | Parser.Done v -> Some v
-  in
-
-  let v = aux 0 @@ Parser.run i Message.Decoder.p_message in
-  close_in input; v
-
 open Convenience
 
 (** An example, step by step to extract an image from an email. *)
