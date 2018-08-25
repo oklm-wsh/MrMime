@@ -21,43 +21,49 @@ let buffer  = Input.create_bytes 4096;;
 
 let decoder = decoder buffer Message.Decoder.p_header;;
 
-let rec to_result decoder = match decode decoder with
+(* MrMime's error handling is still WIP, so for now we wrap its errors in an exception *)
+exception MrMimeError of Parser.err
+
+let rec get decoder = match decode decoder with
   | `Continue ->
     let n = input ch tmp 0 1024 in
     src decoder tmp 0 n;
-    to_result decoder
-  | `Done v -> Ok v
-  | `Error exn -> Error exn
+    get decoder
+  | `Done v -> v
+  | `Error exn -> raise (MrMimeError exn)
 
-let Ok (header, content, _) = to_result decoder
+let get_value v err decoder =
+  if get decoder <> v then
+    failwith err
+
+let (header, content, _) = get decoder
 let decoder = decoding decoder (Message.Decoder.p_first_part content)
-let Ok (content_txt, _) = to_result decoder
+let (content_txt, _) = get decoder
 let decoder = decoding decoder (Message.Decoder.p_discard_part content)
-let Ok (`Next : [`Next | `End ]) = to_result decoder
+let () = get_value `Next "Expected next MIME part" decoder
 let decoder = decoding decoder (Message.Decoder.p_next_part content)
-let Ok (content_img, _) = to_result decoder
+let (content_img, _) = get decoder
 
 let bound       = Message.Decoder.p_bound_of_content content
 let decoder_b64 = Base64.decoder bound (decoder_src decoder)
 
-let rec b64_to_result decoder_b64 =
+let rec get_b64 decoder_b64 =
   let open Base64 in
   match decode decoder_b64 with
   | `Continue ->
     let n = input ch tmp 0 1024 in
     src decoder_b64 tmp 0 n;
-    b64_to_result decoder_b64
+    get_b64 decoder_b64
   | `String s ->
     print_string s;
-    b64_to_result decoder_b64
+    get_b64 decoder_b64
   | `End s ->
-    print_string s;
-    Ok ()
+    print_string s
   | `Dirty s ->
-    b64_to_result decoder_b64
-  | `Error exn -> Error exn
+    get_b64 decoder_b64
+  | `Error exn -> raise (MrMimeError exn)
 
-let Ok () = b64_to_result decoder_b64
+let () = get_b64 decoder_b64
 
 let decoder = decoding decoder (Message.Decoder.p_end_of_part content)
-let Ok (`End : [ `Next | `End ]) = to_result decoder
+let () = get_value `End "Expected end of MIME stream" decoder
