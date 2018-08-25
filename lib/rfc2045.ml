@@ -138,7 +138,7 @@ let subty ty =
    | Some 'X' | Some 'x' -> extension_token
    | _ -> token >>| fun v ->
      try `Iana_token (Iana.Set.find v (Iana.Map.find (ty_to_string ty) Iana.iana))
-     with exn -> `X_token v)
+     with _exn -> `X_token v)
   >>| fun subty -> (ty, subty)
 
 let value =

@@ -86,7 +86,6 @@ and scan_element = Scan of int * element
 type 'r               k0 = (t -> 'r) -> t -> 'r
 type ('a, 'r)         k1 = 'a -> (t -> 'r) -> t -> 'r
 type ('a, 'b, 'r)     k2 = 'a -> 'b -> (t -> 'r) -> t -> 'r
-type ('a, 'b, 'c, 'r) k3 = 'a -> 'b -> 'c -> (t -> 'r) -> t -> 'r
 
 let box_to_string = function
   | HBox -> "hbox"
@@ -98,7 +97,7 @@ let box_to_string = function
 
 let sp = Format.sprintf
 
-let token_to_string = function
+let _token_to_string = function
   | Text s -> sp "Text %S" s
   | Break (n, off) -> sp "Break (%d, %d)" n off
   | Begin (n, box) -> sp "Begin (%d, %s)" n (box_to_string box)
@@ -198,7 +197,7 @@ let compute_token size token k fmt =
   | Break (n, off) ->
     match fmt.format_stack with
     | [] -> k fmt
-    | Format (box, width) :: r ->
+    | Format (box, width) :: _r ->
       match box with
       | HOVBox ->
         if size > fmt.space_left
@@ -254,7 +253,7 @@ let make_element size token length =
 let enqueue_string_as size str k fmt =
   enqueue_advance (make_element size (Text str) size) k fmt
 
-let enqueue_string str k fmt =
+let _enqueue_string str k fmt =
   let size = String.length str in
   enqueue_string_as size str k fmt
 

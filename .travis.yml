@@ -1,11 +1,12 @@
 language: c
 install:
 - wget https://raw.githubusercontent.com/ocaml/ocaml-travisci-skeleton/master/.travis-opam.sh
-- wget https://raw.githubusercontent.com/dinosaure/ocaml-travisci-skeleton/master/.travis-docgen.sh
-script: bash -ex .travis-opam.sh && bash -ex .travis-docgen.sh
+script: bash -ex .travis-opam.sh
 sudo: true
 env:
   matrix:
   - PACKAGE="mrmime" OCAML_VERSION=4.03 TESTS=true
-  global:
-    secure: XwUdKG2QodvOSItHhYCgeXN8BNDDDJml3vDMYGNj6TYs9/JmEId/L+U0rR44xAigle8yYul6LafTgVIowRRbppVnmI4wJkdLQ+odX1hJfoC2eJYbGf4c8cNMuxzIJJO3g5HxU+w7x79KHnSTS0gJeZzAeoV3a5j39+HxUvwdsvVZvkv2Zk+h/J3vVdXZuwgKqbfpJ9VBUjXyejmeXsmSM+bKJS8ZO/UPknYQk6buqFVc9Ai4V0JgL8eMoc8yQ1cjf53WtxV7nZMyd83/BJgpP8IP9wHnu99x1fuVd/hMeSwvvQ7YuiyzOrpSZaPmhOLh1mAJx0OdxfXwfPMZdQqrqaLSV+dsa1SQlNBUyj6s1vpBxdA92c4L0DZnocRlltqgJoSTMaRmTN/pTxd/y5WLQUgw9pqml8CXSSGc3GqUI1m0/AuRDCjYheBjO6CYQ+oi4gQzTLDj6b+cy5xwAFfpu3KLEVhU8YmoZ82Q++C+D2S7yZ7lILj5SqXVZ5uYncn8+DYyQMCyeE4UsaTzZ7fVOoQ+LLjqqwn3lAAWr3Q72zdncKRTuQ8CtNVXYaalGyVhMtVwiy0/MHQdkwWiEueqk1TS4q2njFDLgEPCKqfagQiSbBOU3JR/OmF8kGB8x/yASDl1ffXGZvCBciBZPSA1SZOBqJLvA27XXn5f7x9G/lU=
+  - PACKAGE="mrmime" OCAML_VERSION=4.04 TESTS=true
+  - PACKAGE="mrmime" OCAML_VERSION=4.05 TESTS=true
+  - PACKAGE="mrmime" OCAML_VERSION=4.06 TESTS=true
+  - PACKAGE="mrmime" OCAML_VERSION=4.07 TESTS=true

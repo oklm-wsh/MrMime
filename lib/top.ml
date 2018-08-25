@@ -11,18 +11,18 @@ type field_part =
   [ Rfc5322.field | Rfc2045.field | Rfc5322.skip ]
 
 type ('a, 'b) message =
-  | Discrete  of MrMime_content.t * field_message list * 'a
-  | Extension of MrMime_content.t * field_message list * 'b
-  | Multipart of MrMime_content.t * field_message list * (MrMime_content.t * field_part list * ('a, 'b) part option) list
-  | Message   of MrMime_content.t * field_message list * MrMime_header.header * ('a, 'b) message
+  | Discrete  of Content.t * field_message list * 'a
+  | Extension of Content.t * field_message list * 'b
+  | Multipart of Content.t * field_message list * (Content.t * field_part list * ('a, 'b) part option) list
+  | Message   of Content.t * field_message list * Header.header * ('a, 'b) message
 and ('a, 'b) part =
   | PDiscrete  of 'a
   | PExtension of 'b
-  | PMultipart of (MrMime_content.t * field_part list * ('a, 'b) part option) list
-  | PMessage   of MrMime_header.header * ('a, 'b) message
+  | PMultipart of (Content.t * field_part list * ('a, 'b) part option) list
+  | PMessage   of Header.header * ('a, 'b) message
 
 type encoding = ..
-type encoding += Base64 of MrMime_base64.Decoder.result
+type encoding += Base64 of Base64.Decoder.result
 type encoding += QuotedPrintable of string
 type encoding += Raw of string
 
@@ -39,37 +39,37 @@ let message_headers =
     (Rfc2045.message_field
        (fun _ -> fail Rfc5322.Nothing_to_do)
        (fun _ -> fail Rfc5322.Nothing_to_do))
-  >>= MrMime_header.Decoder.header
-  >>= fun (header, rest) -> MrMime_content.Decoder.message rest
+  >>= Header.Decoder.header
+  >>= fun (header, rest) -> Content.Decoder.message rest
   >>= fun (content, rest) -> return (header, content, rest)
   (* Rfc2045.mime_message_headers
    *   (fun _ -> fail Rfc5322.Nothing_to_do) mime-extension
    *   (Rfc5322.field (fun _ -> fail Rfc5322.Nothing_to_do)) *)
 
 let boundary content =
-  try List.assoc "boundary" content.MrMime_content.ty.MrMime_contentType.parameters
+  try List.assoc "boundary" content.Content.ty.ContentType.parameters
       |> function `Token s | `String s -> Some s
   with Not_found -> None
 
 let decoder_hashtbl : (string, (unit t -> unit t -> encoding t)) Hashtbl.t = Hashtbl.create 16
-let content_hashtbl : (string, (string option -> MrMime_content.t -> field_message list -> content t)) Hashtbl.t = Hashtbl.create 16
+let content_hashtbl : (string, (string option -> Content.t -> field_message list -> content t)) Hashtbl.t = Hashtbl.create 16
 
-let octet boundary content fields =
+let octet boundary content _fields =
   let boundary, rollback = match boundary with
     | Some boundary ->
       Rfc2046.delimiter boundary,
-      { f = fun i s fail succ ->
+      { f = fun i s _fail succ ->
         Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) @@  ("\r\n--" ^ boundary));
         succ i s () }
     | None -> return (), return ()
   in
 
-  match content.MrMime_content.encoding with
+  match content.Content.encoding with
   | `QuotedPrintable ->
-    MrMime_quotedPrintable.Decoder.decode boundary rollback
+    QuotedPrintable.Decoder.decode boundary rollback
     >>| fun v -> QuotedPrintable v
   | `Base64 ->
-    MrMime_base64.Decoder.decode boundary rollback
+    Base64.Decoder.decode boundary rollback
     >>| fun v -> Base64 v
   | `Bit7 | `Bit8 | `Binary ->
     Rfc5322.decode boundary rollback
@@ -80,7 +80,7 @@ let octet boundary content fields =
 
 let discard = function
   | None ->
-    let rec loop i s fail succ =
+    let loop i s _fail succ =
       Input.radvance i (Input.ravailable i);
 
       let succ' i' s' = succ i' s' () in
@@ -95,13 +95,13 @@ let discard = function
   | Some boundary ->
     let boundary, rollback =
       Rfc2046.delimiter boundary,
-      { f = fun i s fail succ ->
+      { f = fun i s _fail succ ->
         Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) @@  ("\r\n--" ^ boundary));
         succ i s () }
     in
 
     (fix @@ fun m ->
-       { f = fun i s fail succ ->
+       { f = fun i s _fail succ ->
          let _ = Input.transmit i (fun buff off len -> locate buff off len ((<>) '\r')) in
          succ i s () }
        *> ((boundary *> return true)
@@ -120,10 +120,10 @@ let body message =
   in
 
   fix' @@ fun m parent content fields ->
-  match content.MrMime_content.ty.MrMime_contentType.ty with
+  match content.Content.ty.ContentType.ty with
   | `Ietf_token s | `X_token s ->
     (try (Hashtbl.find content_hashtbl s) parent content (fields :> field_message list)
-     with exn -> (discard parent *> return Unit))
+     with _exn -> (discard parent *> return Unit))
     >>| fun v -> PExtension v
   | #Rfc2045.discrete  ->
     octet parent content fields
@@ -149,10 +149,10 @@ let message =
   fix' @@ fun m parent ->
   message_headers
   <* Rfc822.crlf
-  >>= fun (header, content, fields) -> match content.MrMime_content.ty.MrMime_contentType.ty with
+  >>= fun (header, content, fields) -> match content.Content.ty.ContentType.ty with
   | `Ietf_token s | `X_token s ->
     (try (Hashtbl.find content_hashtbl s) None content fields
-     with exn -> (discard parent *> return Unit))
+     with _exn -> (discard parent *> return Unit))
     >>| fun v -> header, Extension (content, fields, v)
   | #Rfc2045.discrete  ->
     octet parent content fields

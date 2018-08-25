@@ -91,7 +91,7 @@ let (<|>) u v =
   { f = fun i s fail succ ->
     let mark = Input.mark i in
 
-    let fail' i s marks err =
+    let fail' i s _marks _err =
       Input.unmark mark i; (* we rollback to old read position *)
       v.f i s fail succ
     in
@@ -157,8 +157,6 @@ let lift3 f m1 m2 m3 =
     in
     m1.f i s fail succ' }
 
-let ignore p = p *> return ()
-
 let fix f =
   let rec u = lazy (f r)
   and r = { f = fun i s fail succ ->
@@ -166,13 +164,13 @@ let fix f =
   in r
 
 let run buffer a =
-  let fail' buf _ marks err = Fail (marks, err) in
-  let succeed' buf _ value  = Done value in
+  let fail' _buf _ marks err = Fail (marks, err) in
+  let succeed' _buf _ value  = Done value in
   a.f buffer Incomplete fail' succeed'
 
 let only buffer a =
-  let fail' buf _ marks err = Fail (marks, err) in
-  let succeed' buf _ value = Done value in
+  let fail' _buf _ marks err = Fail (marks, err) in
+  let succeed' _buf _ value = Done value in
   a.f buffer Complete fail' succeed'
 
 module type I =
@@ -247,7 +245,7 @@ struct
     let sub n =
       let f
         : 'r 'input. (('r, 'input) fail -> ('a, 'r, 'input) success -> ('r, 'input) state, 'input) k
-        = fun i s fail succ ->
+        = fun i s _fail succ ->
           let tmp = Internal_buffer.create_by ~proof:(Input.proof i) n in
           Input.peek i tmp 0 n;
           succ i s (Internal_buffer.sub_string tmp 0 (Internal_buffer.length tmp))
@@ -263,7 +261,7 @@ end
 
 module Convenience : C =
 struct
-  let peek_chr = { f = fun i s fail succ ->
+  let peek_chr = { f = fun i s _fail succ ->
     if Input.ravailable i > 0
     then succ i s (Some (Input.get i))
     else if s = Complete
@@ -283,7 +281,7 @@ struct
          IO.require 1 i s fail succ' }
 
   let advance n =
-    { f = fun i s fail succ -> Input.radvance i n; succ i s () }
+    { f = fun i s _fail succ -> Input.radvance i n; succ i s () }
 
   type err += Satisfy
 
@@ -295,10 +293,8 @@ struct
 
   type err += String
 
-  let sp = Format.sprintf
-
   let print t =
-    { f = fun i s fail succ ->
+    { f = fun i s _fail succ ->
       Printf.printf "%s%!" t;
       succ i s () }
 
@@ -310,7 +306,7 @@ struct
       else fail String
 
   let store buffer f =
-    { f = fun i s fail succ ->
+    { f = fun i s _fail succ ->
       let recognize buff off len =
         let len' = locate buff off len f in
         Buffer.add_bytes buffer (Internal_buffer.sub_string buff off len');
@@ -331,7 +327,7 @@ struct
         | Some _ | None -> return (Buffer.length buffer)
       in
 
-      let succ' i s consumed = succ i s (Buffer.contents buffer) in
+      let succ' i s _consumed = succ i s (Buffer.contents buffer) in
 
       r.f i s fail succ' }
 
@@ -381,7 +377,7 @@ struct
     fix @@ fun m ->
     peek_chr >>= function
     | Some chr when f chr && not (is_most (Buffer.length buffer)) ->
-      { f = fun i s fail succ ->
+      { f = fun i s _fail succ ->
         let consumed = Input.transmit i
           (fun buff off len ->
            let len' = locate buff off len f in
@@ -404,7 +400,7 @@ struct
     { f = fun i s fail succ ->
       let buffer = Buffer.create 16 in
 
-      let succ' i s n = succ i s (Buffer.contents buffer) in
+      let succ' i s _n = succ i s (Buffer.contents buffer) in
 
       (repeat' buffer a b f).f i s fail succ' }
 end

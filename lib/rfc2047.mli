@@ -4,7 +4,7 @@ type err += Invalid_charset
 
 type raw =
   | QuotedPrintable of string
-  | Base64 of MrMime_base64.Decoder.result
+  | Base64 of Base64.Decoder.result
 
 val is_ctl   : char -> bool
 val is_space : char -> bool

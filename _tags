@@ -1,4 +1,0 @@
-# OASIS_START
-# OASIS_STOP
-true: color(always)
-<lib_test/address_test.{ml,mli,native,byte}>: warn(-14)

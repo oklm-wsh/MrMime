@@ -147,7 +147,7 @@ let do_cmd path newline =
        (left 20 cyan_s) filename;
 
      match message ~newline @@ of_filename filename with
-     | Some v ->
+     | Some _ ->
          print (fun ppf -> Fmt.string ppf "\r");
          Fmt.pf Fmt.stdout "%a%a\n%!"
            (left left_c green_s) "[OK]"

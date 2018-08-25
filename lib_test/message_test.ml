@@ -35,7 +35,7 @@ let from_file filename =
   close_in ic;
   filename, Bytes.to_string s
 
-let tests = List.map from_file (walk "messages" "[^ \.].*")
+let tests = List.map from_file (walk "messages" "[^ \\.].*")
 
 open Lwt.Infix
 open Jackson

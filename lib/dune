@@ -1,0 +1,6 @@
+(ocamllex fast_qp)
+
+(library
+  (name mrMime)
+  (public_name mrmime)
+  (libraries ipaddr uutf bigarray))

@@ -8,7 +8,7 @@ let locate buff off len f =
 open Parser
 open Parser.Convenience
 
-type ('field, 'a) octet = (MrMime_content.t -> ([ Rfc5322.field | Rfc2045.field | Rfc5322.skip ] as 'field) list -> 'a t)
+type ('field, 'a) octet = (Content.t -> ([ Rfc5322.field | Rfc2045.field | Rfc5322.skip ] as 'field) list -> 'a t)
 
 let is_bcharsnospace = function
   | '\'' | '(' | ')' | '+' | '_' | ','
@@ -37,17 +37,17 @@ let dash_boundary boundary =
 
 let discard_to_dash_boundary boundary =
   (fix @@ fun m ->
-   { f = fun i s fail succ ->
+   { f = fun i s _fail succ ->
      let discard buff off len = locate buff off len ((<>) '-') in
 
      let n = Input.transmit i discard in
      succ i s n } *> peek_chr >>= function
    | Some '-' -> (dash_boundary boundary
                   *> return true) <|> (advance 1 *> m)
-   | Some chr -> m
+   | Some _chr -> m
    | None -> return false)
   >>= fun has_boundary ->
-     { f = fun i s fail succ ->
+     { f = fun i s _fail succ ->
 
        if has_boundary
        then Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) @@ "--" ^ boundary);
@@ -59,7 +59,7 @@ let transport_padding =
 
 let text =
   fix @@ fun m ->
-    { f = fun i s fail succ ->
+    { f = fun i s _fail succ ->
       let discard buff off len = locate buff off len ((=) '\r') in
 
       let n = Input.transmit i discard in
@@ -69,7 +69,7 @@ let text =
       (advance 1 *> peek_chr >>= function
        | None -> return ()
        | Some '\n' ->
-         { f = fun i s fail succ ->
+         { f = fun i s _fail succ ->
            Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) "\r");
 
            succ i s () }
@@ -91,18 +91,18 @@ let close_delimiter boundary =
 
 let discard_to_delimiter boundary =
   (fix @@ fun m ->
-   { f = fun i s fail succ ->
+   { f = fun i s _fail succ ->
      let discard buff off len = locate buff off len ((<>) '\r') in
      let n = Input.transmit i discard in
      succ i s n } *> peek_chr >>= function
    | Some '\r' -> (delimiter boundary
                    *> return true) <|> (advance 1 *> m)
-   | Some chr -> m
+   | Some _chr -> m
    | None -> return false)
   >>= fun has_boundary ->
      let f
        : 'r 'input. (('r, 'input) fail -> ('a, 'r, 'input) success -> ('r, 'input) state, 'input) k
-       = fun i s fail succ ->
+       = fun i s _fail succ ->
 
          if has_boundary
          then Input.rollback i (Internal_buffer.from_string ~proof:(Input.proof i) ("\r\n--" ^ boundary));
@@ -112,7 +112,7 @@ let discard_to_delimiter boundary =
 let body_part octet =
   Rfc2045.mime_part_headers
     (Rfc5322.field (fun _ -> fail Rfc5322.Nothing_to_do))
-  >>= MrMime_content.Decoder.part >>= fun (content, fields) ->
+  >>= Content.Decoder.part >>= fun (content, fields) ->
     ((Rfc822.crlf *> return `HasCRLF) <|> (return `NoCRLF))
   >>= (function
     | `HasCRLF -> octet content fields >>| fun v -> Some v
@@ -130,7 +130,7 @@ let epilogue parent = match parent with
   | Some boundary -> discard_to_delimiter boundary
   | None ->
     fix @@ fun m ->
-    { f = fun i s fail succ ->
+    { f = fun i s _fail succ ->
       let _ = Input.transmit i (fun _ _ len -> len) in
       succ i s () } *> peek_chr >>= function
     | None -> return ()
