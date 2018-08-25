@@ -15,18 +15,24 @@ open Convenience
 
 (** An example, step by step to extract an image from an email. *)
 
-let ch      = open_in "email";;
-let tmp     = Bytes.create 1024;;
-let buffer  = Input.create_bytes 4096;;
+(* 1KiB buffer from the input file *)
+let tmp = Bytes.create 1024
 
-let decoder = decoder buffer Message.Decoder.p_header;;
+(* [read_input] attempts to refill [tmp] from the file email, returning the number of bytes read.
+   [close] should be called at the end to release the file handle. *)
+let (read_input, close) =
+  let ch = open_in_bin "email" in
+  let len = Bytes.length tmp in
+  ((fun () -> input ch tmp 0 len), (fun () -> close_in ch))
+
+let decoder = decoder (Input.create_bytes 4096) Message.Decoder.p_header
 
 (* MrMime's error handling is still WIP, so for now we wrap its errors in an exception *)
 exception MrMimeError of Parser.err
 
 let rec get decoder = match decode decoder with
   | `Continue ->
-    let n = input ch tmp 0 1024 in
+    let n = read_input () in
     src decoder tmp 0 n;
     get decoder
   | `Done v -> v
@@ -58,7 +64,7 @@ let rec get_b64 decoder_b64 =
   let open Base64 in
   match decode decoder_b64 with
   | `Continue ->
-    let n = input ch tmp 0 1024 in
+    let n = read_input () in
     src decoder_b64 tmp 0 n;
     get_b64 decoder_b64
   | `String s ->
@@ -73,4 +79,4 @@ let rec get_b64 decoder_b64 =
 let () = get_b64 decoder_b64
 
 let decoder = decoding decoder (Message.Decoder.p_end_of_part content)
-let () = get_value `End "Expected end of MIME stream" decoder
+let () = get_value `End "Expected end of MIME stream" decoder; close ()
