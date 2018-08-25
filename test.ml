@@ -47,6 +47,13 @@ let (content_img, _) = get decoder
 let bound       = Message.Decoder.p_bound_of_content content
 let decoder_b64 = Base64.decoder bound (decoder_src decoder)
 
+(* Avoid having the GIF file printed on the console if you run this interactively *)
+let print_string =
+  if Unix.isatty Unix.stdout then
+    ignore
+  else
+    print_string
+
 let rec get_b64 decoder_b64 =
   let open Base64 in
   match decode decoder_b64 with
