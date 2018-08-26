@@ -1,5 +1,0 @@
-S lib/
-
-B _build/lib/
-
-PKG alcotest ipaddr uutf
