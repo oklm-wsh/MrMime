@@ -1,21 +1,23 @@
+DUNE=dune
+
 all:
-	jbuilder build --dev @install @DEFAULT
+	$(DUNE) build --dev @install @DEFAULT
 
 install:
-	jbuilder install
+	$(DUNE) install
 
 uninstall:
-	jbuilder uninstall
+	$(DUNE) uninstall
 
 reinstall: uninstall install
 
 doc:
-	jbuilder build @doc
+	$(DUNE) build @doc
 
 test:
-	jbuilder runtest
+	$(DUNE) runtest
 
 clean:
-	jbuilder clean
+	$(DUNE) clean
 
 .PHONY: all install uninstall doc test clean
