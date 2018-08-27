@@ -1,7 +1,7 @@
 DUNE=dune
 
 all:
-	$(DUNE) build --dev @install @DEFAULT
+	$(DUNE) build @install @DEFAULT
 
 install:
 	$(DUNE) install
