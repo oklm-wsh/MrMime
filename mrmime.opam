@@ -18,7 +18,7 @@ depends: [
   "alcotest" {test}
   "fmt"      {test}
   "astring"  {test}
-  "re"       {test}
+  "re"       {test & >"1.7.2"}
   "ipaddr"   {>= "2.7.0"}
   "uutf"
 ]
